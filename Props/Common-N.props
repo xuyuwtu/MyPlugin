@@ -1,0 +1,4 @@
+<Project>
+	<Import Project="Common.props" />
+	<Import Project="Reference\Newtonsoft.props"/>
+</Project>

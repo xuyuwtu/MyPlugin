@@ -1,0 +1,6 @@
+<Project>
+	<PropertyGroup>
+		<Prefix>VBY</Prefix>
+	</PropertyGroup>
+	<Import Project="Basic.props" />
+</Project>

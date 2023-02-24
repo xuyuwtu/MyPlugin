@@ -1,0 +1,4 @@
+<Project>
+	<Import Project="VBY.props" />
+	<Import Project="Reference\Newtonsoft.props"/>
+</Project>

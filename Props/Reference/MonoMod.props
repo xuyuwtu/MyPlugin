@@ -1,0 +1,8 @@
+<Project>
+	<ItemGroup>
+		<Reference Include="Mono.Cecil;Mono.Cecil.Mdb;Mono.Cecil.Pdb;Mono.Cecil.Rocks;MonoMod;MonoMod.RuntimeDetour;MonoMod.RuntimeDetour.HookGen;MonoMod.Utils">
+			<HintPath>$(DllPath)\%(Identity).dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+</Project>

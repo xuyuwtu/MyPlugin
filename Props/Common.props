@@ -1,0 +1,6 @@
+<Project>
+	<PropertyGroup>
+		<Prefix></Prefix>
+	</PropertyGroup>
+	<Import Project="Basic.props" />
+</Project>

@@ -1,0 +1,36 @@
+<Project>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<DllPath>..\..\bins\1449</DllPath>
+		<BaseOutputPath>..\..\out\$([System.IO.Path]::GetFileName("$(DllPath)"))</BaseOutputPath>
+		<TShockPath>$(USERPROFile)\Downloads\TShock-5.1.3-for-Terraria-1.4.4.9-win-x64-Release</TShockPath>
+		<StartServer>false</StartServer>
+	</PropertyGroup>
+	<Import Project="Reference\Terraria.props" />
+	<PropertyGroup Condition="'$(Prefix)' == ''">
+		<AssemblyName>$(MSBuildProjectName)</AssemblyName>
+		<RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Prefix)' != ''">
+		<AssemblyName>$(Prefix).$(MSBuildProjectName)</AssemblyName>
+		<RootNamespace>$(Prefix).$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.vbproj'">
+		<OptionStrict>Off</OptionStrict>
+		<OptionExplicit>On</OptionExplicit>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<MoveFiles Include="$(OutputPath)$(AssemblyName).pdb" />
+		<MoveFiles Include="$(OutputPath)$(AssemblyName).deps.json" />
+		<ProjectReference Include="..\Basic\Basic.csproj" Condition="'$(NoUseBasic)' != 'true'"/>
+		<EmbeddedResource Include="$(MSBuildProjectName).json" Condition="Exists('$(MSBuildProjectName).json')"/>
+	</ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="taskkill /f /im Tshock.Server.exe" IgnoreExitCode="true" Condition="$(StartServer)"/>
+		<Exec Command="powershell start-process as.bat" WorkingDirectory="$(TShockPath)\" Timeout="1000" Condition="$(StartServer)"/>
+	</Target>
+</Project>

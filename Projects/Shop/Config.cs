@@ -1,7 +1,15 @@
-﻿using VBY.Basic.Config;
+﻿using TShockAPI;
+
+using VBY.Basic.Config;
 
 namespace VBY.Shop;
 
+public interface ICheckAllow
+{
+    public bool Progress { get; set; }
+    public bool Zone { get; set; }
+    public bool Group { get; set; }
+}
 public class Config : MainConfig<Root>
 {
     public Config(string configDirectory, string? fileName = null) : base(configDirectory, fileName)
@@ -37,13 +45,14 @@ public class CShops
     public NpcShop NpcShop = new();
     public TileShop TileShop = new();
 }
-public class Show : ICheck
+public class Show : ICheckAllow
 {
     public string SystemFormat = "";
     public string PlayerFormat = "";
-    public string Progress { get; set; } = "";
-    public string Zone { get; set; } = "";
-    public string FGroup { get; set; } = "";
+    public bool Progress { get; set; }
+    public bool Zone { get; set; }
+    public bool Group { get; set; }
+    public string GetFormat(TSPlayer player) => player.RealPlayer ? PlayerFormat : SystemFormat;
 }
 public class ItemShop
 {

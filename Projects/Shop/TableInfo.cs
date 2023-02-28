@@ -10,12 +10,6 @@ using VBY.Basic;
 
 namespace VBY.Shop;
 
-public interface IItemShop
-{
-    public int Type { get; set; }
-    public short Stack { get; set; }
-    public short Prefix { get; set; }
-}
 public interface ICheck
 {
     public string Progress { get; set; }
@@ -51,18 +45,31 @@ public abstract class Shops
         player.SendInfoMessage(Shop.ReadConfig.Shops[typeName].GetFormat(player), PrintGetArrFuncs[typeName](this));
     }
 }
-public abstract class ItemShops : Shops, IItemShop
+public abstract class CheckShops : Shops, ICheck
 {
-    public int Type { get; set; }
-    public short Stack { get; set; }
-    public short Prefix { get; set; }
+    public string Progress { get; set; } = "";
+    public string Zone { get; set; } = "";
+    public string FGroup { get; set; } = "";
+    public override bool CanPrint(TSPlayer player) => this.CheckAllow(player);
+    public CheckShops() { }
+    public CheckShops(int buyId, long price, string progress, string zone, string fGroup) : base(buyId, price)
+    {
+        Progress = progress;
+        Zone = zone;
+        FGroup = fGroup;
+    }
+}
+public abstract class ItemShops : Shops
+{
+    public int Type;
+    public short Stack, Prefix;
     static ItemShops()
     {
         Utils.PrintEmit["ItemName"] = x =>
         {
             x.Emit(OpCodes.Ldsfld, TypeOf.TShock.GetField("Utils")!);
             x.Emit(OpCodes.Ldarg_0);
-            x.Emit(OpCodes.Call, typeof(ItemShops).GetProperty("Type")!.GetGetMethod()!);
+            x.Emit(OpCodes.Ldfld, typeof(ItemShops).GetField("Type")!);
             x.Emit(OpCodes.Callvirt, typeof(TShockAPI.Utils).GetMethod("GetItemById")!);
             x.Emit(OpCodes.Callvirt, typeof(Item).GetProperty("Name")!.GetGetMethod()!);
         };
@@ -70,7 +77,7 @@ public abstract class ItemShops : Shops, IItemShop
         {
             x.Emit(OpCodes.Ldsfld, TypeOf.TShock.GetField("Utils")!);
             x.Emit(OpCodes.Ldarg_0);
-            x.Emit(OpCodes.Call, typeof(ItemShops).GetProperty("Prefix")!.GetGetMethod()!);
+            x.Emit(OpCodes.Ldfld, typeof(ItemShops).GetField("Prefix")!);
             x.Emit(OpCodes.Callvirt, typeof(TShockAPI.Utils).GetMethod("GetPrefixById")!);
         };
     }
@@ -101,32 +108,22 @@ public abstract class ItemShops : Shops, IItemShop
     }
     public abstract override bool CanPrint(TSPlayer player);
 }
-public abstract class LifeShops : Shops, ICheck
+public abstract class LifeShops : CheckShops
 {
     public int Start, End;
-    public string Progress { get; set; } = "";
-    public string Zone { get; set; } = "";
-    public string FGroup { get; set; } = "";
     public LifeShops() { }
-    public LifeShops(int buyId, long price, short start, short end, string progress, string zone, string fGroup) : base(buyId, price)
+    public LifeShops(int buyId, long price, string progress, string zone, string fGroup, int start, int end) : base(buyId, price, progress, zone, fGroup)
     {
         Start = start;
         End = end;
-        Progress = progress;
-        Zone = zone;
-        FGroup = fGroup;
     }
-    public override bool CanPrint(TSPlayer player) => this.CheckAllow(player);
     public abstract override void Buy(TSPlayer player, short count);
 }
 public static class TableInfo
 {
-    public class BuffShop : Shops, ICheck
+    public class BuffShop : CheckShops
     {
         public int Type;
-        public string Progress { get; set; } = "";
-        public string Zone { get; set; } = "";
-        public string FGroup { get; set; } = "";
         static BuffShop()
         {
             Utils.PrintEmit["BuffName"] = x =>
@@ -138,12 +135,9 @@ public static class TableInfo
             };
         }
         public BuffShop() { }
-        public BuffShop(int buyId, int price, int type, string progress, string zone, string fGroup) : base(buyId, price)
+        public BuffShop(int buyId, int price, string progress, string zone, string fGroup, int type) : base(buyId, price, progress, zone, fGroup)
         {
             Type = type;
-            Progress = progress;
-            Zone = zone;
-            FGroup = fGroup;
         }
         public override void Buy(TSPlayer player, short count)
         {
@@ -155,7 +149,6 @@ public static class TableInfo
             else
                 player.SendErrorMessage("购买失败:{0} {1}", Type, TShock.Utils.GetBuffName(Type));
         }
-        public override bool CanPrint(TSPlayer player) => this.CheckAllow(player);
         public const string PrintFormat = "BuyId,Price,MoneyName,Type,BuffName";
     }
     public class ItemChangeShop : ItemShops
@@ -224,7 +217,6 @@ public static class TableInfo
             foreach (var index in clearIndex)
                 TSPlayer.All.SendData(PacketTypes.PlayerSlot, "", player.Index, inventory[index].stack, inventory[index].prefix);
         }
-        public override bool CanPrint(TSPlayer player) => this.CheckAllow(player);
         public new const string PrintFormat = "BuyId,Price,MoneyName,Type,Stack,Prefix,ItemName,PrefixName";
     }
     public class LifeHealShop : LifeShops
@@ -234,7 +226,7 @@ public static class TableInfo
             Start = 0;
             End = 50;
         }
-        public LifeHealShop(int buyId, long price, short start, short end, string progress, string zone, string fGroup) : base(buyId, price, start, end, progress, zone, fGroup) { }
+        public LifeHealShop(int buyId, long price, string progress, string zone, string fGroup, short start, short end) : base(buyId, price, progress, zone, fGroup, start, end) { }
         public override bool CanBuy(TSPlayer player, short count)
         {
             if (!player.FindPlayer(out var shopPlayer))
@@ -260,7 +252,7 @@ public static class TableInfo
             Start = 100;
             End = 400;
         }
-        public LifeMaxShop(int buyId, long price, short start, short end, string progress, string zone, string fGroup) : base(buyId, price, start, end, progress, zone, fGroup) { }
+        public LifeMaxShop(int buyId, long price, string progress, string zone, string fGroup, short start, short end) : base(buyId, price, progress, zone, fGroup, start, end) { }
         public override bool CanBuy(TSPlayer player, short count)
         {
             if (!player.FindPlayer(out var _))
@@ -282,13 +274,10 @@ public static class TableInfo
         }
         public const string PrintFormat = "BuyId,Price,MoneyName,Start,End";
     }
-    public class NpcShop : Shops, ICheck
+    public class NpcShop : CheckShops
     {
         public int Type;
         public short MaxStack;
-        public string Progress { get; set; } = "";
-        public string Zone { get; set; } = "";
-        public string FGroup { get; set; } = "";
         static NpcShop()
         {
             Utils.PrintEmit["NpcName"] = x =>
@@ -301,19 +290,15 @@ public static class TableInfo
             };
         }
         public NpcShop() { }
-        public NpcShop(int buyId, int price, int type, short maxStack, string progress, string zone, string fGroup) : base(buyId, price)
+        public NpcShop(int buyId, int price, string progress, string zone, string fGroup, int type, short maxStack) : base(buyId, price, progress, zone, fGroup)
         {
             Type = type;
             MaxStack = maxStack;
-            Progress = progress;
-            Zone = zone;
-            FGroup = fGroup;
         }
         public override bool CanBuy(TSPlayer player, short count)
         {
             return Main.npc.Where(x => x.type == Type && x.active).Count() < MaxStack && base.CanBuy(player, count);
         }
-        public override bool CanPrint(TSPlayer player) => this.CheckAllow(player);
         public override void Buy(TSPlayer player, short count)
         {
             var havecount = Main.npc.Where(x => x.type == Type && x.active).Count();
@@ -341,28 +326,21 @@ public static class TableInfo
         }
         public const string PrintFormat = "BuyId,Price,MoneyName,Type,MaxStack,NpcName";
     }
-    public class TileShop : Shops, ICheck
+    public class TileShop : CheckShops
     {
         public int Type;
         public string Size = "";
         public short Style;
         public string Walls = "", Bottoms = "";
-        public string Progress { get; set; } = "";
-        public string Zone { get; set; } = "";
-        public string FGroup { get; set; } = "";
         public TileShop() { }
-        public TileShop(int buyId, long price, int type, string size, short style, string walls, string bottoms, string progress, string zone, string fGroup) : base(buyId, price)
+        public TileShop(int buyId, long price, string progress, string zone, string fGroup, int type, string size, short style, string walls, string bottoms) : base(buyId, price, progress, zone, fGroup)
         {
             Type = type;
             Size = size;
             Style = style;
             Walls = walls;
             Bottoms = bottoms;
-            Progress = progress;
-            Zone = zone;
-            FGroup = fGroup;
         }
-        public override bool CanPrint(TSPlayer player) => this.CheckAllow(player);
         public override bool CanBuy(TSPlayer player, short count)
         {
             var tplayer = player.TPlayer;

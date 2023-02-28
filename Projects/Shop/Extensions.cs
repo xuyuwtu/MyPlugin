@@ -6,7 +6,10 @@ namespace VBY.Shop;
 
 public static class Extensions
 {
-    public static bool CheckAllow(this ICheck check, TSPlayer player) => ProgressQuery.ProgressQuery.BossCheck(check.Progress) && Utils.ZoneCheck(player, check.Zone) && Utils.GroupCheck(player, check.FGroup);
+    public static bool CheckAllow(this ICheck check, TSPlayer player)
+    {
+        return ProgressQuery.ProgressQuery.BossCheck(check.Progress) && Utils.ZoneCheck(player, check.Zone) && Utils.GroupCheck(player, check.FGroup);
+    }
     public static bool FindPlayer(this TSPlayer player, out ShopPlayer shopPlayer)
     {
         shopPlayer = Shop.Players[player.Index];
@@ -17,7 +20,6 @@ public static class Extensions
         }
         return true;
     }
-    public static string GetFormat(this Show show, TSPlayer player) => player.RealPlayer ? show.PlayerFormat : show.SystemFormat;
     public static SubCmdNodeList AddBuyAndList<T>(this SubCmdNodeList list) where T : Shops
     {
         list.AddCmd(Shop.Buy<T>, "购买商品", "<商品ID> [商品数量=1]", 2);

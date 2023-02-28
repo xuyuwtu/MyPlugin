@@ -1,0 +1,119 @@
+﻿{
+  "Commands": {
+    "Use": {
+      "Permissions": "vby.shop.use",
+      "Names": [ "shop" ]
+    },
+    "Admin": {
+      "Permissions": "vby.shop.admin",
+      "Names": [ "shopctl" ]
+    }
+  },
+  "Shops": {
+    "ItemShop": {
+      "System": {
+        "Enabled": true,
+        "SystemFormat": "ID:{BuyId} {type} {ItemName} {Price}{MoneyName}/{Stack}个",
+        "PlayerFormat": "ID:{BuyId} {type} {ItemName}[i/s{Stack},p{Prefix}:{type}] {Price}{MoneyName}/{Stack}个",
+        "Progress": true,
+        "Zone": true,
+        "FGroup": false
+      },
+      "Change": {
+        "Enabled": true,
+        "SystemFormat": "ID:{BuyId} {ItemName} {Price}{MoneyName}/{Stack}个 出售者:{Name}",
+        "PlayerFormat": "ID:{BuyId} {ItemName}[i/s{Stack},p{Prefix}:{type}] {Price}{MoneyName}/{Stack}个 出售者:{Name}"
+      },
+      "Pay": {
+        "Enabled": true,
+        "SystemFormat": "ID:{BuyId} {type} {ItemName} {Price}{MoneyName}/{Stack}个",
+        "PlayerFormat": "ID:{BuyId} {type} {ItemName}[i/s{Stack},p{Prefix}:{type}] {Price}{MoneyName}/{Stack}个",
+        "Progress": true,
+        "Zone": true,
+        "FGroup": false
+      }
+    },
+    "Life": {
+      "Heal": {
+        "Enabled": true,
+        "SystemFormat": "ID:{BuyId} {start}-{end} {Price}{MoneyName}/0.01%",
+        "PlayerFormat": "ID:{BuyId} {start}-{end} {Price}{MoneyName}/0.01%",
+        "Progress": true,
+        "Spawn": true
+      },
+      "Max": {
+        "Enabled": true,
+        "SystemFormat": "ID:{BuyId} {start}-{end} {Price}{MoneyName}",
+        "PlayerFormat": "ID:{BuyId} {start}-{end} {Price}{MoneyName}",
+        "Progress": true
+      }
+    },
+    "Buff": {
+      "Enabled": true,
+      "SystemFormat": "ID:{BuyId} {type} {buffname} {Price}{MoneyName}",
+      "PlayerFormat": "ID:{BuyId} {type} {buffname} {Price}{MoneyName}",
+      "Progress": true,
+      "Zone": true,
+      "FGroup": false,
+      "Spawn": true,
+      "MaxTime": 1800,
+      "TimePrice": 1000
+    },
+    "Npc": {
+      "Enabled": true,
+      "SystemFormat": "ID:{BuyId} {type} {npcname} {Price}{MoneyName}/个 {maxStack}个",
+      "PlayerFormat": "ID:{BuyId} {type} {npcname} {Price}{MoneyName}/个 {maxStack}个",
+      "Progress": true,
+      "Zone": true,
+      "FGroup": false,
+      "Spawn": {
+        "x": 0,
+        "y": 0
+      },
+      "MaxStack": 5,
+      "Interval": 1
+    },
+    "Tile": {
+      "Enabled": true,
+      "Progress": true,
+      "Zone": true,
+      "FGroup": false,
+      "Spawn": {
+        "x": 1,
+        "y": 2
+      }
+    }
+  },
+  "Money": {
+    "Name": "余额",
+    "Strike": {
+      "Enabled": false,
+      "Exclude": [],
+      "ExcludeStatue": false
+    },
+    "Kill": {
+      "Number": {
+        "Enabled": true,
+        "Exclude": [],
+        "ExcludeStatue": false
+      },
+      "Lifemax": {
+        "Enabled": true,
+        "Exclude": [],
+        "ExcludeStatue": false,
+        "Proportion": 0.05
+      }
+    }
+  },
+  "Buy": {
+    "ProgressTip": {
+      "Enabled": true,
+      "Detailed": true
+    },
+    "ZoneTip": {
+      "Enabled": true,
+      "Detailed": true
+    },
+    "FGroupTip": true
+  }
+}

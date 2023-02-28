@@ -6,6 +6,7 @@ using TShockAPI;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Converters;
 
 namespace VBY.Basic.Command;
 public abstract class SubCmdNode
@@ -89,7 +90,7 @@ public class SubCmdNodeList : SubCmdNode
             return result;
         }
     }
-    public SubCmdNode this[string[] names,int start = 0,int reduce = 0]
+    public SubCmdNode this[string[] names, int start = 0, int reduce = 0]
     {
         get
         {
@@ -179,37 +180,47 @@ public class SubCmdNodeList : SubCmdNode
         AddNode(addNode);
         return addNode;
     }
-    public SubCmdNodeList AddList(string cmdName, string description) =>
-        AddList(cmdName, description, cmdName.ToLower());
+    public SubCmdNodeList AddList(string cmdName, string description, int nameCount = 1) =>
+        AddList(cmdName, description, GetNames(cmdName, nameCount));
+    public void AddLists(params (string cmdName,string description)[] values)
+    {
+        foreach (var value in values)
+            AddList(value.cmdName, value.description);
+    }
     public SubCmdNodeRun AddCmd(SubCmdD runCmd, string cmdName, string description, string[] names, string? argsHelpText, string? helpText, int minArgsCount = 0)
     {
         var addNode = new SubCmdNodeRun(runCmd, cmdName, description, names, argsHelpText, helpText, minArgsCount);
         AddNode(addNode);
         return addNode;
     }
-    public SubCmdNodeRun AddCmd(SubCmdD runCmd, string cmdName, string description, string? argsHelpText, string? helpText, int minArgsCount)
+    public SubCmdNodeRun AddCmd(SubCmdD runCmd, string cmdName, string description, string? argsHelpText, string? helpText, int minArgsCount, int nameCount = 1)
     {
-        return AddCmd(runCmd, cmdName, description, new string[] { cmdName.ToLower() }, argsHelpText, helpText, minArgsCount);
+        return AddCmd(runCmd, cmdName, description, GetNames(cmdName, nameCount), argsHelpText, helpText, minArgsCount);
     }
-    public SubCmdNodeRun AddCmd(SubCmdD runCmd, string description, string? argsHelpText, string? helpText, int minArgsCount)
+    public SubCmdNodeRun AddCmd(SubCmdD runCmd, string description, string? argsHelpText, string? helpText, int minArgsCount, int nameCount = 1)
     {
-        return AddCmd(runCmd, runCmd.Method.Name.LastWord(), description, argsHelpText, helpText, minArgsCount);
+        return AddCmd(runCmd, runCmd.Method.Name.LastWord(), description, argsHelpText, helpText, minArgsCount, nameCount);
     }
-    public SubCmdNodeRun AddCmd(SubCmdD runCmd, string description, string argsHelpText, string? helpText)
+    public SubCmdNodeRun AddCmd(SubCmdD runCmd, string description, string argsHelpText, string? helpText, int nameCount = 1)
     {
-        return AddCmd(runCmd, description, argsHelpText, helpText, argsHelpText.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length);
+        return AddCmd(runCmd, description, argsHelpText, helpText, argsHelpText.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length, nameCount);
     }
-    public SubCmdNodeRun AddCmd(SubCmdD runCmd, string description, string argsHelpText)
+    public SubCmdNodeRun AddCmd(SubCmdD runCmd, string description, string argsHelpText, int nameCount = 1)
     {
-        return AddCmd(runCmd, description, argsHelpText, null);
+        return AddCmd(runCmd, description, argsHelpText, null, nameCount);
     }
-    public SubCmdNodeRun AddCmd(SubCmdD runCmd, string description)
+    public SubCmdNodeRun AddCmd(SubCmdD runCmd, string description, int nameCount = 1)
     {
-        return AddCmd(runCmd, description, null, null, 0);
+        return AddCmd(runCmd, description, null, null, 0, nameCount);
     }
-    public SubCmdNodeRun AddCmd(SubCmdD runCmd)
+    public SubCmdNodeRun AddCmd(SubCmdD runCmd, int nameCount = 1)
     {
-        return AddCmd(runCmd, runCmd.Method.GetCustomAttribute<DescriptionAttribute>()?.Description ?? throw new Exception($"method:{runCmd.Method.Name}'s DescriptionAttribute is null"));
+        return AddCmd(runCmd, runCmd.Method.GetCustomAttribute<DescriptionAttribute>()?.Description ?? throw new Exception($"method:{runCmd.Method.Name}'s DescriptionAttribute is null"), nameCount);
+    }
+    public void AddCmds(int nameCount, params SubCmdD[] cmds)
+    {
+        foreach (var cmd in cmds)
+            AddCmd(cmd, nameCount);
     }
     public SubCmdNodeRun AddCmd(Delegate runCmd, string cmdName, string description, string[] names, string? helpText)
     {
@@ -264,7 +275,22 @@ public class SubCmdNodeList : SubCmdNode
                 node.SetAllowInfo(info);
         }
     }
+    public void SetAllNode(AllowInfo info, Func<SubCmdNode, bool> func)
+    {
+        var nodes = SubCmds.Where(func);
+        nodes.ForEach(x => x.SetAllowInfo(info));
+        nodes.Where(x => x.NodeType == NodeType.List).ForEach(x => ((SubCmdNodeList)x).SetAllNode(info, func));
+    }
     internal SubCmdNodeList SelectCmdList(string[] names) => (SubCmdNodeList)this[names, 1, 1];
+    internal static string[] GetNames(string name, int count)
+    {
+        return count switch
+        {
+            1 => new[] { name.ToLower() },
+            2 => new[] { name.ToLower(), char.ToLower(name[0]).ToString() },
+            _ => throw new NotSupportedException(),
+        };
+    }
 }
 public class SubCmdNodeRun : SubCmdNode
 {
@@ -299,7 +325,7 @@ public class SubCmdNodeRun : SubCmdNode
         ParameterInfo[] paramInfos = runCmd.Method.GetParameters();
         Type[] paramTypes = paramInfos.Select(x => x.ParameterType).ToArray();
         RunCmdInstance = runCmd;
-        if(paramInfos.Length == 0)
+        if (paramInfos.Length == 0)
         {
             DireRun = true;
             RunCmd = EmptyInvoke(this);

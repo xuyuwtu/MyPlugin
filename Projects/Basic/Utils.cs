@@ -5,11 +5,15 @@ using TShockAPI;
 namespace VBY.Basic;
 public static class Utils
 {
+    public static void FormatReplace(ref string format, string replace)
+    {
+        FormatReplace(ref format, replace.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => $"{{{x}}}").ToArray());
+    }
     public static void FormatReplace(ref string format, params string[] args)
     {
         StringBuilder sb = new(format);
         for (int i = 0; i < args.Length; i++)
-            sb.Replace(args[i], $"{{{i}");
+            sb.Replace(args[i], $"{{{i}}}");
         format = sb.ToString();
     }
     public static void WriteColor(string value, ConsoleColor color)
@@ -24,7 +28,7 @@ public static class Utils
         Console.WriteLine(value);
         Console.ResetColor();
     }
-    public static void WriteColorLine((string value,ConsoleColor color)[] values)
+    public static void WriteColorLine((string value, ConsoleColor color)[] values)
     {
         for (int i = 0; i < values.Length - 1; i++)
             WriteColor(values[i].value, values[i].color);
@@ -32,10 +36,10 @@ public static class Utils
     }
     public static void WriteInfoLine(string value) => WriteColorLine(value, ConsoleColor.Yellow);
     public static void WriteSuccessLine(string value) => WriteColorLine(value, ConsoleColor.Green);
-    public static (bool success,TSPlayer? findPlayer) FindByNameOrID(string search, TSPlayer player)
+    public static (bool success, TSPlayer? findPlayer) FindByNameOrID(string search, TSPlayer player)
     {
         List<TSPlayer> plys = TSPlayer.FindByNameOrID(search);
-        switch(plys.Count)
+        switch (plys.Count)
         {
             case 0:
                 player.SendInfoMessage("没有找到玩家:" + search);

@@ -3,10 +3,13 @@
 using TShockAPI;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 using VBY.Basic.Command;
 
 namespace VBY.Basic.Config;
+
+#pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
 public class MainRoot
 {
     public Command Commands = new();
@@ -22,9 +25,7 @@ public class CommandInfo
 {
     public string Permissions;
     public string[] Names;
-#pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
     public CommandInfo() { }
-#pragma warning restore CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
     public CommandInfo(string permissions, params string[] names)
     {
         Permissions = permissions;
@@ -44,21 +45,23 @@ public class MainConfig<T> where T : MainRoot, new()
     {
         get => File.Exists(ConfigPath);
     }
-    public T Root = new();
+    public T Root;
     public bool Normal;
     public string StateString = "正常";
     public string ErrorString = "无";
     public MainConfig(string configDirectory, string? fileName = null)
     {
         ConfigDirectory = configDirectory;
-        FileName = fileName ?? GetType().Namespace!.Split('.', StringSplitOptions.RemoveEmptyEntries)[^1];
+        FileName = fileName ?? GetType().Namespace!.Split('.', StringSplitOptions.RemoveEmptyEntries)[^1] + ".json";
     }
     public virtual bool Write(string? value = null, TSPlayer? player = null, bool corver = false, Formatting formatting = Formatting.Indented)
     {
         Normal = true;
         try
         {
-            if(ConfigExists)
+            if (!Directory.Exists(ConfigDirectory))
+                Directory.CreateDirectory(ConfigDirectory);
+            if (ConfigExists)
             {
                 if (!corver)
                     return true;
@@ -80,7 +83,7 @@ public class MainConfig<T> where T : MainRoot, new()
             }
             else
             {
-                File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(value, formatting));
+                File.WriteAllText(ConfigPath, JToken.Parse(value).ToString());
             }
         }
         catch (Exception e)
@@ -104,19 +107,20 @@ public class MainConfig<T> where T : MainRoot, new()
         {
             Root = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigPath))!;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             ErrorString = e.ToString();
             LogAndOut(ErrorString);
             return false;
         }
+        PostRead?.Invoke(this);
         return true;
     }
     public virtual void LogAndOut(string message, TSPlayer? player = null, bool log = false, TraceLevel level = TraceLevel.Info)
     {
-        if(player == null)
+        if (player == null)
         {
-            switch (level) 
+            switch (level)
             {
                 case TraceLevel.Error:
                     Utils.WriteColorLine(message, ConsoleColor.Red);
@@ -154,4 +158,5 @@ public class MainConfig<T> where T : MainRoot, new()
         if (log)
             TShock.Log.Write(message, level);
     }
+    public event Action<MainConfig<T>>? PostRead;
 }

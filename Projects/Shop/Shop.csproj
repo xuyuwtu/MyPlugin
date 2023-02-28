@@ -1,11 +1,13 @@
 ﻿<Project>
 	<PropertyGroup>
-		<NoUseBasic>true</NoUseBasic>
-		<AssemblyTitle>VBY基础类库</AssemblyTitle>
-		<AssemblyVersion>1.0.0.1</AssemblyVersion>
+		<NoUseBasic>false</NoUseBasic>
+		<StartServer>true</StartServer>
 	</PropertyGroup>
 	<Import Project="..\..\Props\VBY-N.props" />
 	<Import Project="..\..\Props\Reference\Database.props" />
+	<ItemGroup>
+		<ProjectReference Include="..\ProgressQuery\ProgressQuery.csproj" />
+	</ItemGroup>
 	<PropertyGroup>
 		<OutDir>$(TShockPath)\ServerPlugins\</OutDir>
 	</PropertyGroup>

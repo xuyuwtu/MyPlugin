@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CA2211: 非常量字段应当不可见
+dotnet_diagnostic.CA2211.severity = none

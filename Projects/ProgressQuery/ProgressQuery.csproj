@@ -1,9 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project>
 	<PropertyGroup>
 		<NoUseBasic>false</NoUseBasic>
 	</PropertyGroup>
-	<Import Project="..\..\Props\VBY-N.props"/>
+	<Import Project="..\..\Props\VBY-N.props" />
 	<PropertyGroup>
 		<OutDir>$(TShockPath)\ServerPlugins\</OutDir>
 	</PropertyGroup>
+	<Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+	<Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk"/>
 </Project>

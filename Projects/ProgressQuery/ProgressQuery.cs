@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel;
+using System.Reflection;
 using System.Reflection.Emit;
 
 using Terraria;
@@ -14,7 +15,7 @@ namespace VBY.ProgressQuery;
 [ApiVersion(2, 1)]
 public class ProgressQuery : TerrariaPlugin
 {
-    public override string Name => GetType().Name!;
+    public override string Name => GetType().Name;
     public override string Description => "进度查询";
     public override string Author => "yu";
     public override Version Version => GetType().Assembly.GetName().Version!;
@@ -117,13 +118,11 @@ public class ProgressQuery : TerrariaPlugin
     {
         CmdCommand = new("Progress");
         CtlCommand = new("Progressctl");
-        CmdCommand.AddCmd(CmdBoss, "Boss");
-        CmdCommand.AddCmd(CmdEvent, "事件");
-        CtlCommand.AddCmd(CtlBoss, "切换Boss击败");
-        CtlCommand.AddCmd(CtlEvent, "切换事件击败");
-        CtlCommand.AddCmd(CtlReset, "清除全部击败");
+        CmdCommand.AddCmds(2, CmdBoss, CmdEvent);
+        CtlCommand.AddCmds(2, CtlBoss, CtlEvent);
+        CtlCommand.AddCmd(CtlReset, 2);
         var typeName = GetType().Name;
-        ReadConfig = new(TShock.SavePath, GetType().Name + ".json")
+        ReadConfig = new(TShock.SavePath, typeName + ".json")
         {
             Root = new Root()
             {
@@ -156,12 +155,17 @@ public class ProgressQuery : TerrariaPlugin
         }
         base.Dispose(disposing);
     }
+    [Description("Boss")]
     public static void CmdBoss(SubCmdArgs args) => Enumerable.Range(1, BossFuncs.Length - 1).ForEach(x => SendDownedInfo(args.Player, x, BossNames[x], BossFuncs[x](), args.Parameters.GetIndexOrValue(0, "y") == "n"));
+    [Description("事件")]
     public static void CmdEvent(SubCmdArgs args) => Enumerable.Range(1, EventFuncs.Length - 1).ForEach(x => SendDownedInfo(args.Player, x, EventNames[x], EventFuncs[x](), args.Parameters.GetIndexOrValue(0, "y") == "n"));
+    [Description("切换Boss击败")]
     public static void CtlBoss(SubCmdArgs args)
         => args.Parameters.Where(x => byte.TryParse(x, out var index) && index > 0 && index < BossFuncs.Length).ForEach(x => ChangeDownedInfo(args.Player, byte.Parse(x), "Boss", BossActions, BossFuncs, BossNames));
+    [Description("切换事件击败")]
     public static void CtlEvent(SubCmdArgs args)
         => args.Parameters.Where(x => byte.TryParse(x, out var index) && index > 0 && index < EventFuncs.Length).ForEach(x => ChangeDownedInfo(args.Player, byte.Parse(x), "事件", EventActions, EventFuncs, EventNames));
+    [Description("清除全部击败")]
     public static void CtlReset(SubCmdArgs args)
     {
         typeof(NPC).GetFields(BindingFlags.Static | BindingFlags.Public)

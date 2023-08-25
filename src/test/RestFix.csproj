@@ -1,0 +1,6 @@
+﻿<Project>
+	<PropertyGroup>
+		<UsingCommon>false</UsingCommon>
+	</PropertyGroup>
+	<Import Project="..\..\Props\Common.props" />
+</Project>

@@ -1,0 +1,6 @@
+<Project>
+	<PropertyGroup>
+		<OutToPluginLoader>true</OutToPluginLoader>
+	</PropertyGroup>
+	<Import Project="..\..\Props\VBY.props" />
+</Project>

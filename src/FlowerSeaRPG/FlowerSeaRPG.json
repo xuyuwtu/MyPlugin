@@ -1,0 +1,34 @@
+{
+	"MaxLevel": 2,
+	"DBInfo": {
+		"DBType": "sqlite",
+		"DBPath": "tshock/FlowerSeaRPG.sqlite",
+		"MysqlHost": "localhost",
+		"MysqlPort": 3306,
+		"MysqlDatabase": "root",
+		"MysqlUser": "root",
+		"MysqlPass": "123456"
+	},
+	"UpgradeInfo": [
+		{
+			"Level": 0,
+			"Title": "",
+			"Life": "100",
+			"Magic": "20",
+			"Damage": "0",
+			"UpgradeItems": [
+				{
+					"type": 27,
+					"stack": 1
+				}
+			]
+		},
+		{
+			"Level": 1,
+			"Title": "≥ı»ÎΩ·ΩÁ",
+			"Life": "120",
+			"Magic": "20",
+			"Damage": "1"
+		}
+	]
+}

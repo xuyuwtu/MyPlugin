@@ -1,0 +1,9 @@
+﻿<Project>
+	<PropertyGroup>
+		<UsingCommon>false</UsingCommon>
+		<OutToPluginLoader>true</OutToPluginLoader>
+		<AssemblyTitle>VBY基础类库</AssemblyTitle>
+		<AssemblyVersion>1.0.0.1</AssemblyVersion>
+	</PropertyGroup>
+	<Import Project="..\..\Props\VBY.props" />
+</Project>

@@ -1,0 +1,15 @@
+﻿<Project>
+	<PropertyGroup>
+		<UsingCommon>false</UsingCommon>
+		<OutToPluginLoader>true</OutToPluginLoader>
+	</PropertyGroup>
+	<Import Project="..\..\Props\VBY.props" />
+	<ItemGroup>
+	  <Compile Remove="AI_069.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\NPCAI\NPCAI.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+	</ItemGroup>
+</Project>

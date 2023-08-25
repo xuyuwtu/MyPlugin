@@ -1,0 +1,11 @@
+﻿<Project>
+  <PropertyGroup>
+    <Version>1.0.0.8</Version>
+    <UsingCommon>false</UsingCommon>
+    <OutToPluginLoader>true</OutToPluginLoader>
+  </PropertyGroup>
+  <Import Project="..\..\Props\VBY.props" />
+  <ItemGroup>
+    <Compile Remove="Terraria\NPCUpdate.cs" />
+  </ItemGroup>
+</Project>

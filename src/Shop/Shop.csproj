@@ -1,0 +1,9 @@
+﻿<Project>
+	<PropertyGroup>
+		<OutToPluginLoader>true</OutToPluginLoader>
+	</PropertyGroup>
+	<Import Project="..\..\Props\VBY.props" />
+	<ItemGroup>
+		<ProjectReference Include="..\ProgressQuery\ProgressQuery.csproj" />
+	</ItemGroup>
+</Project>

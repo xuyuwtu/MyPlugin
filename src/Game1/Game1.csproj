@@ -1,0 +1,10 @@
+﻿<Project>
+	<PropertyGroup>
+		<UsingCommon>true</UsingCommon>
+		<OutToPluginLoader>true</OutToPluginLoader>
+	</PropertyGroup>
+	<Import Project="..\..\Props\Common.props" />
+	<ItemGroup>
+	  <Compile Remove="Vote.cs" />
+	</ItemGroup>
+</Project>

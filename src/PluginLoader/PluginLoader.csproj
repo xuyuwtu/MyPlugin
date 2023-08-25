@@ -1,0 +1,7 @@
+﻿<Project>
+	<PropertyGroup>
+		<UsingCommon>false</UsingCommon>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+	<Import Project="..\..\Props\VBY.props" />
+</Project>

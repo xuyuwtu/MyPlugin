@@ -1,0 +1,8 @@
+﻿<Project>
+  <PropertyGroup>
+    <UsingCommon>false</UsingCommon>
+	  <OutToPluginLoader>true</OutToPluginLoader>
+	  <LangVersion>11.0</LangVersion>
+  </PropertyGroup>
+  <Import Project="..\..\Props\VBY.props" />
+</Project>

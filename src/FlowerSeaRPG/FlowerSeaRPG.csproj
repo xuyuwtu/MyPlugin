@@ -1,0 +1,16 @@
+﻿<Project>
+	<PropertyGroup>
+		<OutToPluginLoader>true</OutToPluginLoader>
+		<LangVersion>11.0</LangVersion>
+	</PropertyGroup>
+	<Import Project="..\..\Props\Common.props" />
+	<ItemGroup>
+	  <ProjectReference Include="..\GameContentModify\GameContentModify.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Include="SwitchCommand">
+		  <Private>false</Private>
+	    <HintPath>D:\Users\Administrator\Desktop\流光tr系统\Plugins\SwitchCommand.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+</Project>

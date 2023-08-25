@@ -1,0 +1,6 @@
+<Project>
+	<Import Project="..\..\Props\VBY.props" />
+	<ItemGroup>
+	  <ProjectReference Include="..\PluginLoader\PluginLoader.csproj" />
+	</ItemGroup>
+</Project>

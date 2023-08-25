@@ -1,0 +1,12 @@
+<Project>
+	<PropertyGroup>
+		<UsingCommon>false</UsingCommon>
+		<OutToPluginLoader>true</OutToPluginLoader>
+	</PropertyGroup>
+	<Import Project="..\..\Props\VBY.props" />
+	<ItemGroup>
+		<ProjectReference Include="..\ProjectileAI\ProjectileAI.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+	</ItemGroup>
+</Project>

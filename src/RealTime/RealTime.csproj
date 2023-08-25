@@ -1,0 +1,6 @@
+﻿<Project Sdk="microsoft.net.sdk">
+	<PropertyGroup>
+		<UsingCommon>false</UsingCommon>
+	</PropertyGroup>
+	<Import Project="..\..\Props\VBY.props"/>
+</Project>

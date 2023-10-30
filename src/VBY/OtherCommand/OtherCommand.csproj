@@ -1,6 +1,5 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
 	<PropertyGroup>
-		<Prefix>VBY</Prefix>
 		<UsingCommon>false</UsingCommon>
 		<OutToPluginLoader>true</OutToPluginLoader>
 	</PropertyGroup>

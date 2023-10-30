@@ -8,19 +8,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{66FFDD2B-1418-40EE-974E-10C591A50182}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProgressQuery", "src\VBY\ProgressQuery\ProgressQuery.csproj", "{34B9CB24-499E-46D9-A79D-015F4123ECDA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProgressQuery", "src\ProgressQuery\ProgressQuery.csproj", "{34B9CB24-499E-46D9-A79D-015F4123ECDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop", "src\VBY\Shop\Shop.csproj", "{1CF12EAF-1330-4E75-8BC0-2CDBD5EE27FC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shop", "src\Shop\Shop.csproj", "{1CF12EAF-1330-4E75-8BC0-2CDBD5EE27FC}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ItemStrengthen", "src\ItemStrengthen\ItemStrengthen.csproj", "{D7B9B8BF-456E-400A-80B4-86377CCF7EAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ItemStrengthen", "src\VBY\ItemStrengthen\ItemStrengthen.csproj", "{D7B9B8BF-456E-400A-80B4-86377CCF7EAF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiniGame", "src\MiniGame\MiniGame.csproj", "{1AA97F0E-45DD-406D-BA4D-6AE08D8247B5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "src\Common\Common.csproj", "{620A1701-83FF-4ADF-A06A-620A2614459D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestFix", "src\test\RestFix.csproj", "{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "src\VBY\Common\Common.csproj", "{620A1701-83FF-4ADF-A06A-620A2614459D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TempGroup", "src\TempGroup\TempGroup.csproj", "{9BE484BF-CBDF-4264-967E-C9D3E9A98B79}"
 EndProject
@@ -32,45 +28,45 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerrariaHelper", "src\Terra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VBY", "VBY", "{1E798B47-6CC7-43D9-88E0-1CFAA4F9393C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RealTime", "src\RealTime\RealTime.csproj", "{C9EE0971-F0C8-4014-82BD-750AF2A1635F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RealTime", "src\VBY\RealTime\RealTime.csproj", "{C9EE0971-F0C8-4014-82BD-750AF2A1635F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameContentModify", "src\GameContentModify\GameContentModify.csproj", "{55C429A0-882A-415B-AD0F-69ABE67937B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameContentModify", "src\VBY\GameContentModify\GameContentModify.csproj", "{55C429A0-882A-415B-AD0F-69ABE67937B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OtherCommand", "src\OtherCommand\OtherCommand.csproj", "{3D701677-B4D3-478A-9DE9-91238F989D61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OtherCommand", "src\VBY\OtherCommand\OtherCommand.csproj", "{3D701677-B4D3-478A-9DE9-91238F989D61}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectileTest", "src\ProjectileTest\ProjectileTest.csproj", "{BD1F554F-B55C-49DC-AFDC-D75CBF914B54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectileTest", "src\VBY\ProjectileTest\ProjectileTest.csproj", "{BD1F554F-B55C-49DC-AFDC-D75CBF914B54}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NPCAI", "src\NPCAI\NPCAI.csproj", "{C102BA37-2C1C-4C8B-9810-53383E25339F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NPCAI", "src\VBY\NPCAI\NPCAI.csproj", "{C102BA37-2C1C-4C8B-9810-53383E25339F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NPCTest", "src\NPCTest\NPCTest.csproj", "{0EB174E7-0CB2-47C5-8BDE-FC5B0D45C32E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NPCTest", "src\VBY\NPCTest\NPCTest.csproj", "{0EB174E7-0CB2-47C5-8BDE-FC5B0D45C32E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginLoader", "src\PluginLoader\PluginLoader.csproj", "{E2DF7379-2F59-4FED-B7B1-BACB9F130566}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginLoader", "src\VBY\PluginLoader\PluginLoader.csproj", "{E2DF7379-2F59-4FED-B7B1-BACB9F130566}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventFirstRecord", "src\EventFirstRecord\EventFirstRecord.csproj", "{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventFirstRecord", "src\VBY\EventFirstRecord\EventFirstRecord.csproj", "{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game1", "src\Game1\Game1.csproj", "{14024DD8-9C80-4B40-9BA7-AAF041C89510}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectileAI", "src\ProjectileAI\ProjectileAI.csproj", "{AE77FEA2-E7DA-4FCD-B967-7417BABFCD77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectileAI", "src\VBY\ProjectileAI\ProjectileAI.csproj", "{AE77FEA2-E7DA-4FCD-B967-7417BABFCD77}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AI", "AI", "{69148CED-9904-44A5-A4DC-F0AC70A4ADBF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualPlayer", "src\VirtualPlayer\VirtualPlayer.csproj", "{E39BD341-7C25-48CB-B812-4F756AD97B71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtualPlayer", "src\VBY\VirtualPlayer\VirtualPlayer.csproj", "{E39BD341-7C25-48CB-B812-4F756AD97B71}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoreSpawnPoint", "src\MoreSpawnPoint\MoreSpawnPoint.csproj", "{E94C8E0B-C186-4773-83A3-532200AEEABD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoreSpawnPoint", "src\VBY\MoreSpawnPoint\MoreSpawnPoint.csproj", "{E94C8E0B-C186-4773-83A3-532200AEEABD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginLoaderAutoReload", "src\PluginLoaderAutoReload\PluginLoaderAutoReload.csproj", "{E9EDA6AB-2700-45A0-A24F-BC6127827EA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluginLoaderAutoReload", "src\VBY\PluginLoaderAutoReload\PluginLoaderAutoReload.csproj", "{E9EDA6AB-2700-45A0-A24F-BC6127827EA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisableUnlockChest", "src\DisableUnlockChest\DisableUnlockChest.csproj", "{DCB3B888-4077-4FC3-889E-F690A77045C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DisableUnlockChest", "src\VBY\DisableUnlockChest\DisableUnlockChest.csproj", "{DCB3B888-4077-4FC3-889E-F690A77045C8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShopGenerator", "src\ShopSourceGenerator\ShopGenerator.csproj", "{AF12D100-C14B-46CC-BCC2-B4A853B2F735}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomDrop", "src\RandomDrop\RandomDrop.csproj", "{EC409EE6-4DA9-4422-A86B-3A20E439A0BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomDrop", "src\VBY\RandomDrop\RandomDrop.csproj", "{EC409EE6-4DA9-4422-A86B-3A20E439A0BD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpawnRandomDrop", "src\SpawnRandomDrop\SpawnRandomDrop.csproj", "{F4F0960C-DABE-4501-AE6A-5A68CE10E8B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpawnRandomDrop", "src\VBY\SpawnRandomDrop\SpawnRandomDrop.csproj", "{F4F0960C-DABE-4501-AE6A-5A68CE10E8B3}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonShared", "src\CommonShared\CommonShared.shproj", "{E5DF21D2-860E-4BA0-879F-68127DC52AAA}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CommonShared", "src\VBY\CommonShared\CommonShared.shproj", "{E5DF21D2-860E-4BA0-879F-68127DC52AAA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimedUnlockProgress", "src\TimedUnlockProgress\TimedUnlockProgress.csproj", "{6DAED417-DDC8-4F73-95B5-33D8FF62DF37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimedUnlockProgress", "src\VBY\TimedUnlockProgress\TimedUnlockProgress.csproj", "{6DAED417-DDC8-4F73-95B5-33D8FF62DF37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -142,18 +138,6 @@ Global
 		{620A1701-83FF-4ADF-A06A-620A2614459D}.Release|x64.Build.0 = Release|x64
 		{620A1701-83FF-4ADF-A06A-620A2614459D}.Release|x86.ActiveCfg = Release|Any CPU
 		{620A1701-83FF-4ADF-A06A-620A2614459D}.Release|x86.Build.0 = Release|Any CPU
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Debug|x64.ActiveCfg = Debug|x64
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Debug|x64.Build.0 = Debug|x64
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Debug|x86.Build.0 = Debug|Any CPU
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Release|x64.ActiveCfg = Release|x64
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Release|x64.Build.0 = Release|x64
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Release|x86.ActiveCfg = Release|Any CPU
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF}.Release|x86.Build.0 = Release|Any CPU
 		{9BE484BF-CBDF-4264-967E-C9D3E9A98B79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9BE484BF-CBDF-4264-967E-C9D3E9A98B79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BE484BF-CBDF-4264-967E-C9D3E9A98B79}.Debug|x64.ActiveCfg = Debug|x64
@@ -180,8 +164,8 @@ Global
 		{247A647A-BD10-4F9D-BF95-E6C7B5574961}.Release|x86.Build.0 = Release|Any CPU
 		{AD7A777A-E950-43C2-BDF2-2AEBE845E5F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AD7A777A-E950-43C2-BDF2-2AEBE845E5F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD7A777A-E950-43C2-BDF2-2AEBE845E5F5}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{AD7A777A-E950-43C2-BDF2-2AEBE845E5F5}.Debug|x64.Build.0 = Debug|Any CPU
+		{AD7A777A-E950-43C2-BDF2-2AEBE845E5F5}.Debug|x64.ActiveCfg = Debug|x64
+		{AD7A777A-E950-43C2-BDF2-2AEBE845E5F5}.Debug|x64.Build.0 = Debug|x64
 		{AD7A777A-E950-43C2-BDF2-2AEBE845E5F5}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{AD7A777A-E950-43C2-BDF2-2AEBE845E5F5}.Debug|x86.Build.0 = Debug|Any CPU
 		{AD7A777A-E950-43C2-BDF2-2AEBE845E5F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -192,8 +176,8 @@ Global
 		{AD7A777A-E950-43C2-BDF2-2AEBE845E5F5}.Release|x86.Build.0 = Release|Any CPU
 		{8697840A-AEF3-48F0-A788-5882E06CAD23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8697840A-AEF3-48F0-A788-5882E06CAD23}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8697840A-AEF3-48F0-A788-5882E06CAD23}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{8697840A-AEF3-48F0-A788-5882E06CAD23}.Debug|x64.Build.0 = Debug|Any CPU
+		{8697840A-AEF3-48F0-A788-5882E06CAD23}.Debug|x64.ActiveCfg = Debug|x64
+		{8697840A-AEF3-48F0-A788-5882E06CAD23}.Debug|x64.Build.0 = Debug|x64
 		{8697840A-AEF3-48F0-A788-5882E06CAD23}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{8697840A-AEF3-48F0-A788-5882E06CAD23}.Debug|x86.Build.0 = Debug|Any CPU
 		{8697840A-AEF3-48F0-A788-5882E06CAD23}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -288,8 +272,8 @@ Global
 		{E2DF7379-2F59-4FED-B7B1-BACB9F130566}.Release|x86.Build.0 = Release|Any CPU
 		{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}.Debug|x64.Build.0 = Debug|Any CPU
+		{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}.Debug|x64.ActiveCfg = Debug|x64
+		{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}.Debug|x64.Build.0 = Debug|x64
 		{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}.Debug|x86.Build.0 = Debug|Any CPU
 		{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -300,8 +284,8 @@ Global
 		{E01007B1-CFFF-4073-86B7-1599ADE5B4EC}.Release|x86.Build.0 = Release|Any CPU
 		{14024DD8-9C80-4B40-9BA7-AAF041C89510}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{14024DD8-9C80-4B40-9BA7-AAF041C89510}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{14024DD8-9C80-4B40-9BA7-AAF041C89510}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{14024DD8-9C80-4B40-9BA7-AAF041C89510}.Debug|x64.Build.0 = Debug|Any CPU
+		{14024DD8-9C80-4B40-9BA7-AAF041C89510}.Debug|x64.ActiveCfg = Debug|x64
+		{14024DD8-9C80-4B40-9BA7-AAF041C89510}.Debug|x64.Build.0 = Debug|x64
 		{14024DD8-9C80-4B40-9BA7-AAF041C89510}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{14024DD8-9C80-4B40-9BA7-AAF041C89510}.Debug|x86.Build.0 = Debug|Any CPU
 		{14024DD8-9C80-4B40-9BA7-AAF041C89510}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -324,8 +308,8 @@ Global
 		{AE77FEA2-E7DA-4FCD-B967-7417BABFCD77}.Release|x86.Build.0 = Release|Any CPU
 		{E39BD341-7C25-48CB-B812-4F756AD97B71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E39BD341-7C25-48CB-B812-4F756AD97B71}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E39BD341-7C25-48CB-B812-4F756AD97B71}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E39BD341-7C25-48CB-B812-4F756AD97B71}.Debug|x64.Build.0 = Debug|Any CPU
+		{E39BD341-7C25-48CB-B812-4F756AD97B71}.Debug|x64.ActiveCfg = Debug|x64
+		{E39BD341-7C25-48CB-B812-4F756AD97B71}.Debug|x64.Build.0 = Debug|x64
 		{E39BD341-7C25-48CB-B812-4F756AD97B71}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{E39BD341-7C25-48CB-B812-4F756AD97B71}.Debug|x86.Build.0 = Debug|Any CPU
 		{E39BD341-7C25-48CB-B812-4F756AD97B71}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -360,8 +344,8 @@ Global
 		{E9EDA6AB-2700-45A0-A24F-BC6127827EA3}.Release|x86.Build.0 = Release|Any CPU
 		{DCB3B888-4077-4FC3-889E-F690A77045C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DCB3B888-4077-4FC3-889E-F690A77045C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DCB3B888-4077-4FC3-889E-F690A77045C8}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{DCB3B888-4077-4FC3-889E-F690A77045C8}.Debug|x64.Build.0 = Debug|Any CPU
+		{DCB3B888-4077-4FC3-889E-F690A77045C8}.Debug|x64.ActiveCfg = Debug|x64
+		{DCB3B888-4077-4FC3-889E-F690A77045C8}.Debug|x64.Build.0 = Debug|x64
 		{DCB3B888-4077-4FC3-889E-F690A77045C8}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{DCB3B888-4077-4FC3-889E-F690A77045C8}.Debug|x86.Build.0 = Debug|Any CPU
 		{DCB3B888-4077-4FC3-889E-F690A77045C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -427,7 +411,6 @@ Global
 		{1CF12EAF-1330-4E75-8BC0-2CDBD5EE27FC} = {1E798B47-6CC7-43D9-88E0-1CFAA4F9393C}
 		{D7B9B8BF-456E-400A-80B4-86377CCF7EAF} = {1E798B47-6CC7-43D9-88E0-1CFAA4F9393C}
 		{620A1701-83FF-4ADF-A06A-620A2614459D} = {1E798B47-6CC7-43D9-88E0-1CFAA4F9393C}
-		{B97C81F9-3044-4FC0-A86C-4925DD0F4ABF} = {66FFDD2B-1418-40EE-974E-10C591A50182}
 		{C9EE0971-F0C8-4014-82BD-750AF2A1635F} = {1E798B47-6CC7-43D9-88E0-1CFAA4F9393C}
 		{55C429A0-882A-415B-AD0F-69ABE67937B2} = {1E798B47-6CC7-43D9-88E0-1CFAA4F9393C}
 		{3D701677-B4D3-478A-9DE9-91238F989D61} = {1E798B47-6CC7-43D9-88E0-1CFAA4F9393C}
@@ -452,10 +435,11 @@ Global
 		SolutionGuid = {634746EE-A295-4EF0-B6D7-C48B2E48B4CD}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		src\CommonShared\CommonShared.projitems*{55c429a0-882a-415b-ad0f-69abe67937b2}*SharedItemsImports = 5
-		src\CommonShared\CommonShared.projitems*{6daed417-ddc8-4f73-95b5-33d8ff62df37}*SharedItemsImports = 5
-		src\CommonShared\CommonShared.projitems*{e2df7379-2f59-4fed-b7b1-bacb9f130566}*SharedItemsImports = 5
-		src\CommonShared\CommonShared.projitems*{e5df21d2-860e-4ba0-879f-68127dc52aaa}*SharedItemsImports = 13
-		src\CommonShared\CommonShared.projitems*{f4f0960c-dabe-4501-ae6a-5a68ce10e8b3}*SharedItemsImports = 5
+		src\VBY\CommonShared\CommonShared.projitems*{55c429a0-882a-415b-ad0f-69abe67937b2}*SharedItemsImports = 5
+		src\VBY\CommonShared\CommonShared.projitems*{6daed417-ddc8-4f73-95b5-33d8ff62df37}*SharedItemsImports = 5
+		src\VBY\CommonShared\CommonShared.projitems*{e2df7379-2f59-4fed-b7b1-bacb9f130566}*SharedItemsImports = 5
+		src\VBY\CommonShared\CommonShared.projitems*{e5df21d2-860e-4ba0-879f-68127dc52aaa}*SharedItemsImports = 13
+		src\VBY\CommonShared\CommonShared.projitems*{ec409ee6-4da9-4422-a86b-3a20e439a0bd}*SharedItemsImports = 5
+		src\VBY\CommonShared\CommonShared.projitems*{f4f0960c-dabe-4501-ae6a-5a68ce10e8b3}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

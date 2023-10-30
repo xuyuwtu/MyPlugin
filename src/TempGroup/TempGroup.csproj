@@ -1,3 +1,5 @@
-﻿<Project>
-	<Import Project="..\..\Props\VBY.props" />
+﻿<Project Sdk="My.Plugins.Sdk">
+	<PropertyGroup>
+		<UsingCommon>true</UsingCommon>
+	</PropertyGroup>
 </Project>

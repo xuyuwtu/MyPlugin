@@ -1,7 +1,6 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
   <PropertyGroup>
     <Version>1.0.0.8</Version>
-	  <Prefix>VBY</Prefix>
     <OutToPluginLoader>true</OutToPluginLoader>
   </PropertyGroup>
   <ItemGroup>

@@ -27,12 +27,12 @@ public static class Extensions
         list.AddCmd(ShopPlugin.List<T>, "列出商品", 2);
         return list.Parent!;
     }
-    public static SubCmdList AddAddAndDel<T>(this SubCmdList list) where T : Shops
-    {
-        list.AddCmd(ShopPlugin.Add<T>, 2);
-        list.AddCmd(ShopPlugin.Del<T>, 2);
-        return list.Parent!;
-    }
+    //public static SubCmdList AddAddAndDel<T>(this SubCmdList list) where T : Shops
+    //{
+    //    list.AddCmd(ShopPlugin.Add<T>, 2);
+    //    list.AddCmd(ShopPlugin.Del<T>, 2);
+    //    return list.Parent!;
+    //}
     public static SubCmdList AddBuy1AndList<T>(this SubCmdList list) where T : Shops
     {
         list.AddCmd(ShopPlugin.Buy1<T>, "购买商品", "<商品ID>", 2);

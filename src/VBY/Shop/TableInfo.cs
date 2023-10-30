@@ -28,7 +28,7 @@ public abstract class Shops
         BuyId = buyId;
         Price = price;
     }
-    public abstract void Add(SubCmdArgs args);
+    //public abstract void Add(SubCmdArgs args);
     public abstract void Buy(ShopPlayer shopPlayer, short count);
     public virtual bool CanBuy(ShopPlayer shopPlayer, short count, out string message)
     {
@@ -145,6 +145,7 @@ public static partial class TableInfo
         {
             Type = type;
         }
+
         public override void Buy(ShopPlayer shopPlayer, short count)
         {
             shopPlayer.ReduceMoney(this, count);

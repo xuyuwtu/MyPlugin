@@ -1,5 +1,2 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
-	<PropertyGroup>
-		<Prefix>VBY</Prefix>
-	</PropertyGroup>
 </Project>

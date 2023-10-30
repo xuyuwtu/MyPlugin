@@ -64,11 +64,6 @@ internal class MainConfig
         trueInfo.Strings.Add("宝石块和墙");
         trueInfo.Strings.Add("笼子及其里面动物");
         var bools = new bool[ItemID.Count];
-        var trueInts = trueInfo.GetIntsHashSet(config.ItemIDGroups);
-        foreach (var item in trueInts)
-        {
-            bools[item] = true;
-        }
         var progressArray = Utils.GetCraftingStationsProgressArray();
         foreach (var recipe in Main.recipe)
         {

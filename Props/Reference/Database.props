@@ -1,8 +1,0 @@
-<Project>
-	<ItemGroup>
-		<Reference Include="Mysql.Data;Microsoft.Data.Sqlite">
-			<HintPath>$(DllPath)\%(Identity).dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
-</Project>

@@ -1,6 +1,5 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
 	<PropertyGroup>
-		<Prefix>VBY</Prefix>
 		<OutToPluginLoader>true</OutToPluginLoader>
 		<AssemblyTitle>VBY基础类库</AssemblyTitle>
 		<AssemblyVersion>1.0.0.1</AssemblyVersion>

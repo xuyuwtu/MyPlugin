@@ -1,6 +1,5 @@
-﻿<Project>
+﻿<Project Sdk="My.Plugins.Sdk">
 	<PropertyGroup>
 		<LangVersion>11.0</LangVersion>
 	</PropertyGroup>
-	<Import Project="..\..\Props\Common.props"/>
 </Project>

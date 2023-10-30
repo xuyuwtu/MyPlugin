@@ -231,7 +231,7 @@ public partial class ShopPlugin : TerrariaPlugin
         }
         shop.Buy(shopPlayer, count);
     }
-    public static void Add<T>(SubCmdArgs args) where T : Shops => Utils.ShopInstances[typeof(T)].Add(args);
+    //public static void Add<T>(SubCmdArgs args) where T : Shops => Utils.ShopInstances[typeof(T)].Add(args);
     public static void Del<T>(SubCmdArgs args) where T : Shops
     {
         if (args.Parameters.Count == 0)

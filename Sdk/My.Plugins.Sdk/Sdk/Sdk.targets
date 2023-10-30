@@ -21,8 +21,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!--<ProjectReference Include="$(SolutionDir)\src\Common\Common.csproj" Condition="$(UsingCommon)"/>-->
-		<ProjectReference Include="$([System.IO.Path]::GetDirectoryName('$(MSBuildProjectDirectory)'))\Common\Common.csproj" Condition="$(UsingCommon)"/>
+		<ProjectReference Include="$(CommonProjectPath)" Condition="$(UsingCommon)"/>
 		<EmbeddedResource Include="$(MSBuildProjectName).json" Condition="Exists('$(MSBuildProjectName).json')"/>
 	</ItemGroup>
 

@@ -1,7 +1,0 @@
-<Project>
-	<PropertyGroup>
-		<Prefix>VBY</Prefix>
-		<UsingCommon Condition="'$(UsingCommon)' == ''">true</UsingCommon>
-	</PropertyGroup>
-	<Import Project="Common.props" />
-</Project>

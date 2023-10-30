@@ -1,8 +1,0 @@
-<Project>
-	<ItemGroup>
-		<Reference Include="Newtonsoft">
-			<HintPath>$(DllPath)\Newtonsoft.Json.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
-</Project>

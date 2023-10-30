@@ -160,7 +160,7 @@ public class PluginLoader : TerrariaPlugin
         Loader = new("VBY.PluginLoader" + LoaderNum++);
         Loader.LoadPlugin(player);
     }
-    private static void PostLoad(Config config)
+    private static void PostLoad(Config config, TSPlayer? _)
     {
         foreach (string path in config.LoadFiles)
         {

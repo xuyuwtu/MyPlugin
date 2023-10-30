@@ -1,8 +1,0 @@
-<Project>
-	<ItemGroup>
-		<Reference Include="OTAPI;OTAPI.Runtime;TerrariaServer;TShockAPI;ModFramework">
-			<HintPath>$(DllPath)\%(Identity).dll</HintPath>
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
-</Project>

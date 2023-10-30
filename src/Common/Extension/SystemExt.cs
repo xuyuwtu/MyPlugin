@@ -18,9 +18,10 @@ public static class SystemExt
     {
         return args ? trueS : falseS;
     }
-    public static string FirstUpper(this string s) => char.ToUpper(s[0]) + s[1..];
+    public static string FirstUpper(this string str) => char.ToUpper(str[0]) + str[1..];
     public static string Join(this IEnumerable<string> values, string separator) => string.Join(separator, values);
     public static string Join(this IEnumerable<string> values, char separator) => string.Join(separator, values);
+    public static string SubstringAfter(this string str, char afterChar) => str.Substring(str.IndexOf(afterChar) + 1);
     public static int IndexOf(this string str, int startIndex, Predicate<char> preficate)
     {
         for (int i = startIndex; i < str.Length; i++)

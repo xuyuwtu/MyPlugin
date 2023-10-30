@@ -8,7 +8,7 @@ partial class NPCAIs
         //npc.AIOutput();
         Vector2 vector = new(-150f, -250f);
         Vector2 vector2 = new(150f, -250f);
-        Vector2 vector3 = new(0f, -350f);
+        Vector2 heightOffset = new(0f, -350f);
         Vector2 vector4 = new(0f, -350f);
         Vector2 vector5 = new(-80f, -500f);
         float num = 0.5f;
@@ -22,8 +22,8 @@ partial class NPCAIs
         int num9 = 45;
         int fairyQueenSunDanceProjDamage = 50;
         bool flag = npc.AI_120_HallowBoss_IsInPhase2();
-        bool flag2 = Main.expertMode;
-        bool flag3 = flag && flag2;
+        bool expertMode = Main.expertMode;
+        bool isInPhase2AndExpertMode = flag && expertMode;
         bool flag4 = NPC.ShouldEmpressBeEnraged();
         if (npc.life == npc.lifeMax && flag4 && !npc.AI_120_HallowBoss_IsGenuinelyEnraged())
         {
@@ -60,16 +60,16 @@ partial class NPCAIs
             num9 = 9999;
             fairyQueenSunDanceProjDamage = 9999;
             num7 = 9999;
-            flag2 = true;
+            expertMode = true;
         }
-        float num16 = (flag2 ? 0.3f : 1f);
+        float num16 = (expertMode ? 0.3f : 1f);
         bool flag6 = true;
         int num17 = 0;
         if (flag)
         {
             num17 += 15;
         }
-        if (flag2)
+        if (expertMode)
         {
             num17 += 5;
         }
@@ -231,7 +231,7 @@ partial class NPCAIs
                         int num49 = num37++;
                         int num50 = num37++;
                         int num51 = -1;
-                        if (flag2)
+                        if (expertMode)
                         {
                             num51 = num37++;
                         }
@@ -308,7 +308,7 @@ partial class NPCAIs
                     {
                         num36 = 9;
                     }
-                    if (flag2 && num36 != 5 && num36 != 12)
+                    if (expertMode && num36 != 5 && num36 != 12)
                     {
                         npc.velocity = npc.DirectionFrom(targetData5.Center).SafeNormalize(Vector2.Zero).RotatedBy((float)Math.PI / 2f * (targetData5.Center.X > npc.Center.X).ToDirectionInt()) * 20f;
                     }
@@ -337,7 +337,7 @@ partial class NPCAIs
                         npc.AI_120_HallowBoss_DoMagicEffect(npc.Center + vector36, 1, Utils.GetLerpValue(0f, 60f, npc.ai[1], clamped: true));
                     }
                     int num91 = 3;
-                    if (flag2)
+                    if (expertMode)
                     {
                         num91 = 2;
                     }
@@ -345,7 +345,7 @@ partial class NPCAIs
                     {
                         float ai3 = npc.ai[1] / 60f;
                         Vector2 vector38 = new Vector2(0f, -6f).RotatedBy((float)Math.PI / 2f * Main.rand.NextFloatDirection());
-                        if (flag3)
+                        if (isInPhase2AndExpertMode)
                         {
                             vector38 = new Vector2(0f, -10f).RotatedBy((float)Math.PI * 2f * Main.rand.NextFloat());
                         }
@@ -408,59 +408,88 @@ partial class NPCAIs
                         npc.AI_120_HallowBoss_DoMagicEffect(npc.Center + new Vector2(-55f, -20f), 2, Utils.GetLerpValue(0f, 100f, npc.ai[1], clamped: true));
                         npc.AI_120_HallowBoss_DoMagicEffect(npc.Center + new Vector2(55f, -20f), 4, Utils.GetLerpValue(0f, 100f, npc.ai[1], clamped: true));
                     }
-                    NPCAimedTarget targetData10 = npc.GetTargetData();
-                    Vector2 vector29 = (targetData10.Invalid ? npc.Center : targetData10.Center);
-                    if (npc.Distance(vector29 + vector3) > num3)
+                    NPCAimedTarget targetData = npc.GetTargetData();
+                    if (fairyQueenLanceProjDamage != 9999)
                     {
-                        npc.SimpleFlyMovement(npc.DirectionTo(vector29 + vector3).SafeNormalize(Vector2.Zero) * num2, num);
+                        if (npc.localAI.Length < 5)
+                        {
+                            var newLocalAI = new float[5];
+                            Array.Copy(npc.localAI, newLocalAI, npc.localAI.Length);
+                            npc.localAI = newLocalAI;
+                        }
+                        if (npc.ai[1] == 0)
+                        {
+                            npc.localAI[1] = targetData.Center.X;
+                            npc.localAI[2] = targetData.Center.Y;
+                            npc.localAI[3] = targetData.Velocity.X;
+                            npc.localAI[4] = targetData.Velocity.Y;
+                        }
+                        else
+                        {
+                            targetData.Position = new Vector2(npc.localAI[1], npc.localAI[2]);
+                            targetData.Velocity = new Vector2(npc.localAI[3], npc.localAI[4]);
+                        }
+                    }
+                    Vector2 targetCenter = (targetData.Invalid ? npc.Center : targetData.Center);
+                    if (npc.Distance(targetCenter + heightOffset) > num3)
+                    {
+                        npc.SimpleFlyMovement(npc.DirectionTo(targetCenter + heightOffset).SafeNormalize(Vector2.Zero) * num2, num);
                     }
                     int num82 = 4;
-                    if (flag2)
+                    if (expertMode)
                     {
                         num82 = 5;
                     }
                     if ((int)npc.ai[1] % 4 == 0 && npc.ai[1] < 100f)
                     {
-                        int num83 = 1;
-                        for (int n = 0; n < num83; n++)
+                        for (int n = 0; n < 1; n++)
                         {
                             int num85 = (int)npc.ai[1] / 4;
-                            Vector2 vector30 = Vector2.UnitX.RotatedBy((float)Math.PI / (num82 * 2) + num85 * ((float)Math.PI / num82) + 0f);
-                            if (!flag2)
+                            Vector2 vector30 = Vector2.UnitX.RotatedBy((float)Math.PI / (num82 * 2) + num85 * ((float)Math.PI / num82));
+                            if (!expertMode)
                             {
                                 vector30.X += ((vector30.X > 0f) ? 0.5f : (-0.5f));
                             }
                             vector30.Normalize();
-                            float num86 = 300f;
-                            if (flag2)
+                            float projDistance = 300f;
+                            if (expertMode)
                             {
-                                num86 = 450f;
+                                projDistance = 450f;
                             }
-                            Vector2 center4 = targetData10.Center;
-                            if (npc.Distance(center4) > 2400f)
+                            Vector2 targetDataCenter = targetData.Center;
+                            if (npc.Distance(targetDataCenter) > 2400f)
                             {
                                 continue;
                             }
-                            if (Vector2.Dot(targetData10.Velocity.SafeNormalize(Vector2.UnitY), vector30) > 0f)
+                            if (Vector2.Dot(targetData.Velocity.SafeNormalize(Vector2.UnitY), vector30) > 0f)
                             {
                                 vector30 *= -1f;
                             }
-                            int num87 = 90;
-                            Vector2 vector31 = center4 + targetData10.Velocity * num87;
-                            Vector2 vector32 = center4 + vector30 * num86 - targetData10.Velocity * 30f;
-                            if (vector32.Distance(center4) < num86)
+                            int velocityCount = 90;
+                            Vector2 vector31 = targetDataCenter + targetData.Velocity * velocityCount;
+                            Vector2 projPosition = targetDataCenter + vector30 * projDistance - targetData.Velocity * 30f;
+                            if (projPosition.Distance(targetDataCenter) < projDistance)
                             {
-                                Vector2 vector33 = center4 - vector32;
-                                if (vector33 == Vector2.Zero)
+                                Vector2 toTargetOffset = targetDataCenter - projPosition;
+                                if (toTargetOffset == Vector2.Zero)
                                 {
-                                    vector33 = vector30;
+                                    toTargetOffset = vector30;
                                 }
-                                vector32 = center4 - Vector2.Normalize(vector33) * num86;
+                                projPosition = targetDataCenter - Vector2.Normalize(toTargetOffset) * projDistance;
                             }
-                            Vector2 v3 = vector31 - vector32;
+                            Vector2 rotation = vector31 - projPosition;
                             if (Main.netMode != 1)
                             {
-                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector32, Vector2.Zero, 919, fairyQueenLanceProjDamage, 0f, Main.myPlayer, v3.ToRotation(), npc.ai[1] / 100f);
+                                if (fairyQueenLanceProjDamage != 9999)
+                                {
+                                    //float trunCount = 1;
+                                    projDistance = 800;
+                                    //projPosition = targetDataCenter + targetData.Velocity * 30 + Vector2.UnitY.RotatedByDegress(360f / 100f * trunCount * npc.ai[1]) * projDistance;
+                                    projPosition = targetDataCenter + targetData.Velocity * 30 + Vector2.UnitY.RotatedByDegress(360f / 100f * npc.ai[1]) * projDistance;
+                                    rotation = targetDataCenter - projPosition;
+                                }
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), projPosition, Vector2.Zero, 919, fairyQueenLanceProjDamage, 0f, Main.myPlayer, rotation.ToRotation(), npc.ai[1] / 100f);
+                                //npc.AIOutput();
                             }
                             if (Main.netMode == 1)
                             {
@@ -474,24 +503,24 @@ partial class NPCAIs
                                     continue;
                                 }
                                 Player player2 = Main.player[num89];
-                                center4 = player2.Center;
+                                targetDataCenter = player2.Center;
                                 if (Vector2.Dot(player2.velocity.SafeNormalize(Vector2.UnitY), vector30) > 0f)
                                 {
                                     vector30 *= -1f;
                                 }
-                                Vector2 vector34 = center4 + player2.velocity * num87;
-                                vector32 = center4 + vector30 * num86 - player2.velocity * 30f;
-                                if (vector32.Distance(center4) < num86)
+                                Vector2 vector34 = targetDataCenter + player2.velocity * velocityCount;
+                                projPosition = targetDataCenter + vector30 * projDistance - player2.velocity * 30f;
+                                if (projPosition.Distance(targetDataCenter) < projDistance)
                                 {
-                                    Vector2 vector35 = center4 - vector32;
+                                    Vector2 vector35 = targetDataCenter - projPosition;
                                     if (vector35 == Vector2.Zero)
                                     {
                                         vector35 = vector30;
                                     }
-                                    vector32 = center4 - Vector2.Normalize(vector35) * num86;
+                                    projPosition = targetDataCenter - Vector2.Normalize(vector35) * projDistance;
                                 }
-                                v3 = vector34 - vector32;
-                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector32, Vector2.Zero, 919, fairyQueenLanceProjDamage, 0f, Main.myPlayer, v3.ToRotation(), npc.ai[1] / 100f);
+                                rotation = vector34 - projPosition;
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), projPosition, Vector2.Zero, 919, fairyQueenLanceProjDamage, 0f, Main.myPlayer, rotation.ToRotation(), npc.ai[1] / 100f);
                             }
                         }
                     }
@@ -562,7 +591,7 @@ partial class NPCAIs
                         int ainum60 = (int)npc.ai[1] / 60;
                         int num27 = ((targetData2.Center.X > npc.Center.X) ? 1 : 0);
                         float num28 = 6f;
-                        if (flag2)
+                        if (expertMode)
                         {
                             num28 = 8f;
                         }
@@ -589,13 +618,13 @@ partial class NPCAIs
             case 7:
                 {
                     float num70 = 20f;
-                    float num71 = 60f;
-                    float num72 = num71 * 4f;
-                    if (flag2)
+                    float interval = 60f;
+                    float endInterval = interval * 4f;
+                    if (expertMode)
                     {
                         num70 = 40f;
-                        num71 = 40f;
-                        num72 = num71 * 6f;
+                        interval = 40f;
+                        endInterval = interval * 6f;
                     }
                     num70 -= num17;
                     NPCAimedTarget targetData9 = npc.GetTargetData();
@@ -604,76 +633,82 @@ partial class NPCAIs
                     {
                         npc.SimpleFlyMovement(npc.DirectionTo(vector25 + vector4).SafeNormalize(Vector2.Zero) * num2 * 0.4f, num);
                     }
-                    if ((int)npc.ai[1] % num71 == 0f && npc.ai[1] < num72)
+                    if ((int)npc.ai[1] % interval == 0f && npc.ai[1] < endInterval)
                     {
-                        SoundEngine.PlaySound(SoundID.Item162, npc.Center);
-                        Main.rand.NextFloat();
-                        int num73 = (int)npc.ai[1] / (int)num71;
-                        float num74 = 13f;
+                        //SoundEngine.PlaySound(SoundID.Item162, npc.Center);
+                        //Main.rand.NextFloat();
+                        int times = (int)npc.ai[1] / (int)interval;
+                        float newProjCount = 13f;
                         float num75 = 150f;
-                        float num76 = num74 * num75;
-                        Vector2 center3 = targetData9.Center;
-                        if (npc.Distance(center3) <= 3200f)
+                        //float num75 = 75f;
+                        float num76 = newProjCount * num75;
+                        Vector2 targetCenter = targetData9.Center;
+                        if (npc.Distance(targetCenter) <= 3200f)
                         {
-                            Vector2 vector26 = Vector2.Zero;
+                            Vector2 newProjPositionOffset = Vector2.Zero;
                             Vector2 vector27 = Vector2.UnitY;
                             float num77 = 0.4f;
                             float num78 = 1.4f;
+                            //float num78 = 0.7f;
                             float num79 = 1f;
-                            if (flag2)
+                            if (expertMode)
                             {
-                                num74 += 5f;
+                                newProjCount += 5f;
                                 num75 += 50f;
                                 num79 *= 1f;
                                 num76 *= 0.5f;
                             }
-                            switch (num73)
+                            switch (times)
                             {
                                 case 0:
-                                    center3 += new Vector2((0f - num76) / 2f, 0f) * num79;
-                                    vector26 = new Vector2(0f, num76);
+                                    targetCenter += new Vector2((0f - num76) / 2f, 0f) * num79;
+                                    newProjPositionOffset = new Vector2(0f, num76);
                                     vector27 = Vector2.UnitX;
                                     break;
                                 case 1:
-                                    center3 += new Vector2(num76 / 2f, num75 / 2f) * num79;
-                                    vector26 = new Vector2(0f, num76);
+                                    targetCenter += new Vector2(num76 / 2f, num75 / 2f) * num79;
+                                    newProjPositionOffset = new Vector2(0f, num76);
                                     vector27 = -Vector2.UnitX;
                                     break;
                                 case 2:
-                                    center3 += new Vector2(0f - num76, 0f - num76) * num77 * num79;
-                                    vector26 = new Vector2(num76 * num78, 0f);
+                                    targetCenter += new Vector2(0f - num76, 0f - num76) * num77 * num79;
+                                    newProjPositionOffset = new Vector2(num76 * num78, 0f);
                                     vector27 = new Vector2(1f, 1f);
                                     break;
                                 case 3:
-                                    center3 += new Vector2(num76 * num77 + num75 / 2f, (0f - num76) * num77) * num79;
-                                    vector26 = new Vector2((0f - num76) * num78, 0f);
+                                    targetCenter += new Vector2(num76 * num77 + num75 / 2f, (0f - num76) * num77) * num79;
+                                    newProjPositionOffset = new Vector2((0f - num76) * num78, 0f);
                                     vector27 = new Vector2(-1f, 1f);
                                     break;
                                 case 4:
-                                    center3 += new Vector2(0f - num76, num76) * num77 * num79;
-                                    vector26 = new Vector2(num76 * num78, 0f);
-                                    vector27 = center3.DirectionTo(targetData9.Center);
+                                    targetCenter += new Vector2(0f - num76, num76) * num77 * num79;
+                                    newProjPositionOffset = new Vector2(num76 * num78, 0f);
+                                    vector27 = targetCenter.DirectionTo(targetData9.Center);
                                     break;
                                 case 5:
-                                    center3 += new Vector2(num76 * num77 + num75 / 2f, num76 * num77) * num79;
-                                    vector26 = new Vector2((0f - num76) * num78, 0f);
-                                    vector27 = center3.DirectionTo(targetData9.Center);
+                                    targetCenter += new Vector2(num76 * num77 + num75 / 2f, num76 * num77) * num79;
+                                    newProjPositionOffset = new Vector2((0f - num76) * num78, 0f);
+                                    vector27 = targetCenter.DirectionTo(targetData9.Center);
                                     break;
                             }
-                            float add = num74 / 59;
+                            float add = newProjCount / 59;
                             float count = 0;
-                            for (float num80 = 0f; num80 <= 1f; num80 += 1f / num74)
+                            for (float i = 0f; i <= 1f; i += 1f / newProjCount)
                             {
-                                Vector2 origin = center3 + vector26 * (num80 - 0.5f);
+                                Vector2 origin = targetCenter + newProjPositionOffset * (i - 0.5f);
+                                //Vector2 origin = targetCenter + newProjPositionOffset;
                                 Vector2 v2 = vector27;
-                                if (flag2)
+                                if (expertMode)
                                 {
-                                    Vector2 vector28 = targetData9.Velocity * 20f * num80;
-                                    Vector2 value2 = origin.DirectionTo(targetData9.Center + vector28);
-                                    v2 = Vector2.Lerp(vector27, value2, 0.75f).SafeNormalize(Vector2.UnitY);
+                                    v2 = Vector2.Lerp(vector27, origin.DirectionTo(targetData9.Center + targetData9.Velocity * 20f * i), 0.75f).SafeNormalize(Vector2.UnitY);
+
+                                    //var originTargetCenter = targetData9.Center + targetData9.Velocity * 20f * i;
+                                    //origin = origin.RotatedBy((i - 0.5f) * Math.PI / 2, originTargetCenter);
+                                    //v2 = origin.DirectionTo(originTargetCenter).SafeNormalize(Vector2.UnitY);
                                 }
-                                float ai2 = num80;
-                                var ro = v2.RotatedByRandom(2);
+
+                                float ai2 = i;
+                                var ro = v2.RotatedByRandom(2 * Math.PI);
                                 ro *= 3f;
                                 if (Main.netMode != 1)
                                 {
@@ -693,7 +728,7 @@ partial class NPCAIs
                         }
                     }
                     npc.ai[1] += 1f;
-                    if (npc.ai[1] >= num72 + num70)
+                    if (npc.ai[1] >= endInterval + num70)
                     {
                         npc.ai[0] = 1f;
                         npc.ai[1] = 0f;
@@ -830,9 +865,9 @@ partial class NPCAIs
                     }
                     NPCAimedTarget targetData6 = npc.GetTargetData();
                     Vector2 vector12 = (targetData6.Invalid ? npc.Center : targetData6.Center);
-                    if (npc.Distance(vector12 + vector3) > num3)
+                    if (npc.Distance(vector12 + heightOffset) > num3)
                     {
-                        npc.SimpleFlyMovement(npc.DirectionTo(vector12 + vector3).SafeNormalize(Vector2.Zero) * num2, num);
+                        npc.SimpleFlyMovement(npc.DirectionTo(vector12 + heightOffset).SafeNormalize(Vector2.Zero) * num2, num);
                     }
                     if ((int)npc.ai[1] % 3 == 0 && npc.ai[1] < 100f)
                     {
@@ -922,7 +957,7 @@ partial class NPCAIs
                         npc.AI_120_HallowBoss_DoMagicEffect(npc.Center + vector6, 1, Utils.GetLerpValue(0f, 60f, npc.ai[1], clamped: true));
                     }
                     int num22 = 6;
-                    if (flag2)
+                    if (expertMode)
                     {
                         num22 = 4;
                     }

@@ -50,13 +50,13 @@ public sealed class TerrariaPacketWriter : BinaryWriter, IPacketWriter
         Write(value.Y);
     }
 }
-public sealed class FixedLengthPacketWriter : IPacketWriter
+public struct FixedLengthPacketWriter : IPacketWriter
 {
     private byte[] data;
     public long Position { get => position; set => position = (int)value; }
     public byte[] GetData() => data;
-    private int position;
-    private bool disposedValue;
+    private int position = 0;
+    private bool disposedValue = false;
 
     //public FixedLengthPacketWriter(ushort length, byte msgType)
     public FixedLengthPacketWriter(ushort length)

@@ -1,9 +1,10 @@
-﻿<Project>
+﻿<Project Sdk="My.Plugins.Sdk">
 	<PropertyGroup>
+		<UsingCommon>true</UsingCommon>
 		<OutToPluginLoader>true</OutToPluginLoader>
 	</PropertyGroup>
-	<Import Project="..\..\Props\VBY.props" />
 	<ItemGroup>
 		<ProjectReference Include="..\ProgressQuery\ProgressQuery.csproj" />
+		<ProjectReference Include="..\ShopSourceGenerator\ShopGenerator.csproj" OutputItemType="Analyzer" ReferenceOutAssembly="false" />
 	</ItemGroup>
 </Project>

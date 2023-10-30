@@ -1,8 +1,9 @@
 ﻿using VBY.Common.Config;
+using VBY.Shop.Config;
 
 namespace VBY.Shop;
 
-public partial class Shop
+public partial class ShopPlugin
 {
     public static void OnPostRead(ConfigBase<Root> config)
     {
@@ -14,14 +15,14 @@ public partial class Shop
         var shops = config.Root.Shops;
         ReadConfig.Shops = new()
         {
-            [nameof(TableInfo.ItemSystemShop)] = shops.ItemShop.System,
-            [nameof(TableInfo.ItemChangeShop)] = shops.ItemShop.Change,
-            [nameof(TableInfo.ItemPayShop)] = shops.ItemShop.Pay,
-            [nameof(TableInfo.LifeHealShop)] = shops.LifeShop.Heal,
-            [nameof(TableInfo.LifeMaxShop)] = shops.LifeShop.Max,
-            [nameof(TableInfo.BuffShop)] = shops.BuffShop,
-            [nameof(TableInfo.TileShop)] = shops.TileShop,
-            [nameof(TableInfo.NpcShop)] = shops.NpcShop,
+            { nameof(TableInfo.ItemSystemShop), shops.ItemShop.System },
+            { nameof(TableInfo.ItemChangeShop), shops.ItemShop.Change },
+            { nameof(TableInfo.ItemPayShop), shops.ItemShop.Pay },
+            { nameof(TableInfo.LifeHealShop), shops.LifeShop.Heal },
+            { nameof(TableInfo.LifeMaxShop), shops.LifeShop.Max },
+            { nameof(TableInfo.BuffShop), shops.BuffShop },
+            { nameof(TableInfo.TileShop), shops.TileShop },
+            { nameof(TableInfo.NpcShop), shops.NpcShop }
         };
         foreach (var shop in ReadConfig.Shops)
         {

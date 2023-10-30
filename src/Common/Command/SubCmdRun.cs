@@ -33,7 +33,7 @@ public class SubCmdRun : SubCmdBase
         HelpText = helpText;
         if (runCmd.Method.ReturnType != TypeOf.Void)
             throw new Exception("need void method");
-        ParameterInfo[] paramInfos = runCmd.Method.GetParameters();
+        var paramInfos = runCmd.Method.GetParameters();
         Type[] paramTypes = paramInfos.Select(x => x.ParameterType).ToArray();
         RunCmdInstance = runCmd;
         if (paramInfos.Length == 0)
@@ -47,7 +47,7 @@ public class SubCmdRun : SubCmdBase
             RunCmd = (SubCmdD)runCmd;
             return;
         }
-        var argsHelpTypes = new List<ParameterInfo>(paramInfos);
+        var argsHelpTypes = new List<System.Reflection.ParameterInfo>(paramInfos);
         for (int i = 0; i < paramInfos.Length; i++)
         {
             var type = paramTypes[i];
@@ -57,29 +57,31 @@ public class SubCmdRun : SubCmdBase
         MinArgsCount = minArgsCount ?? argsHelpTypes.Count;
         ArgsHelpText = string.Join(' ', argsHelpTypes.Select(x => $"<{x.Name}: {Info.TypeNames[x.ParameterType.Name]}>"));
         DynamicMethod dynamic = new(cmdName, TypeOf.Void, new Type[] { TypeOf.SubCmdNodeRun, TypeOf.SubCmdArgs });
-        var il = new Emit.ILGeneratorClass(dynamic.GetILGenerator());
+        var il = new Emit.ILGeneratorClass(dynamic);
         var actionType = Type.GetType($"System.Action`{paramTypes.Length}").MakeGenericType(paramTypes);
 
         var invokeValue = new List<string>(paramTypes.Length) { };
-        var endLabel = il.il.DefineLabel();
+        var endLabel = il.IlGenerator.DefineLabel();
 
         #region localvar
 
         //var player = args.commandArgs.Player
-        var player = il.il.DeclareLocal(TypeOf.TSPlayer);
-        il.Ldarg(1);
-        il.Ldfld(TypeOf.SubCmdArgs.GetField(nameof(SubCmdArgs.commandArgs)));
-        il.Callvirt(TypeOf.CommandArgs.GetProperty(nameof(CommandArgs.Player)).GetGetMethod());
-        il.Stloc(player);
+        var player = il.DeclareLocal(TypeOf.TSPlayer);
+        il.Ldarg(1).Ld($"{nameof(SubCmdArgs.commandArgs)}.{nameof(CommandArgs.Player)}").Stloc(player);
+        //il.Ldarg(1)
+        //    .Ldfld(nameof(SubCmdArgs.commandArgs))
+        //    .Callvirt(TypeOf.CommandArgs.GetProperty(nameof(CommandArgs.Player)).GetGetMethod());
+        //il.Stloc(player);
 
         //var parameters = args.Parameters;
-        var parameters = il.il.DeclareLocal(TypeOf.ListOfString);
-        il.Ldarg(1);
-        il.Ldfld(TypeOf.SubCmdArgs.GetField(nameof(SubCmdArgs.Parameters)));
-        il.Stloc(parameters);
+        var parameters = il.DeclareLocal(TypeOf.ListOfString);
+        il.Ldarg(1).Ld(nameof(SubCmdArgs.Parameters)).Stloc(parameters);
+        //il.Ldarg(1);
+        //il.Ldfld(TypeOf.SubCmdArgs.GetField(nameof(SubCmdArgs.Parameters)));
+        //il.Stloc(parameters);
 
         //string text
-        var text = il.il.DeclareLocal(TypeOf.String);
+        var text = il.DeclareLocal(TypeOf.String);
         #endregion
 
         int stringIndex = -1;
@@ -114,14 +116,14 @@ public class SubCmdRun : SubCmdBase
                     il.Dup();
                     il.Ldfld(typeof((bool, TSPlayer)).GetField(nameof(ValueTuple<bool, TSPlayer>.Item1)));
                     //if (!Utils.FindByNameOrID(text,player)) return; 
-                    var endifLabel = il.il.DefineLabel();
+                    var endifLabel = il.IlGenerator.DefineLabel();
                     il.Brtrue(endifLabel);
                     //return
                     il.Pop();
                     il.Br(endLabel);
-                    il.il.MarkLabel(endifLabel);
+                    il.IlGenerator.MarkLabel(endifLabel);
                     //} inPly = Item2
-                    var inPly = il.il.DeclareLocal(TypeOf.TSPlayer);
+                    var inPly = il.DeclareLocal(TypeOf.TSPlayer);
                     il.Ldfld(typeof((bool, TSPlayer)).GetField(nameof(ValueTuple<bool, TSPlayer>.Item2)));
                     il.Stloc(inPly);
                     invokeValue.Add($"ply:{inPly.LocalIndex}");
@@ -137,9 +139,9 @@ public class SubCmdRun : SubCmdBase
                 il.Stloc(text);
 
                 //bool int.TryParse(string, int32&)
-                var endifLabel1 = il.il.DefineLabel();
+                var endifLabel1 = il.IlGenerator.DefineLabel();
                 il.Ldloc(text);
-                var result = il.il.DeclareLocal(type);
+                var result = il.DeclareLocal(type);
                 il.Ldloca((short)result.LocalIndex);
                 il.Call(type.GetMethod("TryParse", new Type[] { TypeOf.String, type.MakeByRefType() }));
 
@@ -164,7 +166,7 @@ public class SubCmdRun : SubCmdBase
                 il.Br(endLabel);
 
                 //}
-                il.il.MarkLabel(endifLabel1);
+                il.IlGenerator.MarkLabel(endifLabel1);
                 invokeValue.Add($"loc:{result.LocalIndex}");
             }
             else if (type == TypeOf.ListOfString)
@@ -178,9 +180,9 @@ public class SubCmdRun : SubCmdBase
 
         #region Castclass
         //((Action`...)this.RunCmdInstance).Invoke(args...)
-        il.Ldarg(0);
-        il.Ldfld(GetType().GetField(nameof(RunCmdInstance), BindingFlags.Instance | BindingFlags.NonPublic));
-        il.Castclass(actionType);
+        il.Ldarg(0)
+            .Ldfld(nameof(RunCmdInstance), BindingFlags.Instance | BindingFlags.NonPublic)
+            .Castclass(actionType);
         #endregion
 
         #region Invoke
@@ -221,7 +223,7 @@ public class SubCmdRun : SubCmdBase
         il.Callvirt(actionType.GetMethod("Invoke", paramTypes));
         #endregion
 
-        il.il.MarkLabel(endLabel);
+        il.IlGenerator.MarkLabel(endLabel);
         il.Ret();
         RunCmd = dynamic.CreateDelegate<SubCmdD>(this);
     }

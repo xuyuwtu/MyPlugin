@@ -62,31 +62,21 @@ partial class NPCAIs
                     npc.ai[2] = 0f;
                     npc.netUpdate = true;
                     int[] array5 = new int[3];
-                    int index = 0;
+                    int num1169 = 0;
                     for (int i = 0; i < 2; i++)
                     {
-                        int newNpcIndex1 = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X + i * 800 - 400, (int)npc.Center.Y - 100, 397, npc.whoAmI);
-                        Main.npc[newNpcIndex1].ai[2] = i;
-                        Main.npc[newNpcIndex1].netUpdate = true;
-                        array5[index++] = newNpcIndex1;
+                        int num1171 = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X + i * 800 - 400, (int)npc.Center.Y - 100, 397, npc.whoAmI);
+                        Main.npc[num1171].ai[2] = i;
+                        Main.npc[num1171].netUpdate = true;
+                        array5[num1169++] = num1171;
                     }
-                    //for (int i = 0; i < 2; i++)
-                    //{
-                    //    int newNpcIndex = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X + i * 1600 - 800, (int)npc.Center.Y - 100, 397, npc.whoAmI);
-                    //    Main.npc[newNpcIndex].ai[2] = i;
-                    //    Main.npc[newNpcIndex].netUpdate = true;
-                    //    Main.npc[newNpcIndex].ai[3] = npc.whoAmI;
-                    //}
-
-                    int newHeadNpcIndex = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X, (int)npc.Center.Y - 400, 396, npc.whoAmI);
-                    Main.npc[newHeadNpcIndex].netUpdate = true;
-                    array5[index++] = newHeadNpcIndex;
+                    int num1172 = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X, (int)npc.Center.Y - 400, 396, npc.whoAmI);
+                    Main.npc[num1172].netUpdate = true;
+                    array5[num1169++] = num1172;
                     for (int i = 0; i < 3; i++)
                     {
                         Main.npc[array5[i]].ai[3] = npc.whoAmI;
-                        Main.npc[array5[i]].realLife = npc.whoAmI;
                     }
-                    npc.realLife = npc.whoAmI;
                     for (int i = 0; i < 3; i++)
                     {
                         npc.localAI[i] = array5[i];

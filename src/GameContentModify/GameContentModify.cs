@@ -12,6 +12,7 @@ using TShockAPI.Hooks;
 using Newtonsoft.Json;
 using MonoMod.RuntimeDetour;
 
+using VBY.Common.Config;
 using VBY.GameContentModify.Config;
 using VBY.GameContentModify.ID;
 
@@ -26,14 +27,15 @@ public partial class GameContentModify : TerrariaPlugin
     public static event Action<ReloadEventArgs, MainConfigInfo>? PostReload;
     public static event Action<MainConfigInfo>? PreStartDay;
     public static event Action<MainConfigInfo>? PreStartNight;
-    public static ConfigBase<MainConfigInfo> MainConfig = new(Strings.ConfigDirectory, Strings.MainConfigPath, () => new());
-    public static ConfigBase<ChestSpawnInfo[]> ChestSpawnConfig = new(Strings.ConfigDirectory, Strings.ChestSpawnConfigPath, () => new ChestSpawnInfo[]
+    public static ConfigManager<MainConfigInfo> MainConfig = new(Strings.ConfigDirectory, Strings.MainConfigFileName, () => new());
+    public static ConfigManager<ChestSpawnInfo[]> ChestSpawnConfig = new(Strings.ConfigDirectory, Strings.ChestSpawnConfigFileName, () => new ChestSpawnInfo[]
     {
         new ChestSpawnNPCInfo(ItemID.LightKey, NPCID.BigMimicHallow),
         new ChestSpawnNPCInfo(ItemID.NightKey, NPCID.BigMimicCorruption, NPCID.BigMimicCrimson),
         new ChestSpawnNPCInfo(ItemID.GoldenKey, NPCID.Mimic){ ItemStack = 3 }
     }) { Converter = new ChestSpawnConverter() };
-    public static ConfigBase<ItemTransformInfo[]> ItemTrasnfromConfig = new(Strings.ConfigDirectory, Strings.ItemTrasnfromConfigPath, () => new ItemTransformInfo[]
+#pragma warning disable format
+    public static ConfigManager<ItemTransformInfo[]> ItemTrasnfromConfig = new(Strings.ConfigDirectory, Strings.ItemTrasnfromConfigFileName, () => new ItemTransformInfo[]
     {
         new(ItemID.RodofDiscord,            ItemID.RodOfHarmony,            ProgressQueryID.Moonlord),
         new(ItemID.Clentaminator,           ItemID.Clentaminator2,          ProgressQueryID.Moonlord),
@@ -46,6 +48,7 @@ public partial class GameContentModify : TerrariaPlugin
         new(ItemID.FrozenKey,               ItemID.StaffoftheFrostHydra,    ProgressQueryID.PlantBoss),
         new(ItemID.DungeonDesertKey,        ItemID.StormTigerStaff,         ProgressQueryID.PlantBoss)
     }) { SerializerSettings = new JsonSerializerSettings() { DefaultValueHandling = DefaultValueHandling.Ignore } };
+#pragma warning restore format
     internal Command AddCommand;
     private static readonly List<Detour> Detours = new()
     {
@@ -59,20 +62,17 @@ public partial class GameContentModify : TerrariaPlugin
         Utils.GetDetour<WorldGen>(ReplaceWorldGen.UpdateWorld),
         Utils.GetDetour<WorldGen>(ReplaceWorldGen.hardUpdateWorld),
         Utils.GetDetour<WorldGen>(ReplaceWorldGen.CheckOrb),
-        Utils.GetDetour<NetMessage>(ReplaceNetMessage.orig_SendData)
+        Utils.GetDetour<NetMessage>(ReplaceNetMessage.orig_SendData),
+        Utils.GetDetour<Terraria.GameContent.TeleportPylonsSystem>(GameContent.ReplaceTeleportPylonsSystem.HandleTeleportRequest)
     };
     public GameContentModify(Main game) : base(game)
     {
         AddCommand = new Command(Cmd, "gcm");
-        MainConfig.Instance.LoadToStatic();
     }
     public override void Initialize()
     {
         Commands.ChatCommands.Add(AddCommand);
-
-        MainConfig.Load(TSPlayer.Server);
-        ChestSpawnConfig.Load(TSPlayer.Server);
-        ItemTrasnfromConfig.Load(TSPlayer.Server);
+        LoadConfig(TSPlayer.Server);
 
         if (MainConfig.Instance.BoundTownSlimeOldSpawnAtUnlock)
         {
@@ -83,34 +83,24 @@ public partial class GameContentModify : TerrariaPlugin
         {
             Detours.Add(Utils.GetDetour<NPC>(ReplaceNPC.UpdateNPC));
         }
-
-        ShimmerItemReplaceInfo.Reset();
-        ShimmerItemReplaceInfo.Load(ItemTrasnfromConfig.Instance);
-
         if (Main.versionNumber == "v1.4.4.9")
         {
             Detours.ForEach(x => x.Apply());
         }
+        On.Terraria.Net.NetManager.SendData += OnNetManager_SendData;
         On.Terraria.Projectile.ExplodeTiles += OnProjectile_ExplodeTiles;
-        if (SpawnInfo.TownNPCInfo.StaticSpawnAtNight)
-        {
-            On.Terraria.Main.UpdateTime += OnMain_UpdateTime;
-        }
         GeneralHooks.ReloadEvent += OnTShockReload;
+        ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
     }
-
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
             Commands.ChatCommands.Remove(AddCommand);
+            MainConfigInfo.ResetStatic();
             Detours.ForEach(x => x.Dispose());
+            On.Terraria.Net.NetManager.SendData -= OnNetManager_SendData;
             On.Terraria.Projectile.ExplodeTiles -= OnProjectile_ExplodeTiles;
-            //On.Terraria.Chat.ChatHelper.BroadcastChatMessage -= OnChatHelper_BroadcastChatMessage;
-            if (MainConfig.Instance.Spawn.TownNPC.SpawnAtNight)
-            {
-                On.Terraria.Main.UpdateTime -= OnMain_UpdateTime;
-            }
             GeneralHooks.ReloadEvent -= OnTShockReload;
             Utils.ClearOwner(OnProjectile_ExplodeTiles);
         }
@@ -125,29 +115,28 @@ public partial class GameContentModify : TerrariaPlugin
         }
         orig(self, compareSpot, radius, minI, maxI, minJ, maxJ, wallSplode);
     }
-    private static void OnMain_UpdateTime(On.Terraria.Main.orig_UpdateTime orig)
+    private void OnNetManager_SendData(On.Terraria.Net.NetManager.orig_SendData orig, Terraria.Net.NetManager self, Terraria.Net.Sockets.ISocket socket, Terraria.Net.NetPacket packet)
     {
-        orig();
-        if (!Main.dayTime)
+        if (MainConfigInfo.NotSendNetPacketIDs.Contains(packet.Id))
         {
-            Main.UpdateTime_SpawnTownNPCs();
+            return;
         }
+        orig(self, socket, packet);
     }
     private void OnTShockReload(ReloadEventArgs e)
     {
-        MainConfig.Load(e.Player);
-        MainConfig.Instance.LoadToStatic();
-        ChestSpawnConfig.Load(e.Player);
-        ItemTrasnfromConfig.Load(e.Player);
-        ShimmerItemReplaceInfo.Reset();
-        ShimmerItemReplaceInfo.Load(ItemTrasnfromConfig.Instance);
-
+        LoadConfig(e.Player);
         e.Player.SendSuccessMessage("[VBY.GameContentModify]重载完成");
         OnPostReload(e);
     }
     private static void OnPostReload(ReloadEventArgs e)
     {
         PostReload?.Invoke(e, MainConfig.Instance);
+    }
+    private void OnGamePostInitialize(EventArgs e)
+    {
+        MainConfig.Instance.LoadToStatic();
+        ServerApi.Hooks.GamePostInitialize.Deregister(this, OnGamePostInitialize);
     }
     #endregion
     internal static void OnPreStartDay() => PreStartDay?.Invoke(MainConfig.Instance);
@@ -163,64 +152,94 @@ public partial class GameContentModify : TerrariaPlugin
         switch (args.Parameters[0])
         {
             case "main":
-                ShowConfig(args.Player, "", typeof(MainConfigInfo), MainConfig.Instance);
+                ShowConfig(args.Player, "", typeof(MainConfigInfo), MainConfig.Instance, args.Parameters.Contains("-nd"), MainConfig.GetDefaultFunc());
                 break;
             case "chest":
                 args.Player.SendInfoMessage(JsonConvert.SerializeObject(ChestSpawnConfig.Instance, Formatting.Indented));
                 break;
         }
     }
-    internal static void ShowConfig(TSPlayer player, string baseName, Type type, object target)
+    internal static void LoadConfig(TSPlayer player)
+    {
+        MainConfig.Load(player);
+        MainConfig.Instance.LoadToStatic();
+        ChestSpawnConfig.Load(player);
+        ItemTrasnfromConfig.Load(player);
+        ShimmerItemReplaceInfo.Reset();
+        ShimmerItemReplaceInfo.Load(ItemTrasnfromConfig.Instance);
+    }
+    internal static void ShowConfig(TSPlayer player, string baseName, Type type, object target, bool noSendDefault, object? defaultValue = null)
     {
         foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
         {
             if (field.FieldType.IsValueType)
             {
-                var sendStr = $"{field.GetCustomAttribute<DescriptionAttribute>()?.Description ?? field.Name}: {(field.FieldType == typeof(int) ? "1/" : "")}{field.GetValue(target)}";
+                string sendStr;
+                var descAttr = field.GetCustomAttribute<DescriptionAttribute>();
+                if (descAttr is not null)
+                {
+                    sendStr = string.Format(descAttr.Description, field.GetValue(target));
+                }
+                else
+                {
+                    sendStr = $"{field.Name}: {field.GetValue(target)}";
+                }
                 if (!string.IsNullOrEmpty(baseName))
                 {
                     sendStr = $"{baseName}.{sendStr}";
+                }
+                if(noSendDefault && defaultValue is not null && field.GetValue(defaultValue)!.Equals(field.GetValue(target)))
+                {
+                    continue;
                 }
                 player.SendInfoMessage(sendStr);
             }
             else if (field.FieldType.IsArray)
             {
                 //type.GetElementType()
+                var send = true;
+                string sendStr;
                 if (field.FieldType == typeof(int[]))
                 {
-                    var sendStr = $"{field.GetCustomAttribute<DescriptionAttribute>()?.Description ?? field.Name}: [{string.Join(", ", (int[])field.GetValue(target)!)}]";
+                    sendStr = $"{field.GetCustomAttribute<DescriptionAttribute>()?.Description ?? field.Name}: [{string.Join(", ", (int[])field.GetValue(target)!)}]";
                     if (!string.IsNullOrEmpty(baseName))
                     {
                         sendStr = $"{baseName}.{sendStr}";
                     }
-                    player.SendInfoMessage(sendStr);
+                    if (noSendDefault && defaultValue is not null && JsonConvert.SerializeObject(field.GetValue(defaultValue)) == JsonConvert.SerializeObject(field.GetValue(target)))
+                    {
+                        send = false;
+                    }
+                }
+                else if(field.FieldType == typeof(string[]))
+                {
+                    sendStr = $"{field.GetCustomAttribute<DescriptionAttribute>()?.Description ?? field.Name}: [{string.Join(", ", (string[])field.GetValue(target)!)}]";
+                    if (!string.IsNullOrEmpty(baseName))
+                    {
+                        sendStr = $"{baseName}.{sendStr}";
+                    }
+                    if (noSendDefault && defaultValue is not null && JsonConvert.SerializeObject(field.GetValue(defaultValue)) == JsonConvert.SerializeObject(field.GetValue(target)))
+                    {
+                        send = false;
+                    }
                 }
                 else
                 {
-                    var sendStr = $"{field.GetCustomAttribute<DescriptionAttribute>()?.Description ?? field.Name}: 隐藏";
+                    sendStr = $"{field.GetCustomAttribute<DescriptionAttribute>()?.Description ?? field.Name}: 隐藏(懒得写)";
                     if (!string.IsNullOrEmpty(baseName))
                     {
                         sendStr = $"{baseName}.{sendStr}";
                     }
+                }
+                if (send)
+                {
                     player.SendInfoMessage(sendStr);
                 }
             }
             else
             {
-                ShowConfig(player, $"{(string.IsNullOrEmpty(baseName) ? "" : baseName + ".")}{field.FieldType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? field.Name}", field.FieldType, field.GetValue(target)!);
+                ShowConfig(player, $"{(string.IsNullOrEmpty(baseName) ? "" : baseName + ".")}{field.FieldType.GetCustomAttribute<DescriptionAttribute>()?.Description ?? field.Name}", field.FieldType, field.GetValue(target)!, noSendDefault, defaultValue is null ? null : field.GetValue(defaultValue)!);
             }
         }
     }
-}
-public class NaturalSpawnNPCSpawnInfo
-{
-    public int X;
-    public int Y;
-
-    public NaturalSpawnNPCSpawnInfo(int x, int y)
-    {
-        X = x;
-        Y = y;
-    }
-    public int NewNPC(int type, int start = 0) => NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), X, Y, type, start);
 }

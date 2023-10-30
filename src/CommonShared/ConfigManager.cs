@@ -1,26 +1,42 @@
 ﻿using TShockAPI;
 
 using Newtonsoft.Json;
-using IL.Terraria.GameContent.Bestiary;
+using System.Diagnostics;
 
-namespace VBY.GameContentModify.Config;
+namespace VBY.Common.Config;
 
-public class ConfigBase<T>
+public class ConfigManager<T>
 {
     public string ConfigDirectory;
     public string ConfigPath;
     public Func<T> GetDefaultFunc;
-    public T Instance;
+    private T? instance;
+    public T Instance
+    {
+        get => instance is null ? (instance = GetDefaultFunc()) : instance;
+        set => instance = value;
+    }
     public JsonConverter? Converter;
     public JsonSerializerSettings? SerializerSettings;
-    public ConfigBase(string configDirectory, string configPath, Func<T> getDefaultFunc)
+    public Action<T, TSPlayer?>? PostLoadAction;
+    public Action<T>? PreSaveAction;
+    public ConfigManager(string configDirectory, string configFileName, Func<T> getDefaultFunc)
     {
         ConfigDirectory = configDirectory;
-        ConfigPath = configPath;
+        ConfigPath = Path.Combine(configDirectory, configFileName);
         GetDefaultFunc = getDefaultFunc;
-        Instance = getDefaultFunc();
     }
-    public bool Load(TSPlayer player)
+    public ConfigManager(Func<T> getDefaultFunc, string? configFileNameWithoutExtension = null, string configDirectory = "Config")
+    {
+        ConfigDirectory = configDirectory;
+        GetDefaultFunc = getDefaultFunc;
+        if (string.IsNullOrEmpty(configFileNameWithoutExtension))
+        {
+            configFileNameWithoutExtension = new StackTrace().GetFrame(1)!.GetMethod()!.DeclaringType!.Namespace! + ".";
+        }
+        ConfigPath = Path.Combine(configDirectory, Path.ChangeExtension(configFileNameWithoutExtension, "json"));
+    }
+    public bool Load(TSPlayer? player)
     {
         if (!Directory.Exists(ConfigDirectory))
         {
@@ -39,25 +55,25 @@ public class ConfigBase<T>
                 {
                     config = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigPath), Converter);
                 }
-                Instance = config ?? GetDefaultFunc();
+                if (config is null)
+                {
+                    return false;
+                }
+                instance = config;
             }
             catch (Exception ex)
             {
                 TShock.Log.Error(ex.ToString());
-                player.SendErrorMessage(player.RealPlayer ? ex.ToString() : "转换配置文件 '{0}' 错误", ConfigPath);
+                player?.SendErrorMessage(player.RealPlayer ? ex.ToString() : "转换配置文件 '{0}' 错误", ConfigPath);
                 return false;
             }
-            finally
-            {
-                Instance ??= GetDefaultFunc();
-            }
-            return true;
         }
         else
         {
             File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Instance, Formatting.Indented, SerializerSettings));
-            return true;
         }
+        PostLoadAction?.Invoke(Instance, player);
+        return true;
     }
     public void Save(Formatting formatting = Formatting.Indented)
     {
@@ -65,6 +81,7 @@ public class ConfigBase<T>
         {
             Directory.CreateDirectory(ConfigDirectory);
         }
+        PreSaveAction?.Invoke(Instance);
         File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Instance, formatting));
     }
 }

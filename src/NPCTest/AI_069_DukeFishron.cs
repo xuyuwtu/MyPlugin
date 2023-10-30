@@ -48,22 +48,22 @@ static partial class NPCAIs
         {
             num2 = 30;
         }
-        int num5 = (expertMode ? 28 : 30);
+        //num2 = 0;
+        int firstOrderSprintFrames = (expertMode ? 28 : 30);
         float num6 = (expertMode ? 17f : 16f);
         if (flag4)
         {
-            num5 = 25;
+            firstOrderSprintFrames = 25;
             num6 = 27f;
         }
         else if (flag5 && flag3)
         {
-            num5 = (expertMode ? 27 : 30);
+            firstOrderSprintFrames = (expertMode ? 27 : 30);
             if (expertMode)
             {
                 num6 = 21f;
             }
         }
-        int num7 = 80;
         int num8 = 4;
         float num9 = 0.3f;
         float num10 = 5f;
@@ -368,6 +368,12 @@ static partial class NPCAIs
                         npc.ai[1] = 0f;
                         npc.ai[2] = 0f;
                         npc.velocity = Vector2.Normalize(targetPlayer.Center - npcCenter) * num6 * (1f + (1 - ((float)npc.life / npc.lifeMax)));
+                        //var newTargetPosition = targetPlayer.Center + targetPlayer.velocity * firstOrderSprintFrames / 2;
+                        //if ((newTargetPosition - npc.Center).Length() <= npc.velocity.Length() * firstOrderSprintFrames / 2)
+                        //{
+                        //    npc.velocity = Vector2.Normalize((newTargetPosition - npcCenter) * 2) * num6 * (1f + (1 - ((float)npc.life / npc.lifeMax)));
+                        //    Console.WriteLine("modify");
+                        //}
                         npc.rotation = (float)Math.Atan2(npc.velocity.Y, npc.velocity.X);
                         if (num26 != 0)
                         {
@@ -420,7 +426,7 @@ static partial class NPCAIs
                 npc.NewProjectile(Vector2.Zero, 288, npc.damage / 10);
             }
             npc.ai[2] += 1f;
-            if (npc.ai[2] >= num5)
+            if (npc.ai[2] >= firstOrderSprintFrames)
             {
                 npc.ai[0] = 0f;
                 npc.ai[1] = 0f;
@@ -468,13 +474,13 @@ static partial class NPCAIs
                     npc.velocity.Y -= num9;
                 }
             }
-            if (npc.ai[2] == 0f)
-            {
-                SoundEngine.PlaySound(29, (int)npcCenter.X, (int)npcCenter.Y, 20);
-            }
+            //if (npc.ai[2] == 0f)
+            //{
+            //    SoundEngine.PlaySound(29, (int)npcCenter.X, (int)npcCenter.Y, 20);
+            //}
             if (npc.ai[2] % num8 == 0f)
             {
-                SoundEngine.PlaySound(4, (int)npc.Center.X, (int)npc.Center.Y, 19);
+                //SoundEngine.PlaySound(4, (int)npc.Center.X, (int)npc.Center.Y, 19);
                 if (Main.netMode != 1)
                 {
                     Vector2 vector7 = Vector2.Normalize(targetPlayer.Center - npcCenter) * (npc.width + 20) / 2f + npcCenter;
@@ -492,6 +498,7 @@ static partial class NPCAIs
                 npc.spriteDirection = -npc.direction;
             }
             npc.ai[2] += 1f;
+            int num7 = 80;
             if (npc.ai[2] >= num7)
             {
                 npc.ai[0] = 0f;
@@ -667,7 +674,13 @@ static partial class NPCAIs
                         npc.ai[0] = 6f;
                         npc.ai[1] = 0f;
                         npc.ai[2] = 0f;
-                        npc.velocity = Vector2.Normalize(targetPlayer.Center - npcCenter) * num6 * 1.2f;
+                        npc.velocity = Vector2.Normalize(targetPlayer.Center - npcCenter) * num6 * 1.2f; 
+                        //var newTargetPosition = targetPlayer.Center + targetPlayer.velocity * firstOrderSprintFrames / 2;
+                        //if ((newTargetPosition - npc.Center).Length() <= npc.velocity.Length() * firstOrderSprintFrames / 2)
+                        //{
+                        //    npc.velocity = Vector2.Normalize((newTargetPosition - npcCenter) * 2) * num6 * (1f + (1 - ((float)npc.life / npc.lifeMax)));
+                        //    Console.WriteLine("modify");
+                        //}
                         npc.rotation = (float)Math.Atan2(npc.velocity.Y, npc.velocity.X);
                         if (num31 != 0)
                         {
@@ -711,19 +724,19 @@ static partial class NPCAIs
         }
         else if (npc.ai[0] == 6f)
         {
-            int num33 = 7;
-            for (int k = 0; k < num33; k++)
-            {
-                Vector2 vector10 = (Vector2.Normalize(npc.velocity) * new Vector2((npc.width + 50) / 2f, npc.height) * 0.75f).RotatedBy((k - (num33 / 2 - 1)) * Math.PI / (double)(float)num33) + npcCenter;
-                Vector2 vector11 = ((float)(Main.rand.NextDouble() * 3.1415927410125732) - (float)Math.PI / 2f).ToRotationVector2() * Main.rand.Next(3, 8);
-                int num34 = Dust.NewDust(vector10 + vector11, 0, 0, 172, vector11.X * 2f, vector11.Y * 2f, 100, default, 1.4f);
-                Main.dust[num34].noGravity = true;
-                Main.dust[num34].noLight = true;
-                Main.dust[num34].velocity /= 4f;
-                Main.dust[num34].velocity -= npc.velocity;
-            }
+            //int num33 = 7;
+            //for (int k = 0; k < num33; k++)
+            //{
+            //    Vector2 vector10 = (Vector2.Normalize(npc.velocity) * new Vector2((npc.width + 50) / 2f, npc.height) * 0.75f).RotatedBy((k - (num33 / 2 - 1)) * Math.PI / (double)(float)num33) + npcCenter;
+            //    Vector2 vector11 = ((float)(Main.rand.NextDouble() * 3.1415927410125732) - (float)Math.PI / 2f).ToRotationVector2() * Main.rand.Next(3, 8);
+            //    int num34 = Dust.NewDust(vector10 + vector11, 0, 0, 172, vector11.X * 2f, vector11.Y * 2f, 100, default, 1.4f);
+            //    Main.dust[num34].noGravity = true;
+            //    Main.dust[num34].noLight = true;
+            //    Main.dust[num34].velocity /= 4f;
+            //    Main.dust[num34].velocity -= npc.velocity;
+            //}
             npc.ai[2] += 1f;
-            if (npc.ai[2] >= num5)
+            if (npc.ai[2] >= firstOrderSprintFrames)
             {
                 npc.ai[0] = 5f;
                 npc.ai[1] = 0f;
@@ -953,7 +966,7 @@ static partial class NPCAIs
             //    Main.dust[num39].velocity -= npc.velocity;
             //}
             npc.ai[2] += 1f;
-            if (npc.ai[2] >= num5)
+            if (npc.ai[2] >= firstOrderSprintFrames)
             {
                 npc.ai[0] = 10f;
                 npc.ai[1] = 0f;

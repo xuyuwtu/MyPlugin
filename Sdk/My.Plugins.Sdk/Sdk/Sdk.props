@@ -1,0 +1,22 @@
+<Project>
+	
+	<PropertyGroup>
+		<BaseIntermediateOutputPath>$(SolutionDir)obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+	</PropertyGroup>
+	
+	<Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+	
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Platforms>AnyCPU;x64</Platforms>
+		<BaseOutputPath>$(SolutionDir)out\$(TShockVersion)</BaseOutputPath>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="TShock" Version="$(TShockVersion)" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<None Remove="$(HOMEDRIVE)$(HOMEPATH)\.nuget\packages\tshock\$(TShockVersion)\contentFiles\any\net6.0\HttpServer.dll" />
+	</ItemGroup>
+</Project>

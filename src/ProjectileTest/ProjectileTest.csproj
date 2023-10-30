@@ -1,9 +1,8 @@
-<Project>
+<Project Sdk="My.Plugins.Sdk">
 	<PropertyGroup>
-		<UsingCommon>false</UsingCommon>
+		<Prefix>VBY</Prefix>
 		<OutToPluginLoader>true</OutToPluginLoader>
 	</PropertyGroup>
-	<Import Project="..\..\Props\VBY.props" />
 	<ItemGroup>
 		<ProjectReference Include="..\ProjectileAI\ProjectileAI.csproj">
 			<Private>false</Private>

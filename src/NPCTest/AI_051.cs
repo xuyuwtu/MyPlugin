@@ -27,6 +27,8 @@ partial class NPCAIs
             NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X, (int)npc.Center.Y, 263, npc.whoAmI);
             NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X, (int)npc.Center.Y, 263, npc.whoAmI);
             NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X, (int)npc.Center.Y, 263, npc.whoAmI);
+
+            NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X, (int)npc.Center.Y, 263, npc.whoAmI);
         }
         int[] array2 = new int[3];
         float num764 = 0f;

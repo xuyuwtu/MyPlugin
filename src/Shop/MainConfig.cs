@@ -2,9 +2,9 @@
 
 using VBY.Common.Config;
 
-namespace VBY.Shop;
+namespace VBY.Shop.Config;
 
-public class Config : ConfigBase<Root>
+public class MainConfig : ConfigBase<Root>
 {
     public Dictionary<string, Show> Shops = new();
 }
@@ -52,6 +52,7 @@ public class LifeShop
 { 
     public class HealShop : Show
     {
+        public HealType HealType = HealType.FixedValue;
     }
     public class MaxShop : Show
     {
@@ -69,4 +70,8 @@ public class TileOffset
 {
     public short X;
     public short Y;
+}
+public enum HealType
+{
+    FixedValue, Percentage
 }

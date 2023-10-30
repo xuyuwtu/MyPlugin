@@ -1,9 +1,8 @@
-﻿<Project>
+﻿<Project Sdk="My.Plugins.Sdk">
 	<PropertyGroup>
 		<UsingCommon>false</UsingCommon>
 		<OutToPluginLoader>true</OutToPluginLoader>
 	</PropertyGroup>
-	<Import Project="..\..\Props\VBY.props" />
 	<PropertyGroup>
 		<DefineConstants>TShock$(TShockVersion.Replace(".", ""))</DefineConstants>
 	</PropertyGroup>

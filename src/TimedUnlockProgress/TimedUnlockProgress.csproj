@@ -1,0 +1,9 @@
+﻿<Project Sdk="My.Plugins.Sdk">
+
+  <PropertyGroup>
+	  <Prefix>VBY</Prefix>
+  </PropertyGroup>
+
+  <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
+
+</Project>

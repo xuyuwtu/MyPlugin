@@ -1,4 +1,6 @@
-﻿namespace VBY.NPCTest;
+﻿using Org.BouncyCastle.Crypto.Tls;
+
+namespace VBY.NPCTest;
 
 partial class NPCAIs
 {
@@ -116,7 +118,17 @@ partial class NPCAIs
             num741 *= num743;
             num742 *= num743;
 
-            Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector93.X, vector93.Y, num741, num742, projType, num739, 0f, Main.myPlayer);
+            if (Main.rand.Next(3) == 0)
+            {
+                var proj = Main.projectile[Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector93.X, vector93.Y, num741, num742, 291, 40, 0f, Main.myPlayer)];
+                proj.timeLeft = 300;
+                proj.ai[0] = Main.player[npc.target].Center.X;
+                proj.ai[1] = Main.player[npc.target].Center.Y;
+            }
+            else
+            {
+                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector93.X, vector93.Y, num741, num742, projType, num739, 0f, Main.myPlayer);
+            }
         }
         float num745 = num730;
         npc.ai[2] += num745;
@@ -228,22 +240,22 @@ partial class NPCAIs
                 Main.projectile[Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector94.X, vector94.Y, num750, num751, projType, num748, 0f, Main.myPlayer)].timeLeft = 300;
             }
         }
-        if (!Main.getGoodWorld)
-        {
-            npc.position += npc.netOffset;
-            int num754 = Main.rand.Next(2) * 2 - 1;
-            Vector2 vector95 = npc.Bottom + new Vector2(num754 * 22 * npc.scale, -22f * npc.scale);
-            Dust dust5 = Dust.NewDustPerfect(vector95, 228, ((float)Math.PI / 2f + -(float)Math.PI / 2f * num754 + Main.rand.NextFloatDirection() * ((float)Math.PI / 4f)).ToRotationVector2() * (2f + Main.rand.NextFloat()));
-            Dust dust = dust5;
-            dust.velocity += npc.velocity;
-            dust5.noGravity = true;
-            dust5 = Dust.NewDustPerfect(npc.Bottom + new Vector2(Main.rand.NextFloatDirection() * 6f * npc.scale, (Main.rand.NextFloat() * -4f - 8f) * npc.scale), 228, Vector2.UnitY * (2f + Main.rand.NextFloat()));
-            dust5.fadeIn = 0f;
-            dust5.scale = 0.7f + Main.rand.NextFloat() * 0.5f;
-            dust5.noGravity = true;
-            dust = dust5;
-            dust.velocity += npc.velocity;
-            npc.position -= npc.netOffset;
-        }
+        //if (!Main.getGoodWorld)
+        //{
+        //    npc.position += npc.netOffset;
+        //    int num754 = Main.rand.Next(2) * 2 - 1;
+        //    Vector2 vector95 = npc.Bottom + new Vector2(num754 * 22 * npc.scale, -22f * npc.scale);
+        //    Dust dust5 = Dust.NewDustPerfect(vector95, 228, ((float)Math.PI / 2f + -(float)Math.PI / 2f * num754 + Main.rand.NextFloatDirection() * ((float)Math.PI / 4f)).ToRotationVector2() * (2f + Main.rand.NextFloat()));
+        //    Dust dust = dust5;
+        //    dust.velocity += npc.velocity;
+        //    dust5.noGravity = true;
+        //    dust5 = Dust.NewDustPerfect(npc.Bottom + new Vector2(Main.rand.NextFloatDirection() * 6f * npc.scale, (Main.rand.NextFloat() * -4f - 8f) * npc.scale), 228, Vector2.UnitY * (2f + Main.rand.NextFloat()));
+        //    dust5.fadeIn = 0f;
+        //    dust5.scale = 0.7f + Main.rand.NextFloat() * 0.5f;
+        //    dust5.noGravity = true;
+        //    dust = dust5;
+        //    dust.velocity += npc.velocity;
+        //    npc.position -= npc.netOffset;
+        //}
     }
 }

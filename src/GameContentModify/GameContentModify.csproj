@@ -1,11 +1,11 @@
-﻿<Project>
+﻿<Project Sdk="My.Plugins.Sdk">
   <PropertyGroup>
     <Version>1.0.0.8</Version>
-    <UsingCommon>false</UsingCommon>
+	  <Prefix>VBY</Prefix>
     <OutToPluginLoader>true</OutToPluginLoader>
   </PropertyGroup>
-  <Import Project="..\..\Props\VBY.props" />
   <ItemGroup>
     <Compile Remove="Terraria\NPCUpdate.cs" />
   </ItemGroup>
+  <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
 </Project>

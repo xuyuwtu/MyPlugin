@@ -13,7 +13,7 @@ using VBY.Common.Extension;
 namespace VBY.Shop;
 
 [ApiVersion(2, 1)]
-public partial class Shop : TerrariaPlugin
+public partial class ShopPlugin : TerrariaPlugin
 {
     public override string Name => GetType().Name;
     public override string Description => "一个商店插件";
@@ -21,14 +21,13 @@ public partial class Shop : TerrariaPlugin
     public override Version Version => GetType().Assembly.GetName().Version!;
     public readonly static ShopPlayer[] Players = new ShopPlayer[byte.MaxValue];
     public static IDbConnection DB { get; internal set; }
-    public static Config ReadConfig { get; internal set; }
+    public static Config.MainConfig ReadConfig { get; internal set; }
     public SubCmdRoot CmdCommand, CtlCommand;
     public Command[] AddCommands;
-    static Shop()
+    static ShopPlugin()
     {
-        var typeName = typeof(Shop).Name;
+        var typeName = typeof(ShopPlugin).Name;
         ReadConfig = new();
-        ReadConfig.PostRead += OnPostRead;
         ReadConfig.Write(corver: true);
         ReadConfig.Read(true);
         var root = ReadConfig.Root;
@@ -37,11 +36,11 @@ public partial class Shop : TerrariaPlugin
         var creator = DB.GetTableCreator();
         foreach (var table in typeof(TableInfo).GetNestedTypes())
         {
-            Utils.GetFuncs.Add(table, Utils.GetReaderNewFunc(table));
+            //Utils.GetFuncs.Add(table, Utils.GetReaderNewFunc(table));
             var members = table.GetMembers(BindingFlags.Instance | BindingFlags.Public);
             var tableHeaders = new List<string>(members.Length);
             var columns = new List<SqlColumn>(members.Length);
-            var instance = Activator.CreateInstance(table);
+            var instance = Activator.CreateInstance(table)!;
             foreach (var member in table.GetMembers(BindingFlags.Instance | BindingFlags.Public).OrderBy(x => x.MetadataToken))
             {
                 if (member.MemberType is MemberTypes.Field or MemberTypes.Property)
@@ -100,30 +99,31 @@ public partial class Shop : TerrariaPlugin
                     });
                 }
             }
+            Utils.ShopInstances.Add(table, (Shops)instance);
             Utils.TableHeaders.Add(table, string.Join(',', tableHeaders));
             creator.EnsureTableStructure(new SqlTable(table.Name, columns));
-            var printformat = table.GetField("PrintFormat");
-            if (printformat is not null)
+
+            if(PrintName.Formats.TryGetValue(table.Name, out var format))
             {
-                var format = printformat.GetValue(null)!.ToString()!;
                 Shops.PrintGetArrFuncs[table.Name] = Utils.GetPrintArgsFunc(table, format);
-                Shops.PrintFormats[table.Name] = format;
             }
         }
+        Utils.GetFuncsInitialize();
+        ReadConfig.PostRead += OnPostRead;
         OnPostRead(ReadConfig);
     }
-    public Shop(Main game) : base(game)
+    public ShopPlugin(Main game) : base(game)
     {
         CmdCommand = new("Shop");
         CtlCommand = new("Shopctl");
         CmdCommand.AddList("Item", "物品商店", 2).AddBuyAndList<TableInfo.ItemSystemShop>()
-            .AddList("Change", "交易商店", 2).AddBuy1AndList<TableInfo.ItemChangeShop>()
-            .AddList("Pay", "充值商店", 2).AddBuyAndList<TableInfo.ItemPayShop>()
-            .AddList("Buff", "增益商店", 2).AddBuy1AndList<TableInfo.BuffShop>()
-            .AddList("Npc", "Npc商店", 2).AddBuyAndList<TableInfo.NpcShop>()
-            .AddList("Tile", "物块商店", 2).AddBuy1AndList<TableInfo.TileShop>()
-            .AddList("Heal", "恢复商店", 2).AddBuyAndList<TableInfo.LifeHealShop>()
-            .AddList("Max", "生命商店", 2).AddBuyAndList<TableInfo.LifeMaxShop>();
+                  .AddList("Change", "交易商店", 2).AddBuy1AndList<TableInfo.ItemChangeShop>()
+                  .AddList("Pay", "充值商店", 2).AddBuyAndList<TableInfo.ItemPayShop>()
+                  .AddList("Buff", "增益商店", 2).AddBuy1AndList<TableInfo.BuffShop>()
+                  .AddList("Npc", "Npc商店", 2).AddBuyAndList<TableInfo.NpcShop>()
+                  .AddList("Tile", "物块商店", 2).AddBuy1AndList<TableInfo.TileShop>()
+                  .AddList("Heal", "恢复商店", 2).AddBuyAndList<TableInfo.LifeHealShop>()
+                  .AddList("Max", "生命商店", 2).AddBuyAndList<TableInfo.LifeMaxShop>();
         CmdCommand.SetAllNode(new SetAllowInfo(true, null, null), x => x is SubCmdList { CmdName: "List" });
         AddCommands = ReadConfig.Root.Commands.GetCommands(CmdCommand, CtlCommand);
     }
@@ -133,7 +133,28 @@ public partial class Shop : TerrariaPlugin
         ServerApi.Hooks.GamePostInitialize.Register(this, x => Commands.HandleCommand(TSPlayer.Server, "/shop c l"));
         ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
         ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
+        ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
     }
+
+    public static void OnNetGetData(GetDataEventArgs args)
+    {
+        if(args.MsgID == PacketTypes.EffectHeal)
+        {
+            var shopPlayer = Players[args.Msg.whoAmI];
+            if(shopPlayer is not null)
+            {
+                if(ReadConfig.Root.Shops.LifeShop.Heal.HealType == Config.HealType.FixedValue)
+                {
+                    shopPlayer.TSPlayer.Heal((int)shopPlayer.HealStack);
+                }
+                else
+                {
+                    shopPlayer.TSPlayer.Heal((int)(shopPlayer.HealStack * BitConverter.ToInt16(args.Msg.readBuffer, args.Index + 1)));
+                }
+            }
+        }
+    }
+
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -151,7 +172,12 @@ public partial class Shop : TerrariaPlugin
         {
             return;
         }
-        Players[args.Who] = Utils.SelectShopPlayer(TShock.Players[args.Who]);
+        var shopPlayer = Utils.SelectShopPlayer(TShock.Players[args.Who]);
+        Players[args.Who] = shopPlayer;
+        foreach(var buff in shopPlayer.OpenBuff)
+        {
+            shopPlayer.TSPlayer.SetBuff(buff, shopPlayer.BuffTime);
+        }
     }
     public static void OnServerLeave(LeaveEventArgs args)
     {
@@ -205,28 +231,21 @@ public partial class Shop : TerrariaPlugin
         }
         shop.Buy(shopPlayer, count);
     }
-    public static void Add<T>(SubCmdArgs args) where T : Shops
-    {
-        var method = typeof(T).GetConstructors().First(x => x.GetParameters().Length > 0);
-        if(args.Parameters.Count < method.GetParameters().Length)
-        {
-            args.Player.SendErrorMessage("参数不足");
-        }
-    }
+    public static void Add<T>(SubCmdArgs args) where T : Shops => Utils.ShopInstances[typeof(T)].Add(args);
     public static void Del<T>(SubCmdArgs args) where T : Shops
     {
-        if(args.Parameters.Count == 0)
+        if (args.Parameters.Count == 0)
         {
             args.Player.SendInfoMessage("请输入要删除的商品ID");
             return;
         }
         var successIDs = new List<int>();
         var errorIDs = new List<int>();
-        foreach(var item in args.Parameters)
+        foreach (var item in args.Parameters)
         {
-            if(int.TryParse(item, out var buyId))
+            if (int.TryParse(item, out var buyId))
             {
-                var shop = Utils.SelectShop<T>(buyId);
+                Shops? shop = Utils.SelectShop<T>(buyId);
                 if (shop is null)
                 {
                     args.Player.SendErrorMessage("商品ID:{0} 未找到", buyId);
@@ -242,13 +261,18 @@ public partial class Shop : TerrariaPlugin
                 }
             }
         }
-        args.Player.SendSuccessMessage("删除商品:ID:{0} 成功", string.Join(',', successIDs));
-        args.Player.SendErrorMessage("删除商品:ID:{0} 失败", string.Join(',', errorIDs));
+        if (successIDs.Count > 0)
+        {
+            args.Player.SendSuccessMessage("[{0}]删除商品成功: {1} ", typeof(T).Name, string.Join(',', successIDs));
+        }
+        if (errorIDs.Count > 0)
+        {
+            args.Player.SendErrorMessage("[{0}]删除商品失败: {1} ", typeof(T).Name, string.Join(',', errorIDs));
+        }
     }
     public static void List<T>(SubCmdArgs args) where T : Shops
     {
         var sql = $"SELECT * FROM {typeof(T).Name}";
-        Console.WriteLine(sql);
         using var reader = DB.QueryReader(sql);
         var func = Utils.GetFunc<T>();
         if (!reader.Read())
@@ -268,7 +292,8 @@ public class ShopPlayer
     public string Name { get => TSPlayer.Name; }
     public long Money;
     public HashSet<int> HaveBuff, OpenBuff;
-    public int BuffTime, HealStack;
+    public int BuffTime;
+    public double HealStack;
     public ShopPlayer(TSPlayer player)
     {
         TSPlayer = player;
@@ -276,7 +301,7 @@ public class ShopPlayer
         HaveBuff = new();
         OpenBuff = new();
     }
-    public ShopPlayer(TSPlayer player, int playerId, long money, string haveBuff, string openBuff, int buffTime, int healStack)
+    public ShopPlayer(TSPlayer player, int playerId, long money, string haveBuff, string openBuff, int buffTime, double healStack)
     {
         TSPlayer = player;
         PlayerId = playerId;
@@ -286,7 +311,7 @@ public class ShopPlayer
         BuffTime = buffTime;
         HealStack = healStack;
     }
-    public void AddMoney(Shops shops, short count) => Money += shops.Price * count;
+    public void AddMoney(Shops shop, short count) => Money += shop.Price * count;
     public void ReduceMoney(Shops shop, short count) => Money -= shop.Price * count;
     public TableInfo.PlayerInfo ToPlayerInfo() => new(PlayerId, Name, Money, string.Join(',', HaveBuff), string.Join(',', OpenBuff), BuffTime, HealStack);
 }

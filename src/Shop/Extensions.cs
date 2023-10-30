@@ -13,7 +13,7 @@ public static class Extensions
     }
     public static bool GetShopPlayer(this TSPlayer player, out ShopPlayer shopPlayer)
     {
-        shopPlayer = Shop.Players[player.Index];
+        shopPlayer = ShopPlugin.Players[player.Index];
         if (shopPlayer is null)
         {
             player.SendErrorMessage("你的ShopPlayer不存在,请尝试重进服务器");
@@ -23,14 +23,20 @@ public static class Extensions
     }
     public static SubCmdList AddBuyAndList<T>(this SubCmdList list) where T : Shops
     {
-        list.AddCmd(Shop.Buy<T>, "购买商品", "<商品ID> [商品数量=1]", 2);
-        list.AddCmd(Shop.List<T>, "列出商品", 2);
+        list.AddCmd(ShopPlugin.Buy<T>, "购买商品", "<商品ID> [商品数量=1]", 2);
+        list.AddCmd(ShopPlugin.List<T>, "列出商品", 2);
+        return list.Parent!;
+    }
+    public static SubCmdList AddAddAndDel<T>(this SubCmdList list) where T : Shops
+    {
+        list.AddCmd(ShopPlugin.Add<T>, 2);
+        list.AddCmd(ShopPlugin.Del<T>, 2);
         return list.Parent!;
     }
     public static SubCmdList AddBuy1AndList<T>(this SubCmdList list) where T : Shops
     {
-        list.AddCmd(Shop.Buy1<T>, "购买商品", "<商品ID>", 2);
-        list.AddCmd(Shop.List<T>, "列出商品", 2);
+        list.AddCmd(ShopPlugin.Buy1<T>, "购买商品", "<商品ID>", 2);
+        list.AddCmd(ShopPlugin.List<T>, "列出商品", 2);
         return list.Parent!;
     }
 #nullable disable
@@ -38,7 +44,7 @@ public static class Extensions
     {
         iLGenerator.Emit(OpCodes.Callvirt, typeof(T).GetProperty(propertyName).GetGetMethod());
     }
-    public static void EmitTShockUMethod<T>(this ILGenerator iLGenerator,string fieldName,string methodName)
+    public static void EmitTShockMethod<T>(this ILGenerator iLGenerator,string fieldName,string methodName)
     {
         iLGenerator.Emit(OpCodes.Ldsfld, TypeOf.TShock.GetField(nameof(TShock.Utils))); 
         iLGenerator.Emit(OpCodes.Ldarg_0);

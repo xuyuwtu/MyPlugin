@@ -1,6 +1,4 @@
-﻿using IL.Terraria;
-
-namespace VBY.GameContentModify.ID;
+﻿namespace VBY.GameContentModify.ID;
 
 public static class StatuesStyleID
 {

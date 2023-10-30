@@ -10,4 +10,9 @@ public static class Utils
     {
         return vector2.RotatedBy(MathHelper.ToRadians(degress));
     }
+    public static Vector2 Normalize(this Vector2 vector2, float num)
+    {
+        float num1 = num / (float)Math.Sqrt(vector2.X * vector2.X + vector2.Y * vector2.Y);
+        return new Vector2(vector2.X * num1, vector2.Y * num1);
+    }
 }

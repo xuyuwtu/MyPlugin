@@ -1,9 +1,11 @@
-﻿<Project>
+﻿<Project Sdk="My.Plugins.Sdk">
 	<PropertyGroup>
-		<UsingCommon>false</UsingCommon>
+		<Prefix>VBY</Prefix>
 		<OutToPluginLoader>true</OutToPluginLoader>
 		<AssemblyTitle>VBY基础类库</AssemblyTitle>
 		<AssemblyVersion>1.0.0.1</AssemblyVersion>
 	</PropertyGroup>
-	<Import Project="..\..\Props\VBY.props" />
+	<ItemGroup>
+	  <Compile Remove="Command\ParameterInfo.cs" />
+	</ItemGroup>
 </Project>

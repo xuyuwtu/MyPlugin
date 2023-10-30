@@ -24,7 +24,7 @@ public class ProgressQuery : TerrariaPlugin
     private static readonly string[] DefaultBossNames = new[] {"未知", "史莱姆王", "克苏鲁之眼", "邪恶Boss", "蜂王", "骷髅王", "独眼巨鹿", "血肉墙", "史莱姆皇后",
                                      "任意机械BOSS", "毁灭者", "双子魔眼", "机械骷髅王", "世纪之花", "石巨人", "猪龙鱼公爵", "光之女皇", "拜月教邪教徒",
                                      "日耀柱", "星云柱", "星旋柱", "星尘柱", "月亮领主", "哀木", "南瓜王", "常绿尖叫怪", "圣诞坦克", "冰雪女王"};
-    private static readonly string[] DefaultEventNames = new[] { "未知", "哥布林军队", "海盗入侵", "南瓜月", "霜月", "火星暴乱" };
+    private static readonly string[] DefaultEventNames = new[] { "未知", "哥布林军队", "削弱军团", "海盗入侵", "南瓜月", "霜月", "火星暴乱" };
     public static readonly string[] BossNames = (string[])DefaultBossNames.Clone();
     public static readonly string[] EventNames = (string[])DefaultEventNames.Clone();
     public static bool DownedChristmas
@@ -86,6 +86,7 @@ public class ProgressQuery : TerrariaPlugin
         {
             () => true,
             () => NPC.downedGoblins,
+            () => NPC.downedFrost,
             () => NPC.downedPirates,
             () => DownedChristmas,
             () => DownedHelloween,
@@ -93,7 +94,7 @@ public class ProgressQuery : TerrariaPlugin
         };
         BossActions = new Action<bool>[BossFuncs.Length];
         EventActions = new Action<bool>[EventFuncs.Length];
-        BossActions[0] = EventActions[0] = x => { return; };
+        BossActions[0] = EventActions[0] = x => { };
         var type = typeof(ProgressQuery);
         var module = type.Module;
         foreach (var fa in new (string type, Func<bool>[] func, Action<bool>[] action)[] { ("Boss", BossFuncs, BossActions), ("Event", EventFuncs, EventActions) })
@@ -102,7 +103,7 @@ public class ProgressQuery : TerrariaPlugin
             {
                 byte[] ilarray = fa.func[i].Method.GetMethodBody()!.GetILAsByteArray()!;
                 var dm = new DynamicMethod($"{fa.type}Action{i}", null, new Type[] { typeof(bool) });
-                var il = new Common.Emit.ILGeneratorClass(dm.GetILGenerator());
+                var il = new Common.Emit.ILGeneratorClass(dm);
                 il.Ldarg(0);
                 if (ilarray[0] == OpCodes.Call.Value)
                 {

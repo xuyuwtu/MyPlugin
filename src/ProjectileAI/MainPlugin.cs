@@ -1,7 +1,6 @@
 ﻿using TerrariaApi.Server;
 
 using MonoMod.RuntimeDetour;
-using Org.BouncyCastle.Asn1.X509;
 
 namespace VBY.ProjectileAI;
 

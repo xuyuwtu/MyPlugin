@@ -1,7 +1,8 @@
-﻿<Project>
+﻿<Project Sdk="My.Plugins.Sdk">
 	<PropertyGroup>
+		<Prefix>VBY</Prefix>
 		<UsingCommon>false</UsingCommon>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-	<Import Project="..\..\Props\VBY.props" />
+	<Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
 </Project>

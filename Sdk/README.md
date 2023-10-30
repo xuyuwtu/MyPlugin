@@ -1,0 +1,1 @@
+copy to \<Visual Studio Install Path\>/MSBuild/Sdks/

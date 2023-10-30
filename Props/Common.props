@@ -60,15 +60,10 @@
 		<EmbeddedResource Remove="obj\**" />
 		<None Remove="obj\**" />
 	</ItemGroup>
-	
-	<Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
-
-	<!--<Target Name="CommonPreBuild" BeforeTargets="PreBuildEvent">
-		<RemoveDir Directories="$(MSBuildProjectDirectory)\out" Condition="Exists('$(MSBuildProjectDirectory)\out')" />
-	</Target>-->
-	
 	<Target Name="CommonPostBuild" AfterTargets="PostBuildEvent">
 		<Copy Condition="!$(OutToPluginLoader) and $(OutToPlugin)" SourceFiles="@(CopyToTShockFile)" DestinationFolder="$(TShockPath)\ServerPlugins" SkipUnchangedFiles="true"/>
 		<Copy Condition="$(OutToPluginLoader)" SourceFiles="@(CopyToTShockFile)" DestinationFolder="$(TShockPath)\PluginLoader" SkipUnchangedFiles="true"/>
 	</Target>
+	
+	<Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>

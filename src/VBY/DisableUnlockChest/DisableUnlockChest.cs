@@ -18,6 +18,13 @@ public class DisableUnlockChest : TerrariaPlugin
     {
         ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
     }
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
+        }
+    }
 
     private static void OnNetGetData(GetDataEventArgs args)
     {
@@ -41,14 +48,6 @@ public class DisableUnlockChest : TerrariaPlugin
                 }
             }
         }
-    }
-    protected override void Dispose(bool disposing)
-    {
-        if(disposing)
-        {
-            ServerApi.Hooks.NetGetData.Deregister(this, OnNetGetData);
-        }
-        base.Dispose(disposing);
     }
 }
 public static class LockAndUnlockTypeID

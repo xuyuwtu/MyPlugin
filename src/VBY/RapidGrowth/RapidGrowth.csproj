@@ -1,0 +1,5 @@
+<Project Sdk="My.Plugins.Sdk">
+	<PropertyGroup>
+		<OutToPluginLoader>true</OutToPluginLoader>
+	</PropertyGroup>
+</Project>

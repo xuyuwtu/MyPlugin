@@ -6,6 +6,8 @@ public class MainConfig
     public int SetOffsetX = 1;
     public int SetOffsetY = 3;
     public string DefaultBind = "";
+    public bool RandomBind = false;
+
     public List<SpawnPointInfo> SpawnPoints = new();
     public Dictionary<string, string> BindInfo = new();
 }

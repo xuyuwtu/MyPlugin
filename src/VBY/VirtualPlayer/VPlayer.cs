@@ -86,7 +86,23 @@ public class VPlayer : Player
                     ControlUpdate = true;
                     controlUseItem = true;
                     gravDir = 1;
-                    Projectile.NewProjectile(null, Center, (npc.Center - Center).Normalize(10), 357, 80, 10f, 255);
+
+                    var velocity = (npc.Center - Center).Normalize(10);
+                    Projectile.NewProjectile(null, Center, velocity, 357, 80, 10f, 255);
+                    Projectile.NewProjectile(null, Center, velocity, 357, 80, 10f, whoAmI);
+                    Projectile.NewProjectile(null, Center, velocity.RotatedBy(MathHelper.ToRadians(10)), 357, 80, 10f, 255);
+                    Projectile.NewProjectile(null, Center, velocity.RotatedBy(MathHelper.ToRadians(-10)), 357, 80, 10f, 255);
+                    //Projectile.NewProjectile(null, Center, velocity, 357, 80, 10f, 255);
+                    var toCenter = Center - npc.Center;
+                    var direction = toCenter.X < 0;
+                    NetSender.PlayerControls((byte)whoAmI, position, Vector2.Zero, direction);
+                    if (direction)
+                    {
+                        toCenter.X = -toCenter.X;
+                        toCenter.Y = -toCenter.Y;
+                    }
+                    NetSender.ShotAnimationAndSound((byte)whoAmI, Vector2.Normalize(toCenter).ToRotation(), 900);
+                    break;
                 }
             }
         }

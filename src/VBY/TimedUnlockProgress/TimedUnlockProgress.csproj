@@ -1,3 +1,5 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
-  <Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
+	<PropertyGroup>
+		<OutToPluginLoader>true</OutToPluginLoader>
+	</PropertyGroup>
 </Project>

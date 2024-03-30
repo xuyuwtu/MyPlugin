@@ -1,5 +1,2 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
-	<PropertyGroup>
-		<UsingCommon>false</UsingCommon>
-	</PropertyGroup>
 </Project>

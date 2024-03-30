@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
+using VBY.Common;
 using VBY.GameContentModify.Config;
 
 namespace VBY.GameContentModify;
@@ -18,9 +18,16 @@ public class ChestSpawnConverter : JsonConverter
         {
             var jobject = JToken.ReadFrom(reader);
             var list = new List<ChestSpawnInfo>();
+
+            var chestInfo = new ChestSpawnInfo();
+
             foreach(var info in jobject.ToArray())
             {
-                switch ((ChestSpawnAction)(info["Action"]?.ToObject<int>() ?? 0))
+                var infoReader = info.CreateReader();
+                serializer.Populate(info.CreateReader(), chestInfo);
+
+                //switch (info["Action"]?.ToObject<ChestSpawnAction>() ?? ChestSpawnAction.SpawnNPC)
+                switch(chestInfo.Action)
                 {
                     case ChestSpawnAction.SpawnNPC:
                         {

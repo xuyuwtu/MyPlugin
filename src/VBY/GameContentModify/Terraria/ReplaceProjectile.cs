@@ -1,23 +1,22 @@
 ﻿using Microsoft.Xna.Framework;
+
 using Terraria;
 using Terraria.ObjectData;
 
+
 namespace VBY.GameContentModify;
 
+[ReplaceType(typeof(Projectile))]
 public static class ReplaceProjectile
 {
     public static bool GasTrapCheck(int x, int y, Player user)
     {
-        //if (Main.netMode == 1)
-        //{
-        //    return false;
-        //}
-        int num = Chest.FindChest(x, y);
-        if (num < 0)
+        int chestIndex = Chest.FindChest(x, y);
+        if (chestIndex < 0)
         {
             return false;
         }
-        Chest chest = Main.chest[num];
+        Chest chest = Main.chest[chestIndex];
         int num2 = 16;
         int num3 = 16;
         bool flag = false;
@@ -46,7 +45,7 @@ public static class ReplaceProjectile
             }
             if (chest.item[i] != null && chest.item[i].type == 5346)
             {
-                Projectile.UseGasTrapInChest(num, chest, i, num2, num3);
+                Projectile.UseGasTrapInChest(chestIndex, chest, i, num2, num3);
                 flag = true;
                 if (GameContentModify.MainConfig.Instance.GasTrapsSuperpose)
                 {

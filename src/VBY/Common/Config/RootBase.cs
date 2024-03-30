@@ -2,5 +2,5 @@
 
 public class RootBase
 {
-    public Commands Commands = new();
+    public CommandGroup Commands = new();
 }

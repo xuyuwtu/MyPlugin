@@ -135,7 +135,7 @@ public class IncludeIDInfo
                 }
             }
         }
-        Ints.RemoveAt(removeIndexs);
+        Ints.RemoveIndexes(removeIndexs);
     }
     public void SetEmptyListNull()
     {

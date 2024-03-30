@@ -1,35 +1,28 @@
-﻿using Terraria;
+﻿using System.ComponentModel;
+
+using Terraria;
 using Terraria.GameContent.Creative;
 using TerrariaApi.Server;
 
 using TShockAPI;
 
+using VBY.Common;
+using VBY.Common.Hook;
+
 namespace VBY.RealTime;
+
 [ApiVersion(2, 1)]
-public class RealTime : TerrariaPlugin
+[Description("同步真实时间")]
+public class RealTime : CommonPlugin
 {
-    public override string Name => "VBY.RealTime";
     public override string Author => "yu";
-    public override string Description => "同步真实时间";
     private static DateTime LastTime = DateTime.Now;
     public RealTime(Main game) : base(game)
     {
+        AttachOnPostInitializeHook(OnPostInitizlize);
     }
 
-    public override void Initialize()
-    {
-        CreativePowerManager.Initialize();
-        CreativePowerManager.Instance.GetPower<CreativePowers.FreezeTime>().Enabled = true;
-        On.Terraria.Main.UpdateTime += OnMain_UpdateTime;
-    }
-    protected override void Dispose(bool disposing)
-    {
-        if(disposing) 
-        {
-            On.Terraria.Main.UpdateTime += OnMain_UpdateTime;
-        }
-        base.Dispose(disposing);
-    }
+    [AutoHook]
     private static void OnMain_UpdateTime(On.Terraria.Main.orig_UpdateTime orig)
     {
         orig();
@@ -39,6 +32,7 @@ public class RealTime : TerrariaPlugin
             SetTime(LastTime);
         }
     }
+    private static void OnPostInitizlize(EventArgs args) => CreativePowerManager.Instance.GetPower<CreativePowers.FreezeTime>().Enabled = true;
     private static void SetTime(DateTime setTime)
     {
         decimal time = setTime.Hour + setTime.Minute / 60.0m;

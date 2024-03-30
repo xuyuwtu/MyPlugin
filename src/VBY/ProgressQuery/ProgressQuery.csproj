@@ -1,6 +1,5 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
 	<PropertyGroup>
-		<UsingCommon>true</UsingCommon>
 		<OutToPluginLoader>true</OutToPluginLoader>
 	</PropertyGroup>
 </Project>

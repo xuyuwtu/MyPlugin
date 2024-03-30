@@ -3,5 +3,4 @@
 		<UsingCommon>false</UsingCommon>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-	<Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
 </Project>

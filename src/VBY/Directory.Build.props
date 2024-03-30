@@ -2,5 +2,7 @@
 	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 	<PropertyGroup>
 		<Prefix>VBY</Prefix>
+		<UsingCommon>true</UsingCommon>
+		<Version>1.0.0.$([System.DateTime]::Now.ToString("MMdd"))</Version>
 	</PropertyGroup>
 </Project>

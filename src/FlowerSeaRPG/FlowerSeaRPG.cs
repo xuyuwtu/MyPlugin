@@ -11,7 +11,7 @@ using TShockAPI.DB;
 
 using Newtonsoft.Json;
 
-using VBY.Common.Command;
+using VBY.Common.CommandV2;
 
 namespace FlowerSeaRPG;
 

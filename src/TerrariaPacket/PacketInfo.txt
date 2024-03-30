@@ -1,0 +1,16 @@
+Hello 1
+PlayerInfo 3
+SyncPlayer 4
+SyncEquipment 5
+SyncItem 21
+	SyncItemsWithShimmer 145
+	SyncItemCannotBeTakenByEnemies 148
+SpawnTileData 8
+TileFrameSection 11
+PlayerSpawn 12
+PlayerActive 14
+PlayerLifeMana 16
+TileManipulation 17
+SetTime 18
+ToggleDoorState 19
+DamageNPC 28

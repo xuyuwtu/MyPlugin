@@ -7468,7 +7468,7 @@ public static partial class AIs
         }
         else
         {
-            flag39 = !(projectile.ai[1] >= 0f) || !Main.npc[(int)projectile.ai[1]].active;
+            flag39 = !(projectile.ai[1] >= 0f && Main.npc[(int)projectile.ai[1]].active);
             if ((flag39 || Main.npc[(int)projectile.ai[1]].type != 439) && (flag39 || Main.npc[(int)projectile.ai[1]].type != 454) && (flag39 || Main.npc[(int)projectile.ai[1]].type != 521))
             {
                 flag39 = true;

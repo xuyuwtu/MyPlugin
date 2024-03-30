@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Reflection.Emit;
+using System.Reflection.Metadata;
 using Terraria;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
@@ -38,6 +36,7 @@ public static partial class Utils
         NPC.downedTowerNebula.Name("星云柱");
         NPC.downedTowerVortex.Name("星旋柱");
         NPC.downedTowerStardust.Name("星尘柱");
+        NPC.downedTowers.Name("四柱");
         NPC.downedMoonlord.Name("月亮领主");
         NPC.downedHalloweenTree.Name("哀木");
         NPC.downedHalloweenKing.Name("南瓜王");
@@ -77,20 +76,22 @@ public static partial class Utils
         {
             switch (ilBytes[index])
             {
-                case OpcodeValue.ldsfld:
-                    if (ilBytes[index + 4 + 1] == OpcodeValue.ldstr)
+                case (byte)ILOpCode.Ldsfld:
+                    FieldInfo field = module.ResolveField(ilBytes, index + 1)!;
+                    index += 4;
+                    if (ilBytes[index + 1] == (byte)ILOpCode.Ldstr)
                     {
-                        FieldInfo field = module.ResolveField(BitConverter.ToInt32(ilBytes, index + 1))!;
-                        index += 4 + 1;
-                        aliases.Add(module.ResolveString(BitConverter.ToInt32(ilBytes, index + 1)), $"{field.DeclaringType!.FullName}.{field.Name}");
-                        index += 4;
+                        aliases.Add(module.ResolveString(ilBytes, index + 2), $"{field.DeclaringType!.FullName}.{field.Name}");
+                        index += 5;
                     }
-                    else if (ilBytes[index + 4 + 1] == OpcodeValue.call)
+                    break;
+                case (byte)ILOpCode.Callvirt:
+                    MethodBase method = module.ResolveMethod(ilBytes, index + 1)!;
+                    index += 4;
+                    if (ilBytes[index + 1] == (byte)ILOpCode.Ldstr)
                     {
-                        MethodBase method = module.ResolveMethod(BitConverter.ToInt32(ilBytes, index + 1))!;
-                        index += 4 + 1;
-                        aliases.Add(module.ResolveString(BitConverter.ToInt32(ilBytes, index + 1)), $"{method.DeclaringType!.FullName}.{method.Name.Substring(4)}");
-                        index += 4;
+                        aliases.Add(module.ResolveString(ilBytes, index + 2), $"{method.DeclaringType!.FullName}.{method.Name.Substring(4)}");
+                        index += 5;
                     }
                     break;
             }
@@ -412,14 +413,4 @@ public static partial class Utils
         }
         return notCommonCount;
     }
-}
-public static class OpcodeValue
-{
-    public const byte nop = 0x0000;
-    public const byte stloc_0 = 0x000A;
-    public const byte ldc_i4_0 = 0x0016;
-    public const byte call = 0x0028;
-    public const byte ret = 0x002A;
-    public const byte ldstr = 0x0072;
-    public const byte ldsfld = 0x007E;
 }

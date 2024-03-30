@@ -10,6 +10,7 @@ public class ProjectileAIPlugin : TerrariaPlugin
     public override string Name => "ProjectileAIPlugin Base";
     public override string Author => "yu";
     private static readonly Detour AIDetour = new(typeof(Projectile).GetMethod("AI"), typeof(AIs).GetMethod("AI"), new() { ManualApply = true });
+    public static NewProjectileInfo[] NewProjectileInfos = new NewProjectileInfo[Main.maxProjectiles + 1];
     public ProjectileAIPlugin(Main game) : base(game)
     {
     }

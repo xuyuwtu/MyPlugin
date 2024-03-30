@@ -132,13 +132,13 @@ public class ILGeneratorClass
     {
 
     }
-    public ILGeneratorClass(ILGenerator ilGenerator, ParameterInfo[] parameterInfos, Type returnType)
+    public ILGeneratorClass(ILGenerator ilGenerator, ParameterInfo[] parameterInfos, Type? returnType)
     {
         IlGenerator = ilGenerator;
         this.parameterInfos = parameterInfos;
-        if(returnType is null || returnType == TypeOf.Void)
+        if(returnType is null || returnType == typeof(void))
         {
-            this.returnType = TypeOf.Void;
+            this.returnType = typeof(void);
             needReturnType = false;
         }
         else

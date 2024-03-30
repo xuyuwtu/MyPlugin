@@ -1,7 +1,9 @@
-﻿using TShockAPI;
+﻿using System.Diagnostics;
+
+using TShockAPI;
 
 using Newtonsoft.Json;
-using System.Diagnostics;
+using Newtonsoft.Json.Serialization;
 
 namespace VBY.Common.Config;
 
@@ -16,8 +18,48 @@ public class ConfigManager<T>
         get => instance is null ? (instance = GetDefaultFunc()) : instance;
         set => instance = value;
     }
-    public JsonConverter? Converter;
-    public JsonSerializerSettings? SerializerSettings;
+
+    public bool OnPostInit { get; set; } = false;
+    public bool Manual { get; set; } = true;
+    public bool Loaded { get; set; }
+
+    private DefaultContractResolver _defaultContractResolver = new() { NamingStrategy = new CamelCaseNamingStrategy() };
+    public JsonConverter Converter
+    {
+        set
+        {
+            if(value is not null)
+            {
+                SerializerSettings.Converters.Add(value);
+            }
+        }
+    }
+    private JsonSerializerSettings? _serializerSettings;
+    public JsonSerializerSettings SerializerSettings 
+    {
+        get
+        {
+            if(_serializerSettings is null)
+            {
+                _serializerSettings = new()
+                {
+                    ContractResolver = _defaultContractResolver
+                };
+            }
+            return _serializerSettings;
+        }
+        set
+        {
+            if(value is not null)
+            {
+                if(value.ContractResolver is null)
+                {
+                    value.ContractResolver = _defaultContractResolver;
+                }
+                _serializerSettings = value;
+            }
+        }
+    }
     public Action<T, TSPlayer?>? PostLoadAction;
     public Action<T>? PreSaveAction;
     public ConfigManager(string configDirectory, string configFileName, Func<T> getDefaultFunc)
@@ -46,15 +88,7 @@ public class ConfigManager<T>
         {
             try
             {
-                T? config;
-                if (Converter is null)
-                {
-                    config = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigPath));
-                }
-                else
-                {
-                    config = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigPath), Converter);
-                }
+                T? config = JsonConvert.DeserializeObject<T>(File.ReadAllText(ConfigPath), SerializerSettings);
                 if (config is null)
                 {
                     return false;
@@ -82,6 +116,6 @@ public class ConfigManager<T>
             Directory.CreateDirectory(ConfigDirectory);
         }
         PreSaveAction?.Invoke(Instance);
-        File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Instance, formatting));
+        File.WriteAllText(ConfigPath, JsonConvert.SerializeObject(Instance, formatting, SerializerSettings));
     }
 }

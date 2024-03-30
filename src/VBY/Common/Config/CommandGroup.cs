@@ -4,7 +4,7 @@ using VBY.Common.Command;
 
 namespace VBY.Common.Config;
 
-public class Commands
+public class CommandGroup
 {
     public CommandInfo Use = new();
     public CommandInfo Admin = new();

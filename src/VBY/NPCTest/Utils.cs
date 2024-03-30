@@ -44,6 +44,19 @@ public static class TerrariaExtension
         Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center, velocity.RotatedBy(MathHelper.ToRadians(degress)), Type, Damage, 0);
         Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center, velocity.RotatedBy(MathHelper.ToRadians(-degress)), Type, Damage, 0);
     }
+    public static int GetMultiplierDamage(this NPC npc, int damage)
+    {
+        float result = 0;
+        if(npc.strengthMultiplier > Main.GameModeInfo.EnemyDamageMultiplier)
+        {
+            result = (int)(damage * (1 + npc.strengthMultiplier / Main.GameModeInfo.EnemyDamageMultiplier));
+        }
+        if(result > int.MaxValue)
+        {
+            result = int.MaxValue;
+        }
+        return (int)result;
+    }
 }
 public static class DeBuffRecord
 {

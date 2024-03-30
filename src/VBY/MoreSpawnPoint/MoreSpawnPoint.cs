@@ -87,14 +87,26 @@ public class MoreSpawnPoint : TerrariaPlugin
                 var tsplayer = TShock.Players[e.RemoteClient];
                 if (PlayerSpawnPoints.TryGetValue(tsplayer.Name, out var spawnInfo))
                 {
-                    Unsafe.As<byte, short>(ref e.Data[13]) = spawnInfo.X;
-                    Unsafe.As<byte, short>(ref e.Data[15]) = spawnInfo.Y;
+                    _ = new BytePacket.WorldData(e.Data)
+                    {
+                        SpawnX = spawnInfo.X,
+                        SpawnY = spawnInfo.Y
+                    };
+                    //Unsafe.As<byte, short>(ref e.Data[13]) = spawnInfo.X;
+                    //Unsafe.As<byte, short>(ref e.Data[15]) = spawnInfo.Y;
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(MainConfig.Instance.DefaultBind))
+                    if (MainConfig.Instance.RandomBind)
                     {
-                        Utils.BindSpawnPoint(TSPlayer.Server, tsplayer, MainConfig.Instance.DefaultBind);
+                        Utils.RandomBindSpawnPoint(tsplayer);
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(MainConfig.Instance.DefaultBind))
+                        {
+                            Utils.BindSpawnPoint(TSPlayer.Server, tsplayer, MainConfig.Instance.DefaultBind);
+                        }
                     }
                 }
             }

@@ -1,7 +1,10 @@
-﻿using Terraria;
+﻿using System.Text.RegularExpressions;
+
+using Terraria;
 using Terraria.ID;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace VBY.GameContentModify.Config;
 
@@ -45,29 +48,48 @@ public class ShimmerItemReplaceInfo
         () => NPC.downedPirates, // 31 海盗入侵
         () => NPC.downedMartians // 32 火星暴乱
     };
-    public static void Load(ItemTransformInfo[] infos)
+    private static JsonSerializer jsonSerializer = JsonSerializer.CreateDefault();
+    public static void Load(ItemTransformConfig config)
     {
-        foreach (var info in infos)
+        var setInfo = new ItemTransformInfo();
+        foreach (var info in config.TransformInfos)
         {
-            if (info.clear)
+            setInfo.SetDefault();
+            if(info is string str)
             {
-                ItemID.Sets.ShimmerTransformToItem[info.srcType] = -1;
-            }
-            else
-            {
-                if (info.destType != -1)
+                var match = Regex.Match(str, @"^(\d{1,4})([ -])(\d{1,4}) ?(\d{0,2})$");
+                if (!match.Success)
                 {
-                    ItemID.Sets.ShimmerTransformToItem[info.srcType] = info.destType;
-                    if (info.mutual)
-                    {
-                        ItemID.Sets.ShimmerTransformToItem[info.destType] = info.srcType;
-                    }
+                    continue;
                 }
-                if (info.progress >= 0 && info.progress < DownedFuncs.Length)
+                setInfo.srcType = short.Parse(match.Groups[1].Value);
+                setInfo.mutual = match.Groups[2].Value == "-";
+                setInfo.destType = short.Parse(match.Groups[3].Value);
+                if (match.Groups[4].Value.Length > 0)
                 {
-                    CanShimmerFuncs[info.srcType] = DownedFuncs[info.progress];
+                    setInfo.progress = byte.Parse(match.Groups[4].Value);
                 }
             }
+            else if (info is JObject obj)
+            {
+                jsonSerializer.Populate(obj.CreateReader(), setInfo);
+            }
+            if (ItemID.Sets.ShimmerTransformToItem.IndexInRange(setInfo.srcType) && ItemID.Sets.ShimmerTransformToItem.IndexInRange(setInfo.destType))
+            {
+                ItemID.Sets.ShimmerTransformToItem[setInfo.srcType] = setInfo.destType;
+                if (setInfo.mutual)
+                {
+                    ItemID.Sets.ShimmerTransformToItem[setInfo.destType] = setInfo.srcType;
+                }
+                if (DownedFuncs.IndexInRange(setInfo.progress))
+                {
+                    CanShimmerFuncs[setInfo.srcType] = DownedFuncs[setInfo.progress];
+                }
+            }
+        }
+        foreach(var id in config.ClearIDs)
+        {
+            ItemID.Sets.ShimmerTransformToItem[id] = -1;
         }
     }
     public static void Reset()
@@ -76,17 +98,21 @@ public class ShimmerItemReplaceInfo
         Array.Fill(CanShimmerFuncs, null);
     }
 }
+public class ItemTransformConfig
+{
+    public List<object> TransformInfos = new();
+    public int[] ClearIDs = Array.Empty<int>(); 
+}
 
 public class ItemTransformInfo
 {
     [JsonProperty("src")]
-    public short srcType;
+    public short srcType = -1;
     [JsonProperty("dest")]
     public short destType = -1;
     [JsonProperty("pg")]
     public byte progress = 0;
     public bool mutual = false;
-    public bool clear = false;
     public ItemTransformInfo() { }
     public ItemTransformInfo(short srcType, short destType, byte progress)
     {
@@ -94,4 +120,12 @@ public class ItemTransformInfo
         this.destType = destType;
         this.progress = progress;
     }
+    public void SetDefault()
+    {
+        srcType = -1;
+        destType = -1;
+        progress = 0;
+        mutual = true;
+    }
+    public override string ToString() => $"{srcType}{(mutual ? "-" : " ")}{destType} {progress}";
 }

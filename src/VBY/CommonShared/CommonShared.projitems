@@ -9,6 +9,24 @@
     <Import_RootNamespace>CommonShared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\CommonShared\ConfigManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Terraria\NetMessageSender.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Config\ConfigUtlis.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Loader\LoaderUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\CommonPlugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System\Collections\Generic\ListExt.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System\Reflection\ReflectionUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TShockAPI\I18n.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Config\ConfigManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Hook\ActionHook.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Hook\AutoHookAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Hook\GetDataHook.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Hook\HookUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Hook\HookBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Hook\ServerHook.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Loader\ILoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Loader\EnumerableLoader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)VBY\Loader\" />
   </ItemGroup>
 </Project>

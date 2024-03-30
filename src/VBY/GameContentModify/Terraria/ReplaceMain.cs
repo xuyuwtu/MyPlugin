@@ -4,11 +4,12 @@ using Terraria.Chat;
 using Terraria.GameContent.Achievements;
 using Terraria.GameContent.Creative;
 using Terraria.GameContent.Events;
-
+using VBY.GameContentModify.Config;
 using static VBY.GameContentModify.GameContentModify;
 
 namespace VBY.GameContentModify;
 
+[ReplaceType(typeof(Main))]
 public static class ReplaceMain
 {
     public static void UpdateTime()
@@ -97,21 +98,22 @@ public static class ReplaceMain
             }
             if (!Main.raining && !NPC.BusyWithAnyInvasionOfSorts() && Main.dayTime && Main.time < 27000.0 && Main.dayRate > 0)
             {
-                int num3 = (int)(450000.00000000006 / Main.dayRate);
+                //int randomNumOfStartSlimeRain = (int)(450000.00000000006 / Main.dayRate);
+                int randomNumOfStartSlimeRain = (int)(MainConfigInfo.StaticDividendOfStartSlimeRainRandomNum / Main.dayRate);
                 if (!NPC.downedSlimeKing)
                 {
-                    num3 /= 2;
+                    randomNumOfStartSlimeRain /= 2;
                 }
                 if (Main.hardMode)
                 {
-                    num3 = (int)(num3 * 1.5);
+                    randomNumOfStartSlimeRain = (int)(randomNumOfStartSlimeRain * 1.5);
                 }
                 bool anyPlayerReadyToFightKingSlime = Main.AnyPlayerReadyToFightKingSlime();
                 if (!anyPlayerReadyToFightKingSlime)
                 {
-                    num3 *= 5;
+                    randomNumOfStartSlimeRain *= 5;
                 }
-                if (num3 > 0 && (anyPlayerReadyToFightKingSlime || Main.expertMode) && Main.rand.Next(num3) == 0)
+                if (randomNumOfStartSlimeRain > 0 && (anyPlayerReadyToFightKingSlime || Main.expertMode) && Main.rand.Next(randomNumOfStartSlimeRain) == 0)
                 {
                     Main.StartSlimeRain();
                 }
@@ -214,7 +216,8 @@ public static class ReplaceMain
                 if (WorldGen.spawnHardBoss > 0 && Main.time > 4860.0)
                 {
                     bool haveBossInWorld = false;
-                    if (MainConfig.Instance.Spawn.MechBossSpawnHaveBossInWorldCheck)
+                    //if (MainConfig.Instance.Spawn.MechBossSpawnHaveBossInWorldCheck)
+                    if (SpawnInfo.MechBossInfo.StaticSpawnHaveBossInWorldCheck)
                     {
                         for (int k = 0; k < 200; k++)
                         {
@@ -231,7 +234,8 @@ public static class ReplaceMain
                         {
                             if (Main.player[l].active && !Main.player[l].dead && (Main.player[l].position.Y < Main.worldSurface * 16.0 || Main.remixWorld))
                             {
-                                if (MainConfig.Instance.Spawn.MechBossSpawnIsOr)
+                                //if (MainConfig.Instance.Spawn.MechBossSpawnIsOr)
+                                if (SpawnInfo.MechBossInfo.StaticSpawnIsOr)
                                 {
                                     if (Main.remixWorld && Main.getGoodWorld)
                                     {
@@ -351,7 +355,7 @@ public static class ReplaceMain
         {
             return;
         }
-        if (Main.hardMode && NPC.downedMechBossAny && Main.rand.Next(MainConfig.Instance.EclipseRandomNum) == 0)
+        if (Main.hardMode && NPC.downedMechBossAny && Main.rand.NextIsZero(MainConfig.Instance.EclipseRandomNum))
         {
             Main.sundialCooldown = 0;
             Main.moondialCooldown = 0;
@@ -380,24 +384,25 @@ public static class ReplaceMain
             {
                 if (!NPC.downedGoblins)
                 {
-                    if (Main.rand.Next(MainConfig.Instance.Invasion.NoDownedGoblinsStartInvasionRandomNum) == 0)
+                    if (Main.rand.NextIsZero(MainConfig.Instance.Invasion.NoDownedGoblinsStartInvasionRandomNum))
                     {
                         Main.StartInvasion();
                     }
                 }
-                else if ((Main.hardMode && Main.rand.Next(MainConfig.Instance.Invasion.HardModeDownedGoblinsStartInvasionRandomNum) == 0) || (!Main.hardMode && Main.rand.Next(MainConfig.Instance.Invasion.DownedGoblinsStartInvasionRandomNum) == 0))
+                else if ((Main.hardMode && Main.rand.NextIsZero(MainConfig.Instance.Invasion.HardModeDownedGoblinsStartInvasionRandomNum)) || (!Main.hardMode && Main.rand.NextIsZero(MainConfig.Instance.Invasion.DownedGoblinsStartInvasionRandomNum)))
                 {
                     Main.StartInvasion();
                 }
             }
-            if (Main.invasionType == 0 && Main.hardMode && WorldGen.altarCount > 0 && ((NPC.downedPirates && Main.rand.Next(MainConfig.Instance.Invasion.DownedPiratesStartInvasionRandomNum) == 0) || (!NPC.downedPirates && Main.rand.Next(MainConfig.Instance.Invasion.NoDownedPiratesStartInvasionRandomNum) == 0)))
+            if (Main.invasionType == 0 && Main.hardMode && WorldGen.altarCount > 0 && ((NPC.downedPirates && Main.rand.NextIsZero(MainConfig.Instance.Invasion.DownedPiratesStartInvasionRandomNum)) || (!NPC.downedPirates && Main.rand.NextIsZero(MainConfig.Instance.Invasion.NoDownedPiratesStartInvasionRandomNum))))
             {
                 Main.StartInvasion(3);
             }
         }
-        if (!NPC.travelNPC && (MainConfig.Instance.Spawn.SpawnTravelNPCAtDay))
+        //if (!NPC.travelNPC && (MainConfig.Instance.Spawn.SpawnTravelNPCAtDay))
+        if (!NPC.travelNPC && (MainConfig.Instance.Extension.SpawnTravelNPCWhenStartDay))
         {
-            if (Main.rand.Next(MainConfig.Instance.Spawn.SpawnMeteorRandomNum) == 0)
+            if (Main.rand.NextIsZero(MainConfig.Instance.Extension.SpawnTravelNPCWhenStartDayRandomNum))
             {
                 WorldGen.SpawnTravelNPC();
             }
@@ -424,7 +429,7 @@ public static class ReplaceMain
         WorldGen.mysticLogsEvent.StartNight();
         WorldGen.prioritizedTownNPCType = 0;
         Main.checkForSpawns = 0;
-        if (Main.rand.Next(MainConfig.Instance.Spawn.SpawnMeteorRandomNum) == 0 && NPC.downedBoss2)
+        if (Main.rand.NextIsZero(MainConfig.Instance.Spawn.SpawnMeteorRandomNum) && NPC.downedBoss2)
         {
             WorldGen.spawnMeteor = true;
         }
@@ -440,10 +445,12 @@ public static class ReplaceMain
         AchievementsHelper.NotifyProgressionEvent(0);
         if (!Main.IsFastForwardingTime() && !stopEvents)
         {
-            if (!(MainConfig.Instance.Spawn.EyeSpawnDownedCheck) || !NPC.downedBoss1)
+            //if (MainConfig.Instance.Spawn.EyeSpawnDownedCheck.IsTrueRet(!NPC.downedBoss1))
+            if (SpawnInfo.EyeOfCthulhuInfo.StaticDownedCheck.IsTrueRet(!NPC.downedBoss1))
             {
                 bool flag = false;
-                if (MainConfig.Instance.Spawn.EyeSpawnLifeAndDefenseCheck)
+                //if (MainConfig.Instance.Spawn.EyeSpawnLifeAndDefenseCheck)
+                if (SpawnInfo.EyeOfCthulhuInfo.StaticLifeAndDefenseCheck)
                 {
                     for (int i = 0; i < 255; i++)
                     {
@@ -458,10 +465,12 @@ public static class ReplaceMain
                 {
                     flag = true;
                 }
-                if (flag && Main.rand.Next(NPC.downedBoss1 ? MainConfig.Instance.Spawn.DownedEyeSpawnRandomNum : MainConfig.Instance.Spawn.EyeSpawnRandomNum) == 0)
+                //if (flag && Main.rand.NextIsZero(NPC.downedBoss1 ? MainConfig.Instance.Spawn.DownedEyeSpawnRandomNum : MainConfig.Instance.Spawn.EyeSpawnRandomNum))
+                if (flag && Main.rand.NextIsZero(NPC.downedBoss1 ? SpawnInfo.EyeOfCthulhuInfo.StaticDownedRandomNum : SpawnInfo.EyeOfCthulhuInfo.StaticRandomNum))
                 {
                     int townNPCCount = 0;
-                    if (MainConfig.Instance.Spawn.EyeSpawnTownNPCCountCheck)
+                    //if (MainConfig.Instance.Spawn.EyeSpawnTownNPCCountCheck)
+                    if (SpawnInfo.EyeOfCthulhuInfo.StaticTownNPCCountCheck)
                     {
                         for (int j = 0; j < 200; j++)
                         {
@@ -482,10 +491,12 @@ public static class ReplaceMain
                     }
                 }
             }
-            if (!Main.pumpkinMoon && !DD2Event.Ongoing && !Main.snowMoon && WorldGen.altarCount > 0 && Main.hardMode && (!(MainConfig.Instance.Spawn.MechBossSpawnEyeCheck) || !WorldGen.spawnEye) && Main.rand.Next(MainConfig.Instance.Spawn.MechBossSpawnRandomNum) == 0)
+            //if (!Main.pumpkinMoon && !DD2Event.Ongoing && !Main.snowMoon && WorldGen.altarCount > 0 && Main.hardMode && MainConfig.Instance.Spawn.MechBossSpawnEyeCheck.IsTrueRet(!WorldGen.spawnEye) && Main.rand.NextIsZero(MainConfig.Instance.Spawn.MechBossSpawnRandomNum))
+            if (!Main.pumpkinMoon && !DD2Event.Ongoing && !Main.snowMoon && WorldGen.altarCount > 0 && Main.hardMode && SpawnInfo.MechBossInfo.StaticSpawnEyeCheck.IsTrueRet(!WorldGen.spawnEye) && Main.rand.NextIsZero(SpawnInfo.MechBossInfo.StaticSpawnRandomNum))
             {
                 bool haveBossInWorld = false;
-                if (MainConfig.Instance.Spawn.MechBossSpawnHaveBossInWorldCheck)
+                //if (MainConfig.Instance.Spawn.MechBossSpawnHaveBossInWorldCheck)
+                if (SpawnInfo.MechBossInfo.StaticSpawnHaveBossInWorldCheck)
                 {
                     for (int k = 0; k < 200; k++)
                     {
@@ -495,7 +506,8 @@ public static class ReplaceMain
                         }
                     }
                 }
-                if (!haveBossInWorld && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || (!NPC.downedMechBoss1 || !NPC.downedMechBoss2 || !NPC.downedMechBoss3)))
+                //if (!haveBossInWorld && MainConfig.Instance.Spawn.MechBossSpawnDownedCheck.IsTrueRet(!NPC.downedMechBoss1 || !NPC.downedMechBoss2 || !NPC.downedMechBoss3))
+                if (!haveBossInWorld && SpawnInfo.MechBossInfo.StaticSpawnDownedCheck.IsTrueRet(!NPC.downedMechBoss1 || !NPC.downedMechBoss2 || !NPC.downedMechBoss3))
                 {
                     if (Main.remixWorld && Main.getGoodWorld)
                     {
@@ -509,19 +521,23 @@ public static class ReplaceMain
                     {
                         for (int l = 0; l < 1000; l++)
                         {
-                            if (MainConfig.Instance.Spawn.MechBossSpawnIsOr)
+                            //if (MainConfig.Instance.Spawn.MechBossSpawnIsOr)
+                            if (SpawnInfo.MechBossInfo.StaticSpawnIsOr)
                             {
                                 int spawnHardBossNum = Main.rand.Next(7) + 1;
                                 var spawnHardBoss = false;
-                                if ((spawnHardBossNum & 1) == 1 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss1))
+                                //if ((spawnHardBossNum & 1) == 1 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss1))
+                                if ((spawnHardBossNum & 1) == 1 && (!(SpawnInfo.MechBossInfo.StaticSpawnDownedCheck) || !NPC.downedMechBoss1))
                                 {
                                     spawnHardBoss = true;
                                 }
-                                if ((spawnHardBossNum & 2) == 2 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss2))
+                                //if ((spawnHardBossNum & 2) == 2 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss2))
+                                if ((spawnHardBossNum & 2) == 2 && (!(SpawnInfo.MechBossInfo.StaticSpawnDownedCheck) || !NPC.downedMechBoss2))
                                 {
                                     spawnHardBoss = true;
                                 }
-                                if ((spawnHardBossNum & 4) == 4 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss3))
+                                //if ((spawnHardBossNum & 4) == 4 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss3))
+                                if ((spawnHardBossNum & 4) == 4 && (!(SpawnInfo.MechBossInfo.StaticSpawnDownedCheck) || !NPC.downedMechBoss3))
                                 {
                                     spawnHardBoss = true;
                                 }
@@ -547,15 +563,18 @@ public static class ReplaceMain
                             {
                                 int spawnHardBossNum = Main.rand.Next(3) + 1;
                                 var spawnHardBoss = false;
-                                if (spawnHardBossNum == 1 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss1))
+                                //if (spawnHardBossNum == 1 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss1))
+                                if (spawnHardBossNum == 1 && (!(SpawnInfo.MechBossInfo.StaticSpawnDownedCheck) || !NPC.downedMechBoss1))
                                 {
                                     spawnHardBoss = true;
                                 }
-                                if (spawnHardBossNum == 2 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss2))
+                                //if (spawnHardBossNum == 2 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss2))
+                                if (spawnHardBossNum == 2 && (!(SpawnInfo.MechBossInfo.StaticSpawnDownedCheck) || !NPC.downedMechBoss2))
                                 {
                                     spawnHardBoss = true;
                                 }
-                                if (spawnHardBossNum == 3 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss3))
+                                //if (spawnHardBossNum == 3 && (!(MainConfig.Instance.Spawn.MechBossSpawnDownedCheck) || !NPC.downedMechBoss3))
+                                if (spawnHardBossNum == 3 && (!(SpawnInfo.MechBossInfo.StaticSpawnDownedCheck) || !NPC.downedMechBoss3))
                                 {
                                     spawnHardBoss = true;
                                 }
@@ -577,7 +596,7 @@ public static class ReplaceMain
                 //maxValue = 6;
                 maxValue = MainConfig.Instance.BloodMoon.TenthAnniversaryWorldRandomNum;
             }
-            if ((!MainConfig.Instance.BloodMoon.SpawnEyeCheck || !WorldGen.spawnEye) && Main.moonPhase != 4 && Main.rand.Next(maxValue) == 0)
+            if (MainConfig.Instance.BloodMoon.SpawnEyeCheck.IsTrueRet(!WorldGen.spawnEye) && Main.moonPhase != 4 && Main.rand.NextIsZero(maxValue))
             {
                 if (MainConfig.Instance.BloodMoon.LifeCheck)
                 {
@@ -609,5 +628,23 @@ public static class ReplaceMain
         Main.time = 0.0;
         Main.dayTime = false;
         NetMessage.SendData(7);
+    }
+    public static void Moondialing()
+    {
+        if (Main.moondialCooldown == 0)
+        {
+            Main.fastForwardTimeToDusk = true;
+            Main.moondialCooldown = MainConfig.Instance.MoondialCooldown;
+            NetMessage.SendData(7);
+        }
+    }
+    public static void Sundialing()
+    {
+        if (Main.sundialCooldown == 0)
+        {
+            Main.fastForwardTimeToDawn = true;
+            Main.sundialCooldown = MainConfig.Instance.SundialCooldown;
+            NetMessage.SendData(7);
+        }
     }
 }

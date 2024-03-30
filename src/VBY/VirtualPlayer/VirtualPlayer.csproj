@@ -1,7 +1,7 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
   <PropertyGroup>
-		<UsingCommon>false</UsingCommon>
 	  <OutToPluginLoader>true</OutToPluginLoader>
 	  <LangVersion>11.0</LangVersion>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 </Project>

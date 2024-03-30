@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using TShockAPI;
 
 namespace VBY.VirtualPlayer;
@@ -68,7 +67,11 @@ public class ConfigBase<T>
 }
 public class VirtualPlayerInfo
 {
-    public string? FileName;
+    public string FileName = null!;
     public Vector2 Position;
-    public int Direction;
+    public Point? SwitchPoint;
+    public int Direction = 0;
+    public string? PlayerName;
+    public int? LifeMax;
+    public string[] Texts = Array.Empty<string>();
 }

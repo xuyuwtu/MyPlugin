@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel;
+using System.Reflection;
 using System.Runtime.Loader;
 
 using Terraria;
@@ -7,27 +8,26 @@ using TerrariaApi.Server;
 using TShockAPI;
 
 using Newtonsoft.Json;
-using SingleFileExtractor.Core;
+
 using VBY.Common.Config;
+
+using SingleFileExtractor.Core;
+using System.Runtime.InteropServices;
 
 namespace VBY.PluginLoader;
 
 [ApiVersion(2, 1)]
+[Description("也许可卸载的插件加载器")]
 public class PluginLoader : TerrariaPlugin
 {
-    public override string Name => GetType().Name;
     public override string Author => "yu";
-    public override Version Version => GetType().Assembly.GetName().Version!;
-    public override string Description => "也许可卸载的插件加载器";
 
 #pragma warning disable IDE0044 // 添加只读修饰符
 #pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
-    private Command AddCommand;
     private static List<WeakReference> OldLoaders = new();
     private static MyAssemblyLoadContext Loader;
     private static ConfigManager<Config> MainConfig = new(static () => new()) { PostLoadAction = PostLoad };
-    internal static string ConfigPath = Path.Combine("Config", typeof(PluginLoader).Namespace + ".json");
-    //internal static string PluginPath = "PluginLoader";
+    private Command AddCommand;
     internal static bool Debug = false;
     public static int LoaderNum = 0;
     public PluginLoader(Main game) : base(game)
@@ -48,10 +48,12 @@ public class PluginLoader : TerrariaPlugin
             Commands.ChatCommands.Remove(AddCommand);
             Loader.UnloadPlugin(TSPlayer.Server);
         }
+        base.Dispose(disposing);
     }
     private void Ctl(CommandArgs args)
     {
-        if (!args.Parameters.Any())
+        var enumerator = args.Parameters.GetEnumerator();
+        if (!enumerator.MoveNext())
         {
             args.Player.SendInfoMessage(
                     "/load load load PluginLoader\n" +
@@ -62,8 +64,7 @@ public class PluginLoader : TerrariaPlugin
                     "/load info show info");
             return;
         }
-        bool one = args.Parameters.Count == 1;
-        switch (args.Parameters[0])
+        switch (enumerator.Current)
         {
             case "load":
                 if (Loader.Assemblies.Any())
@@ -185,7 +186,6 @@ class MyAssemblyLoadContext : AssemblyLoadContext
     {
         Unloading += MyAssemblyLoadContext_Unloading;
     }
-
     private static void MyAssemblyLoadContext_Unloading(AssemblyLoadContext obj)
     {
         Console.WriteLine("当前正在卸载程序集:{0}", string.Join(", ", obj.Assemblies.Select(x => x.GetName().Name)));
@@ -198,15 +198,19 @@ class MyAssemblyLoadContext : AssemblyLoadContext
             if(PluginLoader.Debug) Console.WriteLine("LoadFromDefault: {0} Version={1}", assemblyName.Name, assemblyName.Version);
             return AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
         }
-        if(LoadAssemblies.Select(x => x.GetName()).Contains(assemblyName))
+        for (int i = 0; i < LoadAssemblies.Count; i++)
         {
-            if (PluginLoader.Debug) Console.WriteLine("LoadFromThis: {0} Version={1}", assemblyName.Name, assemblyName.Version);
-            return LoadAssemblies.Find(x => x.GetName() == assemblyName);
+            if (LoadAssemblies[i].GetName() == assemblyName)
+            {
+                if (PluginLoader.Debug) Console.WriteLine("LoadFromThis: {0} Version={1}", assemblyName.Name, assemblyName.Version);
+                return LoadAssemblies[i];
+            }
         }
+        //if (PluginLoader.Debug) Console.WriteLine("LoadFromBaseAssemblyName: {0} Version={1}", assemblyName.Name, assemblyName.Version);
+        //return base.LoadFromAssemblyName(assemblyName);
         var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
         if (!string.IsNullOrEmpty(assembly.Location!))
         {
-            //Console.WriteLine("LoadFromAssemblyPath: {0} Version={1} Path:{2}", assemblyName.Name, assemblyName.Version, assembly.Location);
             if (PluginLoader.Debug) Console.WriteLine("LoadFromAssemblyPath: {0} Version={1}", assemblyName.Name, assemblyName.Version);
             return LoadFromAssemblyPath(assembly.Location!);
         }
@@ -215,10 +219,20 @@ class MyAssemblyLoadContext : AssemblyLoadContext
     }
     public void LoadPlugin(TSPlayer player)
     {
-        using var reader = new ExecutableReader(Environment.ProcessPath!);
-        if (reader.IsSingleFile)
+        bool isSingleFile;
+        ExecutableReader? reader = null;
+        try
         {
-            using var news = reader.Bundle.Files.First(x => x.Type == FileType.Assembly && x.RelativePath == "Newtonsoft.Json.dll").AsStream();
+            reader = new ExecutableReader(Environment.ProcessPath!);
+            isSingleFile = reader.IsSingleFile;
+        }
+        catch (SingleFileExtractor.Core.Exceptions.UnsupportedExecutableException)
+        {
+            isSingleFile = false;
+        }
+        if (isSingleFile)
+        {
+            using var news = reader!.Bundle.Files.First(x => x.Type == FileType.Assembly && x.RelativePath == "Newtonsoft.Json.dll").AsStream();
             LoadFromStream(news);
         }
         else
@@ -228,11 +242,12 @@ class MyAssemblyLoadContext : AssemblyLoadContext
                 using var fileStream = File.OpenRead(typeof(JsonConvert).Assembly.Location);
                 LoadFromStream(fileStream);
             }
-            catch(NotSupportedException ex)
+            catch (NotSupportedException ex)
             {
                 Console.WriteLine(ex.ToString());
             }
         }
+        reader?.Dispose();
         foreach (var path in LoadFiles)
         {
             var filePaths = Directory.GetFiles(Path.GetDirectoryName(path) ?? "", Path.GetFileName(path));
@@ -241,17 +256,23 @@ class MyAssemblyLoadContext : AssemblyLoadContext
                 using var stream = File.OpenRead(filePath);
                 using var pdbStream = File.Exists(Path.ChangeExtension(filePath, ".pdb")) ? File.OpenRead(Path.ChangeExtension(filePath, ".pdb")) : null;
                 return LoadFromStream(stream, pdbStream);
-                //return LoadFromStream(stream);
             });
             LoadAssemblies.AddRange(assemblys);
-            //GetReferencedAssemblies()
             foreach (var assembly in assemblys)
             {
                 foreach (var exportedType in assembly.GetExportedTypes())
                 {
                     if (exportedType.IsSubclassOf(typeof(TerrariaPlugin)) && !exportedType.IsAbstract)
                     {
-                        var terrariaPlugin = (TerrariaPlugin)Activator.CreateInstance(exportedType, Main.instance)!;
+                        TerrariaPlugin terrariaPlugin;
+                        if (exportedType.GetConstructors().Where(x => x.GetParameters().Length == 0).Count() == 1)
+                        {
+                            terrariaPlugin = (TerrariaPlugin)Activator.CreateInstance(exportedType, null)!;
+                        }
+                        else
+                        {
+                            terrariaPlugin = (TerrariaPlugin)Activator.CreateInstance(exportedType, Main.instance)!;
+                        }
                         terrariaPlugin.Initialize();
                         Plugins.Add(terrariaPlugin);
                         player.SendInfoMessage($"[{Name}]Info: Plugin {terrariaPlugin.Name} v{terrariaPlugin.Version} (by {terrariaPlugin.Author}) initiated");

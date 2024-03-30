@@ -528,7 +528,7 @@ partial class NPCAIs
                     for (int m = 0; m < 1; m++)
                     {
                         //Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector3.X, vector3.Y, spinninpoint.X, spinninpoint.Y, 468, 18, 0f, Main.myPlayer);
-                        Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector3, vec * 4f, 464, attackDamage_ForProjectiles, 0f, Main.myPlayer, 0, 1f);
+                        Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector3, vec * 4f, 464, npc.GetMultiplierDamage(attackDamage_ForProjectiles), 0f, Main.myPlayer, 0, 1f);
                     }
                 }
             }

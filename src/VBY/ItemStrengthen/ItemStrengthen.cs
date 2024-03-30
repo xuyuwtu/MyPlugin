@@ -14,7 +14,7 @@ using VBY.Common.CommandV2;
 namespace VBY.ItemStrengthen;
 
 [ApiVersion(2, 1)]
-public class ItemStrengthen : TerrariaPlugin
+public partial class ItemStrengthen : TerrariaPlugin
 {
     public override string Name => GetType().Name;
     public override string Description => "武器强化";
@@ -22,16 +22,49 @@ public class ItemStrengthen : TerrariaPlugin
     public override Version Version => GetType().Assembly.GetName().Version!;
     private readonly Item itemInfo = new();
     private readonly Item defaultItemInfo = new();
-    private static readonly string[] CanSetFieldNames = { "type", "scale", "width", "height", "damage", "useTime", "knockBack", "shoot", "shootSpeed", "useAnimation", "ammo", "color", "useAmmo", "notAmmo" };
+    private static readonly string[] CanSetFieldNames = { 
+        nameof(Item.type), 
+        nameof(Item.scale), 
+        nameof(Item.width), 
+        nameof(Item.height), 
+        nameof(Item.damage), 
+        nameof(Item.useTime), 
+        nameof(Item.knockBack), 
+        nameof(Item.shoot), 
+        nameof(Item.shootSpeed), 
+        nameof(Item.useAnimation), 
+        nameof(Item.ammo),
+        nameof(Item.color), 
+        nameof(Item.useAmmo), 
+        nameof(Item.notAmmo) 
+    };
     private static readonly string[] SetStrings = CanSetFieldNames.Select(x => x.ToLower()).ToArray();
+    private static readonly Dictionary<string, int> SetShortStrings = new();
     private static readonly Action<Item, string>[] SetActions = CanSetFieldNames.Select(x => GetParseSet<Item>(x)).ToArray();
     public SubCmdRoot CtlCommand;
     public Command[] AddCommands;
+    static ItemStrengthen()
+    {
+        SetShortStrings.Add("t", SetStrings.IndexOf(nameof(Item.type)));
+        SetShortStrings.Add("sc", SetStrings.IndexOf(nameof(Item.scale)));
+        SetShortStrings.Add("w", SetStrings.IndexOf(nameof(Item.width)));
+        SetShortStrings.Add("h", SetStrings.IndexOf(nameof(Item.height)));
+        SetShortStrings.Add("d", SetStrings.IndexOf(nameof(Item.damage)));
+        SetShortStrings.Add("ut", SetStrings.IndexOf(nameof(Item.useTime)));
+        SetShortStrings.Add("kb", SetStrings.IndexOf(nameof(Item.knockBack)));
+        SetShortStrings.Add("sh", SetStrings.IndexOf(nameof(Item.shoot)));
+        SetShortStrings.Add("sp", SetStrings.IndexOf(nameof(Item.shootSpeed)));
+        SetShortStrings.Add("uan", SetStrings.IndexOf(nameof(Item.useAnimation)));
+        SetShortStrings.Add("a", SetStrings.IndexOf(nameof(Item.ammo)));
+        SetShortStrings.Add("c", SetStrings.IndexOf(nameof(Item.color)));
+        SetShortStrings.Add("uam", SetStrings.IndexOf(nameof(Item.useAmmo)));
+        SetShortStrings.Add("na", SetStrings.IndexOf(nameof(Item.notAmmo)));
+    }
     public ItemStrengthen(Main game) : base(game)
     {
         CtlCommand = new("ItemStrengthenCtl");
         CtlCommand.Adds(2, CtlDefault, CtlGive, CtlPrint, CtlSet);
-        AddCommands = new Command[] { CtlCommand.GetCommand("isc") };
+        AddCommands = new Command[] { CtlCommand.GetCommand("isc", new string[] { "isc" }) };
     }
 
     public override void Initialize()
@@ -42,17 +75,25 @@ public class ItemStrengthen : TerrariaPlugin
     {
         if (disposing)
         {
-            Commands.ChatCommands.RemoveRange(AddCommands);
+            foreach (var cmd in AddCommands)
+                Commands.ChatCommands.Remove(cmd);
         }
         base.Dispose(disposing);
     }
     [Description("Default")]
     public void CtlDefault(SubCmdArgs args)
     {
-        var type = args.Parameters.Count > 0 ? int.Parse(args.Parameters[0]) : itemInfo.type;
-        itemInfo.SetDefaults(type);
-        defaultItemInfo.SetDefaults(type);
-        args.Player.SendSuccessMessage("set default type({0}) success", type);
+        try
+        {
+            var type = args.Parameters.Count > 0 ? int.Parse(args.Parameters[0]) : itemInfo.type;
+            itemInfo.SetDefaults(type);
+            defaultItemInfo.SetDefaults(type);
+            args.Player.SendSuccessMessage("set default type({0}) success", type);
+        }
+        catch(FormatException)
+        {
+            args.Player.SendErrorMessage($"格式错误 {args.Parameters[0]}");
+        }
     }
     [Description("Give")]
     public void CtlGive(SubCmdArgs args)
@@ -119,21 +160,25 @@ public class ItemStrengthen : TerrariaPlugin
         }
         for (int i = 0; i < args.Parameters.Count; i += 2) 
         {
-            var where = SetStrings.Where(x => x.StartsWith(args.Parameters[i]));
-            if (!where.Any())
+            if(!SetShortStrings.TryGetValue(args.Parameters[i], out var index))
             {
-                args.Player.SendErrorMessage("No matching parameters of '{0}'", args.Parameters[i]);
-                continue;
+                var where = SetStrings.Where(x => x.StartsWith(args.Parameters[i]));
+                if (!where.Any())
+                {
+                    args.Player.SendErrorMessage("No matching parameters of '{0}'", args.Parameters[i]);
+                    continue;
+                }
+                index = SetStrings.IndexOf(0, x => x == where.First());
             }
-            args.Player.SendInfoMessage("{0} => {1}", where.First(), args.Parameters[i + 1]);
-            SetActions[SetStrings.IndexOf(0, x => x == where.First())].Invoke(itemInfo, args.Parameters[i + 1]);
+            args.Player.SendInfoMessage("{0} => {1}", SetStrings[index], args.Parameters[i + 1]);
+            SetActions[index].Invoke(itemInfo, args.Parameters[i + 1]);
         }
         args.Player.SendInfoMessage("Set success");
     }
     private static Action<T, string> GetParseSet<T>(string fieldname)
     {
         var type = typeof(T);
-        var method = new DynamicMethod("", null, new Type[] { typeof(Item), TypeOf.String });
+        var method = new DynamicMethod("", null, new Type[] { typeof(Item), typeof(string) });
         var il = method.GetILGenerator();
         il.Emit(OpCodes.Ldarg_0);
         il.Emit(OpCodes.Ldarg_1);
@@ -147,5 +192,6 @@ public class ItemStrengthen : TerrariaPlugin
         return method.CreateDelegate<Action<T, string>>();
     }
     private static string DefaultStr(bool ceq) => ceq ? "(default)" : "";
+    private static string DefaultStr<T>(T t1, T t2) where T : IEquatable<T> => t1.Equals(t2) ? "(default)" : "";
     private static Color NewColor(string color) => new(uint.Parse(color));
 }

@@ -1,0 +1,37 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ output extension=".cs" #>
+namespace Terraria.Net.Packets;
+<# 
+var stack = new Stack<string>();
+var lines = File.ReadAllLines(this.Host.ResolvePath("PacketInfo.txt"));
+for(int i = 0;i < lines.Length; i++)
+{
+	var line = lines[i];
+	if(line[0] == '\t')
+	{
+		var index = Array.FindIndex(line.ToCharArray(), x => x != '\t');
+        if (index == stack.Count)
+        {
+			var name = line.Substring(index, line.LastIndexOf(' ') - 1);
+#>[StructLayout(LayoutKind.Sequential, Pack = 1)]
+public partial class <#=name#>Packet : <#= stack.Peek() #>Packet
+{
+	public <#=name#>Packet() : base(MessageID.<#=name#>) {}
+}<# }
+	} else {
+		stack.Clear();
+		var name = line.Substring(0, line.LastIndexOf(' '));
+		stack.Push(name);
+#>[StructLayout(LayoutKind.Sequential, Pack = 1)]
+public partial class <#=name#>Packet : Packet
+{
+	public <#=name#>Packet() : base(MessageID.<#=name#>) {}
+}
+<#	}
+}
+#>

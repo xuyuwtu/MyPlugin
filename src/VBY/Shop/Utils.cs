@@ -36,7 +36,7 @@ public static partial class Utils
             static p => p.ZoneDungeon, //地牢
             static p => p.ZoneCorrupt, //腐化
             static p => p.ZoneHallow, //神圣
-            static p => p.ZoneMeteor, //流星
+            static p => p.ZoneMeteor, //陨石
             static p => p.ZoneJungle, //丛林
             static p => p.ZoneSnow, //雪原
             static p => p.ZoneCrimson, //猩红

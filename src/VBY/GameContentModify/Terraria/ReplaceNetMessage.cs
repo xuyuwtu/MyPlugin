@@ -1,8 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
+
 using OTAPI;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent.Events;
@@ -10,10 +9,12 @@ using Terraria.GameContent.Tile_Entities;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.Social;
-using VBY.GameContentModify.PacketStruct;
+
+using VBY.GameContentModify.PacketStructs;
 
 namespace VBY.GameContentModify;
 
+[ReplaceType(typeof(NetMessage))]
 public static class ReplaceNetMessage
 {
     internal static ushort[] PacketLength = new ushort[MessageID.Count];
@@ -36,15 +37,22 @@ public static class ReplaceNetMessage
         SetPacketLength<TileFrameSection>();
         //PacketLength[12] = 3 + sizeof(byte) + sizeof(short) * 2 + sizeof(int) + sizeof(short) * 2 + sizeof(byte);
         SetPacketLength<PlayerSpawn>();
-        PacketLength[13] = 3 + sizeof(byte) * 6 + SizeOf.Vector2 * 4;
-        PacketLength[14] = 3 + sizeof(byte) * 2;
+        //PacketLength[13] = 3 + sizeof(byte) * 6 + SizeOf.Vector2 * 4;
+        SetPacketLength<PlayerControls>();
+        //PacketLength[14] = 3 + sizeof(byte) * 2;
+        SetPacketLength<PlayerActive>();
         //
-        PacketLength[16] = 3 + sizeof(byte) + sizeof(short) * 2;
-        PacketLength[17] = 3 + sizeof(byte) + sizeof(short) * 3 + sizeof(byte);
-        PacketLength[18] = 3 + sizeof(byte) + sizeof(int) + sizeof(short) * 2;
-        PacketLength[19] = 3 + sizeof(byte) + sizeof(short) * 2 + sizeof(byte);
+        //PacketLength[16] = 3 + sizeof(byte) + sizeof(short) * 2;
+        SetPacketLength<PlayerLifeMana>();
+        //PacketLength[17] = 3 + sizeof(byte) + sizeof(short) * 3 + sizeof(byte);
+        SetPacketLength<TileManipulation>();
+        //PacketLength[18] = 3 + sizeof(byte) + sizeof(int) + sizeof(short) * 2;
+        SetPacketLength<SetTime>();
+        //PacketLength[19] = 3 + sizeof(byte) + sizeof(short) * 2 + sizeof(byte);
+        SetPacketLength<ToggleDoorState>();
         //20 to long
-        PacketLength[21] = 3 + sizeof(short) + SizeOf.Vector2 * 2 + sizeof(short) + sizeof(byte) * 2 + sizeof(short);
+        //PacketLength[21] = 3 + sizeof(short) + SizeOf.Vector2 * 2 + sizeof(short) + sizeof(byte) * 2 + sizeof(short);
+        SetPacketLength<SyncItem>();
         PacketLength[22] = 3 + sizeof(short) + sizeof(byte);
         PacketLength[23] = (ushort)(3 + sizeof(short) + SizeOf.Vector2 * 2 + sizeof(ushort) + sizeof(byte) * 2 + sizeof(float) * NPC.maxAI + sizeof(short) + sizeof(byte) + sizeof(float) + sizeof(byte) + sizeof(int) + sizeof(byte));
         PacketLength[24] = 3 + sizeof(short) + sizeof(byte);
@@ -145,10 +153,10 @@ public static class ReplaceNetMessage
         //118 text
         //119 text
         PacketLength[120] = 3 + sizeof(byte) * 2;
-        PacketLength[121] = 3 + sizeof(byte) + sizeof(int) +sizeof(byte)+ SizeOf.TEDisplayDoll + sizeof(int) + sizeof(byte);
+        PacketLength[121] = 3 + sizeof(byte) + sizeof(int) + sizeof(byte) + SizeOf.TEDisplayDoll + sizeof(int) + sizeof(byte);
         PacketLength[122] = 3 + sizeof(int) + sizeof(byte);
         PacketLength[123] = 3 + sizeof(short) * 3 + sizeof(byte) + sizeof(short);
-        PacketLength[124] = 3 + sizeof(byte) + sizeof(int) +sizeof(byte)+ SizeOf.TEHatRack + sizeof(int) + sizeof(byte);
+        PacketLength[124] = 3 + sizeof(byte) + sizeof(int) + sizeof(byte) + SizeOf.TEHatRack + sizeof(int) + sizeof(byte);
         PacketLength[125] = 3 + sizeof(byte) + sizeof(short) * 2 + sizeof(byte);
         PacketLength[126] = 3 + sizeof(int) + sizeof(float) * 2 + sizeof(int) + sizeof(float) + sizeof(int) * 3 + sizeof(float) + sizeof(byte);
         PacketLength[127] = 3 + sizeof(int);
@@ -174,7 +182,6 @@ public static class ReplaceNetMessage
         PacketLength[147] = 3 + sizeof(byte) * 2 + sizeof(ushort);
         PacketLength[148] = (ushort)(PacketLength[21] + sizeof(byte));
     }
-//#pragma warning disable CS8600 // 将 null 字面量或可能为 null 的值转换为非 null 类型。
 #pragma warning disable IDE1006 // 命名样式
     public static void orig_SendData(int msgType, int remoteClient = -1, int ignoreClient = -1, NetworkText? text = null, int number = 0, float number2 = 0f, float number3 = 0f, float number4 = 0f, int number5 = 0, int number6 = 0, int number7 = 0)
     {
@@ -191,7 +198,7 @@ public static class ReplaceNetMessage
         using IPacketWriter packetWriter = PacketLength[msgType] != 0 ? new FixedLengthPacketWriter(PacketLength[msgType]) : new TerrariaPacketWriter(new MemoryStream());
         //using IPacketWriter packetWriter = new TerrariaPacketWriter(new MemoryStream());
         packetWriter.Position = 2L;
-        packetWriter.Write((byte)msgType); 
+        packetWriter.Write((byte)msgType);
         switch (msgType)
         {
             case 1:
@@ -265,7 +272,37 @@ public static class ReplaceNetMessage
                     Player player5 = Main.player[number];
                     int num11 = 0;
                     int num12 = 0;
-                    Item item6 = ((number2 >= (float)PlayerItemSlotID.Loadout3_Dye_0) ? player5.Loadouts[2].Dye[(int)number2 - PlayerItemSlotID.Loadout3_Dye_0] : ((number2 >= (float)PlayerItemSlotID.Loadout3_Armor_0) ? player5.Loadouts[2].Armor[(int)number2 - PlayerItemSlotID.Loadout3_Armor_0] : ((number2 >= (float)PlayerItemSlotID.Loadout2_Dye_0) ? player5.Loadouts[1].Dye[(int)number2 - PlayerItemSlotID.Loadout2_Dye_0] : ((number2 >= (float)PlayerItemSlotID.Loadout2_Armor_0) ? player5.Loadouts[1].Armor[(int)number2 - PlayerItemSlotID.Loadout2_Armor_0] : ((number2 >= (float)PlayerItemSlotID.Loadout1_Dye_0) ? player5.Loadouts[0].Dye[(int)number2 - PlayerItemSlotID.Loadout1_Dye_0] : ((number2 >= (float)PlayerItemSlotID.Loadout1_Armor_0) ? player5.Loadouts[0].Armor[(int)number2 - PlayerItemSlotID.Loadout1_Armor_0] : ((number2 >= (float)PlayerItemSlotID.Bank4_0) ? player5.bank4.item[(int)number2 - PlayerItemSlotID.Bank4_0] : ((number2 >= (float)PlayerItemSlotID.Bank3_0) ? player5.bank3.item[(int)number2 - PlayerItemSlotID.Bank3_0] : ((number2 >= (float)PlayerItemSlotID.TrashItem) ? player5.trashItem : ((number2 >= (float)PlayerItemSlotID.Bank2_0) ? player5.bank2.item[(int)number2 - PlayerItemSlotID.Bank2_0] : ((number2 >= (float)PlayerItemSlotID.Bank1_0) ? player5.bank.item[(int)number2 - PlayerItemSlotID.Bank1_0] : ((number2 >= (float)PlayerItemSlotID.MiscDye0) ? player5.miscDyes[(int)number2 - PlayerItemSlotID.MiscDye0] : ((number2 >= (float)PlayerItemSlotID.Misc0) ? player5.miscEquips[(int)number2 - PlayerItemSlotID.Misc0] : ((number2 >= (float)PlayerItemSlotID.Dye0) ? player5.dye[(int)number2 - PlayerItemSlotID.Dye0] : ((!(number2 >= (float)PlayerItemSlotID.Armor0)) ? player5.inventory[(int)number2 - PlayerItemSlotID.Inventory0] : player5.armor[(int)number2 - PlayerItemSlotID.Armor0])))))))))))))));
+                    Item item6 = (number2 >= PlayerItemSlotID.Loadout3_Dye_0)
+                        ? player5.Loadouts[2].Dye[(int)number2 - PlayerItemSlotID.Loadout3_Dye_0]
+                        : ((number2 >= PlayerItemSlotID.Loadout3_Armor_0)
+                        ? player5.Loadouts[2].Armor[(int)number2 - PlayerItemSlotID.Loadout3_Armor_0]
+                        : ((number2 >= PlayerItemSlotID.Loadout2_Dye_0)
+                        ? player5.Loadouts[1].Dye[(int)number2 - PlayerItemSlotID.Loadout2_Dye_0]
+                        : ((number2 >= PlayerItemSlotID.Loadout2_Armor_0)
+                        ? player5.Loadouts[1].Armor[(int)number2 - PlayerItemSlotID.Loadout2_Armor_0]
+                        : ((number2 >= PlayerItemSlotID.Loadout1_Dye_0)
+                        ? player5.Loadouts[0].Dye[(int)number2 - PlayerItemSlotID.Loadout1_Dye_0]
+                        : ((number2 >= PlayerItemSlotID.Loadout1_Armor_0)
+                        ? player5.Loadouts[0].Armor[(int)number2 - PlayerItemSlotID.Loadout1_Armor_0]
+                        : ((number2 >= PlayerItemSlotID.Bank4_0)
+                        ? player5.bank4.item[(int)number2 - PlayerItemSlotID.Bank4_0]
+                        : ((number2 >= PlayerItemSlotID.Bank3_0)
+                        ? player5.bank3.item[(int)number2 - PlayerItemSlotID.Bank3_0]
+                        : ((number2 >= PlayerItemSlotID.TrashItem)
+                        ? player5.trashItem
+                        : ((number2 >= PlayerItemSlotID.Bank2_0)
+                        ? player5.bank2.item[(int)number2 - PlayerItemSlotID.Bank2_0]
+                        : ((number2 >= PlayerItemSlotID.Bank1_0)
+                        ? player5.bank.item[(int)number2 - PlayerItemSlotID.Bank1_0]
+                        : ((number2 >= PlayerItemSlotID.MiscDye0)
+                        ? player5.miscDyes[(int)number2 - PlayerItemSlotID.MiscDye0]
+                        : ((number2 >= PlayerItemSlotID.Misc0)
+                        ? player5.miscEquips[(int)number2 - PlayerItemSlotID.Misc0]
+                        : ((number2 >= PlayerItemSlotID.Dye0)
+                        ? player5.dye[(int)number2 - PlayerItemSlotID.Dye0]
+                        : ((!(number2 >= PlayerItemSlotID.Armor0))
+                        ? player5.inventory[(int)number2 - PlayerItemSlotID.Inventory0]
+                        : player5.armor[(int)number2 - PlayerItemSlotID.Armor0]))))))))))))));
                     if (item6.Name == "" || item6.stack == 0 || item6.type == 0)
                     {
                         item6.SetDefaults(0, noMatCheck: true);
@@ -617,7 +654,7 @@ public static class ReplaceNetMessage
                             ITile tile2 = Main.tile[num17, num18];
                             bitsByte19[0] = tile2.active();
                             bitsByte19[2] = tile2.wall > 0;
-                            bitsByte19[3] = tile2.liquid > 0 && Main.netMode == 2;
+                            bitsByte19[3] = tile2.liquid > 0;
                             bitsByte19[4] = tile2.wire();
                             bitsByte19[5] = tile2.halfBrick();
                             bitsByte19[6] = tile2.actuator();
@@ -664,7 +701,7 @@ public static class ReplaceNetMessage
                             {
                                 packetWriter.Write(tile2.wall);
                             }
-                            if (tile2.liquid > 0 && Main.netMode == 2)
+                            if (tile2.liquid > 0)
                             {
                                 packetWriter.Write(tile2.liquid);
                                 packetWriter.Write(tile2.liquidType());
@@ -723,7 +760,7 @@ public static class ReplaceNetMessage
                         nPC2.netSkip = 0;
                     }
                     short value3 = (short)nPC2.netID;
-                    bool[] array = new bool[4];
+                    Span<bool> array = stackalloc bool[4];
                     BitsByte bitsByte3 = (byte)0;
                     bitsByte3[0] = nPC2.direction > 0;
                     bitsByte3[1] = nPC2.directionY > 0;
@@ -946,16 +983,9 @@ public static class ReplaceNetMessage
                 packetWriter.Write((short)number2);
                 packetWriter.Write((short)number3);
                 packetWriter.Write((short)number4);
-                if (Main.netMode == 2)
-                {
-                    Netplay.GetSectionX((int)number2);
-                    Netplay.GetSectionY((int)number3);
-                    packetWriter.Write((short)number5);
-                }
-                else
-                {
-                    packetWriter.Write((short)0);
-                }
+                Netplay.GetSectionX((int)number2);
+                Netplay.GetSectionY((int)number3);
+                packetWriter.Write((short)number5);
                 break;
             case 35:
                 packetWriter.Write((byte)number);
@@ -1061,12 +1091,9 @@ public static class ReplaceNetMessage
                 break;
             case 56:
                 packetWriter.Write((short)number);
-                if (Main.netMode == 2)
-                {
-                    string givenName = Main.npc[number].GivenName;
-                    packetWriter.Write(givenName);
-                    packetWriter.Write(Main.npc[number].townNpcVariationIndex);
-                }
+                string givenName = Main.npc[number].GivenName;
+                packetWriter.Write(givenName);
+                packetWriter.Write(Main.npc[number].townNpcVariationIndex);
                 break;
             case 57:
                 packetWriter.Write(WorldGen.tGood);
@@ -1675,7 +1702,6 @@ public static class ReplaceNetMessage
                                 try
                                 {
                                     NetMessage.buffer[num23].spamCount++;
-                                    Main.ActiveNetDiagnosticsUI.CountSentMessage(msgType, size);
                                     Hooks.NetMessage.InvokeSendBytes(Netplay.Clients[num23].Socket, sendData, 0, size, Netplay.Clients[num23].ServerWriteCallBack, null, num23);
                                 }
                                 catch
@@ -1694,7 +1720,6 @@ public static class ReplaceNetMessage
                                 try
                                 {
                                     NetMessage.buffer[num27].spamCount++;
-                                    Main.ActiveNetDiagnosticsUI.CountSentMessage(msgType, size);
                                     Hooks.NetMessage.InvokeSendBytes(Netplay.Clients[num27].Socket, sendData, 0, size, Netplay.Clients[num27].ServerWriteCallBack, null, num27);
                                 }
                                 catch
@@ -1740,7 +1765,6 @@ public static class ReplaceNetMessage
                                 try
                                 {
                                     NetMessage.buffer[num28].spamCount++;
-                                    Main.ActiveNetDiagnosticsUI.CountSentMessage(msgType, size);
                                     Hooks.NetMessage.InvokeSendBytes(Netplay.Clients[num28].Socket, sendData, 0, size, Netplay.Clients[num28].ServerWriteCallBack, null, num28);
                                 }
                                 catch
@@ -1787,7 +1811,6 @@ public static class ReplaceNetMessage
                                 try
                                 {
                                     NetMessage.buffer[num25].spamCount++;
-                                    Main.ActiveNetDiagnosticsUI.CountSentMessage(msgType, size);
                                     Hooks.NetMessage.InvokeSendBytes(Netplay.Clients[num25].Socket, sendData, 0, size, Netplay.Clients[num25].ServerWriteCallBack, null, num25);
                                 }
                                 catch
@@ -1806,7 +1829,6 @@ public static class ReplaceNetMessage
                                 try
                                 {
                                     NetMessage.buffer[num26].spamCount++;
-                                    Main.ActiveNetDiagnosticsUI.CountSentMessage(msgType, size);
                                     Hooks.NetMessage.InvokeSendBytes(Netplay.Clients[num26].Socket, sendData, 0, size, Netplay.Clients[num26].ServerWriteCallBack, null, num26);
                                 }
                                 catch
@@ -1853,7 +1875,6 @@ public static class ReplaceNetMessage
                                 try
                                 {
                                     NetMessage.buffer[num24].spamCount++;
-                                    Main.ActiveNetDiagnosticsUI.CountSentMessage(msgType, size);
                                     Hooks.NetMessage.InvokeSendBytes(Netplay.Clients[num24].Socket, sendData, 0, size, Netplay.Clients[num24].ServerWriteCallBack, null, num24);
                                 }
                                 catch
@@ -1872,7 +1893,6 @@ public static class ReplaceNetMessage
                                 try
                                 {
                                     NetMessage.buffer[num22].spamCount++;
-                                    Main.ActiveNetDiagnosticsUI.CountSentMessage(msgType, size);
                                     Hooks.NetMessage.InvokeSendBytes(Netplay.Clients[num22].Socket, sendData, 0, size, Netplay.Clients[num22].ServerWriteCallBack, null, num22);
                                 }
                                 catch
@@ -1889,7 +1909,6 @@ public static class ReplaceNetMessage
             try
             {
                 NetMessage.buffer[remoteClient].spamCount++;
-                Main.ActiveNetDiagnosticsUI.CountSentMessage(msgType, size);
                 Hooks.NetMessage.InvokeSendBytes(Netplay.Clients[remoteClient].Socket, sendData, 0, size, Netplay.Clients[remoteClient].ServerWriteCallBack, null, remoteClient);
             }
             catch
@@ -1897,23 +1916,25 @@ public static class ReplaceNetMessage
             }
         }
         NetMessage.buffer[num].writeLocked = false;
-        if (msgType == 2 && Main.netMode == 2)
+        if (msgType == 2)
         {
             Netplay.Clients[num].PendingTermination = true;
             Netplay.Clients[num].PendingTerminationApproved = true;
         }
     }
-    public static void SetPacketLength<T>() where T : struct
+    //public static void SetPacketLength<T>() where T : struct
+    //{
+    //    var info = typeof(T).GetCustomAttribute<PacketInfoAttribute>();
+    //    PacketLength[info!.PacketID] = (ushort)(SizeOf.PacketHead + Marshal.SizeOf<T>());
+    //}
+    public static unsafe void SetPacketLength<T>() where T : unmanaged, IMessageType
     {
-        var info = typeof(T).GetCustomAttribute<PacketInfoAttribute>();
-        if (info is not null) 
-        {
-            PacketLength[info.PacketID] = (ushort)(SizeOf.PacketHead + Marshal.SizeOf<T>());
-        }
+        var instance = new T();
+        PacketLength[instance.MessageType] = (ushort)(SizeOf.PacketHead + sizeof(T));
     }
 }
 #region Extension
-public static class NetMessageUtils
+internal static class NetMessageUtils
 {
     public static void WriteSelfTo(this Terraria.GameContent.CoinLossRevengeSystem.RevengeMarker self, IPacketWriter writer)
     {
@@ -1931,7 +1952,7 @@ public static class NetMessageUtils
     {
         writer.WriteVector2(self.position);
         writer.Write(self.soundIndex);
-        BitsByte bitsByte = new BitsByte(self.style != -1, self.volume != -1f, self.pitchOffset != -1f);
+        BitsByte bitsByte = new(self.style != -1, self.volume != -1f, self.pitchOffset != -1f);
         writer.Write(bitsByte);
         if (bitsByte[0])
         {

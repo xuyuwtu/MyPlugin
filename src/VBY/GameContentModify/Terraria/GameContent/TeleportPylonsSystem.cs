@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using MySqlX.XDevAPI.Common;
 using Terraria;
 using Terraria.Chat;
 using Terraria.DataStructures;
@@ -8,6 +7,7 @@ using Terraria.Localization;
 
 namespace VBY.GameContentModify.GameContent;
 
+[ReplaceType(typeof(TeleportPylonsSystem))]
 public static class ReplaceTeleportPylonsSystem
 {
     public static void HandleTeleportRequest(TeleportPylonsSystem self, TeleportPylonInfo info, int playerIndex)
@@ -122,11 +122,8 @@ public static class ReplaceTeleportPylonsSystem
             int number = 0;
             player.Teleport(newPos, num2, typeOfPylon);
             player.velocity = Vector2.Zero;
-            if (Main.netMode == 2)
-            {
-                RemoteClient.CheckSection(player.whoAmI, player.position);
-                NetMessage.SendData(65, -1, -1, null, 0, player.whoAmI, newPos.X, newPos.Y, num2, number, typeOfPylon);
-            }
+            RemoteClient.CheckSection(player.whoAmI, player.position);
+            NetMessage.SendData(65, -1, -1, null, 0, player.whoAmI, newPos.X, newPos.Y, num2, number, typeOfPylon);
         }
         else
         {

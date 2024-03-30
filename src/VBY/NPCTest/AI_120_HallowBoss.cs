@@ -409,6 +409,7 @@ partial class NPCAIs
                         npc.AI_120_HallowBoss_DoMagicEffect(npc.Center + new Vector2(55f, -20f), 4, Utils.GetLerpValue(0f, 100f, npc.ai[1], clamped: true));
                     }
                     NPCAimedTarget targetData = npc.GetTargetData();
+                    //
                     if (fairyQueenLanceProjDamage != 9999)
                     {
                         if (npc.localAI.Length < 5)
@@ -430,6 +431,7 @@ partial class NPCAIs
                             targetData.Velocity = new Vector2(npc.localAI[3], npc.localAI[4]);
                         }
                     }
+                    //
                     Vector2 targetCenter = (targetData.Invalid ? npc.Center : targetData.Center);
                     if (npc.Distance(targetCenter + heightOffset) > num3)
                     {
@@ -714,8 +716,16 @@ partial class NPCAIs
                                 {
                                     //原版
                                     //Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), origin, Vector2.Zero, 919, num7, 0f, Main.myPlayer, v2.ToRotation(), ai2);
-                                    //迷惑版
-                                    npc.NewProjectile(origin - (ro * 59), ro, 919, num7, v2.ToRotation(), ai2);
+                                    if (DateTime.Now.Hour is > 21 or < 7)
+                                    {
+                                        //迷惑偏移预判版
+                                        npc.NewProjectile(origin - (ro * 59) + targetData9.Velocity * (59 - count), ro, 919, num7, v2.ToRotation(), ai2);
+                                    }
+                                    else
+                                    {
+                                        //迷惑版
+                                        npc.NewProjectile(origin - (ro * 59), ro, 919, num7, v2.ToRotation(), ai2);
+                                    }
                                     //预判版
                                     //npc.NewProjectile(origin + targetData9.Velocity * 59, Vector2.Zero, 919, num7, v2.ToRotation(), ai2);
                                     //迷惑预判版
@@ -1025,27 +1035,27 @@ partial class NPCAIs
                     }
                     npc.alpha = Utils.Clamp(npc.alpha + flag7.ToDirectionInt() * 5, 0, 255);
                     bool flag10 = npc.alpha == 0 || npc.alpha == 255;
-                    int num18 = 5;
-                    for (int i = 0; i < num18; i++)
-                    {
-                        float num19 = MathHelper.Lerp(1.3f, 0.7f, npc.Opacity);
-                        Color newColor = Main.hslToRgb(Main.rand.NextFloat(), 1f, 0.5f);
-                        int num20 = Dust.NewDust(npc.position - npc.Size * 0.5f, npc.width * 2, npc.height * 2, 267, 0f, 0f, 0, newColor);
-                        Main.dust[num20].position = npc.Center + Main.rand.NextVector2Circular(npc.width, npc.height);
-                        Main.dust[num20].velocity *= Main.rand.NextFloat() * 0.8f;
-                        Main.dust[num20].noGravity = true;
-                        Main.dust[num20].scale = 0.9f + Main.rand.NextFloat() * 1.2f;
-                        Main.dust[num20].fadeIn = 0.4f + Main.rand.NextFloat() * 1.2f * num19;
-                        Main.dust[num20].velocity += Vector2.UnitY * -2f;
-                        Main.dust[num20].scale = 0.35f;
-                        if (num20 != 6000)
-                        {
-                            Dust dust = Dust.CloneDust(num20);
-                            dust.scale /= 2f;
-                            dust.fadeIn *= 0.85f;
-                            dust.color = new Color(255, 255, 255, 255);
-                        }
-                    }
+                    //int num18 = 5;
+                    //for (int i = 0; i < num18; i++)
+                    //{
+                    //    float num19 = MathHelper.Lerp(1.3f, 0.7f, npc.Opacity);
+                    //    Color newColor = Main.hslToRgb(Main.rand.NextFloat(), 1f, 0.5f);
+                    //    int num20 = Dust.NewDust(npc.position - npc.Size * 0.5f, npc.width * 2, npc.height * 2, 267, 0f, 0f, 0, newColor);
+                    //    Main.dust[num20].position = npc.Center + Main.rand.NextVector2Circular(npc.width, npc.height);
+                    //    Main.dust[num20].velocity *= Main.rand.NextFloat() * 0.8f;
+                    //    Main.dust[num20].noGravity = true;
+                    //    Main.dust[num20].scale = 0.9f + Main.rand.NextFloat() * 1.2f;
+                    //    Main.dust[num20].fadeIn = 0.4f + Main.rand.NextFloat() * 1.2f * num19;
+                    //    Main.dust[num20].velocity += Vector2.UnitY * -2f;
+                    //    Main.dust[num20].scale = 0.35f;
+                    //    if (num20 != 6000)
+                    //    {
+                    //        Dust dust = Dust.CloneDust(num20);
+                    //        dust.scale /= 2f;
+                    //        dust.fadeIn *= 0.85f;
+                    //        dust.color = new Color(255, 255, 255, 255);
+                    //    }
+                    //}
                     npc.ai[1] += 1f;
                     if (!(npc.ai[1] >= 20f && flag10))
                     {

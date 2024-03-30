@@ -7,24 +7,23 @@ using TerrariaApi.Server;
 
 using TShockAPI;
 
+using VBY.Common;
 using VBY.Common.CommandV2;
 using VBY.Common.Extension;
 
 namespace VBY.ProgressQuery;
 
 [ApiVersion(2, 1)]
-public class ProgressQuery : TerrariaPlugin
+[Description("进度查询")]
+public class ProgressQuery : CommonPlugin
 {
-    public override string Name => GetType().Name;
-    public override string Description => "进度查询";
     public override string Author => "yu";
-    public override Version Version => GetType().Assembly.GetName().Version!;
     public static Func<bool>[] BossFuncs, EventFuncs;
     public static Action<bool>[] BossActions, EventActions;
     private static readonly string[] DefaultBossNames = new[] {"未知", "史莱姆王", "克苏鲁之眼", "邪恶Boss", "蜂王", "骷髅王", "独眼巨鹿", "血肉墙", "史莱姆皇后",
                                      "任意机械BOSS", "毁灭者", "双子魔眼", "机械骷髅王", "世纪之花", "石巨人", "猪龙鱼公爵", "光之女皇", "拜月教邪教徒",
                                      "日耀柱", "星云柱", "星旋柱", "星尘柱", "月亮领主", "哀木", "南瓜王", "常绿尖叫怪", "圣诞坦克", "冰雪女王"};
-    private static readonly string[] DefaultEventNames = new[] { "未知", "哥布林军队", "削弱军团", "海盗入侵", "南瓜月", "霜月", "火星暴乱" };
+    private static readonly string[] DefaultEventNames = new[] { "未知", "哥布林军队", "雪人军团", "海盗入侵", "南瓜月", "霜月", "火星暴乱" };
     public static readonly string[] BossNames = (string[])DefaultBossNames.Clone();
     public static readonly string[] EventNames = (string[])DefaultEventNames.Clone();
     public static bool DownedChristmas
@@ -48,7 +47,6 @@ public class ProgressQuery : TerrariaPlugin
     }
     public Config ReadConfig;
     public SubCmdRoot CmdCommand, CtlCommand;
-    public Command[] AddCommands;
     static ProgressQuery()
     {
         BossFuncs = new Func<bool>[]
@@ -136,7 +134,7 @@ public class ProgressQuery : TerrariaPlugin
         };
 
         var typeName = GetType().Name;
-        ReadConfig = new("Config", typeName + ".json")
+        ReadConfig = new("Config", Name + ".json")
         {
             Root = new Root()
             {
@@ -153,23 +151,11 @@ public class ProgressQuery : TerrariaPlugin
             }
         };
         ReadConfig.Read(true);
-        AddCommands = ReadConfig.Root.Commands.GetCommands(CmdCommand.Run, CtlCommand.Run);
+        AddCommands.AddRange(ReadConfig.Root.Commands.GetCommands(CmdCommand.Run, CtlCommand.Run));
         CmdCommand.SetAllNode(new SetAllowInfo(null, true, null));
         CtlCommand.SetAllNode(new SetAllowInfo(null, true, null));
         Array.Copy(ReadConfig.Root.Texts.BossNames, 0, BossNames, 1, Math.Min(ReadConfig.Root.Texts.BossNames.Length, BossNames.Length));
         Array.Copy(ReadConfig.Root.Texts.EventNames, 0, EventNames, 1, Math.Min(ReadConfig.Root.Texts.EventNames.Length, EventNames.Length));
-    }
-    public override void Initialize()
-    {
-        Commands.ChatCommands.AddRange(AddCommands);
-    }
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            Commands.ChatCommands.RemoveRange(AddCommands);
-        }
-        base.Dispose(disposing);
     }
     [Description("全部")]
     public static void CmdAll(SubCmdArgs args)

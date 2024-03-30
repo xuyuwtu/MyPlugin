@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Diagnostics;
+using System.Text;
 
 using TShockAPI;
 
@@ -55,4 +57,6 @@ public static class Utils
                 return (false, null);
         }
     }
+    /// <inheritdoc cref="Enumerable.Range(int, int)"/>
+    public static IEnumerable<int> GetRange(int start, int end) => Enumerable.Range(start, end - start + 1);
 }

@@ -1,29 +1,32 @@
-﻿using MySql.Data.MySqlClient;
+﻿using System.ComponentModel;
 using System.Data;
 using System.Reflection;
 using System.Reflection.Emit;
+
 using Terraria;
 using TerrariaApi.Server;
+
 using TShockAPI;
 using TShockAPI.DB;
+
+using MySql.Data.MySqlClient;
+
 using VBY.Common;
 using VBY.Common.Command;
 using VBY.Common.Extension;
+using VBY.Common.Hook;
 
 namespace VBY.Shop;
 
 [ApiVersion(2, 1)]
-public partial class ShopPlugin : TerrariaPlugin
+[Description("一个商店插件")]
+public partial class ShopPlugin : CommonPlugin
 {
-    public override string Name => GetType().Name;
-    public override string Description => "一个商店插件";
     public override string Author => "yu";
-    public override Version Version => GetType().Assembly.GetName().Version!;
     public readonly static ShopPlayer[] Players = new ShopPlayer[byte.MaxValue];
     public static IDbConnection DB { get; internal set; }
     public static Config.MainConfig ReadConfig { get; internal set; }
     public SubCmdRoot CmdCommand, CtlCommand;
-    public Command[] AddCommands;
     static ShopPlugin()
     {
         var typeName = typeof(ShopPlugin).Name;
@@ -125,15 +128,13 @@ public partial class ShopPlugin : TerrariaPlugin
                   .AddList("Heal", "恢复商店", 2).AddBuyAndList<TableInfo.LifeHealShop>()
                   .AddList("Max", "生命商店", 2).AddBuyAndList<TableInfo.LifeMaxShop>();
         CmdCommand.SetAllNode(new SetAllowInfo(true, null, null), x => x is SubCmdList { CmdName: "List" });
-        AddCommands = ReadConfig.Root.Commands.GetCommands(CmdCommand, CtlCommand);
+        AddCommands.AddRange(ReadConfig.Root.Commands.GetCommands(CmdCommand, CtlCommand));
     }
-    public override void Initialize()
+    protected override void PreInitialize()
     {
-        Commands.ChatCommands.AddRange(AddCommands);
-        ServerApi.Hooks.GamePostInitialize.Register(this, x => Commands.HandleCommand(TSPlayer.Server, "/shop c l"));
-        ServerApi.Hooks.ServerJoin.Register(this, OnServerJoin);
-        ServerApi.Hooks.ServerLeave.Register(this, OnServerLeave);
-        ServerApi.Hooks.NetGetData.Register(this, OnNetGetData);
+        AttachHooks.Add(ServerApi.Hooks.ServerJoin.GetHook(this, OnServerJoin));
+        AttachHooks.Add(ServerApi.Hooks.ServerLeave.GetHook(this, OnServerLeave));
+        AttachHooks.Add(ServerApi.Hooks.NetGetData.GetHook(this, OnNetGetData));
     }
 
     public static void OnNetGetData(GetDataEventArgs args)
@@ -153,17 +154,6 @@ public partial class ShopPlugin : TerrariaPlugin
                 }
             }
         }
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            Commands.ChatCommands.RemoveRange(AddCommands);
-            ServerApi.Hooks.ServerJoin.Deregister(this, OnServerJoin);
-            ServerApi.Hooks.ServerLeave.Deregister(this, OnServerLeave);
-        }
-        base.Dispose(disposing);
     }
     #region Hooks
     public static void OnServerJoin(JoinEventArgs args)
@@ -231,7 +221,6 @@ public partial class ShopPlugin : TerrariaPlugin
         }
         shop.Buy(shopPlayer, count);
     }
-    //public static void Add<T>(SubCmdArgs args) where T : Shops => Utils.ShopInstances[typeof(T)].Add(args);
     public static void Del<T>(SubCmdArgs args) where T : Shops
     {
         if (args.Parameters.Count == 0)

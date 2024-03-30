@@ -22,7 +22,7 @@ public class RandomDrop : TerrariaPlugin
     static Common.Config.ConfigManager<MainConfig> Config { get; } = new(MainConfig.GetDefaultConfig)
     {
         SerializerSettings = new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore },
-        PostLoadAction = static (instance, _) =>
+        PostLoadAction = static (instance, _, _) =>
         {
             if (!string.IsNullOrEmpty(instance.ImportAliases) && File.Exists(instance.ImportAliases))
             {

@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Security.Cryptography;
-using Microsoft.Xna.Framework;
 
 using MonoMod.RuntimeDetour.HookGen;
 
@@ -37,7 +36,6 @@ internal static class Utils
     {
         return vector2 * num / (float)Math.Sqrt(vector2.X * vector2.X + vector2.Y * vector2.Y);
     }
-
     public static PlayerFileData LoadPlayer(string playerPath)
     {
         PlayerFileData playerFileData = new(playerPath, false);
@@ -1300,6 +1298,19 @@ internal static class Utils
         //    NetManager.Instance.SendToClient(packet, player.whoAmI);
         //}
     }
-
+    public static void NotNullSet<T>(this ref T? value, ref T field) where T : struct
+    {
+        if (value.HasValue)
+        {
+            field = value.Value;
+        }
+    }
+    public static void NotNullAndEmptySet(this string? value, ref string field)
+    {
+        if (!string.IsNullOrEmpty(value))
+        {
+            field = value;
+        }
+    }
     #endregion
 }

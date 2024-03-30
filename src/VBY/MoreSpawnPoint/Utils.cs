@@ -51,6 +51,14 @@ public static class Utils
             execPlayer.SendWarningMessage($"出生点:{name} 未找到");
         }
     }
+    public static void RandomBindSpawnPoint(TSPlayer setPlayer)
+    {
+        var info = Terraria.Utils.SelectRandom(Main.rand, MoreSpawnPoint.SpawnPointInfos.ToArray()).Value;
+        MoreSpawnPoint.PlayerSpawnPoints[setPlayer.Name] = info;
+        setPlayer.sX = info.X;
+        setPlayer.sY = info.Y;
+        setPlayer.SendData(PacketTypes.WorldInfo);
+    }
     public static void SetDefaultPoint(TSPlayer setPlayer)
     {
         if(MoreSpawnPoint.PlayerSpawnPoints.TryGetValue(setPlayer.Name, out var info) && info.X == setPlayer.sX && info.Y == setPlayer.sY)

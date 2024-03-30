@@ -1,14 +1,20 @@
-﻿using Terraria;
+﻿using Microsoft.Xna.Framework;
+
+using Terraria;
 using Terraria.ID;
 using Terraria.Enums;
+using Terraria.GameContent.Events;
+
+using VBY.GameContentModify.Config;
 
 namespace VBY.GameContentModify;
 
+[ReplaceType(typeof(Item))]
 public static class ReplaceItem
 {
     public static bool CanShimmer(Item item)
     {
-        var func = Config.ShimmerItemReplaceInfo.CanShimmerFuncs[item.type];
+        var func = ShimmerItemReplaceInfo.CanShimmerFuncs[item.type];
         if (func is not null)
         {
             return func();
@@ -31,12 +37,12 @@ public static class ReplaceItem
             flag = true;
         }
 
-        if (item.type == 3461 || item.createTile == 139)
+        if (item.type == 3461 || item.createTile == TileID.MusicBoxes)
         {
             flag = true;
         }
 
-        if (!flag && ItemID.Sets.ShimmerTransformToItem[shimmerEquivalentType] <= 0 && item.FindDecraftAmount() <= 0 && !ItemID.Sets.CommonCoin[item.type])
+        if (!flag && ItemID.Sets.ShimmerTransformToItem[shimmerEquivalentType] <= 0 && (MainConfigInfo.StaticDisableShimmerDecrafte | item.FindDecraftAmount() <= 0) && !ItemID.Sets.CommonCoin[item.type])
         {
             return item.makeNPC > 0;
         }
@@ -46,7 +52,7 @@ public static class ReplaceItem
     public static void GetShimmered(Item item)
     {
         int shimmerEquivalentType = item.GetShimmerEquivalentType();
-        int decraftingRecipeIndex = Terraria.GameContent.ShimmerTransforms.GetDecraftingRecipeIndex(shimmerEquivalentType);
+        int decraftingRecipeIndex = MainConfigInfo.StaticDisableShimmerDecrafte ? -1 : Terraria.GameContent.ShimmerTransforms.GetDecraftingRecipeIndex(shimmerEquivalentType);
         if (ItemID.Sets.CommonCoin[shimmerEquivalentType])
         {
             switch (shimmerEquivalentType)
@@ -244,7 +250,7 @@ public static class ReplaceItem
         NetMessage.SendData(MessageID.ShimmerActions, -1, -1, null, 0, (int)item.Center.X, (int)item.Center.Y);
         NetMessage.SendData(MessageID.SyncItemsWithShimmer, -1, -1, null, item.whoAmI, 1f);
         //}
-        Terraria.GameContent.Achievements.AchievementsHelper.NotifyProgressionEvent(27);
+        Terraria.GameContent.Achievements.AchievementsHelper.NotifyProgressionEvent(AchievementHelperID.Events.TransmuteItem);
         if (item.stack == 0)
         {
             item.makeNPC = -1;

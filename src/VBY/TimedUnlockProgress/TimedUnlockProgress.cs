@@ -30,7 +30,7 @@ public class TimedUnlockProgress : CommonPlugin
     }
 
     [AutoHook]
-    private static void OnCommonCode_DropItemLocalPerClientAndSetNPCMoneyTo0(On.Terraria.GameContent.ItemDropRules.CommonCode.orig_DropItemLocalPerClientAndSetNPCMoneyTo0 orig, NPC npc, int itemId, int stack, bool interactionRequired)
+    public static void OnCommonCode_DropItemLocalPerClientAndSetNPCMoneyTo0(On.Terraria.GameContent.ItemDropRules.CommonCode.orig_DropItemLocalPerClientAndSetNPCMoneyTo0 orig, NPC npc, int itemId, int stack, bool interactionRequired)
     {
         if (MainConfig.Instance.AddCion && UnlockTimeInfo.TryGetValue(npc.netID, out var time) && !IsUnlocked(time))
         {
@@ -43,7 +43,7 @@ public class TimedUnlockProgress : CommonPlugin
     }
 
     [AutoHook]
-    private static void OnCommonCode_DropItemForEachInteractingPlayerOnThePlayer(On.Terraria.GameContent.ItemDropRules.CommonCode.orig_DropItemForEachInteractingPlayerOnThePlayer orig, NPC npc, int itemId, UnifiedRandom rng, int chanceNumerator, int chanceDenominator, int stack, bool interactionRequired)
+    public static void OnCommonCode_DropItemForEachInteractingPlayerOnThePlayer(On.Terraria.GameContent.ItemDropRules.CommonCode.orig_DropItemForEachInteractingPlayerOnThePlayer orig, NPC npc, int itemId, UnifiedRandom rng, int chanceNumerator, int chanceDenominator, int stack, bool interactionRequired)
     {
         if (MainConfig.Instance.AddCion && UnlockTimeInfo.TryGetValue(npc.netID, out var time) && !IsUnlocked(time))
         {

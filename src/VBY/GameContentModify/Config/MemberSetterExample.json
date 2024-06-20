@@ -1,0 +1,10 @@
+{
+    "MemberName": {
+        "可掉落图格": "Terraria.ID.TileID+Sets.Falling"
+    },
+    "MemberValue": {
+        "可掉落图格": {
+            "53": false
+        }
+    }
+}

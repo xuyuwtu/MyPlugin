@@ -3,7 +3,7 @@ using System.Data;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
-
+using Org.BouncyCastle.Asn1.Misc;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
@@ -22,7 +22,7 @@ namespace VBY.OtherCommand;
 public class OtherCommand : CommonPlugin
 {
     public override string Author => "yu";
-    public OtherCommand(Main game) : base(game) 
+    public OtherCommand(Main game) : base(game)
     {
         AddCommands.AddRange(new Command[] {
             new (Permissions.spawnmob, SpawnMob, "spawnmobply", "smp")
@@ -60,7 +60,7 @@ public class OtherCommand : CommonPlugin
             new (Permissions.kick, ListConnected, "conwho"),
             new (Permissions.kick, Kick, "conkick")
         });
-        Loaders.Add(new ReplaceCommand[]{ new("warp", Warp) }.GetLoader(x => x.Replace(), x => x.Restore(), null, true));
+        Loaders.Add(new ReplaceCommand[] { new("warp", Warp) }.GetLoader(x => x.Replace(), x => x.Restore(), null, true));
     }
     public static void ManageUsers(CommandArgs args)
     {
@@ -82,7 +82,7 @@ public class OtherCommand : CommonPlugin
             {
                 args.Player.SendErrorMessage("没有找到用户 {0}", account.Name);
             }
-            else if(updateRowCount == 1)
+            else if (updateRowCount == 1)
             {
                 args.Player.SendSuccessMessage("删除成功");
             }
@@ -105,11 +105,11 @@ public class OtherCommand : CommonPlugin
             {
                 userCount++;
             }
-            if(userCount == 0)
+            if (userCount == 0)
             {
                 args.Player.SendInfoMessage("用户不存在");
             }
-            else if(userCount == 1)
+            else if (userCount == 1)
             {
                 args.Player.SendInfoMessage("用户存在");
             }
@@ -156,12 +156,12 @@ public class OtherCommand : CommonPlugin
         }
 
         var findPlayers = TSPlayer.FindByNameOrID(args.Parameters[0]);
-        if(findPlayers.Count == 0)
+        if (findPlayers.Count == 0)
         {
             args.Player.SendInfoMessage("没有找到玩家");
             return;
         }
-        if(findPlayers.Count > 1)
+        if (findPlayers.Count > 1)
         {
             args.Player.SendMultipleMatchError(findPlayers.Select(p => p.Name));
             return;
@@ -221,66 +221,154 @@ public class OtherCommand : CommonPlugin
     }
     public static void PaintAnyTile(CommandArgs args)
     {
-        if(args.Parameters.Count == 0)
+        if (args.Parameters.Count < 2)
         {
-            args.Player.SendInfoMessage("请输入油漆id 或者 random");
+            args.Player.SendInfoMessage("/paintworld id <油漆id>/random");
+            args.Player.SendInfoMessage("/paintworld item <物品id>");
             return;
         }
-        if (args.Parameters[0].ToLower() == "random")
+
+        var enumerator = args.Parameters.GetEnumerator();
+        enumerator.MoveNext();
+        switch (enumerator.Current.ToLowerInvariant())
         {
-            var max = typeof(PaintID).GetFields().Where(x => x is { IsStatic: true, IsLiteral: true } && x.FieldType == typeof(byte)).Select(x => (byte)x.GetValue(null)!).Max() + 1;
-            for (int x = 0; x < Main.maxTilesX; x++)
-            {
-                for (int y = 0; y < Main.maxTilesY; y++)
+            case "id":
                 {
-                    if (Main.tile[x, y] is not null)
+                    enumerator.MoveNext();
+                    if (enumerator.Current.ToLowerInvariant() == "random")
                     {
-                        var paintColor = (byte)Main.rand.Next(0, max);
-                        if(y - 1 >= 0 && Main.tile[x, y - 1] is not null)
+                        var max = typeof(PaintID).GetFields().Where(x => x is { IsStatic: true, IsLiteral: true } && x.FieldType == typeof(byte)).Select(x => (byte)x.GetValue(null)!).Max() + 1;
+                        for (int x = 0; x < Main.maxTilesX; x++)
                         {
-                            paintColor = Main.tile[x, y - 1].color();
-                            if (Main.tile[x, y - 1].wall != 0) 
+                            for (int y = 0; y < Main.maxTilesY; y++)
                             {
-                                paintColor = Main.tile[x, y - 1].wallColor();
+                                if (Main.tile[x, y] is not null)
+                                {
+                                    var paintColor = (byte)Main.rand.Next(0, max);
+                                    if (y - 1 >= 0 && Main.tile[x, y - 1] is not null)
+                                    {
+                                        paintColor = Main.tile[x, y - 1].color();
+                                        if (Main.tile[x, y - 1].wall != 0)
+                                        {
+                                            paintColor = Main.tile[x, y - 1].wallColor();
+                                        }
+                                    }
+                                    Main.tile[x, y].color(paintColor);
+                                    if (Main.tile[x, y].wall != 0)
+                                    {
+                                        Main.tile[x, y].wallColor(paintColor);
+                                    }
+                                }
                             }
                         }
-                        Main.tile[x, y].color(paintColor);
-                        if (Main.tile[x, y].wall != 0)
-                        {
-                            Main.tile[x, y].wallColor(paintColor);
-                        }
+                        args.Player.SendSuccessMessage("涂漆完成");
+                        break;
                     }
-                }
-            }
-            args.Player.SendSuccessMessage("涂漆完成");
-            return;
-        }
-        if (byte.TryParse(args.Parameters[0], out var paintid) && paintid >= 0 && paintid < 32)
-        {
-            for (int x = 0; x < Main.maxTilesX; x++)
-            {
-                for (int y = 0; y < Main.maxTilesY; y++)
-                {
-                    if (Main.tile[x, y] is not null)
+                    if (short.TryParse(enumerator.Current, out var paintid) && paintid >= -3 && paintid < 32)
                     {
-                        Main.tile[x, y].color(paintid);
-                        if (Main.tile[x, y].wall != 0)
+                        if (paintid >= 0)
                         {
-                            Main.tile[x, y].wallColor(paintid);
+                            var colorID = (byte)paintid;    
+                            for (int x = 0; x < Main.maxTilesX; x++)
+                            {
+                                for (int y = 0; y < Main.maxTilesY; y++)
+                                {
+                                    if (Main.tile[x, y] is not null)
+                                    {
+                                        Main.tile[x, y].color(colorID);
+                                        if (Main.tile[x, y].wall != 0)
+                                        {
+                                            Main.tile[x, y].wallColor(colorID);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var paintCoatingID = (byte)(-paintid - 1);
+                            for (int x = 0; x < Main.maxTilesX; x++)
+                            {
+                                for (int y = 0; y < Main.maxTilesY; y++)
+                                {
+                                    if (Main.tile[x, y] is not null)
+                                    {
+                                        WorldGen.paintCoatTile(x, y, paintCoatingID);
+                                        if (Main.tile[x, y].wall != 0)
+                                        {
+                                            WorldGen.paintCoatWall(x, y, paintCoatingID);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        args.Player.SendSuccessMessage("涂漆完成");
+                    }
+                    else
+                    {
+                        args.Player.SendErrorMessage("无效ID");
+                    }
+                }
+                break;
+            case "item":
+                enumerator.MoveNext();
+                if (!short.TryParse(enumerator.Current, out var type) || !ContentSamples.ItemsByType.TryGetValue(type, out var paintItem))
+                {
+                    args.Player.SendErrorMessage("无效ID");
+                    break;
+                }
+                if (!paintItem.PaintOrCoating)
+                {
+                    args.Player.SendErrorMessage("无效油漆物品");
+                    break;
+                }
+                if(paintItem.paint != 0)
+                {
+                    var paintID = paintItem.paint;
+                    for (int x = 0; x < Main.maxTilesX; x++)
+                    {
+                        for (int y = 0; y < Main.maxTilesY; y++)
+                        {
+                            if (Main.tile[x, y] is not null)
+                            {
+                                Main.tile[x, y].color(paintID);
+                                if (Main.tile[x, y].wall != 0)
+                                {
+                                    Main.tile[x, y].wallColor(paintID);
+                                }
+                            }
                         }
                     }
                 }
-            }
-            args.Player.SendSuccessMessage("涂漆完成");
-        }
-        else
-        {
-            args.Player.SendErrorMessage("无效ID");
+                if(paintItem.paintCoating != 0)
+                {
+                    var paintCoatingID = paintItem.paintCoating;
+                    for (int x = 0; x < Main.maxTilesX; x++)
+                    {
+                        for (int y = 0; y < Main.maxTilesY; y++)
+                        {
+                            if (Main.tile[x, y] is not null)
+                            {
+                                WorldGen.paintCoatTile(x, y, paintCoatingID);
+                                if (Main.tile[x, y].wall != 0)
+                                {
+                                    WorldGen.paintCoatWall(x, y, paintCoatingID);
+                                }
+                            }
+                        }
+                    }
+                }
+                args.Player.SendSuccessMessage("涂漆完成");
+                break;
+            default:
+                args.Player.SendInfoMessage($"unknown parameter '{args.Parameters[0]}'");
+                break;
+
         }
     }
     public static void LoadWorld(CommandArgs args)
     {
-        if(args.Parameters.Count == 0)
+        if (args.Parameters.Count == 0)
         {
             args.Player.SendInfoMessage("/loadworld <filename>");
             return;
@@ -313,10 +401,16 @@ public class OtherCommand : CommonPlugin
     }
     public static void SpawnCultistRitual(CommandArgs args)
     {
+        if (args.Parameters.Any() && args.Parameters[0].Equals("help", StringComparison.OrdinalIgnoreCase))
+        {
+            args.Player.SendInfoMessage("/spawncultistritual -s skip check");
+            args.Player.SendInfoMessage("/spawncultistritual -i display info");
+            return;
+        }
         var x = Main.dungeonX;
         var y = Main.dungeonY;
-        var skipCheck = args.Parameters.Any(x => x == "-i");
-        if(!skipCheck)
+        var skipCheck = args.Parameters.Any(x => x == "-s");
+        if (!skipCheck)
         {
             if (NPC.AnyDanger())
             {
@@ -349,19 +443,45 @@ public class OtherCommand : CommonPlugin
                 return;
             }
         }
-        if(y < 7)
+        if (y < 7)
         {
             args.Player.SendInfoMessage("地牢点高度<7");
             return;
         }
-        if(WorldGen.SolidTile(Main.tile[x, y - 7]))
+        if (WorldGen.SolidTile(Main.tile[x, y - 7]))
         {
             args.Player.SendInfoMessage("神秘碑牌生成位置实体物块阻挡");
             return;
         }
-        if(!Terraria.GameContent.Events.CultistRitual.CheckFloor(new Vector2(x * 16 + 8, y * 16 - 64 - 8 - 27), out _))
+        var center = new Vector2(x * 16 + 8, y * 16 - 64 - 8 - 27);
+        if (!Terraria.GameContent.Events.CultistRitual.CheckFloor(center, out _))
         {
             args.Player.SendInfoMessage("教徒弓箭手站立位置不可用");
+            if (args.Parameters.Any(x => x == "-i"))
+            {
+                var point = center.ToTileCoordinates();
+                int num = 0;
+                Span<Point> points = stackalloc Point[4];
+                foreach (var i in stackalloc int[4] { -10, -6, 6, 10 })
+                {
+                    int checkX = point.X + i;
+                    points[i] = new Point(checkX, -1);
+                    for (int j = -5; j < 12; j++)
+                    {
+                        int checkY = point.Y + j;
+                        if (WorldGen.SolidTile(checkX, checkY) || TileID.Sets.Platforms[Framing.GetTileSafely(checkX, checkY).type])
+                        {
+                            if (!Collision.SolidTiles(checkX - 1, checkX + 1, checkY - 3, checkY - 1) || (!Collision.SolidTiles(checkX, checkX, checkY - 3, checkY - 1) && !Collision.SolidTiles(checkX + 1, checkX + 1, checkY - 3, checkY - 2) && !Collision.SolidTiles(checkX - 1, checkX - 1, checkY - 3, checkY - 2)))
+                            {
+                                points[num].Y = checkY;
+                                break;
+                            }
+                        }
+                    }
+                    num++;
+                }
+                args.Player.SendInfoMessage($"生成位置: {string.Join(", ", points.Select(x => $"{{X:{x.X},Y:{x.Y}}}"))}");
+            }
             return;
         }
         Main.npc.Any(npc => npc.type is NPCID.CultistTablet or NPCID.CultistDevote or NPCID.CultistArcherBlue, npc => npc.SetActive(false));
@@ -414,15 +534,15 @@ public class OtherCommand : CommonPlugin
                         args.Player.SendInfoMessage($"{member.Name}:'{((PropertyInfo)member).GetValue(args.Player.SelectedItem)}'");
                     }
                 }
-            } while(enumerator.MoveNext());
+            } while (enumerator.MoveNext());
             return;
         }
-        if(enumerator.Current.Equals("worlduuid", StringComparison.OrdinalIgnoreCase))
+        if (enumerator.Current.Equals("worlduuid", StringComparison.OrdinalIgnoreCase))
         {
             args.Player.SendInfoMessage(Main.ActiveWorldFileData.UniqueId.ToString());
             return;
         }
-        if(args.Parameters.Count < 3)
+        if (args.Parameters.Count < 3)
         {
             args.Player.SendInfoMessage("需要3个参数, <obj name> <member name> <type>");
             return;
@@ -450,15 +570,15 @@ public class OtherCommand : CommonPlugin
                         return;
                     }
                     var obj = Activator.CreateInstance(type);
-                    if(type == typeof(NPC))
+                    if (type == typeof(NPC))
                     {
-                        type.GetMethod(nameof(NPC.SetDefaults))!.Invoke(obj, new object[] { id , default(NPCSpawnParams)});
+                        type.GetMethod(nameof(NPC.SetDefaults))!.Invoke(obj, new object[] { id, default(NPCSpawnParams) });
                     }
                     else
                     {
                         type.GetMethod(nameof(Item.SetDefaults), new Type[] { typeof(int) })!.Invoke(obj, new object[] { id });
                     }
-                    if(memberinfo.MemberType == MemberTypes.Property)
+                    if (memberinfo.MemberType == MemberTypes.Property)
                     {
                         args.Player.SendInfoMessage($"{type.Name}.{memberinfo.Name}='{((PropertyInfo)memberinfo).GetValue(obj)}'");
                     }
@@ -479,7 +599,7 @@ public class OtherCommand : CommonPlugin
             args.Player.SendInfoMessage($"全部名称:{Types.Keys.ToList().Join(',')}");
         }
     }
-    public static void ItemQuery(CommandArgs args) 
+    public static void ItemQuery(CommandArgs args)
     {
         var enumerator = args.Parameters.GetEnumerator();
         if (!enumerator.MoveNext())
@@ -497,7 +617,7 @@ public class OtherCommand : CommonPlugin
                         args.Player.SendInfoMessage("参数少于4个");
                         break;
                     }
-                    if(!Utils.GetLambdaExpression(args.Player, args.Parameters, ref enumerator, out var lambdaExpression))
+                    if (!Utils.GetLambdaExpression(args.Player, args.Parameters, ref enumerator, out var lambdaExpression))
                     {
                         break;
                     }
@@ -506,14 +626,14 @@ public class OtherCommand : CommonPlugin
                     var find = false;
                     foreach (var chest in Main.chest)
                     {
-                        if(chest is null)
+                        if (chest is null)
                         {
                             continue;
                         }
                         findItems.Clear();
                         bool itemFind = false;
                         var chestItems = chest.item;
-                        for(int i = 0; i < chestItems.Length; i++)
+                        for (int i = 0; i < chestItems.Length; i++)
                         {
                             var chestItem = chestItems[i];
                             if (chestItem is not null && func(chestItem))
@@ -522,22 +642,22 @@ public class OtherCommand : CommonPlugin
                                 findItems.Add((i, chestItem));
                             }
                         }
-                        if (itemFind) 
+                        if (itemFind)
                         {
                             string heightText;
-                            if(chest.y < Main.worldSurface * 0.3499999940395355)
+                            if (chest.y < Main.worldSurface * 0.3499999940395355)
                             {
                                 heightText = $"太空";
                             }
-                            else if(chest.y < Main.worldSurface)
+                            else if (chest.y < Main.worldSurface)
                             {
                                 heightText = $"地表";
                             }
-                            else if(chest.y > Main.UnderworldLayer)
+                            else if (chest.y > Main.UnderworldLayer)
                             {
                                 heightText = $"地狱";
                             }
-                            else if(chest.y > Main.rockLayer)
+                            else if (chest.y > Main.rockLayer)
                             {
                                 heightText = $"洞穴";
                             }
@@ -564,7 +684,7 @@ public class OtherCommand : CommonPlugin
                         args.Player.SendInfoMessage("参数少于4个");
                         break;
                     }
-                    if(!Utils.GetLambdaExpression(args.Player, args.Parameters, ref enumerator, out var lambdaExpression))
+                    if (!Utils.GetLambdaExpression(args.Player, args.Parameters, ref enumerator, out var lambdaExpression))
                     {
                         break;
                     }
@@ -642,16 +762,16 @@ public class OtherCommand : CommonPlugin
             args.Player.SendInfoMessage("/clearworld airisland");
             return;
         }
-        switch(enumerator.Current)
+        switch (enumerator.Current)
         {
             case "empty":
-                foreach(ref var chest in Main.chest.AsSpan())
+                foreach (ref var chest in Main.chest.AsSpan())
                 {
                     chest = null;
                 }
                 for (int x = 0; x < Main.maxTilesX; x++)
                 {
-                    for (int y = 0; y < Main.maxTilesX; y++) 
+                    for (int y = 0; y < Main.maxTilesX; y++)
                     {
                         Main.tile[x, y]?.ClearEverything();
                     }
@@ -924,7 +1044,7 @@ public class OtherCommand : CommonPlugin
                         args.Player.SendErrorMessage(I18n.GetString("Invalid warp name. The names 'list', 'hide', 'del' and 'add' are reserved for commands."));
                         return;
                 }
-                if(warpName5.Length > 6)
+                if (warpName5.Length > 6)
                 {
                     args.Player.SendErrorMessage("名称过长");
                     return;
@@ -1084,7 +1204,7 @@ public class OtherCommand : CommonPlugin
                 }
             }
         }
-        PaginationTools.SendPage(args.Player, 1, PaginationTools.BuildLinesFromTerms(players), new PaginationTools.Settings(){ IncludeHeader = false });
+        PaginationTools.SendPage(args.Player, 1, PaginationTools.BuildLinesFromTerms(players), new PaginationTools.Settings() { IncludeHeader = false });
     }
     private static void Kick(CommandArgs args)
     {

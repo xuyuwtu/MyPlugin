@@ -6,4 +6,5 @@ public static class Strings
     public static string MainConfigFileName = "MainConfig.json";
     public static string ChestSpawnConfigFileName = "ChestSpawn.json";
     public static string ItemTrasnfromConfigFileName = "ItemTrasnfrom.json";
+    public static string MemberSetterFileName = "MemberSetter.json";
 }

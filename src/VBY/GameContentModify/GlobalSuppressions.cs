@@ -7,3 +7,4 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE1006:命名样式", Justification = "<挂起>", Scope = "member", Target = "~M:VBY.GameContentModify.ReplaceWorldGen.hardUpdateWorld(System.Int32,System.Int32)")]
 [assembly: SuppressMessage("Style", "IDE1006:命名样式", Justification = "<挂起>", Scope = "member", Target = "~M:VBY.GameContentModify.ReplaceWorldGen.hardUpdateWorldConvert(System.UInt16[],System.Int32,System.Int32)")]
+[assembly: SuppressMessage("Style", "IDE1006:命名样式", Justification = "<挂起>", Scope = "member", Target = "~M:VBY.GameContentModify.ReplaceNPC.checkDead(Terraria.NPC)")]

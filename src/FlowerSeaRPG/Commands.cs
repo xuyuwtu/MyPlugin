@@ -14,12 +14,12 @@ partial class FlowerSeaRPG
         {
             return;
         }
-        //if (args.Parameters.Count > 1 && int.TryParse(args.Parameters[1], out var toLevel) && toLevel > 0)
+        //if (args.Parameters.Any() && int.TryParse(args.Parameters[0], out var toLevel) && toLevel > 0)
         //{
         //    fsplayer.Upgrade(toLevel);
         //}
-        else
-        {
+        //else
+        //{b
             switch (fsplayer.CanUpgrade(args.Parameters.ElementAtOrDefault(0, ""), out var selectItemIndex))
             {
                 case CanUpgradeInfo.ItemEnought:
@@ -38,7 +38,7 @@ partial class FlowerSeaRPG
                     args.Player.SendErrorMessage("给予升级物品ID输入错误");
                     break;
             }
-        }
+        //
     }
     private void CmdInfo(SubCmdArgs args)
     {
@@ -53,7 +53,7 @@ partial class FlowerSeaRPG
             $"大小: {fsplayer.Scale}({fsplayer.Scale * MainConfig.AttributeAddInfo.AddScale:P0}){(fsplayer.Scale == MainConfig.AttributeAddInfo.ScaleMaxCount ? "(Max)" : "")}\n" +
             $"攻速: {fsplayer.Speed}({fsplayer.Speed * MainConfig.AttributeAddInfo.AddSpeed:P0}){(fsplayer.Speed == MainConfig.AttributeAddInfo.SpeedMaxCount ? "(Max)" : "")}\n" +
             $"属性点: {fsplayer.AttributePoints}\n" +
-            $"升级物品:{GradeInfos[fsplayer.Level].GetUpgradeItemsStringToGame()}\n" +
+            $"升级物品:{((args.Parameters.Any() && args.Parameters[0].Equals("code", StringComparison.OrdinalIgnoreCase)) ? GradeInfos[fsplayer.Level].GetUpgradeItemsNameStringToGame() : GradeInfos[fsplayer.Level].GetUpgradeItemsIconStringToGame())}\n" +
             $"升级选择可获得物品:\n{GradeInfos[fsplayer.Level].GetGiveItemsString()}");
     }
     private void CmdShimmer(SubCmdArgs args)
@@ -65,14 +65,14 @@ partial class FlowerSeaRPG
         fsplayer.ShimmerAddDamage = !fsplayer.ShimmerAddDamage;
         fsplayer.Player.SendInfoMessage("微光增伤已{0}", fsplayer.ShimmerAddDamage ? "开启" : "关闭");
     }
-    private void CmdAdd(SubCmdArgs args)
+    private static void CmdAdd(SubCmdArgs args)
     {
-        if (args.Parameters.Count == 1)
+        if (args.Parameters.Count == 0)
         {
             args.Player.SendInfoMessage(Utils.GetMultiString("/fs add", new string[] {
                             "damage|伤害",
                             "knockback|击退",
-                            "scale|大小" +
+                            "scale|大小",
                             "speed|攻速" }, "[数量 = 1]"));
             return;
         }
@@ -83,23 +83,27 @@ partial class FlowerSeaRPG
         var temp = -1;
         ref int updateValue = ref temp;
         int maxCount = 0;
-        switch (args.Parameters[1])
+        switch (args.Parameters[0])
         {
+            case "da":
             case "damage":
             case "伤害":
                 updateValue = ref fsplayer.Damage;
                 maxCount = MainConfig.AttributeAddInfo.DamageMaxCount;
                 break;
+            case "kn":
             case "knockback":
             case "击退":
                 updateValue = ref fsplayer.KnockBack;
                 maxCount = MainConfig.AttributeAddInfo.KnockBackMaxCount;
                 break;
+            case "sc":
             case "scale":
             case "大小":
                 updateValue = ref fsplayer.Scale;
                 maxCount = MainConfig.AttributeAddInfo.ScaleMaxCount;
                 break;
+            case "sp":
             case "speed":
             case "速度":
                 updateValue = ref fsplayer.Speed;
@@ -120,7 +124,7 @@ partial class FlowerSeaRPG
         }
         if (updateValue != -1)
         {
-            if (int.TryParse(args.Parameters.GetValueOrInput(2, "1"), out var needPoints) && needPoints > 0)
+            if (int.TryParse(args.Parameters.GetValueOrInput(1, "1"), out var needPoints) && needPoints > 0)
             {
                 if (fsplayer.AttributePoints < needPoints)
                 {
@@ -148,22 +152,48 @@ partial class FlowerSeaRPG
         {
             return;
         }
-        var inventory = args.Player.TPlayer.inventory;
-        for (int i = 0; i < inventory.Length - 1; i++)
+        if (args.Parameters.Any() && args.Parameters[0].Equals("all", StringComparison.OrdinalIgnoreCase))
         {
-            var bagItem = inventory[i];
+            var inventory = args.Player.TPlayer.inventory;
+            for (int i = 0; i < inventory.Length - 1; i++)
+            {
+                var bagItem = inventory[i];
+                if (bagItem is not null && bagItem.stack > 0 && bagItem.damage != -1)
+                {
+                    var type = bagItem.type;
+                    var stack = bagItem.stack;
+                    var prefix = bagItem.prefix;
+                    bagItem.SetDefaults(0);
+                    TSPlayer.All.SendData(PacketTypes.PlayerSlot, "", args.Player.Index, i);
+                    var newItemIndex = Item.NewItem(null, args.Player.TPlayer.Center, bagItem.width, bagItem.height, type, stack, false, prefix);
+                    var newItem = Main.item[newItemIndex];
+                    newItem.playerIndexTheItemIsReservedFor = args.Player.Index;
+                    newItem.whoAmI = newItemIndex;
+                    TSPlayer.All.SendData(PacketTypes.ItemOwner, "", newItemIndex);
+                    Utils.UpdateItem(fsplayer, newItem);
+                }
+            }
+        }
+        else
+        {
+            var bagItem = args.Player.SelectedItem;
             if (bagItem is not null && bagItem.stack > 0 && bagItem.damage != -1)
             {
                 var type = bagItem.type;
                 var stack = bagItem.stack;
                 var prefix = bagItem.prefix;
                 bagItem.SetDefaults(0);
-                TSPlayer.All.SendData(PacketTypes.PlayerSlot, "", args.Player.Index, i);
+                TSPlayer.All.SendData(PacketTypes.PlayerSlot, "", args.Player.Index, args.Player.TPlayer.selectedItem);
                 var newItemIndex = Item.NewItem(null, args.Player.TPlayer.Center, bagItem.width, bagItem.height, type, stack, false, prefix);
                 var newItem = Main.item[newItemIndex];
-                newItem.playerIndexTheItemIsReservedFor = args.Player.Index;
+                newItem.playerIndexTheItemIsReservedFor = args.Player.Index; 
+                newItem.whoAmI = newItemIndex;
                 TSPlayer.All.SendData(PacketTypes.ItemOwner, "", newItemIndex);
                 Utils.UpdateItem(fsplayer, newItem);
+            }
+            else
+            {
+                args.Player.SendInfoMessage("不可刷新");
             }
         }
     }
@@ -214,7 +244,7 @@ partial class FlowerSeaRPG
         {
             RegionRecord.Add(player.Index, new TileRegionRecord() { Point = setPoint, NextPoint = nextPoint });
         }
-        OnTileEditManager.Register();
+        //OnTileEditManager.Register();
     }
     private void CtlRegionFind(SubCmdArgs args)
     {
@@ -236,16 +266,16 @@ partial class FlowerSeaRPG
             {
                 args.Player.SendErrorMessage("区域 '{0}' 创建失败", ChangeConfig.RegionName);
             }
-            SwitchCommands.SwitchCommands.database.switchCommandList.Clear();
-            if (left)
-            {
-                SwitchCommands.SwitchCommands.database.switchCommandList.Add(new SwitchCommands.SwitchPos(x + ChangeConfig.SwitchOffsetX, y + ChangeConfig.SwitchOffsetY).ToString(), new SwitchCommands.CommandInfo() { commandList = ChangeConfig.SwitchCommands });
-            }
-            else
-            {
-                SwitchCommands.SwitchCommands.database.switchCommandList.Add(new SwitchCommands.SwitchPos(x + regionInfo.Width - 1 - ChangeConfig.SwitchOffsetX, y + ChangeConfig.SwitchOffsetY).ToString(), new SwitchCommands.CommandInfo() { commandList = ChangeConfig.SwitchCommands });
-            }
-            SwitchCommands.SwitchCommands.database.Write(SwitchCommands.Database.databasePath);
+            //SwitchCommands.SwitchCommands.database.switchCommandList.Clear();
+            //if (left)
+            //{
+            //    SwitchCommands.SwitchCommands.database.switchCommandList.Add(new SwitchCommands.SwitchPos(x + ChangeConfig.SwitchOffsetX, y + ChangeConfig.SwitchOffsetY).ToString(), new SwitchCommands.CommandInfo() { commandList = ChangeConfig.SwitchCommands });
+            //}
+            //else
+            //{
+            //    SwitchCommands.SwitchCommands.database.switchCommandList.Add(new SwitchCommands.SwitchPos(x + regionInfo.Width - 1 - ChangeConfig.SwitchOffsetX, y + ChangeConfig.SwitchOffsetY).ToString(), new SwitchCommands.CommandInfo() { commandList = ChangeConfig.SwitchCommands });
+            //}
+            //SwitchCommands.SwitchCommands.database.Write(SwitchCommands.Database.databasePath);
             ChangeConfig.Save();
         }
         else
@@ -338,7 +368,7 @@ partial class FlowerSeaRPG
         {
             if (reader.Read())
             {
-                var find = Players.Where(x => x is not null && x.Player.Name == name).ToList();
+                List<FSPlayer> find = Players.Where(x => x?.Player.Name == name).ToList()!;
                 if (find.Any())
                 {
                     find[0].Clear();

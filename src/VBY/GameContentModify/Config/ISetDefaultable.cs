@@ -1,6 +1,6 @@
 ﻿namespace VBY.GameContentModify.Config;
 
-internal interface ISetDefaultsable
+public interface ISetDefaultsable
 {
     void SetDefaults();
 }

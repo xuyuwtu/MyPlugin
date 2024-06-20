@@ -1,24 +1,23 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 
 using Terraria;
 
 namespace VBY.GameContentModify.PacketStructs;
 
-[AttributeUsage(AttributeTargets.Struct)]
-public class PacketInfoAttribute : Attribute
-{
-    public byte PacketID;
-    public PacketInfoAttribute(byte packetID)
-    {
-        PacketID = packetID;
-    }
-}
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct ShortPosition
 {
     public short X;
     public short Y;
+}
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+public struct RGBColor
+{
+    public byte R;
+    public byte G;
+    public byte B;
 }
 public interface IMessageType
 {
@@ -33,10 +32,29 @@ partial struct PlayerInfo
     public byte PlayerSlot;
     public bool Value;
 }
+partial struct SyncPlayer
+{
+    public byte PlayerID;
+    public byte SkinVariant;
+    public byte Hair;
+    public string Name;
+    public byte HairDye;
+    public ushort AccessoryVisibility;
+    public RGBColor HairColor;
+    public RGBColor SkinColor;
+    public RGBColor EyeColor;
+    public RGBColor ShirtColor;
+    public RGBColor UnderShirtColor;
+    public RGBColor RantsColor;
+    public RGBColor ShoeColor;
+    public BitsByte Flag1;
+    public BitsByte Flag2;
+    public BitsByte Flag3;
+}
 partial struct SyncEquipment 
 {
     public byte PlayerSlot;
-    public short Slot;
+    public short ItemSlot;
     public short Stack;
     public byte Prefix;
     public short NetID;
@@ -48,10 +66,8 @@ partial struct SpawnTileData
 }
 partial struct TileFrameSection 
 {
-    public short SectionStartX;
-    public short SectionStartY;
-    public short SectionEndXInclusive;
-    public short SectionEndYInclusive;
+    public ShortPosition Start;
+    public ShortPosition End;
 }
 partial struct PlayerSpawn 
 {

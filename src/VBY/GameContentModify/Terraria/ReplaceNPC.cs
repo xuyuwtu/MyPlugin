@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
+using OTAPI;
 using Terraria;
 using Terraria.Chat;
 using Terraria.ID;
@@ -4374,7 +4375,7 @@ public static class ReplaceNPC
         }
         if (npc.type != 37 && (npc.friendly || NPCID.Sets.TakesDamageFromHostilesWithoutBeingFriendly[npc.type]))
         {
-            if (npc.townNPC)
+            if (npc.townNPC && !MainConfigInfo.StaticTownNPCDrowningImmunity)
             {
                 npc.CheckDrowning();
             }
@@ -4728,7 +4729,7 @@ public static class ReplaceNPC
             }
         }
     }
-    public static void DoDeathEvents_AdvanceSlimeRain(this NPC self, Player closestPlayer)
+    public static void DoDeathEvents_AdvanceSlimeRain(NPC self, Player closestPlayer)
     {
         if (Main.slimeRain && Main.slimeRainNPC[self.type] && !NPC.AnyNPCs(50))
         {
@@ -4746,7 +4747,7 @@ public static class ReplaceNPC
             }
         }
     }
-    public static void DoDeathEvents(this NPC self, Player closestPlayer)
+    public static void DoDeathEvents(NPC self, Player closestPlayer)
     {
         var needSend = false;
         self.DoDeathEvents_AdvanceSlimeRain(closestPlayer);
@@ -5054,6 +5055,351 @@ public static class ReplaceNPC
         if (needSend)
         {
             NetMessage.SendData(7);
+        }
+    }
+    public static void checkDead(NPC self)
+    {
+        if (!self.active || (self.realLife >= 0 && self.realLife != self.whoAmI) || self.life > 0)
+        {
+            return;
+        }
+        if (self.type == 604 || self.type == 605)
+        {
+            NPC.LadyBugKilled(self.Center, self.type == 605);
+        }
+        if (self.type == 397 || self.type == 396)
+        {
+            if (self.ai[0] != -2f)
+            {
+                self.ai[0] = -2f;
+                self.life = self.lifeMax;
+                self.netUpdate = true;
+                self.dontTakeDamage = true;
+                if (Main.netMode != 1)
+                {
+                    int num = NPC.NewNPC(self.GetSpawnSourceForNPCFromNPCAI(), (int)self.Center.X, (int)self.Center.Y, 400);
+                    Main.npc[num].ai[3] = self.ai[3];
+                    Main.npc[num].netUpdate = true;
+                }
+            }
+            return;
+        }
+        if (self.type == 398 && self.ai[0] != 2f)
+        {
+            self.ai[0] = 2f;
+            self.life = self.lifeMax;
+            self.netUpdate = true;
+            self.dontTakeDamage = true;
+            return;
+        }
+        if ((self.type == 517 || self.type == 422 || self.type == 507 || self.type == 493) && self.ai[2] != 1f)
+        {
+            self.ai[2] = 1f;
+            self.ai[1] = 0f;
+            self.life = self.lifeMax;
+            self.dontTakeDamage = true;
+            self.netUpdate = true;
+            return;
+        }
+        if (self.type == 548 && self.ai[1] != 1f)
+        {
+            self.ai[1] = 1f;
+            self.ai[0] = 0f;
+            self.life = self.lifeMax;
+            self.dontTakeDamageFromHostiles = true;
+            self.netUpdate = true;
+            return;
+        }
+        if (Main.netMode != 1 && Main.getGoodWorld && (self.type == 42 || self.type == 176 || (self.type >= 231 && self.type <= 235)))
+        {
+            self.StingerExplosion();
+        }
+        if (Main.netMode != 1 && Main.getGoodWorld)
+        {
+            if (self.type == 13)
+            {
+                int num2 = NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), (int)self.Center.X, (int)(self.position.Y + (float)self.height), -12);
+                if (Main.netMode == 2 && num2 < 200)
+                {
+                    NetMessage.SendData(23, -1, -1, null, num2);
+                }
+            }
+            if (self.type == 36)
+            {
+                int num3 = 3;
+                for (int i = 0; i < num3; i++)
+                {
+                    int num4 = 1000;
+                    for (int j = 0; j < num4; j++)
+                    {
+                        int num5 = (int)(self.Center.X / 16f) + Main.rand.Next(-50, 51);
+                        int k;
+                        for (k = (int)(self.Center.Y / 16f) + Main.rand.Next(-50, 51); k < Main.maxTilesY - 200 && !WorldGen.SolidTile(num5, k); k++)
+                        {
+                        }
+                        k--;
+                        if (!WorldGen.SolidTile(num5, k))
+                        {
+                            int num6 = NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), num5 * 16 + 8, k * 16, 32);
+                            if (Main.netMode == 2 && num6 < 200)
+                            {
+                                NetMessage.SendData(23, -1, -1, null, num6);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        NPC.noSpawnCycle = true;
+        if (self.townNPC && self.type != 37 && self.type != 453)
+        {
+            bool dropTombstone = true;
+            NetworkText fullNetName = self.GetFullNetName();
+            int num7 = 19;
+            if (self.type == 369 || self.type == 663 || NPCID.Sets.IsTownPet[self.type])
+            {
+                num7 = 36;
+                dropTombstone = false;
+            }
+            NetworkText networkText = NetworkText.FromKey(Lang.misc[num7].Key, fullNetName);
+            if (dropTombstone && !MainConfigInfo.StaticTownNPCDropTombstoneWhenDead)
+            {
+                for (int l = 0; l < 255; l++)
+                {
+                    Player player = Main.player[l];
+                    if (player != null && player.active && player.difficulty != 2)
+                    {
+                        dropTombstone = false;
+                        break;
+                    }
+                }
+            }
+            if (dropTombstone)
+            {
+                self.DropTombstoneTownNPC(networkText);
+            }
+            ChatHelper.BroadcastChatMessage(networkText, new Color(255, 25, 25));
+        }
+        if (Main.netMode != 1 && !Main.IsItDay() && self.type == 54 && !NPC.AnyNPCs(35))
+        {
+            for (int m = 0; m < 255; m++)
+            {
+                if (Main.player[m].active && !Main.player[m].dead && Main.player[m].killClothier)
+                {
+                    NPC.SpawnSkeletron(m);
+                    break;
+                }
+            }
+        }
+        if (self.townNPC && Main.netMode != 1 && self.homeless && WorldGen.prioritizedTownNPCType == self.type)
+        {
+            WorldGen.prioritizedTownNPCType = 0;
+        }
+        if (self.type == 13 || self.type == 14 || self.type == 15)
+        {
+            self.DropEoWLoot();
+        }
+        else if (self.type == 134)
+        {
+            Vector2 vector = self.position;
+            Vector2 center = Main.player[self.target].Center;
+            float num8 = 100000000f;
+            Vector2 vector2 = self.position;
+            for (int n = 0; n < 200; n++)
+            {
+                if (Main.npc[n].active && (Main.npc[n].type == 134 || Main.npc[n].type == 135 || Main.npc[n].type == 136))
+                {
+                    float num9 = Math.Abs(Main.npc[n].Center.X - center.X) + Math.Abs(Main.npc[n].Center.Y - center.Y);
+                    if (num9 < num8)
+                    {
+                        num8 = num9;
+                        vector2 = Main.npc[n].position;
+                    }
+                }
+            }
+            self.position = vector2;
+            self.NPCLoot();
+            self.position = vector;
+        }
+        else
+        {
+            self.NPCLoot();
+        }
+        OTAPI.Hooks.NPC.InvokeKilled(self);
+        self.active = false;
+        if (Main.getGoodWorld && Main.netMode != 1 && self.type == 631)
+        {
+            Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center, Vector2.Zero, 99, 70, 10f, Main.myPlayer);
+        }
+        DD2Event.CheckProgress(self.type);
+        self.CheckProgressFrostMoon();
+        self.CheckProgressPumpkinMoon();
+        int nPCInvasionGroup = NPC.GetNPCInvasionGroup(self.type);
+        if (nPCInvasionGroup <= 0 || nPCInvasionGroup != Main.invasionType)
+        {
+            return;
+        }
+        int num10 = 1;
+        switch (self.type)
+        {
+            case 216:
+                num10 = 5;
+                break;
+            case 395:
+                num10 = 10;
+                break;
+            case 491:
+                num10 = 10;
+                break;
+            case 471:
+                num10 = 10;
+                break;
+            case 472:
+                num10 = 0;
+                break;
+            case 387:
+                num10 = 0;
+                break;
+        }
+        if (num10 > 0)
+        {
+            Main.invasionSize -= num10;
+            if (Main.invasionSize < 0)
+            {
+                Main.invasionSize = 0;
+            }
+            if (Main.netMode != 1)
+            {
+                Main.ReportInvasionProgress(Main.invasionSizeStart - Main.invasionSize, Main.invasionSizeStart, nPCInvasionGroup + 3, 0);
+            }
+            if (Main.netMode == 2)
+            {
+                NetMessage.SendData(78, -1, -1, null, Main.invasionProgress, Main.invasionProgressMax, Main.invasionProgressIcon);
+            }
+        }
+    }
+    public static bool MechSpawn(float x, float y, int type)
+    {
+        int numOfAll = 0;
+        int numOf200 = 0;
+        int numOf600 = 0;
+        for (int i = 0; i < 200; i++)
+        {
+            if (!Main.npc[i].active)
+            {
+                continue;
+            }
+            bool flag = false;
+            var npcType = Main.npc[i].type;
+            if (npcType == type)
+            {
+                flag = true;
+            }
+            else if (type == 74 || type == 297 || type == 298)
+            {
+                if (npcType == 74 || npcType == 297 || npcType == 298)
+                {
+                    flag = true;
+                }
+            }
+            else if (type == 46 || type == 540 || type == 303 || type == 337)
+            {
+                if (npcType == 46 || npcType == 540 || npcType == 303 || npcType == 337)
+                {
+                    flag = true;
+                }
+            }
+            else if (type == 362 || type == 364)
+            {
+                if (npcType == 362 || npcType == 363 || npcType == 364 || npcType == 365)
+                {
+                    flag = true;
+                }
+            }
+            else if (type == 602)
+            {
+                if (npcType == 602 || npcType == 603)
+                {
+                    flag = true;
+                }
+            }
+            else if (type == 608)
+            {
+                if (npcType == 608 || npcType == 609)
+                {
+                    flag = true;
+                }
+            }
+            else if (type == 616 || type == 617)
+            {
+                if (npcType == 616 || npcType == 617)
+                {
+                    flag = true;
+                }
+            }
+            else if (type == 55 && npcType == 230)
+            {
+                flag = true;
+            }
+            else if (NPCID.Sets.IsDragonfly[type] && NPCID.Sets.IsDragonfly[npcType])
+            {
+                flag = true;
+            }
+            if (flag)
+            {
+                numOfAll++;
+                var length = (Main.npc[i].position - new Vector2(x, y)).Length();
+                if (length < 200f)
+                {
+                    numOf200++;
+                }
+                if (length < 600f)
+                {
+                    numOf600++;
+                }
+            }
+        }
+        if (numOf200 >= MechInfo.StaticNPCSpawnLimitOfRange200 || numOf600 >= MechInfo.StaticNPCSpawnLimitOfRange600 || numOfAll >= MechInfo.StaticNPCSpawnLimitOfWorld)
+        {
+            return Hooks.NPC.InvokeMechSpawn(result: false, x, y, type, numOfAll, numOf200, numOf600);
+        }
+        return Hooks.NPC.InvokeMechSpawn(result: true, x, y, type, numOfAll, numOf200, numOf600);
+    }
+    public static void CountKillForBannersAndDropThem(NPC self)
+    {
+        int num = Item.NPCtoBanner(self.BannerID());
+        if (num <= 0 || self.ExcludedFromDeathTally())
+        {
+            return;
+        }
+        NPC.killCount[num]++;
+        if (Main.netMode == 2)
+        {
+            NetMessage.SendData(83, -1, -1, null, num);
+        }
+        int num2 = ItemID.Sets.KillsToBanner[Item.BannerToItem(num)];
+        if (NPC.killCount[num] % num2 == 0 && num > 0)
+        {
+            int num3 = Item.BannerToNPC(num);
+            int num4 = self.lastInteraction;
+            if (!Main.player[num4].active || Main.player[num4].dead)
+            {
+                num4 = self.FindClosestPlayer();
+            }
+            NetworkText networkText = NetworkText.FromKey("Game.EnemiesDefeatedAnnouncement", NPC.killCount[num], NetworkText.FromKey(Lang.GetNPCName(num3).Key));
+            if (num4 >= 0 && num4 < 255)
+            {
+                networkText = NetworkText.FromKey("Game.EnemiesDefeatedByAnnouncement", Main.player[num4].name, NPC.killCount[num], NetworkText.FromKey(Lang.GetNPCName(num3).Key));
+            }
+            ChatHelper.BroadcastChatMessage(networkText, new Color(250, 250, 0));
+            //int num5 = Item.BannerToItem(num);
+            //Vector2 vector = self.position;
+            //if (num4 >= 0 && num4 < 255)
+            //{
+            //    vector = Main.player[num4].position;
+            //}
+            //Item.NewItem(self.GetItemSource_Loot(), (int)vector.X, (int)vector.Y, self.width, self.height, num5);
         }
     }
 }

@@ -11,7 +11,15 @@ using Terraria.Utilities;
 namespace VBY.ProjectileAI;
 public static partial class AIs
 {
-    public static void AI(Projectile projectile) => _ProjectileAIs[projectile.aiStyle].Invoke(projectile);
+    public static void AI(Projectile projectile)
+    {
+        if(projectile.aiStyle == 0)
+        {
+            return;
+        }
+        _ProjectileAIs[projectile.aiStyle].Invoke(projectile);
+    }
+
     private static readonly Type dType = typeof(Action<Projectile>);
     public static void SetMethod(MethodInfo method)
     {
@@ -71,18 +79,23 @@ public static partial class AIs
             //Console.WriteLine(method.Name);
             _ProjectileAIs[int.Parse(method.Name.Substring(3, 3))] ??= (Action<Projectile>)Delegate.CreateDelegate(dType, method);
         }
-        //for(int i = 1; i < _ProjectileAIs.Length; i++)
-        //{
-        //    if (_ProjectileAIs[i] is null)
-        //    {
-        //        Console.WriteLine($"aiStyle:{i} is null");
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine($"{_ProjectileAIs[i].Method.DeclaringType!.Name} {_ProjectileAIs[i].Method.Name}");
-        //    }
-        //}
-        //Console.ReadKey();
+        bool hasNull = false;
+        for (int i = 1; i < _ProjectileAIs.Length; i++)
+        {
+            if (_ProjectileAIs[i] is null)
+            {
+                hasNull = true;
+                Console.WriteLine($"aiStyle:{i} is null");
+            }
+            //else
+            //{
+            //    Console.WriteLine($"{_ProjectileAIs[i].Method.DeclaringType!.Name} {_ProjectileAIs[i].Method.Name}");
+            //}
+        }
+        if (hasNull)
+        {
+            Console.ReadKey();
+        }
     }
     public static void AI_002(Projectile projectile)
     {

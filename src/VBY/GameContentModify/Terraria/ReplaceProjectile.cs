@@ -26,7 +26,7 @@ public static class ReplaceProjectile
             ushort chestType = Main.tile[chest.x, chest.y].type;
             if (TileObjectData.CustomPlace(chestType, 0))
             {
-                TileObjectData tileData = TileObjectData.GetTileData(chestType, 0);
+                var tileData = TileObjectData.GetTileData(chestType, 0);
                 if (tileData != null)
                 {
                     int num5 = (int)Math.Ceiling(tileData.Width / 2f);

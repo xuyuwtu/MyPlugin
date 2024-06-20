@@ -34,9 +34,9 @@ public static class HookUtils
     }
     public static HookBase GetHook<ArgsType>(this HandlerCollection<ArgsType> hookCollection, TerrariaPlugin hookPlugin, HookHandler<ArgsType> hookHandler, bool onPostInit = false, bool manual = false) where ArgsType : EventArgs => new ServerHook<ArgsType>(hookPlugin, hookCollection, hookHandler, onPostInit, manual);
     public static HookBase GetHook<ArgsType>(this HandlerList<ArgsType> hookCollection, EventHandler<ArgsType> hookHandler, bool onPostInit = false, bool manual = false) where ArgsType : EventArgs => new GetDataHook<ArgsType>(hookCollection, hookHandler, onPostInit, manual);
-    internal static void EmitEventChange(ILGenerator iLGenerator, MethodInfo addEventMethod, ConstructorInfo eventTypeConstructor, MethodInfo eventMethod)
+    internal static void EmitEventChange(ILGenerator iLGenerator, MethodInfo addToEventMethod, ConstructorInfo eventTypeConstructor, MethodInfo eventMethod)
     {
-        if (addEventMethod.IsStatic)
+        if (addToEventMethod.IsStatic)
         {
             iLGenerator.Emit(OpCodes.Ldnull);
         }
@@ -44,9 +44,20 @@ public static class HookUtils
         {
             iLGenerator.Emit(OpCodes.Ldarg_0);
         }
-        iLGenerator.Emit(OpCodes.Ldftn, addEventMethod);
+        iLGenerator.Emit(OpCodes.Ldftn, addToEventMethod);
         iLGenerator.Emit(OpCodes.Newobj, eventTypeConstructor);
         iLGenerator.Emit(OpCodes.Call, eventMethod);
         iLGenerator.Emit(OpCodes.Ret);
+    }
+    public static void Register(HookBase hook, bool value)
+    {
+        if (value)
+        {
+            hook.Register();
+        }
+        else
+        {
+            hook.Unregister();
+        }
     }
 }

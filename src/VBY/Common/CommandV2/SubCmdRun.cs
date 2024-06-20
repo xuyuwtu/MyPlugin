@@ -8,7 +8,7 @@ public class SubCmdRun : SubCmdBase
 {
     internal SubCmdD RunCmd;
     internal bool DireRun { get => string.IsNullOrEmpty(ArgsHelpText) && string.IsNullOrEmpty(HelpText); }
-    internal int MinArgsCount = 0;
+    public int MinArgsCount = 0;
     public string? ArgsHelpText, HelpText;
     public SubCmdRun(string cmdName, string description, SubCmdD runCmd, params string[] names) : base(cmdName, description, names)
     {

@@ -1,7 +1,7 @@
 ﻿using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
-
+using System.Text;
 using Microsoft.Xna.Framework;
 
 namespace VBY.GameContentModify;
@@ -24,8 +24,9 @@ public interface IPacketWriter : IDisposable
     public void Write(string value);
     public void Write(byte[] buffer);
     public void WriteVector2(in Vector2 value);
-    public void WriteRGB(Color value);
+    public void WriteRGB(in Color value);
     public void WriteLength();
+    public Span<byte> GetDataHead();
 }
 public sealed class TerrariaPacketWriter : BinaryWriter, IPacketWriter
 {
@@ -40,21 +41,25 @@ public sealed class TerrariaPacketWriter : BinaryWriter, IPacketWriter
         Write((ushort)position);
         BaseStream.Position = position;
     }
-    public unsafe void WriteRGB(Color value)
+    public unsafe void WriteRGB(in Color value)
     {
-        Write(new ReadOnlySpan<byte>(Unsafe.AsPointer(ref value.packedValue), 3));
+        Write(value.R);
+        Write(value.G);
+        Write(value.B);
     }
     public unsafe void WriteVector2(in Vector2 value)
     {
         Span<byte> span = stackalloc byte[8];
         BinaryPrimitives.WriteSingleLittleEndian(span, value.X);
         BinaryPrimitives.WriteSingleLittleEndian(span.Slice(4), value.Y);
-        //Unsafe.As<byte, Vector2>(ref span[0]) = value;
         Write(span);
     }
+
+    Span<byte> IPacketWriter.GetDataHead() => throw new InvalidOperationException();
 }
-public struct FixedLengthPacketWriter : IPacketWriter
+public class FixedLengthPacketWriter : IPacketWriter
 {
+    private readonly static ArrayPool<byte> arrayPool = ArrayPool<byte>.Create();
     private byte[] data;
     public long Position { get => position; set => position = value; }
     public byte[] GetData()
@@ -72,7 +77,7 @@ public struct FixedLengthPacketWriter : IPacketWriter
         {
             throw new ArgumentException("length can't less then 3");
         }
-        data = ArrayPool<byte>.Shared.Rent(length);
+        data = arrayPool.Rent(length);
     }
     public void Write(bool value)
     {
@@ -88,64 +93,64 @@ public struct FixedLengthPacketWriter : IPacketWriter
     }
     public void Write(short value)
     {
-        Unsafe.As<byte, short>(ref data[position]) = value;
+        Unsafe.WriteUnaligned(ref data[position], value);
         position += sizeof(short);
     }
     public void Write(ushort value)
     {
-        Unsafe.As<byte, ushort>(ref data[position]) = value;
+        Unsafe.WriteUnaligned(ref data[position], value);
         position += sizeof(ushort);
     }
     public void Write(int value)
     {
-        Unsafe.As<byte, int>(ref data[position]) = value;
+        Unsafe.WriteUnaligned(ref data[position], value);
         position += sizeof(int);
     }
     public void Write(uint value)
     {
-        Unsafe.As<byte, uint>(ref data[position]) = value;
+        Unsafe.WriteUnaligned(ref data[position], value);
         position += sizeof(uint);
     }
     public void Write(long value)
     {
-        Unsafe.As<byte, long>(ref data[position]) = value;
+        Unsafe.WriteUnaligned(ref data[position], value);
         position += sizeof(long);
     }
     public void Write(ulong value)
     {
-        Unsafe.As<byte, ulong>(ref data[position]) = value;
+        Unsafe.WriteUnaligned(ref data[position], value);
         position += sizeof(ulong);
     }
     public void Write(float value)
     {
-        Unsafe.As<byte, float>(ref data[position]) = value;
+        Unsafe.WriteUnaligned(ref data[position], value);
         position += sizeof(float);
     }
     public void Write(double value)
     {
-        Unsafe.As<byte, double>(ref data[position]) = value;
+        Unsafe.WriteUnaligned(ref data[position], value);
         position += sizeof(double);
     }
     public void WriteVector2(in Vector2 value)
     {
-        Unsafe.As<byte, float>(ref data[position]) = value.X;
-        Unsafe.As<byte, float>(ref data[position + 4]) = value.Y;
-        //Unsafe.As<byte, Vector2>(ref data[position]) = value;
+        Unsafe.WriteUnaligned(ref data[position], value.X);
+        Unsafe.WriteUnaligned(ref data[position + 4], value.Y);
         position += 8;
     }
-    public unsafe void WriteRGB(Color value)
+    public unsafe void WriteRGB(in Color value)
     {
-        Unsafe.CopyBlock(ref data[position], ref Unsafe.As<uint, byte>(ref value.packedValue), 3);
+        Unsafe.CopyBlockUnaligned(ref data[position], ref Unsafe.As<uint, byte>(ref Unsafe.AsRef(value).packedValue), 3);
         position += 3;
     }
-    public void WriteLength() => Unsafe.As<byte, ushort>(ref data[0]) = (ushort)position;
+    public void WriteLength() => Unsafe.WriteUnaligned(ref data[0], (ushort)position);
+    public void WriteLength(ushort length) => Unsafe.WriteUnaligned(ref data[0], length);
     private void Dispose(bool disposing)
     {
         if (!disposedValue)
         {
             if (disposing)
             {
-                ArrayPool<byte>.Shared.Return(data);
+                arrayPool.Return(data);
             }
             disposedValue = true;
         }
@@ -165,6 +170,8 @@ public struct FixedLengthPacketWriter : IPacketWriter
 
     public void Write(byte[] buffer)
     {
-        throw new NotImplementedException();
+        buffer.AsSpan().CopyTo(data.AsSpan()[(int)position..]);
     }
+
+    unsafe Span<byte> IPacketWriter.GetDataHead() => data.AsSpan()[3..];
 }

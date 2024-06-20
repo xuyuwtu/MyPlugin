@@ -1,9 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
+
 using Terraria;
 using Terraria.Chat;
 using Terraria.GameContent.Achievements;
+using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.Creative;
 using Terraria.GameContent.Events;
+
 using VBY.GameContentModify.Config;
 using static VBY.GameContentModify.GameContentModify;
 
@@ -79,19 +82,20 @@ public static class ReplaceMain
         }
         else if (!Main.slimeRain && !LanternNight.LanternsUp && !LanternNight.NextNightIsLanternNight)
         {
-            int num2 = 86400;
-            num2 /= (Main.dayRate == 0) ? 1 : Main.dayRate;
+            //int startRainRandomNumberBase = 86400;
+            int startRainBaseRandomNum = MainConfigInfo.StaticStartRainBaseRandomNum;
+            startRainBaseRandomNum /= (Main.dayRate == 0) ? 1 : Main.dayRate;
             if (!CreativePowerManager.Instance.GetPower<CreativePowers.FreezeRainPower>().Enabled && Main.dayRate != 0)
             {
-                if (Main.rand.Next((int)(num2 * 5.75)) == 0)
+                if (Main.rand.NextIsZero((int)(startRainBaseRandomNum * 5.75)))
                 {
                     Main.StartRain();
                 }
-                else if (Main.cloudBGActive >= 1f && Main.rand.Next((int)(num2 * 4.25)) == 0)
+                else if (Main.cloudBGActive >= 1f && Main.rand.NextIsZero((int)(startRainBaseRandomNum * 4.25)))
                 {
                     Main.StartRain();
                 }
-                else if (Main.ladyBugRainBoost > 0 && Main.rand.Next(num2) == 0)
+                else if (Main.ladyBugRainBoost > 0 && Main.rand.NextIsZero(startRainBaseRandomNum))
                 {
                     Main.StartRain();
                 }
@@ -628,6 +632,570 @@ public static class ReplaceMain
         Main.time = 0.0;
         Main.dayTime = false;
         NetMessage.SendData(7);
+    }
+    public static void UpdateTime_SpawnTownNPCs()
+    {
+        if (SpawnInfo.TownNPCInfo.StaticDisableSpawn)
+        {
+            return;
+        }
+        int worldUpdateRate = WorldGen.GetWorldUpdateRate();
+        if (worldUpdateRate <= 0)
+        {
+            if (!SpawnInfo.TownNPCInfo.StaticSpawnStillWhenTimeRateIsZero)
+            {
+                return;
+            }
+            worldUpdateRate = SpawnInfo.TownNPCInfo.StaticSpawnTimeRateWhenTimeRateIsZero;
+        }
+        Main.checkForSpawns++;
+        if (Main.checkForSpawns < 7200 / worldUpdateRate)
+        {
+            return;
+        }
+        Main.checkForSpawns = 0;
+        Array.Fill(Main.townNPCCanSpawn, false);
+        WorldGen.prioritizedTownNPCType = 0;
+        int num2 = 0;
+        int num3 = 0;
+        int num4 = 0;
+        int num5 = 0;
+        int num6 = 0;
+        int num7 = 0;
+        int num8 = 0;
+        int num9 = 0;
+        int num10 = 0;
+        int num11 = 0;
+        int num12 = 0;
+        int num13 = 0;
+        int num14 = 0;
+        int num15 = 0;
+        int num16 = 0;
+        int num17 = 0;
+        int num18 = 0;
+        int num19 = 0;
+        int num20 = 0;
+        int num21 = 0;
+        int num22 = 0;
+        int num23 = 0;
+        int num24 = 0;
+        int num25 = 0;
+        int num26 = 0;
+        int num27 = 0;
+        int num28 = 0;
+        int num29 = 0;
+        int num30 = 0;
+        int num31 = 0;
+        int num32 = 0;
+        int num33 = 0;
+        int num34 = 0;
+        int num35 = 0;
+        int num36 = 0;
+        int num37 = 0;
+        int num38 = 0;
+        int num39 = 0;
+        int num40 = 0;
+        for (int k = 0; k < 200; k++)
+        {
+            if (Main.npc[k].active && Main.npc[k].townNPC)
+            {
+                if (Main.npc[k].type != 368 && Main.npc[k].type != 37 && Main.npc[k].type != 453 && !Main.npc[k].homeless)
+                {
+                    WorldGen.QuickFindHome(k);
+                }
+                if (Main.npc[k].type == 37)
+                {
+                    num7++;
+                }
+                if (Main.npc[k].type == 17)
+                {
+                    num2++;
+                }
+                if (Main.npc[k].type == 18)
+                {
+                    num3++;
+                }
+                if (Main.npc[k].type == 19)
+                {
+                    num5++;
+                }
+                if (Main.npc[k].type == 20)
+                {
+                    num4++;
+                }
+                if (Main.npc[k].type == 22)
+                {
+                    num6++;
+                }
+                if (Main.npc[k].type == 38)
+                {
+                    num8++;
+                }
+                if (Main.npc[k].type == 54)
+                {
+                    num9++;
+                }
+                if (Main.npc[k].type == 107)
+                {
+                    num11++;
+                }
+                if (Main.npc[k].type == 108)
+                {
+                    num10++;
+                }
+                if (Main.npc[k].type == 124)
+                {
+                    num12++;
+                }
+                if (Main.npc[k].type == 142)
+                {
+                    num13++;
+                }
+                if (Main.npc[k].type == 160)
+                {
+                    num14++;
+                }
+                if (Main.npc[k].type == 178)
+                {
+                    num15++;
+                }
+                if (Main.npc[k].type == 207)
+                {
+                    num16++;
+                }
+                if (Main.npc[k].type == 208)
+                {
+                    num17++;
+                }
+                if (Main.npc[k].type == 209)
+                {
+                    num18++;
+                }
+                if (Main.npc[k].type == 227)
+                {
+                    num19++;
+                }
+                if (Main.npc[k].type == 228)
+                {
+                    num20++;
+                }
+                if (Main.npc[k].type == 229)
+                {
+                    num21++;
+                }
+                if (Main.npc[k].type == 353)
+                {
+                    num22++;
+                }
+                if (Main.npc[k].type == 369)
+                {
+                    num23++;
+                }
+                if (Main.npc[k].type == 441)
+                {
+                    num24++;
+                }
+                if (Main.npc[k].type == 550)
+                {
+                    num25++;
+                }
+                if (Main.npc[k].type == 588)
+                {
+                    num26++;
+                }
+                if (Main.npc[k].type == 633)
+                {
+                    num27++;
+                }
+                if (Main.npc[k].type == 637)
+                {
+                    num28++;
+                }
+                if (Main.npc[k].type == 638)
+                {
+                    num29++;
+                }
+                if (Main.npc[k].type == 656)
+                {
+                    num30++;
+                }
+                if (Main.npc[k].type == 670)
+                {
+                    num31++;
+                }
+                if (Main.npc[k].type == 678)
+                {
+                    num32++;
+                }
+                if (Main.npc[k].type == 679)
+                {
+                    num33++;
+                }
+                if (Main.npc[k].type == 680)
+                {
+                    num34++;
+                }
+                if (Main.npc[k].type == 681)
+                {
+                    num35++;
+                }
+                if (Main.npc[k].type == 682)
+                {
+                    num36++;
+                }
+                if (Main.npc[k].type == 683)
+                {
+                    num37++;
+                }
+                if (Main.npc[k].type == 684)
+                {
+                    num38++;
+                }
+                if (Main.npc[k].type == 663)
+                {
+                    num39++;
+                }
+                num40++;
+            }
+        }
+        if (WorldGen.prioritizedTownNPCType == 0)
+        {
+            bool flag = NPC.SpawnAllowed_Merchant();
+            bool flag2 = NPC.SpawnAllowed_ArmsDealer();
+            bool flag3 = NPC.SpawnAllowed_Nurse();
+            bool flag4 = NPC.SpawnAllowed_DyeTrader();
+            bool flag5 = NPC.SpawnAllowed_Demolitionist();
+            BestiaryUnlockProgressReport bestiaryProgressReport = Main.GetBestiaryProgressReport();
+            if (!NPC.downedBoss3 && num7 == 0)
+            {
+                int num41 = NPC.NewNPC(NPC.GetSpawnSourceForTownSpawn(), Main.dungeonX * 16 + 8, Main.dungeonY * 16, 37);
+                Main.npc[num41].homeless = false;
+                Main.npc[num41].homeTileX = Main.dungeonX;
+                Main.npc[num41].homeTileY = Main.dungeonY;
+            }
+            bool flag6 = false;
+            if (Main.rand.Next(40) == 0)
+            {
+                flag6 = true;
+            }
+            bool flag7 = flag6 && num40 >= 14;
+            if (NPC.unlockedPartyGirlSpawn)
+            {
+                flag7 = true;
+            }
+            bool flag8 = BirthdayParty.GenuineParty;
+            if (NPC.unlockedSlimeGreenSpawn)
+            {
+                flag8 = true;
+            }
+            if (num6 < 1)
+            {
+                Main.townNPCCanSpawn[22] = true;
+            }
+            if (flag && num2 < 1)
+            {
+                Main.townNPCCanSpawn[17] = true;
+            }
+            if (flag3 && num3 < 1 && num2 > 0)
+            {
+                Main.townNPCCanSpawn[18] = true;
+            }
+            if (flag2 && num5 < 1)
+            {
+                Main.townNPCCanSpawn[19] = true;
+            }
+            if ((NPC.downedBoss1 || NPC.downedBoss2 || NPC.downedBoss3) && num4 < 1)
+            {
+                Main.townNPCCanSpawn[20] = true;
+            }
+            if (flag5 && num2 > 0 && num8 < 1)
+            {
+                Main.townNPCCanSpawn[38] = true;
+            }
+            if (NPC.savedStylist && num22 < 1)
+            {
+                Main.townNPCCanSpawn[353] = true;
+            }
+            if (NPC.savedAngler && num23 < 1)
+            {
+                Main.townNPCCanSpawn[369] = true;
+            }
+            if (NPC.downedBoss3 && num9 < 1)
+            {
+                Main.townNPCCanSpawn[54] = true;
+            }
+            if (NPC.savedGoblin && num11 < 1)
+            {
+                Main.townNPCCanSpawn[107] = true;
+            }
+            if (NPC.savedTaxCollector && num24 < 1)
+            {
+                Main.townNPCCanSpawn[441] = true;
+            }
+            if (NPC.savedWizard && num10 < 1)
+            {
+                Main.townNPCCanSpawn[108] = true;
+            }
+            if (NPC.savedMech && num12 < 1)
+            {
+                Main.townNPCCanSpawn[124] = true;
+            }
+            if (NPC.downedFrost && num13 < 1 && Main.xMas)
+            {
+                Main.townNPCCanSpawn[142] = true;
+            }
+            if (((Main.tenthAnniversaryWorld && !Main.remixWorld) || NPC.downedMechBossAny) && num15 < 1)
+            {
+                Main.townNPCCanSpawn[178] = true;
+            }
+            if (flag4 && num16 < 1 && num40 >= 4)
+            {
+                Main.townNPCCanSpawn[207] = true;
+            }
+            if (NPC.downedQueenBee && num20 < 1)
+            {
+                Main.townNPCCanSpawn[228] = true;
+            }
+            if (NPC.downedPirates && num21 < 1)
+            {
+                Main.townNPCCanSpawn[229] = true;
+            }
+            if (num14 < 1 && Main.hardMode)
+            {
+                Main.townNPCCanSpawn[160] = true;
+            }
+            if (Main.hardMode && NPC.downedPlantBoss && num18 < 1)
+            {
+                Main.townNPCCanSpawn[209] = true;
+            }
+            if (num40 >= 8 && num19 < 1)
+            {
+                Main.townNPCCanSpawn[227] = true;
+            }
+            if (flag7 && num17 < 1)
+            {
+                Main.townNPCCanSpawn[208] = true;
+            }
+            if (NPC.savedBartender && num25 < 1)
+            {
+                Main.townNPCCanSpawn[550] = true;
+            }
+            if (NPC.savedGolfer && num26 < 1)
+            {
+                Main.townNPCCanSpawn[588] = true;
+            }
+            if (bestiaryProgressReport.CompletionPercent >= 0.1f && num27 < 1)
+            {
+                Main.townNPCCanSpawn[633] = true;
+            }
+            if (NPC.boughtCat && num28 < 1)
+            {
+                Main.townNPCCanSpawn[637] = true;
+            }
+            if (NPC.boughtDog && num29 < 1)
+            {
+                Main.townNPCCanSpawn[638] = true;
+            }
+            if (NPC.boughtBunny && num30 < 1)
+            {
+                Main.townNPCCanSpawn[656] = true;
+            }
+            if (NPC.unlockedSlimeBlueSpawn && num31 < 1)
+            {
+                Main.townNPCCanSpawn[670] = true;
+            }
+            if (flag8 && num32 < 1)
+            {
+                Main.townNPCCanSpawn[678] = true;
+            }
+            if (NPC.unlockedSlimeOldSpawn && num33 < 1)
+            {
+                Main.townNPCCanSpawn[679] = true;
+            }
+            if (NPC.unlockedSlimePurpleSpawn && num34 < 1)
+            {
+                Main.townNPCCanSpawn[680] = true;
+            }
+            if (NPC.unlockedSlimeRainbowSpawn && num35 < 1)
+            {
+                Main.townNPCCanSpawn[681] = true;
+            }
+            if (NPC.unlockedSlimeRedSpawn && num36 < 1)
+            {
+                Main.townNPCCanSpawn[682] = true;
+            }
+            if (NPC.unlockedSlimeYellowSpawn && num37 < 1)
+            {
+                Main.townNPCCanSpawn[683] = true;
+            }
+            if (NPC.unlockedSlimeCopperSpawn && num38 < 1)
+            {
+                Main.townNPCCanSpawn[684] = true;
+            }
+            bool flag9 = num2 > 0 && num3 > 0 && num4 > 0 && num5 > 0 && num6 > 0 && num8 > 0 && num9 > 0 && num10 > 0 && num11 > 0 && num12 > 0 && num14 > 0 && num15 > 0 && num16 > 0 && num17 > 0 && num18 > 0 && num19 > 0 && num20 > 0 && num21 > 0 && num22 > 0 && num23 > 0 && num24 > 0 && num25 > 0 && num26 > 0 && num27 > 0;
+            if (Main.tenthAnniversaryWorld && !Main.remixWorld)
+            {
+                flag9 = true;
+            }
+            if (NPC.unlockedPrincessSpawn)
+            {
+                flag9 = true;
+            }
+            if (flag9 && num39 < 1)
+            {
+                Main.townNPCCanSpawn[663] = true;
+            }
+            int num42 = WorldGen.prioritizedTownNPCType;
+            if (num42 == 0 && NPC.boughtCat && num28 < 1)
+            {
+                num42 = 637;
+            }
+            if (num42 == 0 && NPC.boughtDog && num29 < 1)
+            {
+                num42 = 638;
+            }
+            if (num42 == 0 && NPC.boughtBunny && num30 < 1)
+            {
+                num42 = 656;
+            }
+            if (num42 == 0 && NPC.unlockedSlimeBlueSpawn && num31 < 1)
+            {
+                num42 = 670;
+            }
+            if (num42 == 0 && flag8 && num32 < 1)
+            {
+                num42 = 678;
+            }
+            if (num42 == 0 && NPC.unlockedSlimeOldSpawn && num33 < 1)
+            {
+                num42 = 679;
+            }
+            if (num42 == 0 && NPC.unlockedSlimePurpleSpawn && num34 < 1)
+            {
+                num42 = 680;
+            }
+            if (num42 == 0 && NPC.unlockedSlimeRainbowSpawn && num35 < 1)
+            {
+                num42 = 681;
+            }
+            if (num42 == 0 && NPC.unlockedSlimeRedSpawn && num36 < 1)
+            {
+                num42 = 682;
+            }
+            if (num42 == 0 && NPC.unlockedSlimeYellowSpawn && num37 < 1)
+            {
+                num42 = 683;
+            }
+            if (num42 == 0 && NPC.unlockedSlimeCopperSpawn && num38 < 1)
+            {
+                num42 = 684;
+            }
+            if (num42 == 0 && num6 < 1)
+            {
+                num42 = 22;
+            }
+            if (num42 == 0 && flag && num2 < 1)
+            {
+                num42 = 17;
+            }
+            if (num42 == 0 && flag3 && num3 < 1 && num2 > 0)
+            {
+                num42 = 18;
+            }
+            if (num42 == 0 && flag2 && num5 < 1)
+            {
+                num42 = 19;
+            }
+            if (num42 == 0 && NPC.savedGoblin && num11 < 1)
+            {
+                num42 = 107;
+            }
+            if (num42 == 0 && NPC.savedTaxCollector && num24 < 1)
+            {
+                num42 = 441;
+            }
+            if (num42 == 0 && NPC.savedWizard && num10 < 1)
+            {
+                num42 = 108;
+            }
+            if (num42 == 0 && Main.hardMode && num14 < 1)
+            {
+                num42 = 160;
+            }
+            if (num42 == 0 && (NPC.downedBoss1 || NPC.downedBoss2 || NPC.downedBoss3) && num4 < 1)
+            {
+                num42 = 20;
+            }
+            if (num42 == 0 && flag5 && num2 > 0 && num8 < 1)
+            {
+                num42 = 38;
+            }
+            if (num42 == 0 && NPC.downedQueenBee && num20 < 1)
+            {
+                num42 = 228;
+            }
+            if (num42 == 0 && NPC.downedMechBossAny && num15 < 1)
+            {
+                num42 = 178;
+            }
+            if (num42 == 0 && NPC.savedMech && num12 < 1)
+            {
+                num42 = 124;
+            }
+            if (num42 == 0 && NPC.savedAngler && num23 < 1)
+            {
+                num42 = 369;
+            }
+            if (num42 == 0 && Main.hardMode && NPC.downedPlantBoss && num18 < 1)
+            {
+                num42 = 209;
+            }
+            if (num42 == 0 && NPC.downedPirates && num21 < 1)
+            {
+                num42 = 229;
+            }
+            if (num42 == 0 && NPC.downedBoss3 && num9 < 1)
+            {
+                num42 = 54;
+            }
+            if (num42 == 0 && NPC.savedStylist && num22 < 1)
+            {
+                num42 = 353;
+            }
+            if (num42 == 0 && num40 >= 4 && flag4 && num16 < 1)
+            {
+                num42 = 207;
+            }
+            if (num42 == 0 && num40 >= 8 && num19 < 1)
+            {
+                num42 = 227;
+            }
+            if (num42 == 0 && flag7 && num17 < 1)
+            {
+                num42 = 208;
+            }
+            if (num42 == 0 && NPC.downedFrost && num13 < 1 && Main.xMas)
+            {
+                num42 = 142;
+            }
+            if (num42 == 0 && NPC.savedBartender && num25 < 1)
+            {
+                num42 = 550;
+            }
+            if (num42 == 0 && NPC.savedGolfer && num26 < 1)
+            {
+                num42 = 588;
+            }
+            if (num42 == 0 && bestiaryProgressReport.CompletionPercent >= 0.1f && num27 < 1)
+            {
+                num42 = 633;
+            }
+            if (num42 == 0 && flag9 && num39 < 1)
+            {
+                num42 = 663;
+            }
+            WorldGen.prioritizedTownNPCType = num42;
+        }
     }
     public static void Moondialing()
     {

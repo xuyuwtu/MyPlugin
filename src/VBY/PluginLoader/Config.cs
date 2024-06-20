@@ -5,13 +5,13 @@ internal class Config
     {
         "System.Data.Common",
         "TerrariaServer",
+        "TShockAPI",
         "OTAPI",
         "OTAPI.Runtime",
-        "ModFramework",
-        "MonoMod.RuntimeDetour",
-        "TShockAPI",
-        "Microsoft.Data.Sqlite",
         "MySql.Data",
+        "Microsoft.Data.Sqlite",
+        "MonoMod.RuntimeDetour",
+        "ModFramework",
         "VBY.PluginLoader"
     };
     public string[] LoadFiles = new[]

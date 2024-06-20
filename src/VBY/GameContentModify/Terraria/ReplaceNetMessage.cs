@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 
 using OTAPI;
@@ -17,7 +19,7 @@ namespace VBY.GameContentModify;
 [ReplaceType(typeof(NetMessage))]
 public static class ReplaceNetMessage
 {
-    internal static ushort[] PacketLength = new ushort[MessageID.Count];
+    internal static int[] PacketLength = new int[MessageID.Count];
     static ReplaceNetMessage()
     {
         //1 text
@@ -25,6 +27,7 @@ public static class ReplaceNetMessage
         //PacketLength[3] = 3 + sizeof(byte) * 2;
         SetPacketLength<PlayerInfo>();
         //4 text name
+        SetPacketLength<SyncPlayer>();
         //PacketLength[5] = 3 + sizeof(byte) + sizeof(short) * 2 + sizeof(byte) + sizeof(short);
         SetPacketLength<SyncEquipment>();
         //
@@ -53,7 +56,8 @@ public static class ReplaceNetMessage
         //20 to long
         //PacketLength[21] = 3 + sizeof(short) + SizeOf.Vector2 * 2 + sizeof(short) + sizeof(byte) * 2 + sizeof(short);
         SetPacketLength<SyncItem>();
-        PacketLength[22] = 3 + sizeof(short) + sizeof(byte);
+        //PacketLength[22] = 3 + sizeof(short) + sizeof(byte);
+        SetPacketLength<ItemOwner>();
         PacketLength[23] = (ushort)(3 + sizeof(short) + SizeOf.Vector2 * 2 + sizeof(ushort) + sizeof(byte) * 2 + sizeof(float) * NPC.maxAI + sizeof(short) + sizeof(byte) + sizeof(float) + sizeof(byte) + sizeof(int) + sizeof(byte));
         PacketLength[24] = 3 + sizeof(short) + sizeof(byte);
         //
@@ -183,7 +187,7 @@ public static class ReplaceNetMessage
         PacketLength[148] = (ushort)(PacketLength[21] + sizeof(byte));
     }
 #pragma warning disable IDE1006 // 命名样式
-    public static void orig_SendData(int msgType, int remoteClient = -1, int ignoreClient = -1, NetworkText? text = null, int number = 0, float number2 = 0f, float number3 = 0f, float number4 = 0f, int number5 = 0, int number6 = 0, int number7 = 0)
+    public unsafe static void orig_SendData(int msgType, int remoteClient = -1, int ignoreClient = -1, NetworkText? text = null, int number = 0, float number2 = 0f, float number3 = 0f, float number4 = 0f, int number5 = 0, int number6 = 0, int number7 = 0)
     {
         if (msgType == 21 && (Main.item[number].shimmerTime > 0f || Main.item[number].shimmered))
         {
@@ -195,14 +199,18 @@ public static class ReplaceNetMessage
         {
             num = remoteClient;
         }
-        using IPacketWriter packetWriter = PacketLength[msgType] != 0 ? new FixedLengthPacketWriter(PacketLength[msgType]) : new TerrariaPacketWriter(new MemoryStream());
+        using IPacketWriter packetWriter = PacketLength[msgType] == 0
+            ? new TerrariaPacketWriter(new MemoryStream())
+            : PacketLength[msgType] > 0
+              ? new FixedLengthPacketWriter((ushort)PacketLength[msgType])
+              : new TerrariaPacketWriter(new MemoryStream(-PacketLength[msgType]));
         //using IPacketWriter packetWriter = new TerrariaPacketWriter(new MemoryStream());
         packetWriter.Position = 2L;
         packetWriter.Write((byte)msgType);
         switch (msgType)
         {
             case 1:
-                packetWriter.Write("Terraria" + 279);
+                packetWriter.Write("Terraria" + Main.curRelease);
                 break;
             case 2:
                 text.Serialize((BinaryWriter)packetWriter);
@@ -267,8 +275,11 @@ public static class ReplaceNetMessage
                 }
             case 5:
                 {
-                    packetWriter.Write((byte)number);
-                    packetWriter.Write((short)number2);
+                    ref var packet = ref MemoryMarshal.AsRef<SyncEquipment>(packetWriter.GetDataHead());
+                    //packetWriter.Write((byte)number);
+                    //packetWriter.Write((short)number2);
+                    packet.PlayerSlot = (byte)number;
+                    packet.ItemSlot = (short)number2;
                     Player player5 = Main.player[number];
                     int num11 = 0;
                     int num12 = 0;
@@ -313,9 +324,13 @@ public static class ReplaceNetMessage
                     {
                         num11 = 0;
                     }
-                    packetWriter.Write((short)num11);
-                    packetWriter.Write((byte)number3);
-                    packetWriter.Write((short)num12);
+                    //packetWriter.Write((short)num11);
+                    //packetWriter.Write((byte)number3);
+                    //packetWriter.Write((short)num12);
+                    packet.Stack = (short)num11;
+                    packet.Prefix = (byte)number3;
+                    packet.NetID = (short)num12;
+                    packetWriter.Position = PacketLength[msgType];
                     break;
                 }
             case 7:
@@ -1922,15 +1937,17 @@ public static class ReplaceNetMessage
             Netplay.Clients[num].PendingTerminationApproved = true;
         }
     }
-    //public static void SetPacketLength<T>() where T : struct
-    //{
-    //    var info = typeof(T).GetCustomAttribute<PacketInfoAttribute>();
-    //    PacketLength[info!.PacketID] = (ushort)(SizeOf.PacketHead + Marshal.SizeOf<T>());
-    //}
-    public static unsafe void SetPacketLength<T>() where T : unmanaged, IMessageType
+    public static void SetPacketLength<T>() where T : struct, IMessageType
     {
         var instance = new T();
-        PacketLength[instance.MessageType] = (ushort)(SizeOf.PacketHead + sizeof(T));
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+        {
+            PacketLength[instance.MessageType] = -(SizeOf.PacketHead + Unsafe.SizeOf<T>() - typeof(T).GetFields().Where(x => !x.FieldType.IsValueType).Count() * 8);
+        }
+        else
+        {
+            PacketLength[instance.MessageType] = SizeOf.PacketHead + Unsafe.SizeOf<T>();
+        }
     }
 }
 #region Extension

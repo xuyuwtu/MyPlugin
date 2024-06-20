@@ -11,12 +11,14 @@ using TShockAPI.DB;
 
 using Newtonsoft.Json;
 
+using VBY.Common;
 using VBY.Common.CommandV2;
+using VBY.Common.Hook;
 
 namespace FlowerSeaRPG;
 
 [ApiVersion(2, 1)]
-public partial class FlowerSeaRPG : TerrariaPlugin
+public partial class FlowerSeaRPG : CommonPlugin
 {
     public override string Name => "FlowerSeaRPG";
     public override Version Version => new(1, 0, 0, 1);
@@ -24,9 +26,9 @@ public partial class FlowerSeaRPG : TerrariaPlugin
 #pragma warning disable CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
     public static IDbConnection DB;
 #pragma warning restore CS8618 // 在退出构造函数时，不可为 null 的字段必须包含非 null 值。请考虑声明为可以为 null。
-    public Command[] AddCommands;
+    //public Command[] AddCommands;
     public static GradeInfo[] GradeInfos = Array.Empty<GradeInfo>();
-    public static FSPlayer[] Players = new FSPlayer[byte.MaxValue + 1];
+    public static FSPlayer?[] Players = new FSPlayer[byte.MaxValue + 1];
 
     internal static Config MainConfig = new();
     internal static ChangeConfig ChangeConfig = new();
@@ -40,14 +42,15 @@ public partial class FlowerSeaRPG : TerrariaPlugin
     private bool LockSign = false;
     public FlowerSeaRPG(Main game) : base(game)
     {
+        Main.ignoreErrors = false;
         OnTileEditManager = GetDataHandlers.TileEdit.GetHookManager(OnTileEdit, false);
         CmdCommand = new("FlowerSeaRPG","fs.cmd")
         {
             new SubCmdRun("Upgrade", "升级", CmdUpgrade, "up", "upgrade"),
             new SubCmdRun("Info", "查看信息", CmdInfo, "info"),
-            new SubCmdRun("Shimmer", "开启微光转换武器", CmdShimmer, "sh", "shimmer"),
+            new SubCmdRun("Shimmer", "开启微光转换武器", CmdShimmer, "sh", "shimmer"){ Enabled = false},
             new SubCmdRun("Add", "分配属性点", CmdAdd),
-            new SubCmdRun("Refresh", "刷新武器", CmdRefresh, "re", "refresh"){ Enabled = false}
+            new SubCmdRun("Refresh", "刷新武器", CmdRefresh, "re", "refresh")
         };
         CmdCommand.SetAllNode(new SetAllowInfo() { AllowServer = false }, x => x is SubCmdRun);
         CtlCommand = new("FlowerSeaRPGCtl", "fs.ctl")
@@ -88,9 +91,9 @@ public partial class FlowerSeaRPG : TerrariaPlugin
                 new SubCmdRun("Save", "保存ChangeConfig", args => ChangeConfig.Save())
             },
         };
-        CmdCommand.UpdateCmdIndex();
-        CtlCommand.UpdateCmdIndex();
-        AddCommands = new Command[] { CmdCommand.GetCommand(new string[] { "fs" }), CtlCommand.GetCommand(new string[] { "fsc" }) };
+        //AddCommands = new Command[] { CmdCommand.GetCommand(new string[] { "fs" }), CtlCommand.GetCommand(new string[] { "fsc" }) };
+        AddCommands.Add(CmdCommand.GetCommand(new string[] { "fs" }));
+        AddCommands.Add(CtlCommand.GetCommand(new string[] { "fsc" }));
 
         Directory.CreateDirectory(TShock.SavePath);
         if (!File.Exists(Strings.ConfigPath))
@@ -140,55 +143,69 @@ public partial class FlowerSeaRPG : TerrariaPlugin
         }
     }
     #region Initialize And Dispose
-    public override void Initialize()
+    protected override void PreInitialize()
     {
         Disposables.Add(OnTileEditManager);
-        Disposables.Add(GetDataHandlers.Sign.GetHookManager(OnSign));
-        Disposables.Add(ServerApi.Hooks.ServerJoin.GetHookManager(this, OnServerJoin));
-        Disposables.Add(ServerApi.Hooks.ServerLeave.GetHookManager(this, OnServerLevel));
+        //Disposables.Add(GetDataHandlers.Sign.GetHookManager(OnSign));
+        //Disposables.Add(ServerApi.Hooks.ServerJoin.GetHookManager(this, OnServerJoin));
+        //Disposables.Add(ServerApi.Hooks.ServerLeave.GetHookManager(this, OnServerLevel));
+        AttachHooks.Add(GetDataHandlers.Sign.GetHook(OnSign));
+        //AttachHooks.Add(ServerApi.Hooks.ServerJoin.GetHook(this, OnServerJoin));
+        AttachHooks.Add(new ActionHook(() => TShockAPI.Hooks.PlayerHooks.PlayerPostLogin += OnPlayerHooks_PlayerPostLogin));
+        AttachHooks.Add(ServerApi.Hooks.ServerLeave.GetHook(this, OnServerLevel));
         Disposables.OfType<IHookManager>().Where(x => x.Init).ForEach(x => x.Initialize());
         CtlReload(TSPlayer.Server);
-        Commands.ChatCommands.AddRange(AddCommands);
-        On.Terraria.NPC.NewNPC += OnNPC_NewNPC;
-        On.Terraria.NPC.SetDefaults += OnNPC_SetDefaults;
-        On.Terraria.NPC.OnGameEventClearedForTheFirstTime += OnNPC_OnGameEventClearedForTheFirstTime;
-        On.Terraria.Item.CanShimmer += OnItem_CanShimmer;
-        On.Terraria.NetMessage.SendData += OnNetMessage_SendData;
-        TShockAPI.Hooks.PlayerHooks.PlayerChat += OnPlayerChat;
-        VBY.GameContentModify.GameContentModify.PreStartDay += OnPreStartDay;
-        VBY.GameContentModify.GameContentModify.PreStartNight += OnPreStartNight;
+        //Commands.ChatCommands.AddRange(AddCommands);
+        AttachHooks.Add(new MultiActionHook(() =>
+        {
+            On.Terraria.NPC.NewNPC += OnNPC_NewNPC;
+            On.Terraria.NPC.SetDefaults += OnNPC_SetDefaults;
+            On.Terraria.NPC.OnGameEventClearedForTheFirstTime += OnNPC_OnGameEventClearedForTheFirstTime;
+            //On.Terraria.Item.CanShimmer += OnItem_CanShimmer;
+            //On.Terraria.NetMessage.SendData += OnNetMessage_SendData;
+            TShockAPI.Hooks.PlayerHooks.PlayerChat += OnPlayerChat;
+            VBY.GameContentModify.GameContentModify.PreStartDay += OnPreStartDay;
+            VBY.GameContentModify.GameContentModify.PreStartNight += OnPreStartNight;
+        }));
     }
-    protected override void Dispose(bool disposing)
+
+    private void OnPlayerHooks_PlayerPostLogin(TShockAPI.Hooks.PlayerPostLoginEventArgs e)
+    {
+        Players[e.Player.Index] = new FSPlayer(e.Player);
+        Players[e.Player.Index]!.CheckAttributePoint();
+    }
+
+    protected override void PreDispose(bool disposing)
     {
         if (disposing)
         {
             Disposables.ForEach(x => x.Dispose());
-            Commands.ChatCommands.RemoveRange(AddCommands);
-            On.Terraria.NPC.NewNPC -= OnNPC_NewNPC;
-            On.Terraria.NPC.SetDefaults -= OnNPC_SetDefaults;
-            On.Terraria.NPC.OnGameEventClearedForTheFirstTime -= OnNPC_OnGameEventClearedForTheFirstTime;
-            On.Terraria.Item.CanShimmer -= OnItem_CanShimmer;
-            On.Terraria.NetMessage.SendData -= OnNetMessage_SendData;
-            TShockAPI.Hooks.PlayerHooks.PlayerChat -= OnPlayerChat;
-            VBY.GameContentModify.GameContentModify.PreStartDay -= OnPreStartDay;
-            VBY.GameContentModify.GameContentModify.PreStartNight -= OnPreStartNight;
-            Utils.ClearOwner(OnNPC_NewNPC);
+            //Commands.ChatCommands.RemoveRange(AddCommands);
+            //On.Terraria.NPC.NewNPC -= OnNPC_NewNPC;
+            //On.Terraria.NPC.SetDefaults -= OnNPC_SetDefaults;
+            //On.Terraria.NPC.OnGameEventClearedForTheFirstTime -= OnNPC_OnGameEventClearedForTheFirstTime;
+            //On.Terraria.Item.CanShimmer -= OnItem_CanShimmer;
+            //On.Terraria.NetMessage.SendData -= OnNetMessage_SendData;
+            //TShockAPI.Hooks.PlayerHooks.PlayerChat -= OnPlayerChat;
+            //VBY.GameContentModify.GameContentModify.PreStartDay -= OnPreStartDay;
+            //VBY.GameContentModify.GameContentModify.PreStartNight -= OnPreStartNight;
+            //Utils.ClearOwner(OnNPC_NewNPC);
             Array.Fill(GradeInfos, null);
             Array.Fill(Players, null);
         }
-        base.Dispose(disposing);
+        //base.Dispose(disposing);
     }
     #endregion
     #region Hook
-    private void OnServerJoin(JoinEventArgs args)
-    {
-        if (args.Who == 255)
-        {
-            return;
-        }
-        Players[args.Who] = new FSPlayer(TShock.Players[args.Who]);
-        Players[args.Who]?.CheckAttributePoint();
-    }
+    //private void OnServerJoin(JoinEventArgs args)
+    //{
+    //    if (args.Who == 255)
+    //    {
+    //        return;
+    //    }
+    //    Players[args.Who] = new FSPlayer(TShock.Players[args.Who]);
+    //    Players[args.Who].CheckAttributePoint();
+    //}
     private void OnServerLevel(LeaveEventArgs args)
     {
         if (args.Who == 255)
@@ -199,9 +216,7 @@ public partial class FlowerSeaRPG : TerrariaPlugin
         if (player is not null)
         {
             player.Save();
-#pragma warning disable CS8625 // 无法将 null 字面量转换为非 null 的引用类型。
             Players[args.Who] = null;
-#pragma warning restore CS8625 // 无法将 null 字面量转换为非 null 的引用类型。
         }
     }
     private int OnNPC_NewNPC(On.Terraria.NPC.orig_NewNPC orig, Terraria.DataStructures.IEntitySource source, int X, int Y, int Type, int Start, float ai0, float ai1, float ai2, float ai3, int Target)
@@ -221,7 +236,7 @@ public partial class FlowerSeaRPG : TerrariaPlugin
     }
     private void OnNPC_SetDefaults(On.Terraria.NPC.orig_SetDefaults orig, NPC self, int Type, NPCSpawnParams spawnparams)
     {
-        if (spawnparams.strengthMultiplierOverride is not null)
+        if (!spawnparams.strengthMultiplierOverride.HasValue)
         {
             spawnparams.strengthMultiplierOverride *= (Main.hardMode ? MainConfig.HardModeStrengthenCoefficient : MainConfig.StrengthenCoefficient) * (WorldGen.tBlood + WorldGen.tEvil);
         }
@@ -242,23 +257,25 @@ public partial class FlowerSeaRPG : TerrariaPlugin
             }
         }
     }
-    private bool OnItem_CanShimmer(On.Terraria.Item.orig_CanShimmer orig, Item self)
+    private static bool OnItem_CanShimmer(On.Terraria.Item.orig_CanShimmer orig, Item self)
     {
-        if (self.damage == -1 || self.type >= 71 && self.type <= 74|| !(Players[self.playerIndexTheItemIsReservedFor]?.ShimmerAddDamage ?? false))
+        Console.WriteLine($"damage:{self.damage} {self.playerIndexTheItemIsReservedFor} {!(Players[self.playerIndexTheItemIsReservedFor]?.ShimmerAddDamage ?? false)}");
+        //if (self.damage == -1 || self.type >= 71 && self.type <= 74|| !(Players[self.playerIndexTheItemIsReservedFor]?.ShimmerAddDamage ?? false))
+        //{
+        //    return orig(self);
+        //}
+        if (self.active && !self.shimmered && self.damage > 0 && (self.type < 71 || self.type > 74) && (Players[self.playerIndexTheItemIsReservedFor]?.ShimmerAddDamage ?? false))
         {
-            return orig(self);
-        }
-        if (self.active && !self.shimmered)
-        {
-            self.shimmerTime = 0.9f;
+            self.shimmerTime = 1f;
             self.shimmered = true;
             self.shimmerWet = true;
             self.wet = true;
             self.velocity *= 0.1f;
             NetMessage.SendData(MessageID.ShimmerActions, -1, -1, null, 0, (int)self.Center.X, (int)self.Center.Y);
             NetMessage.SendData(MessageID.SyncItemsWithShimmer, -1, -1, null, self.whoAmI, 1f);
+            return false;
         }
-        return false;
+        return orig(self);
     }
     private void OnNetMessage_SendData(On.Terraria.NetMessage.orig_SendData orig, int msgType, int remoteClient, int ignoreClient, Terraria.Localization.NetworkText text, int number, float number2, float number3, float number4, int number5, int number6, int number7)
     {
@@ -269,8 +286,7 @@ public partial class FlowerSeaRPG : TerrariaPlugin
             //Console.WriteLine("SendData whoAmi:{0} owner:{1}", item.whoAmI, item.playerIndexTheItemIsReservedFor);
             if (item.active && item.shimmered && item.damage != -1 && item.playerIndexTheItemIsReservedFor != 255)
             {
-                var fsplayer = Players[item.playerIndexTheItemIsReservedFor];
-                Utils.UpdateItem(fsplayer, item);
+                Utils.UpdateItem(Players[item.playerIndexTheItemIsReservedFor], item);
             }
         }
     }
@@ -308,7 +324,7 @@ public partial class FlowerSeaRPG : TerrariaPlugin
                     record.Point3 = new(e.X, e.Y);
                     record.Point = record.NextPoint;
                     record.NextPoint = 0;
-                    e.Player.SendSuccessMessage("记录点2 已设置");
+                    e.Player.SendSuccessMessage("记录点3 已设置");
                     e.Player.SendTileRect((short)e.X, (short)e.Y);
                     e.Handled = true;
                     break;
@@ -346,8 +362,8 @@ public partial class FlowerSeaRPG : TerrariaPlugin
         config.Invasion.DownedGoblinsStartInvasionRandomNum = (int)(30 * num);
         config.Invasion.HardModeDownedGoblinsStartInvasionRandomNum = (int)(60 * num);
         config.Invasion.DownedPiratesStartInvasionRandomNum = (int)(60 * num);
-        config.Spawn.SpawnTravelNPCAtDay = moreThanHalf;
-        config.Spawn.SpawnTravelNPCAtDayRandomNum = (int)(10 * (1 - num));
+        config.Extension.SpawnTravelNPCWhenStartDay = moreThanHalf;
+        config.Extension.SpawnTravelNPCWhenStartDayRandomNum = (int)(10 * (1 - num));
     }
     private static void OnPreStartNight(VBY.GameContentModify.Config.MainConfigInfo config)
     {
@@ -360,11 +376,11 @@ public partial class FlowerSeaRPG : TerrariaPlugin
         config.BloodMoon.RandomNum = (int)(9 * num);
         config.BloodMoon.TenthAnniversaryWorldRandomNum = (int)(6 * num);
         config.BloodMoon.SpawnEyeCheck = !moreThanHalf;
-        config.Spawn.EyeSpawnRandomNum = (int)(3 * num);
-        config.Spawn.EyeSpawnDownedCheck = !moreThanHalf;
-        config.Spawn.MechBossSpawnRandomNum = (int)(10 * num);
-        config.Spawn.MechBossSpawnDownedCheck = !moreThanHalf;
-        config.Spawn.MechBossSpawnEyeCheck = !moreThanHalf;
+        config.Spawn.EyeOfCthulhu.RandomNum = (int)(3 * num);
+        config.Spawn.EyeOfCthulhu.DownedCheck = !moreThanHalf;
+        config.Spawn.MechBoss.SpawnRandomNum = (int)(10 * num);
+        config.Spawn.MechBoss.SpawnDownedCheck = !moreThanHalf;
+        config.Spawn.MechBoss.SpawnEyeCheck = !moreThanHalf;
     }
     #endregion
 }

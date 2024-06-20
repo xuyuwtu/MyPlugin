@@ -1,6 +1,8 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -21,7 +23,8 @@ public sealed class GameContentModifyGenerator : IIncrementalGenerator
     }
     private static void MetadataAction(SourceProductionContext context, ImmutableArray<GeneratorAttributeSyntaxContext> sources)
     {
-        var sb = new SpaceStringBuilder();
+        var sw = new StringWriter();
+        var sb = new IndentedTextWriter(sw);
         sb.AppendUsing("System.ComponentModel");
         sb.AppendUsing("Newtonsoft.Json");
         foreach (var item in sources.GroupBy(x => x.TargetSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
@@ -35,7 +38,7 @@ public sealed class GameContentModifyGenerator : IIncrementalGenerator
                 var fullTypeName = type.Key.ToString();
                 var typeName = fullTypeName.Substring(@namespace.Length + 1);
                 var typeNames = typeName.Split('.');
-                var count = sb.SpaceCount;
+                var count = sb.Indent;
                 for (int i = 0; i < typeNames.Length; i++)
                 {
                     sb.AppendSpaceLine($"partial class {typeNames[i]}")
@@ -123,14 +126,14 @@ public sealed class GameContentModifyGenerator : IIncrementalGenerator
                     sb.AppendSpaceLine($"{name} = {value};");
                 }
                 sb.ReduceBrace();
-                while (count < sb.SpaceCount)
+                while (count < sb.Indent)
                 {
                     sb.ReduceBrace();
                 }
             }
             sb.ReduceBrace();
         };
-        context.AddSource($"{nameof(GameContentModifyGenerator)}.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+        context.AddSource($"{nameof(GameContentModifyGenerator)}.g.cs", SourceText.From(sw.ToString(), Encoding.UTF8));
     }
     private static GeneratorAttributeSyntaxContext MetadataTransform(GeneratorAttributeSyntaxContext context, CancellationToken token) => context;
     private static bool MetadataPredicate(SyntaxNode node, CancellationToken token)
@@ -146,55 +149,34 @@ public sealed class GameContentModifyGenerator : IIncrementalGenerator
         return false;
     }
 }
-internal class SpaceStringBuilder
-{
-    int spaceCount = 0;
-    public int SpaceCount { get => spaceCount; }
-    private StringBuilder stringBuilder = new();
-    public SpaceStringBuilder AppendLine(string value)
-    {
-        stringBuilder.AppendLine(value);
-        return this;
-    }
-    public SpaceStringBuilder AppendSpaceLine(string value)
-    {
-        for (int i = 0; i < spaceCount; i++)
-        {
-            stringBuilder.Append("    ");
-        }
-        stringBuilder.AppendLine(value);
-        return this;
-    }
-    public SpaceStringBuilder AppendBrace()
-    {
-        stringBuilder.AppendSpaceLine("{", spaceCount);
-        spaceCount++;
-        return this;
-    }
-    public SpaceStringBuilder AppendBrace(string value)
-    {
-        stringBuilder.AppendSpaceLine(value, spaceCount).AppendSpaceLine("{", spaceCount);
-        spaceCount++;
-        return this;
-    }
-    public SpaceStringBuilder ReduceBrace()
-    {
-        spaceCount--;
-        stringBuilder.AppendSpaceLine("}", spaceCount);
-        return this;
-    }
-    public SpaceStringBuilder AppendUsing(string @namespace) => AppendSpaceLine($"using {@namespace};");
-    public override string ToString() => stringBuilder.ToString();
-}
 internal static class Extension
 {
-    public static StringBuilder AppendSpaceLine(this StringBuilder stringBuilder, string value, int spaceCount)
+    public static IndentedTextWriter AppendUsing(this IndentedTextWriter textWriter, string @namespace)
     {
-        for (int i = 0; i < spaceCount; i++)
-        {
-            stringBuilder.Append("    ");
-        }
-        return stringBuilder.AppendLine(value);
+        textWriter.WriteLine($"using {@namespace};");
+        return textWriter;
+    }
+    public static IndentedTextWriter AppendBrace(this IndentedTextWriter textWriter)
+    {
+        textWriter.WriteLine('{');
+        textWriter.Indent++;
+        return textWriter;
+    }
+    public static IndentedTextWriter AppendBrace(this IndentedTextWriter textWriter, string value)
+    {
+        textWriter.WriteLine(value);
+        return textWriter.AppendBrace();
+    }
+    public static IndentedTextWriter AppendSpaceLine(this IndentedTextWriter textWriter, string value)
+    {
+        textWriter.WriteLine(value);
+        return textWriter;
+    }
+    public static IndentedTextWriter ReduceBrace(this IndentedTextWriter textWriter)
+    {
+        textWriter.Indent--;
+        textWriter.WriteLine('}');
+        return textWriter;
     }
     public static bool IsAnyKind(this SyntaxNode node, params SyntaxKind[] kinds)
     {

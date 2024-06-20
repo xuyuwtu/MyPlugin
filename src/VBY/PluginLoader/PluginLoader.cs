@@ -12,7 +12,6 @@ using Newtonsoft.Json;
 using VBY.Common.Config;
 
 using SingleFileExtractor.Core;
-using System.Runtime.InteropServices;
 
 namespace VBY.PluginLoader;
 
@@ -33,10 +32,10 @@ public class PluginLoader : TerrariaPlugin
     public PluginLoader(Main game) : base(game)
     {
         Loader = new MyAssemblyLoadContext("VBY.PluginLoader" + LoaderNum++);
-        AddCommand = new(Name.ToLower(), Ctl, "load");
     }
     public override void Initialize()
     {
+        AddCommand = new(Name.ToLower(), Ctl, "load");
         MainConfig.Load(TSPlayer.Server);
         Commands.ChatCommands.Add(AddCommand);
         Loader.LoadPlugin(TSPlayer.Server);

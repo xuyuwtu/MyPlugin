@@ -85,6 +85,15 @@ internal static partial class Utils
         NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, npc.whoAmI);
     }
     public static string Join(this IEnumerable<string> values, char separator) => string.Join(separator, values);
+    public static IEnumerable<TResult> Select<TSource, TResult>(this Span<TSource> source, Func<TSource, TResult> selector)
+    {
+        var array = new TResult[source.Length];
+        for(int i = 0; i < source.Length; i++)
+        {
+            array[i] = selector(source[i]);
+        }
+        return array;
+    }
     public static int IndexOfSkipRecpat(this string findString, char findChar, int count)
     {
         var findIndex = -1;

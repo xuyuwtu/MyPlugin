@@ -1,6 +1,6 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
   <PropertyGroup>
-    <Version>1.3.$([MSBuild]::Subtract($([System.DateTime]::Now.Year), 2023)).$([System.DateTime]::Now.ToString("MMdd"))</Version>
+    <Version>1.7.$([MSBuild]::Subtract($([System.DateTime]::Now.Year), 2023)).$([System.DateTime]::Now.ToString("MMdd"))</Version>
     <OutToPluginLoader>true</OutToPluginLoader>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <LangVersion>11.0</LangVersion>

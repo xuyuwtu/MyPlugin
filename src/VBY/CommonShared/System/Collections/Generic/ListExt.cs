@@ -13,9 +13,9 @@ public static class ListExt
     public static T ElementAtOrDefault<T>(this IList<T> list, int index, T defaultValue) => list.Count > index ? list[index] : defaultValue;
     public static void RemoveIndexes<T>(this IList<T> list, IList<int> collection)
     {
-        for (int index = 0; index < collection.Count; index++)
+        for (int count = 0; count < collection.Count; count++)
         {
-            list.RemoveAt(collection[index] - index);
+            list.RemoveAt(collection[count] - count);
         }
     }
 }

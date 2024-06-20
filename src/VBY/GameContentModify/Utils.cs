@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using TShockAPI;
 
 using MonoMod.RuntimeDetour;
+using System.ComponentModel;
+using System.Diagnostics;
 
 namespace VBY.GameContentModify;
 
@@ -20,6 +22,7 @@ internal static class Utils
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsTrueRet(this bool value, bool retValue) => !value || retValue;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsFalseRet(this bool value, bool retValue) => !value && retValue;
     public static T SelectRandom<T>(Terraria.Utilities.UnifiedRandom random, params T[] choices)
     {
@@ -32,10 +35,15 @@ internal static class Utils
             chest.item[i] = new Terraria.Item();
         }
     }
-    public static Detour GetDetour(Type methodType, Delegate method, bool manualApply = true) => new Detour(methodType.GetMethod(method.Method.Name), method.Method, new DetourConfig() { ManualApply = manualApply });
+    public static Detour GetNameDetour(Type methodType, Delegate method, bool manualApply = true) => new Detour(methodType.GetMethod(method.Method.Name), method.Method, new DetourConfig() { ManualApply = manualApply });
     public static Detour GetDetour(Delegate method, bool manualApply = true)
     {
-        return GetDetour(method.Method.DeclaringType!.GetCustomAttribute<ReplaceTypeAttribute>()!.Type, method, manualApply);
+        return GetNameDetour(method.Method.DeclaringType!.GetCustomAttribute<ReplaceTypeAttribute>()!.Type, method, manualApply);
+    }
+    public static Detour GetParamDetour(Delegate method, bool manualApply = true)
+    {
+        var methodType = method.Method.DeclaringType!.GetCustomAttribute<ReplaceTypeAttribute>()!.Type;
+        return new Detour(methodType.GetMethod(method.Method.Name, method.Method.GetParameters().Select(x => x.ParameterType).ToArray()), method.Method, new DetourConfig() { ManualApply = manualApply });
     }
     public static void Deconstruct(this Terraria.Chest chest, out int x, out int y)
     {
@@ -138,7 +146,32 @@ internal static class Utils
         }
         return true;
     }
-    public static Type GetMemberType(MemberInfo memberInfo, out Func<object?, object?> getFunc, out Action<object?, object?> setFunc)
+    public static Type GetFieldOrPropertyType(MemberInfo memberInfo)
+    {
+        if(memberInfo.MemberType == MemberTypes.Field)
+        {
+            return ((FieldInfo)memberInfo).FieldType;
+        }
+        return ((PropertyInfo)memberInfo).PropertyType;
+    }
+    public static object? GetFieldOrPropertyValue(MemberInfo memberInfo, object? target = null)
+    {
+        if (memberInfo.MemberType == MemberTypes.Field)
+        {
+            return ((FieldInfo)memberInfo).GetValue(target);
+        }
+        return ((PropertyInfo)memberInfo).GetValue(target);
+    }
+    public static void SetFieldOrPropertyValue(MemberInfo memberInfo, object? target, object? value)
+    {
+        if (memberInfo.MemberType == MemberTypes.Field)
+        {
+            ((FieldInfo)memberInfo).SetValue(target, value);
+            return;
+        }
+        ((PropertyInfo)memberInfo).SetValue(target, value);
+    }
+    public static Type GetFieldOrPropertyType(MemberInfo memberInfo, out Func<object?, object?> getFunc, out Action<object?, object?> setFunc)
     {
         if(memberInfo.MemberType == MemberTypes.Field)
         {
@@ -172,5 +205,107 @@ internal static class Utils
             }
             field = value;
         }
+    }
+    public static void HandleNamedDetour(bool value, params string[] detourNames)
+    {
+        foreach (var detourName in detourNames)
+        {
+            if (value)
+            {
+                GameContentModify.NamedDetours[detourName].Apply();
+            }
+            else
+            {
+                GameContentModify.NamedDetours[detourName].Undo();
+            }
+        }
+    }
+    public static void HandleNamedActionHook(bool value, string actionHookName)
+    {
+        if (value)
+        {
+            GameContentModify.NamedActionHooks[actionHookName].Register();
+        }
+        else
+        {
+            GameContentModify.NamedActionHooks[actionHookName].Unregister();
+        }
+    }
+    public static bool NamedActionHookIsRegistered(string actionHookName) => GameContentModify.NamedActionHooks[actionHookName].Registered;
+    public static T[] MakeArray<T>(this T item) where T : class => new T[1] { item };
+    public static bool MembersValueAllEqualDefault(object target, params string[] names)
+    {
+        var type = target.GetType();
+        foreach (string name in names)
+        {
+            var members = type.GetMember(name);
+            if (!members.Any())
+            {
+                return false;
+            }
+            if(members.Length > 1)
+            {
+                return false;
+            }
+            var member = members[0];
+            if(member.MemberType != MemberTypes.Field &&  member.MemberType != MemberTypes.Property)
+            {
+                return false;
+            }
+            var defaultAttr = member.GetCustomAttribute<DefaultValueAttribute>();
+            if (defaultAttr is null)
+            {
+                return false;
+            }
+            if(!GetFieldOrPropertyValue(member, target)!.Equals(defaultAttr.Value))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    //public static bool MembersValueAllEqualDefault(object target, params object[] refMembers)
+    //{
+    //    var type = target.GetType();
+    //    foreach (var refMember in refMembers)
+    //    {
+    //        MemberInfo? member;
+    //        if(refMember is RuntimeFieldHandle)
+    //        {
+    //            member = FieldInfo.GetFieldFromHandle((RuntimeFieldHandle)refMember);
+    //        }
+    //        else
+    //        {
+    //            member = type.GetProperty((string)refMember);
+    //        }
+    //        if(member is null)
+    //        {
+    //            return false;
+    //        }
+    //        var defaultAttr = member.GetCustomAttribute<DefaultValueAttribute>();
+    //        if (defaultAttr is null)
+    //        {
+    //            return false;
+    //        }
+    //        if (!GetFieldOrPropertyValue(member, target)!.Equals(defaultAttr.Value))
+    //        {
+    //            return false;
+    //        }
+    //    }
+    //    return true;
+    //}
+    [Conditional("DEBUG")]
+    public static void ArgumentWriteLine(bool value, [CallerArgumentExpression(nameof(value))] string expression = "")
+    {
+        Console.Write(expression);
+        Console.Write(": ");
+        Console.WriteLine(value);
+    }
+    [Conditional("DEBUG")]
+    public static void ArgumentWriteLine(int value, [CallerArgumentExpression(nameof(value))] string expression = "")
+    {
+        Console.Write(expression);
+        Console.Write(": ");
+        Console.WriteLine(value);
     }
 }

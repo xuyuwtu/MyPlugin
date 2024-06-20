@@ -2,8 +2,8 @@
 
 public static class ProgressQueryID
 {
-    /// <summary>世纪之花</summary>
+    public const byte HardMode = 7;
+    public const byte MechBossAny = 9;
     public const byte PlantBoss = 13;
-    /// <summary>月亮领主</summary>
     public const byte Moonlord = 22;
 }

@@ -20,7 +20,7 @@ public class Config
     public string ChatFormat = "{0} {1}";
     public float StrengthenCoefficient = 0.1f;
     public float HardModeStrengthenCoefficient = 0.5f;
-    public Color ItemColor = new(23, 86, 18);
+    public RGBColor ItemColor = new(23, 86, 18);
     public AttributeAddInfo AttributeAddInfo = new(); 
     public DatabaseInfo DBInfo = new();
     public ConfigGradeInfo[] UpgradeInfo = Array.Empty<ConfigGradeInfo>(); 
@@ -137,7 +137,7 @@ public class GradeInfo
         UpgradeItems = upgradeItems;
         GiveItems = giveItems;
     }
-    public string GetUpgradeItemsStringToGame()
+    public string GetUpgradeItemsIconStringToGame()
     {
         if (UpgradeItems is null || UpgradeItems.Length == 0)
         {
@@ -184,6 +184,14 @@ public class GradeInfo
             }
             return $"{string.Join("", list.Select(x => $"[i/s{x.stack}:{x.type}]"))}";
         }
+    }
+    public string GetUpgradeItemsNameStringToGame()
+    {
+        if (UpgradeItems is null || UpgradeItems.Length == 0)
+        {
+            return "无";
+        }
+        return $"{string.Join("\n", UpgradeItems.Select(x => $"{Lang.GetItemNameValue(x.type)}({x.type}): {x.stack}个"))}";
     }
     public void Update(GradeInfo gradeInfo)
     {
@@ -279,11 +287,24 @@ public class NPCSpawnLineInfo
 public class LineInfo
 {
     public string Text;
-    public Color Color = Color.White;
+    public RGBColor Color = Microsoft.Xna.Framework.Color.White;
 }
 public class EventDoCommandInfo
 {
     public int EventId;
     public int Player = 0;
     public string[] Commands = Array.Empty<string>();
+}
+public struct RGBColor
+{
+    public byte R, G, B;
+
+    public RGBColor(byte r, byte g, byte b)
+    {
+        R = r;
+        G = g;
+        B = b;
+    }
+    public static implicit operator Color(RGBColor color) => new(color.R, color.G, color.B);
+    public static implicit operator RGBColor(Color color) => new(color.R, color.G, color.B);
 }

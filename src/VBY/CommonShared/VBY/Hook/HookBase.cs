@@ -12,6 +12,7 @@ public abstract class HookBase : ILoader
     void ILoader.Clear() => Unregister();
     protected HookBase(bool onPostInit = false, bool manual = false)
     {
+        Registered = false;
         OnPostInit = onPostInit;
         Manual = manual;
     }

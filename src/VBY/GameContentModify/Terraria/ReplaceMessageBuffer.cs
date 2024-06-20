@@ -1277,15 +1277,9 @@ public static class ReplaceMessageBuffer
                     if (chestIndex >= 0 && chestIndex < 8000)
                     {
                         ref var chest = ref Main.chest[chestIndex];
-                        if(chest == null)
-                        {
-                            chest = new();
-                        }
+                        chest ??= new();
                         ref var item = ref chest.item[itemSlot];
-                        if(item == null)
-                        {
-                            item = new();
-                        }
+                        item ??= new();
                         item.netDefaults(itemType);
                         item.Prefix(prefixWeWant);
                         item.stack = itemStack;

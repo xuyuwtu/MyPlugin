@@ -69,12 +69,4 @@ public static class SystemExt
         }
         return Delegate.CreateDelegate(delegateType, target, method);
     }
-    public static T? Find<T>(this T[] array, Predicate<T> predicate)
-    {
-        foreach (T t in array)
-        {
-            if (predicate(t)) return t;
-        }
-        return default;
-    }
 }

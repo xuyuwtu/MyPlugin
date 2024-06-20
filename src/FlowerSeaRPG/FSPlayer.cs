@@ -58,7 +58,14 @@ public class FSPlayer
         {
             if (string.IsNullOrEmpty(selectItemIndexStr))
             {
-                return CanUpgradeInfo.SelectIndexStrIsNull;
+                if (gradeInfo.GiveItems.Length == 1)
+                {
+                    selectItemIndexStr = "0";
+                }
+                else
+                {
+                    return CanUpgradeInfo.SelectIndexStrIsNull;
+                }
             }
             if (!int.TryParse(selectItemIndexStr, out selectItemIndex) || selectItemIndex < 0 || selectItemIndex >= gradeInfo.GiveItems.Length)
             {

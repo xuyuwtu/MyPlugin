@@ -12,7 +12,7 @@ public abstract class SubCmdBase
     public bool Enabled = true;
     public string[] Names;
     public string Description;
-    public AllowInfo AllowInfo { get; internal set; } = new();
+    public AllowInfo AllowInfo { get; set; } = new();
     public virtual SubCmdList? Parent { get; internal set; } = null; 
     public SubCmdBase(string cmdName, string description, params string[] names)
     {

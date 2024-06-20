@@ -18,8 +18,17 @@ public class RapidGrowth : CommonPlugin
     {
     }
     [AutoHook]
-    private static bool OnWorldGen_PlaceObject(On.Terraria.WorldGen.orig_PlaceObject orig, int x, int y, int type, bool mute, int style, int alternate, int random, int direction)
+    public static bool OnWorldGen_PlaceObject(On.Terraria.WorldGen.orig_PlaceObject orig, int x, int y, int type, bool mute, int style, int alternate, int random, int direction)
     {
+        //if(type == TileID.Tables)
+        //{
+        //    type = TileID.LargePiles2;
+        //    style = 17;
+        //    Console.WriteLine(nameof(OnWorldGen_PlaceObject));
+        //    var r = orig(x, y, type, mute, style, alternate, random, direction);
+        //    NetMessage.SendTileSquare(-1, x, y, 3);
+        //    return r;
+        //}
         var result = orig(x, y, type, mute, style, alternate, random, direction);
         if (result && type == TileID.Saplings && style == 0 && Main.rand.Next(2) == 0)
         {

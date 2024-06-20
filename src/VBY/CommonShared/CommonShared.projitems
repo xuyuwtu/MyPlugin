@@ -9,8 +9,12 @@
     <Import_RootNamespace>CommonShared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)System\Collections\Generic\ListSegment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)System\Reflection\Emit\EmitUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Reflection\Emit\Instruction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Terraria\NetMessageSender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VBY\Config\ConfigUtlis.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VBY\Hook\MultiActionHook.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VBY\Loader\LoaderUtils.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VBY\CommonPlugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)System\Collections\Generic\ListExt.cs" />
@@ -28,5 +32,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)VBY\Loader\" />
+    <Folder Include="$(MSBuildThisFileDirectory)VBY\Reflection\Emit\" />
   </ItemGroup>
 </Project>

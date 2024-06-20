@@ -51,16 +51,23 @@ public static class ReplaceWorldGen
             }
         }
 
-        Liquid.skipCount++;
-        if (Liquid.skipCount > 1)
+        if (!WorldInfo.StaticDisableLiquidUpdate)
         {
-            Liquid.UpdateLiquid();
-            Liquid.skipCount = 0;
+            Liquid.skipCount++;
+            if (Liquid.skipCount > 1)
+            {
+                Liquid.UpdateLiquid();
+                Liquid.skipCount = 0;
+            }
         }
         int worldUpdateRate = WorldGen.GetWorldUpdateRate();
         if (worldUpdateRate == 0)
         {
-            return;
+            if (!WorldInfo.StaticUpdateStillWhenTimeRateIsZero)
+            {
+                return;
+            }
+            worldUpdateRate = WorldInfo.StaticUpdateTimeRateWhenTimeRateIsZero;
         }
         double num = 3E-05f * worldUpdateRate;
         double num2 = 1.5E-05f * worldUpdateRate;
@@ -274,7 +281,7 @@ public static class ReplaceWorldGen
     }
     public static void hardUpdateWorld(int i, int j)
     {
-        if ((WorldInfo.StatichardUpdateWorldCheck && !Main.hardMode) || Main.tile[i, j].inActive())
+        if (!(WorldInfo.StaticEnableHardModeUpdateWhenNotHardMode || Main.hardMode) || Main.tile[i, j].inActive())
         {
             return;
         }
@@ -467,6 +474,581 @@ public static class ReplaceWorldGen
             hardUpdateWorldConvert(ConvertTableHallow, i, j);
         }
     }
+    public static void UpdateWorld_GrassGrowth(int i, int j, int minI, int maxI, int minJ, int maxJ, bool underground)
+    {
+        if (!WorldGen.InWorld(i, j, 10))
+        {
+            return;
+        }
+        if (underground)
+        {
+            int type = Main.tile[i, j].type;
+            int num = -1;
+            int num2 = -1;
+            int num3 = -1;
+            int maxValue = 1;
+            int num4 = type;
+            int num5 = -1;
+            switch (type)
+            {
+                case 23:
+                    num = 0;
+                    num2 = 59;
+                    num4 = 23;
+                    num5 = 661;
+                    num3 = 24;
+                    maxValue = 2;
+                    if (!WorldGen.AllowedToSpreadInfections)
+                    {
+                        return;
+                    }
+                    break;
+                case 199:
+                    num = 0;
+                    num2 = 59;
+                    num4 = 199;
+                    num5 = 662;
+                    num3 = 201;
+                    maxValue = 2;
+                    if (!WorldGen.AllowedToSpreadInfections)
+                    {
+                        return;
+                    }
+                    break;
+                case 661:
+                    num = 59;
+                    num2 = 0;
+                    num4 = 661;
+                    num5 = 23;
+                    num3 = 24;
+                    maxValue = 2;
+                    if (!WorldGen.AllowedToSpreadInfections)
+                    {
+                        return;
+                    }
+                    break;
+                case 662:
+                    num = 59;
+                    num2 = 0;
+                    num4 = 662;
+                    num5 = 199;
+                    num3 = 201;
+                    maxValue = 2;
+                    if (!WorldGen.AllowedToSpreadInfections)
+                    {
+                        return;
+                    }
+                    break;
+                case 60:
+                    num = 59;
+                    num3 = 61;
+                    maxValue = 10;
+                    break;
+                case 70:
+                    num = 59;
+                    num3 = 71;
+                    maxValue = 10;
+                    break;
+                case 633:
+                    num = 57;
+                    num3 = 637;
+                    maxValue = 2;
+                    break;
+            }
+            bool flag = false;
+            if (num3 != -1 && !Main.tile[i, minJ].active() && WorldGen.genRand.Next(maxValue) == 0)
+            {
+                flag = true;
+                if (WorldGen.PlaceTile(i, minJ, num3, mute: true))
+                {
+                    Main.tile[i, minJ].CopyPaintAndCoating(Main.tile[i, j]);
+                }
+                if (Main.tile[i, minJ].active())
+                {
+                    NetMessage.SendTileSquare(-1, i, minJ);
+                }
+            }
+            if (num != -1)
+            {
+                bool flag2 = false;
+                TileColorCache color = Main.tile[i, j].BlockColorAndCoating();
+                for (int k = minI; k < maxI; k++)
+                {
+                    for (int l = minJ; l < maxJ; l++)
+                    {
+                        if (!WorldGen.InWorld(k, l, 10) || (i == k && j == l) || !Main.tile[k, l].active())
+                        {
+                            continue;
+                        }
+                        if (Main.tile[k, l].type == num)
+                        {
+                            WorldGen.SpreadGrass(k, l, num, num4, repeat: false, color);
+                            if (Main.tile[k, l].type == num4)
+                            {
+                                WorldGen.SquareTileFrame(k, l);
+                                flag2 = true;
+                            }
+                        }
+                        else if (num2 > -1 && num5 > -1 && Main.tile[k, l].type == num2)
+                        {
+                            WorldGen.SpreadGrass(k, l, num2, num5, repeat: false, color);
+                            if (Main.tile[k, l].type == num5)
+                            {
+                                WorldGen.SquareTileFrame(k, l);
+                                flag2 = true;
+                            }
+                        }
+                    }
+                }
+                if (flag2)
+                {
+                    NetMessage.SendTileSquare(-1, i, j, 3);
+                }
+            }
+            switch (type)
+            {
+                case 60:
+                    {
+                        if (flag || WorldGen.genRand.Next(25) != 0 || Main.tile[i, minJ].liquid != 0)
+                        {
+                            break;
+                        }
+                        if (Main.hardMode && NPC.downedMechBoss1 && NPC.downedMechBoss2 && NPC.downedMechBoss3 && WorldGen.genRand.Next(60) == 0)
+                        {
+                            bool flag3 = true;
+                            int num6 = 150;
+                            for (int m = i - num6; m < i + num6; m += 2)
+                            {
+                                for (int n = j - num6; n < j + num6; n += 2)
+                                {
+                                    if (m > 1 && m < Main.maxTilesX - 2 && n > 1 && n < Main.maxTilesY - 2 && Main.tile[m, n].active() && Main.tile[m, n].type == 238)
+                                    {
+                                        flag3 = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (flag3)
+                            {
+                                WorldGen.PlaceJunglePlant(i, minJ, 238, 0, 0);
+                                WorldGen.SquareTileFrame(i, minJ);
+                                WorldGen.SquareTileFrame(i + 2, minJ);
+                                WorldGen.SquareTileFrame(i - 1, minJ);
+                                if (Main.tile[i, minJ].type == 238 && Main.netMode == 2)
+                                {
+                                    NetMessage.SendTileSquare(-1, i, minJ, 5);
+                                }
+                            }
+                        }
+                        int maxValue2 = (Main.expertMode ? 30 : 40);
+                        var canSpawnLifeFruit = true;
+                        foreach (var id in WorldInfo.StaticGrowLifeFruitRequireProgressIDs)
+                        {
+                            if (!ShimmerItemReplaceInfo.DownedFuncs[id]())
+                            {
+                                canSpawnLifeFruit = false;
+                                break;
+                            }
+                        }
+                        //if (Main.hardMode && NPC.downedMechBossAny && WorldGen.genRand.Next(maxValue2) == 0)
+                        if(canSpawnLifeFruit && WorldGen.genRand.Next(maxValue2) == 0)
+                        {
+                            bool flag4 = true;
+                            int num7 = Main.expertMode ? 50 : 60;
+                            for (int num8 = i - num7; num8 < i + num7; num8 += 2)
+                            {
+                                for (int num9 = j - num7; num9 < j + num7; num9 += 2)
+                                {
+                                    if (num8 > 1 && num8 < Main.maxTilesX - 2 && num9 > 1 && num9 < Main.maxTilesY - 2 && Main.tile[num8, num9].active() && Main.tile[num8, num9].type == 236)
+                                    {
+                                        flag4 = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (flag4)
+                            {
+                                WorldGen.PlaceJunglePlant(i, minJ, TileID.LifeFruit, WorldGen.genRand.Next(3), 0);
+                                WorldGen.SquareTileFrame(i, minJ);
+                                WorldGen.SquareTileFrame(i + 1, minJ + 1);
+                                if (Main.tile[i, minJ].type == TileID.LifeFruit && Main.netMode == 2)
+                                {
+                                    NetMessage.SendTileSquare(-1, i, minJ, 4);
+                                }
+                            }
+                            break;
+                        }
+                        WorldGen.PlaceJunglePlant(i, minJ, 233, WorldGen.genRand.Next(8), 0);
+                        if (Main.tile[i, minJ].type != 233)
+                        {
+                            break;
+                        }
+                        //什么东西，看不懂
+                        //if (Main.netMode == 2)
+                        //{
+                        NetMessage.SendTileSquare(-1, i, minJ, 4);
+                        //    break;
+                        //}
+                        //WorldGen.PlaceJunglePlant(i, minJ, 233, WorldGen.genRand.Next(12), 1);
+                        //if (Main.tile[i, minJ].type == 233 && Main.netMode == 2)
+                        //{
+                        //    NetMessage.SendTileSquare(-1, i, minJ, 3);
+                        //}
+                        break;
+                    }
+                case 70:
+                    if (Main.tile[i, j - 1].liquid > 0)
+                    {
+                        WorldGen.PlaceCatTail(i, j - 1);
+                    }
+                    if (WorldGen.genRand.Next(250) == 0 && WorldGen.GrowTree(i, j) && WorldGen.PlayerLOS(i, j))
+                    {
+                        WorldGen.TreeGrowFXCheck(i, j - 1);
+                    }
+                    break;
+            }
+            return;
+        }
+        int num10 = Main.tile[i, j].type;
+        switch (num10)
+        {
+            case 2:
+            case 23:
+            case 32:
+            case 109:
+            case 199:
+            case 352:
+            case 477:
+            case 492:
+            case 661:
+            case 662:
+                {
+                    if (Main.halloween && WorldGen.genRand.Next(75) == 0 && (num10 == 2 || num10 == 109))
+                    {
+                        int num13 = 100;
+                        int num14 = 0;
+                        for (int num15 = i - num13; num15 < i + num13; num15 += 2)
+                        {
+                            for (int num16 = j - num13; num16 < j + num13; num16 += 2)
+                            {
+                                if (num15 > 1 && num15 < Main.maxTilesX - 2 && num16 > 1 && num16 < Main.maxTilesY - 2 && Main.tile[num15, num16].active() && Main.tile[num15, num16].type == 254)
+                                {
+                                    num14++;
+                                }
+                            }
+                        }
+                        if (num14 < 6)
+                        {
+                            WorldGen.PlacePumpkin(i, minJ);
+                            if (Main.tile[i, minJ].type == 254)
+                            {
+                                NetMessage.SendTileSquare(-1, i - 1, minJ - 1, 2, 2);
+                            }
+                        }
+                    }
+                    if (!Main.tile[i, minJ].active() && Main.tile[i, minJ].liquid == 0)
+                    {
+                        int num17 = -1;
+                        if (num10 == 2 && WorldGen.genRand.Next(12) == 0)
+                        {
+                            num17 = 3;
+                        }
+                        else if (num10 == 23 && WorldGen.genRand.Next(10) == 0)
+                        {
+                            num17 = 24;
+                        }
+                        else if (num10 == 199 && WorldGen.genRand.Next(10) == 0)
+                        {
+                            num17 = 201;
+                        }
+                        else if (num10 == 661 && WorldGen.genRand.Next(10) == 0)
+                        {
+                            num17 = 24;
+                        }
+                        else if (num10 == 662 && WorldGen.genRand.Next(10) == 0)
+                        {
+                            num17 = 201;
+                        }
+                        else if (num10 == 109 && WorldGen.genRand.Next(10) == 0)
+                        {
+                            num17 = 110;
+                        }
+                        else if (num10 == 633 && WorldGen.genRand.Next(10) == 0)
+                        {
+                            num17 = 637;
+                        }
+                        if (num17 != -1 && WorldGen.PlaceTile(i, minJ, num17, mute: true))
+                        {
+                            Main.tile[i, minJ].CopyPaintAndCoating(Main.tile[i, j]);
+                            if (Main.netMode == 2)
+                            {
+                                NetMessage.SendTileSquare(-1, i, minJ);
+                            }
+                        }
+                    }
+                    bool flag6 = false;
+                    switch (num10)
+                    {
+                        case 32:
+                            num10 = 23;
+                            if (!WorldGen.AllowedToSpreadInfections)
+                            {
+                                return;
+                            }
+                            break;
+                        case 352:
+                            num10 = 199;
+                            if (!WorldGen.AllowedToSpreadInfections)
+                            {
+                                return;
+                            }
+                            break;
+                        case 477:
+                            num10 = 2;
+                            break;
+                        case 492:
+                            num10 = 109;
+                            break;
+                    }
+                    int grass = num10;
+                    int num18 = -1;
+                    if (num10 == 23 || num10 == 661)
+                    {
+                        grass = 23;
+                        num18 = 661;
+                    }
+                    if (num10 == 199 || num10 == 662)
+                    {
+                        grass = 199;
+                        num18 = 662;
+                    }
+                    bool flag7 = WorldGen.AllowedToSpreadInfections && (num10 == 23 || num10 == 199 || num10 == 109 || num10 == 492 || num10 == 661 || num10 == 662) && WorldGen.InWorld(i, j, 10);
+                    for (int num19 = minI; num19 < maxI; num19++)
+                    {
+                        for (int num20 = minJ; num20 < maxJ; num20++)
+                        {
+                            if (!WorldGen.InWorld(num19, num20, 10) || (i == num19 && j == num20) || !Main.tile[num19, num20].active())
+                            {
+                                continue;
+                            }
+                            int type2 = Main.tile[num19, num20].type;
+                            if (!flag7 && type2 != 0 && (num18 == -1 || type2 != 59))
+                            {
+                                continue;
+                            }
+                            TileColorCache color3 = Main.tile[i, j].BlockColorAndCoating();
+                            if (type2 == 0 || (num18 > -1 && type2 == 59) || ((num10 == 23 || num10 == 661 || num10 == 199 || num10 == 662) && (type2 == 2 || type2 == 109 || type2 == 477 || type2 == 492)))
+                            {
+                                WorldGen.SpreadGrass(num19, num20, 0, grass, repeat: false, color3);
+                                if (num18 > -1)
+                                {
+                                    WorldGen.SpreadGrass(num19, num20, 59, num18, repeat: false, color3);
+                                }
+                                if (WorldGen.AllowedToSpreadInfections && (num10 == 23 || num10 == 199 || num10 == 661 || num10 == 662))
+                                {
+                                    WorldGen.SpreadGrass(num19, num20, 2, grass, repeat: false, color3);
+                                    WorldGen.SpreadGrass(num19, num20, 109, grass, repeat: false, color3);
+                                    WorldGen.SpreadGrass(num19, num20, 477, grass, repeat: false, color3);
+                                    WorldGen.SpreadGrass(num19, num20, 492, grass, repeat: false, color3);
+                                    if (num18 > -1)
+                                    {
+                                        WorldGen.SpreadGrass(num19, num20, 60, num18, repeat: false, color3);
+                                    }
+                                }
+                                if (Main.tile[num19, num20].type == num10 || (num18 > -1 && Main.tile[num19, num20].type == num18))
+                                {
+                                    WorldGen.SquareTileFrame(num19, num20);
+                                    flag6 = true;
+                                }
+                            }
+                            if (type2 == 0 || ((num10 == 109 || num10 == 492) && (type2 == 2 || type2 == 477 || type2 == 23 || type2 == 199)))
+                            {
+                                WorldGen.SpreadGrass(num19, num20, 0, grass, repeat: false, color3);
+                                if (num10 == 109)
+                                {
+                                    WorldGen.SpreadGrass(num19, num20, 2, grass, repeat: false, color3);
+                                }
+                                switch (num10)
+                                {
+                                    case 492:
+                                        WorldGen.SpreadGrass(num19, num20, 477, grass, repeat: false, color3);
+                                        break;
+                                    case 109:
+                                        WorldGen.SpreadGrass(num19, num20, 477, 492, repeat: false, color3);
+                                        break;
+                                }
+                                if ((num10 == 492 || num10 == 109) && WorldGen.AllowedToSpreadInfections)
+                                {
+                                    WorldGen.SpreadGrass(num19, num20, 23, 109, repeat: false, color3);
+                                }
+                                if ((num10 == 492 || num10 == 109) && WorldGen.AllowedToSpreadInfections)
+                                {
+                                    WorldGen.SpreadGrass(num19, num20, 199, 109, repeat: false, color3);
+                                }
+                                if (Main.tile[num19, num20].type == num10)
+                                {
+                                    WorldGen.SquareTileFrame(num19, num20);
+                                    flag6 = true;
+                                }
+                            }
+                        }
+                    }
+                    if (flag6)
+                    {
+                        NetMessage.SendTileSquare(-1, i, j, 3);
+                    }
+                    break;
+                }
+            case 70:
+                {
+                    if (!Main.tile[i, j].inActive())
+                    {
+                        if (!Main.tile[i, minJ].active() && WorldGen.genRand.Next(10) == 0)
+                        {
+                            WorldGen.PlaceTile(i, minJ, 71, mute: true);
+                            if (Main.tile[i, minJ].active())
+                            {
+                                Main.tile[i, minJ].CopyPaintAndCoating(Main.tile[i, j]);
+                            }
+                            if (Main.tile[i, minJ].active())
+                            {
+                                NetMessage.SendTileSquare(-1, i, minJ);
+                            }
+                        }
+                        if (WorldGen.genRand.Next(300) == 0)
+                        {
+                            bool flag8 = WorldGen.PlayerLOS(i, j);
+                            if (WorldGen.GrowTree(i, j) && flag8)
+                            {
+                                WorldGen.TreeGrowFXCheck(i, j - 1);
+                            }
+                        }
+                    }
+                    bool flag9 = false;
+                    TileColorCache color4 = Main.tile[i, j].BlockColorAndCoating();
+                    for (int num21 = minI; num21 < maxI; num21++)
+                    {
+                        for (int num22 = minJ; num22 < maxJ; num22++)
+                        {
+                            if ((i != num21 || j != num22) && Main.tile[num21, num22].active() && Main.tile[num21, num22].type == 59)
+                            {
+                                WorldGen.SpreadGrass(num21, num22, 59, num10, repeat: false, color4);
+                                if (Main.tile[num21, num22].type == num10)
+                                {
+                                    WorldGen.SquareTileFrame(num21, num22);
+                                    flag9 = true;
+                                }
+                            }
+                        }
+                    }
+                    if (flag9)
+                    {
+                        NetMessage.SendTileSquare(-1, i, j, 3);
+                    }
+                    break;
+                }
+            case 60:
+                {
+                    if (!Main.tile[i, minJ].active() && WorldGen.genRand.Next(7) == 0)
+                    {
+                        WorldGen.PlaceTile(i, minJ, 61, mute: true);
+                        if (Main.tile[i, minJ].active())
+                        {
+                            Main.tile[i, minJ].CopyPaintAndCoating(Main.tile[i, j]);
+                        }
+                        if (Main.tile[i, minJ].active())
+                        {
+                            NetMessage.SendTileSquare(-1, i, minJ);
+                        }
+                    }
+                    else if (WorldGen.genRand.Next(500) == 0 && (!Main.tile[i, minJ].active() || Main.tile[i, minJ].type == 61 || Main.tile[i, minJ].type == 74 || Main.tile[i, minJ].type == 69))
+                    {
+                        if (WorldGen.GrowTree(i, j) && WorldGen.PlayerLOS(i, j))
+                        {
+                            WorldGen.TreeGrowFXCheck(i, j - 1);
+                        }
+                    }
+                    else if (WorldGen.genRand.Next(25) == 0 && Main.tile[i, minJ].liquid == 0)
+                    {
+                        WorldGen.PlaceJunglePlant(i, minJ, 233, WorldGen.genRand.Next(8), 0);
+                        if (Main.tile[i, minJ].type == 233)
+                        {
+                            if (Main.netMode == 2)
+                            {
+                                NetMessage.SendTileSquare(-1, i, minJ, 4);
+                            }
+                            else
+                            {
+                                WorldGen.PlaceJunglePlant(i, minJ, 233, WorldGen.genRand.Next(12), 1);
+                                if (Main.tile[i, minJ].type == 233 && Main.netMode == 2)
+                                {
+                                    NetMessage.SendTileSquare(-1, i, minJ, 3);
+                                }
+                            }
+                        }
+                    }
+                    bool flag10 = false;
+                    TileColorCache color5 = Main.tile[i, j].BlockColorAndCoating();
+                    for (int num23 = minI; num23 < maxI; num23++)
+                    {
+                        for (int num24 = minJ; num24 < maxJ; num24++)
+                        {
+                            if ((i != num23 || j != num24) && Main.tile[num23, num24].active() && Main.tile[num23, num24].type == 59)
+                            {
+                                WorldGen.SpreadGrass(num23, num24, 59, num10, repeat: false, color5);
+                                if (Main.tile[num23, num24].type == num10)
+                                {
+                                    WorldGen.SquareTileFrame(num23, num24);
+                                    flag10 = true;
+                                }
+                            }
+                        }
+                    }
+                    if (flag10)
+                    {
+                        NetMessage.SendTileSquare(-1, i, j, 3);
+                    }
+                    break;
+                }
+            case 633:
+                {
+                    if (!Main.tile[i, minJ].active() && WorldGen.genRand.Next(10) == 0)
+                    {
+                        WorldGen.PlaceTile(i, minJ, 637, mute: true);
+                        if (Main.tile[i, minJ].active())
+                        {
+                            Main.tile[i, minJ].CopyPaintAndCoating(Main.tile[i, j]);
+                        }
+                        if (Main.tile[i, minJ].active())
+                        {
+                            NetMessage.SendTileSquare(-1, i, minJ);
+                        }
+                    }
+                    TileColorCache color2 = Main.tile[i, j].BlockColorAndCoating();
+                    bool flag5 = false;
+                    for (int num11 = minI; num11 < maxI; num11++)
+                    {
+                        for (int num12 = minJ; num12 < maxJ; num12++)
+                        {
+                            if ((i != num11 || j != num12) && Main.tile[num11, num12].active() && Main.tile[num11, num12].type == 57)
+                            {
+                                WorldGen.SpreadGrass(num11, num12, 57, num10, repeat: false, color2);
+                                if (Main.tile[num11, num12].type == num10)
+                                {
+                                    WorldGen.SquareTileFrame(num11, num12);
+                                    flag5 = true;
+                                }
+                            }
+                        }
+                    }
+                    if (flag5)
+                    {
+                        NetMessage.SendTileSquare(-1, i, j, 3);
+                    }
+                    break;
+                }
+        }
+    }
     public static void CheckOrb(int i, int j, int type)
     {
         if (Main.tile[i, j] == null)
@@ -535,20 +1117,20 @@ public static class ReplaceWorldGen
                 case 639:
                     Item.NewItem(WorldGen.GetItemSource_FromTileBreak(num, num2), num * 16, num2 * 16, 32, 32, 109);
                     break;
-                case 31:
+                case TileID.ShadowOrbs:
                     var config = GameContentModify.MainConfig.Instance.Orb;
                     var array = crimson ? config.CrimsonShadowOrbDropItems : config.CorruptionShadowOrbDropItems;
                     int index = Main.rand.Next(array.Length);
                     var items = array[index];
                     foreach (var item in items)
                     {
-                        item.NewItem(WorldGen.GetItemSource_FromTileBreak(num, num2), num * 16, num2 * 16, 32, 32);
+                        item.NewItem(WorldGen.GetItemSource_FromTileBreak(num, num2), num, num2);
                     }
                     WorldGen.shadowOrbSmashed = true;
                     WorldGen.shadowOrbCount++;
                     if (WorldGen.shadowOrbCount >= config.SpanwNPCSmashedCount)
                     {
-                        if (!(NPC.AnyNPCs(266) && crimson) && (!NPC.AnyNPCs(13) || crimson))
+                        if (!(NPC.AnyNPCs(NPCID.BrainofCthulhu) && crimson) && (!NPC.AnyNPCs(NPCID.EaterofWorldsHead) || crimson))
                         {
                             WorldGen.shadowOrbCount = 0;
                             float num5 = num * 16;
@@ -566,11 +1148,11 @@ public static class ReplaceWorldGen
                             }
                             if (crimson)
                             {
-                                NPC.SpawnOnPlayer(plr, 266);
+                                NPC.SpawnOnPlayer(plr, NPCID.BrainofCthulhu);
                             }
                             else
                             {
-                                NPC.SpawnOnPlayer(plr, 13);
+                                NPC.SpawnOnPlayer(plr, NPCID.EaterofWorldsHead);
                             }
                         }
                     }
@@ -583,11 +1165,733 @@ public static class ReplaceWorldGen
                         }
                         ChatHelper.BroadcastChatMessage(NetworkText.FromKey(localizedText.Key), new Color(50, 255, 130));
                     }
-                    AchievementsHelper.NotifyProgressionEvent(7);
+                    AchievementsHelper.NotifyProgressionEvent(AchievementHelperID.Events.SmashShadowOrb);
                     break;
             }
         }
         WorldGen.destroyObject = false;
+    }
+    public static void Check3x2(int i, int j, int type)
+    {
+        if (WorldGen.destroyObject)
+        {
+            return;
+        }
+        bool flag = false;
+        bool flag2 = false;
+        int num = j;
+        if (Main.tile[i, j] == null)
+        {
+            Main.tile[i, j] = OTAPI.Hooks.Tile.InvokeCreate();
+        }
+        int num2 = 36;
+        int num3 = Main.tile[i, j].frameY / num2;
+        int num4 = Main.tile[i, j].frameY % num2;
+        num -= num4 / 18;
+        int num5 = Main.tile[i, j].frameX / 18;
+        int num6 = 0;
+        while (num5 > 2)
+        {
+            num5 -= 3;
+            num6++;
+        }
+        num5 = i - num5;
+        int num7 = num6 * 54;
+        if (type == 14 && num6 == 25)
+        {
+            flag2 = true;
+        }
+        int num8 = num + 2;
+        if (flag2)
+        {
+            num8--;
+        }
+        for (int k = num5; k < num5 + 3; k++)
+        {
+            for (int l = num; l < num8; l++)
+            {
+                if (Main.tile[k, l] == null)
+                {
+                    Main.tile[k, l] = OTAPI.Hooks.Tile.InvokeCreate();
+                }
+                if (!Main.tile[k, l].active() || Main.tile[k, l].type != type || Main.tile[k, l].frameX != (k - num5) * 18 + num7 || Main.tile[k, l].frameY != (l - num) * 18 + num3 * 36)
+                {
+                    flag = true;
+                }
+            }
+            if (type == 285 || type == 286 || type == 298 || type == 299 || type == 310 || type == 339 || type == 538 || (type >= 361 && type <= 364) || type == 532 || type == 544 || type == 533 || type == 555 || type == 556 || type == 582 || type == 619 || type == 629)
+            {
+                if (!WorldGen.SolidTileAllowBottomSlope(k, num8) && (Main.tile[k, num8] == null || !Main.tile[k, num8].nactive() || !Main.tileSolidTop[Main.tile[k, num8].type] || Main.tile[k, num8].frameY != 0) && (Main.tile[k, num8] == null || !Main.tile[k, num8].active() || !TileID.Sets.Platforms[Main.tile[k, num8].type]))
+                {
+                    flag = true;
+                }
+            }
+            else
+            {
+                switch (type)
+                {
+                    case 488:
+                        {
+                            int num9 = 0;
+                            if (Main.tile[k, num8] != null && Main.tile[k, num8].active())
+                            {
+                                num9 = Main.tile[k, num8].type;
+                            }
+                            if (num9 != 2 && num9 != 477 && num9 != 109 && num9 != 492)
+                            {
+                                flag = true;
+                            }
+                            break;
+                        }
+                    case 26:
+                        {
+                            ITile tile2 = Main.tile[k, num8];
+                            if (!WorldGen.SolidTileAllowBottomSlope(k, num8) || (tile2 != null && tile2.active() && TileID.Sets.Boulders[tile2.type]))
+                            {
+                                flag = true;
+                            }
+                            break;
+                        }
+                    case 186:
+                        {
+                            if (!WorldGen.SolidTileAllowBottomSlope(k, num8))
+                            {
+                                flag = true;
+                                break;
+                            }
+                            ITile tile = Main.tile[k, num8];
+                            if (tile == null || !tile.active())
+                            {
+                                break;
+                            }
+                            switch (num6)
+                            {
+                                case 26:
+                                case 27:
+                                case 28:
+                                case 29:
+                                case 30:
+                                case 31:
+                                    if (!TileID.Sets.Snow[tile.type] && !TileID.Sets.Conversion.Ice[tile.type] && tile.type != 162 && tile.type != 224)
+                                    {
+                                        flag = true;
+                                    }
+                                    break;
+                                case 32:
+                                case 33:
+                                case 34:
+                                    if (!TileID.Sets.Mud[tile.type] && tile.type != 70)
+                                    {
+                                        flag = true;
+                                    }
+                                    break;
+                            }
+                            break;
+                        }
+                }
+            }
+            if (type == 187)
+            {
+                if (!WorldGen.SolidTileAllowBottomSlope(k, num8))
+                {
+                    flag = true;
+                    continue;
+                }
+                ITile tile3 = Main.tile[k, num8];
+                if (tile3 == null || !tile3.active())
+                {
+                    continue;
+                }
+                switch (num6)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                        if (!TileID.Sets.Mud[tile3.type] && tile3.type != 60 && tile3.type != 226)
+                        {
+                            flag = true;
+                        }
+                        break;
+                    case 6:
+                    case 7:
+                    case 8:
+                        if (tile3.type != 57 && tile3.type != 58 && tile3.type != 75 && tile3.type != 76)
+                        {
+                            flag = true;
+                        }
+                        break;
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    case 34:
+                        if (!TileID.Sets.Conversion.Sand[tile3.type] && !TileID.Sets.Conversion.HardenedSand[tile3.type] && !TileID.Sets.Conversion.Sandstone[tile3.type])
+                        {
+                            flag = true;
+                        }
+                        break;
+                }
+            }
+            else if (!WorldGen.SolidTileAllowBottomSlope(k, num8))
+            {
+                flag = true;
+            }
+        }
+        if (type == 187 && Main.tile[num5, num] != null && Main.tile[num5, num].frameX >= 756 && Main.tile[num5, num].frameX <= 900 && Main.tile[num5, num + 2].type != 2 && Main.tile[num5 + 1, num + 2].type != 2 && Main.tile[num5 + 2, num + 2].type != 2 && Main.tile[num5, num + 2].type != 477 && Main.tile[num5 + 1, num + 2].type != 477 && Main.tile[num5 + 2, num + 2].type != 477 && Main.tile[num5, num + 2].type != 492 && Main.tile[num5 + 1, num + 2].type != 492 && Main.tile[num5 + 2, num + 2].type != 492)
+        {
+            Main.tile[num5, num].frameX -= 378;
+            Main.tile[num5 + 1, num].frameX -= 378;
+            Main.tile[num5 + 2, num].frameX -= 378;
+            Main.tile[num5, num + 1].frameX -= 378;
+            Main.tile[num5 + 1, num + 1].frameX -= 378;
+            Main.tile[num5 + 2, num + 1].frameX -= 378;
+            Main.tile[num5, num].type = 186;
+            Main.tile[num5 + 1, num].type = 186;
+            Main.tile[num5 + 2, num].type = 186;
+            Main.tile[num5, num + 1].type = 186;
+            Main.tile[num5 + 1, num + 1].type = 186;
+            Main.tile[num5 + 2, num + 1].type = 186;
+        }
+        if (flag && type == 488 && WorldGen.gen)
+        {
+            for (int m = num5; m < num5 + 3; m++)
+            {
+                for (int n = num; n < num + 2; n++)
+                {
+                    Main.tile[m, n].active(active: true);
+                    Main.tile[m, n].type = 488;
+                    Main.tile[m, n].frameX = (short)((m - num5) * 18);
+                    Main.tile[m, n].frameY = (short)((n - num) * 18);
+                }
+                Main.tile[m, num + 2].active(active: true);
+                Main.tile[m, num + 2].type = 2;
+                Main.tile[m, num + 2].slope(0);
+                Main.tile[m, num + 2].halfBrick(halfBrick: false);
+            }
+            flag = false;
+        }
+        if (!flag)
+        {
+            return;
+        }
+        int frameX = Main.tile[i, j].frameX;
+        WorldGen.destroyObject = true;
+        num8 = num + 3;
+        if (flag2)
+        {
+            num8--;
+        }
+        for (int num10 = num5; num10 < num5 + 3; num10++)
+        {
+            for (int num11 = num; num11 < num + 3; num11++)
+            {
+                if (Main.tile[num10, num11] == null)
+                {
+                    Main.tile[num10, num11] = OTAPI.Hooks.Tile.InvokeCreate();
+                }
+                if (Main.tile[num10, num11].type == type && Main.tile[num10, num11].active())
+                {
+                    WorldGen.KillTile(num10, num11);
+                }
+            }
+        }
+        if (type == 14)
+        {
+            int type2 = ((num6 >= 1 && num6 <= 3) ? (637 + num6) : ((num6 >= 15 && num6 <= 20) ? (1698 + num6) : ((num6 >= 4 && num6 <= 7) ? (823 + num6) : (num6 switch
+            {
+                8 => 917,
+                9 => 1144,
+                10 => 1397,
+                11 => 1400,
+                12 => 1403,
+                13 => 1460,
+                14 => 1510,
+                23 => 1926,
+                21 => 1794,
+                22 => 1816,
+                24 => 2248,
+                25 => 2259,
+                26 => 2532,
+                27 => 2550,
+                28 => 677,
+                29 => 2583,
+                30 => 2743,
+                31 => 2824,
+                32 => 3153,
+                33 => 3155,
+                34 => 3154,
+                _ => 32,
+            }))));
+            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, type2);
+        }
+        switch (type)
+        {
+            case 469:
+                {
+                    int type4 = num6 switch
+                    {
+                        1 => 3948,
+                        2 => 3974,
+                        3 => 4162,
+                        4 => 4183,
+                        5 => 4204,
+                        6 => 4225,
+                        7 => 4314,
+                        8 => 4583,
+                        9 => 5165,
+                        10 => 5186,
+                        11 => 5207,
+                        _ => 3920,
+                    };
+                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, type4);
+                    break;
+                }
+            case 114:
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 398);
+                break;
+            case 26:
+                if (!WorldGen.noTileActions && !WorldGen.IsGeneratingHardMode)
+                {
+                    WorldGen.SmashAltar(i, j);
+                }
+                break;
+            case 298:
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2190);
+                break;
+            case 299:
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2191);
+                break;
+            case 361:
+            case 362:
+            case 363:
+            case 364:
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 3073 + type - 361);
+                break;
+            default:
+                if (type >= 391 && type <= 394)
+                {
+                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 48, 32, 3254 + type - 391);
+                    break;
+                }
+                switch (type)
+                {
+                    case 285:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2174);
+                        break;
+                    case 286:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2175);
+                        break;
+                    case 582:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4850);
+                        break;
+                    case 619:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4963);
+                        break;
+                    case 310:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2207);
+                        break;
+                    case 339:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2741);
+                        break;
+                    case 538:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4380);
+                        break;
+                    case 544:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4399);
+                        break;
+                    case 532:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4364);
+                        break;
+                    case 533:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4376);
+                        break;
+                    case 555:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4475);
+                        break;
+                    case 556:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4476);
+                        break;
+                    case 629:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 5133);
+                        break;
+                    case 217:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 995);
+                        break;
+                    case 218:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 996);
+                        break;
+                    case 219:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 997);
+                        break;
+                    case 642:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 5296);
+                        break;
+                    case 220:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 998);
+                        break;
+                    case 377:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 3198);
+                        break;
+                    case 228:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 1120);
+                        break;
+                    case 405:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 3364);
+                        break;
+                    case 486:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4063);
+                        break;
+                    case 488:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 9, WorldGen.genRand.Next(10, 21));
+                        break;
+                    case 215:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, WorldGen.GetCampfireItemDrop(num6));
+                        break;
+                    case 244:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 1449);
+                        break;
+                    case 647:
+                        {
+                            int num13 = 0;
+                            if (num6 < 7)
+                            {
+                                num13 = 154;
+                            }
+                            else if (num6 < 13)
+                            {
+                                num13 = 3;
+                            }
+                            else if (num6 < 16)
+                            {
+                                num13 = 3;
+                            }
+                            else if (num6 < 18)
+                            {
+                                num13 = 71;
+                            }
+                            else if (num6 < 20)
+                            {
+                                num13 = 72;
+                            }
+                            else if (num6 < 22)
+                            {
+                                num13 = 73;
+                            }
+                            else if (num6 < 26)
+                            {
+                                num13 = 9;
+                            }
+                            else if (num6 < 32)
+                            {
+                                num13 = 593;
+                            }
+                            else if (num6 < 35)
+                            {
+                                num13 = 183;
+                            }
+                            if (num13 != 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, num13);
+                            }
+                            break;
+                        }
+                    case 648:
+                        {
+                            num6 += num3 * 35;
+                            int num12 = 0;
+                            if (num6 < 6)
+                            {
+                                num12 = 195;
+                            }
+                            else if (num6 < 9)
+                            {
+                                num12 = 174;
+                            }
+                            else if (num6 < 14)
+                            {
+                                num12 = 150;
+                            }
+                            else if (num6 < 17)
+                            {
+                                num12 = 3;
+                            }
+                            else if (num6 < 18)
+                            {
+                                num12 = 989;
+                            }
+                            else if (num6 < 21)
+                            {
+                                num12 = 1101;
+                            }
+                            else if (num6 < 29)
+                            {
+                                num12 = 9;
+                            }
+                            else if (num6 < 35)
+                            {
+                                num12 = 3271;
+                            }
+                            else if (num6 < 41)
+                            {
+                                num12 = 3086;
+                            }
+                            else if (num6 < 47)
+                            {
+                                num12 = 3081;
+                            }
+                            else if (num6 < 52)
+                            {
+                                num12 = 62;
+                            }
+                            else if (num6 < 55)
+                            {
+                                num12 = 154;
+                            }
+                            if (num12 != 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, num12);
+                            }
+                            break;
+                        }
+                    case 651:
+                        {
+                            int num14 = 0;
+                            num14 = ((num6 < 3) ? 195 : ((num6 >= 6) ? 331 : 62));
+                            if (num14 != 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, num14);
+                            }
+                            break;
+                        }
+                    case 17:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 33);
+                        break;
+                    case 77:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 221);
+                        break;
+                    case 86:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 332);
+                        break;
+                    case 237:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 1292);
+                        break;
+                    case 87:
+                        {
+                            int type3;
+                            if (num6 >= 1 && num6 <= 3)
+                            {
+                                type3 = 640 + num6;
+                            }
+                            else
+                            {
+                                switch (num6)
+                                {
+                                    case 4:
+                                        type3 = 919;
+                                        break;
+                                    case 5:
+                                    case 6:
+                                    case 7:
+                                        type3 = 2245 + num6 - 5;
+                                        break;
+                                    default:
+                                        type3 = ((num6 >= 8 && num6 <= 10) ? (2254 + num6 - 8) : ((num6 >= 11 && num6 <= 20) ? (2376 + num6 - 11) : (num6 switch
+                                        {
+                                            21 => 2531,
+                                            22 => 2548,
+                                            23 => 2565,
+                                            24 => 2580,
+                                            25 => 2671,
+                                            26 => 2821,
+                                            27 => 3141,
+                                            28 => 3143,
+                                            29 => 3142,
+                                            30 => 3915,
+                                            31 => 3916,
+                                            32 => 3944,
+                                            33 => 3971,
+                                            34 => 4158,
+                                            35 => 4179,
+                                            36 => 4200,
+                                            37 => 4221,
+                                            38 => 4310,
+                                            39 => 4579,
+                                            40 => 5161,
+                                            41 => 5182,
+                                            42 => 5203,
+                                            _ => 333,
+                                        })));
+                                        break;
+                                }
+                            }
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, type3);
+                            break;
+                        }
+                    case 88:
+                        {
+                            int dresserItemDrop = WorldGen.GetDresserItemDrop(num6);
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, dresserItemDrop);
+                            break;
+                        }
+                    case 89:
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, WorldGen.GetItemDrop_Benches(num6));
+                        break;
+                    case 133:
+                        if (frameX >= 54)
+                        {
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 1221);
+                        }
+                        else
+                        {
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 524);
+                        }
+                        break;
+                    case TileID.LargePiles:
+                        //if (frameX < 864)
+                        if (frameX < TileStyleID.LargePiles.LargeCopperCoinStash1 * TileSize.S32.FrameWidth)
+                        {
+                            break;
+                        }
+                        if (frameX <= 954)
+                        {
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                            if (WorldGen.genRand.Next(3) != 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
+                            }
+                            if (WorldGen.genRand.Next(3) != 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                            }
+                            if (WorldGen.genRand.Next(3) != 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                            }
+                            if (WorldGen.genRand.Next(2) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
+                            }
+                            if (WorldGen.genRand.Next(2) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                            }
+                            if (WorldGen.genRand.Next(2) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                            }
+                            if (WorldGen.genRand.Next(3) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
+                            }
+                            if (WorldGen.genRand.Next(3) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                            }
+                            if (WorldGen.genRand.Next(3) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                            }
+                            if (WorldGen.genRand.Next(4) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
+                            }
+                            if (WorldGen.genRand.Next(4) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                            }
+                            if (WorldGen.genRand.Next(4) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                            }
+                            if (WorldGen.genRand.Next(5) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
+                            }
+                            if (WorldGen.genRand.Next(5) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                            }
+                            if (WorldGen.genRand.Next(5) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                            }
+                        }
+                        else if (frameX <= 1062)
+                        {
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 72, WorldGen.genRand.Next(10, 100));
+                            if (WorldGen.genRand.Next(2) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 72, WorldGen.genRand.Next(20, 100));
+                            }
+                            if (WorldGen.genRand.Next(3) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 72, WorldGen.genRand.Next(30, 100));
+                            }
+                            if (WorldGen.genRand.Next(4) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 72, WorldGen.genRand.Next(40, 100));
+                            }
+                            if (WorldGen.genRand.Next(5) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 72, WorldGen.genRand.Next(50, 100));
+                            }
+                        }
+                        else if (frameX <= 1170)
+                        {
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 73, WorldGen.genRand.Next(1, 7));
+                            if (WorldGen.genRand.Next(2) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 73, WorldGen.genRand.Next(2, 7));
+                            }
+                            if (WorldGen.genRand.Next(3) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 73, WorldGen.genRand.Next(3, 7));
+                            }
+                            if (WorldGen.genRand.Next(4) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 73, WorldGen.genRand.Next(4, 7));
+                            }
+                            if (WorldGen.genRand.Next(5) == 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 73, WorldGen.genRand.Next(5, 7));
+                            }
+                        }
+                        break;
+                    case TileID.LargePiles2:
+                        //if (frameX >= 198 && frameX <= 970) //奇怪为什么是970，style18应该是972, 小于等于的话是971
+                        if (frameX >= TileStyleID.LargePiles2.EnchantedSwordInStone * TileSize.S32.FrameWidth && frameX < (TileStyleID.LargePiles2.EnchantedSwordInStone + 1) * TileSize.S32.FrameWidth)
+                        {
+                            var values = GameContentModify.MainConfig.Instance.EnchantedSwordInStoneDropItemInfo;
+                            for (int k = 0; k < values.Length; k++)
+                            {
+                                if (values[k].TryDrop(i, j) && !values[k].Continute)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                }
+                break;
+        }
+        WorldGen.destroyObject = false;
+        for (int num15 = num5 - 1; num15 < num5 + 4; num15++)
+        {
+            for (int num16 = num - 1; num16 < num + 4; num16++)
+            {
+                WorldGen.TileFrame(num15, num16);
+            }
+        }
+        if (type == 488)
+        {
+            WorldGen.mysticLogsEvent.FallenLogDestroyed();
+        }
     }
     public static void ShakeTree(int i, int j)
     {
@@ -1054,7 +2358,7 @@ public static class ReplaceWorldGen
             }
             return;
         }
-        if (Main.netMode == 2 && Main.rand.Next(30) == 0)
+        if (Main.rand.Next(30) == 0)
         {
             Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 2997);
             return;
@@ -1641,7 +2945,7 @@ public static class ReplaceWorldGen
         if (Main.tile[x, y].liquid > 0)
         {
             int style = Main.tile[x, y].frameX / 18;
-            if ((!Main.tile[x, y].lava() || style != TileSubID.Herbs.Fireblossom) && (Main.tile[x, y].liquidType() != LiquidID.Water || (style != TileSubID.Herbs.Moonglow && style != TileSubID.Herbs.Waterleaf)))
+            if ((!Main.tile[x, y].lava() || style != TileStyleID.Herbs.Fireblossom) && (Main.tile[x, y].liquidType() != LiquidID.Water || (style != TileStyleID.Herbs.Moonglow && style != TileStyleID.Herbs.Waterleaf)))
             {
                 WorldGen.KillTile(x, y);
                 NetMessage.SendTileSquare(-1, x, y);
@@ -1726,5 +3030,4 @@ public static class ReplaceWorldGen
         //}
     }
     public static bool IsHarvestableHerbWithSeed(int type, int style) => type == TileID.BloomingHerbs;
-
 }

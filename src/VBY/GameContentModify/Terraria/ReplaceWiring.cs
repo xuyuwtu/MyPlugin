@@ -461,16 +461,16 @@ public static class ReplaceWiring
             Wiring.SkipWire(i, j);
             return;
         }
-        if (type == TileID.Toilets || (type == TileID.Chairs && tile.frameY / 40 is TileSubID.Chairs.Toilet or TileSubID.Chairs.GoldenToilet))
+        if (type == TileID.Toilets || (type == TileID.Chairs && tile.frameY / 40 is TileStyleID.Chairs.Toilet or TileStyleID.Chairs.GoldenToilet))
         {
             int num120 = j - tile.frameY % 40 / 18;
             Wiring.SkipWire(i, num120);
             Wiring.SkipWire(i, num120 + 1);
             Wiring.CheckMech(i, num120, 60);
-            //if (!MainConfigInfo.StaticDisableToiletSpawnProj && Wiring.CheckMech(i, num120, 60))
-            //{
-            //    Projectile.NewProjectile(Wiring.GetProjectileSource(i, num120), i * 16 + 8, num120 * 16 + 12, 0f, 0f, 733, 0, 0f, Main.myPlayer);
-            //}
+            if (Wiring.CheckMech(i, num120, 60) && !MainConfigInfo.StaticDisableToiletSpawnProj)
+            {
+                Projectile.NewProjectile(Wiring.GetProjectileSource(i, num120), i * 16 + 8, num120 * 16 + 12, 0f, 0f, 733, 0, 0f, Main.myPlayer);
+            }
             return;
         }
         switch (type)
@@ -717,64 +717,64 @@ public static class ReplaceWiring
             case 92:
                 Wiring.ToggleLampPost(i, j, tile, forcedStateWhereTrueIsOn, doSkipWires);
                 break;
-            case 137:
+            case TileID.Traps:
                 {
                     int num44 = tile.frameY / 18;
-                    Vector2 vector3 = Vector2.Zero;
+                    Vector2 projPosition = Vector2.Zero;
                     float speedX = 0f;
                     float speedY = 0f;
-                    int num45 = 0;
+                    int projType = 0;
                     int damage3 = 0;
                     switch (num44)
                     {
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 5:
-                            if (Wiring.CheckMech(i, j, 200))
+                        case TileStyleID.Traps.DartTrap:
+                        case TileStyleID.Traps.SuperDartTrap:
+                        case TileStyleID.Traps.FlameTrap:
+                        case TileStyleID.Traps.VenomDartTrap:
+                            if (Wiring.CheckMech(i, j, MechInfo.StaticDartTrapCoolingTime))
                             {
                                 int num54 = ((tile.frameX == 0) ? (-1) : ((tile.frameX == 18) ? 1 : 0));
                                 int num55 = ((tile.frameX >= 36) ? ((tile.frameX >= 72) ? 1 : (-1)) : 0);
-                                vector3 = new Vector2(i * 16 + 8 + 10 * num54, j * 16 + 8 + 10 * num55);
+                                projPosition = new Vector2(i * 16 + 8 + 10 * num54, j * 16 + 8 + 10 * num55);
                                 float num56 = 3f;
-                                if (num44 == 0)
+                                if (num44 == TileStyleID.Traps.DartTrap)
                                 {
-                                    num45 = 98;
+                                    projType = ProjectileID.PoisonDart;
                                     damage3 = 20;
                                     num56 = 12f;
                                 }
-                                if (num44 == 1)
+                                if (num44 == TileStyleID.Traps.SuperDartTrap)
                                 {
-                                    num45 = 184;
+                                    projType = ProjectileID.PoisonDartTrap;
                                     damage3 = 40;
                                     num56 = 12f;
                                 }
-                                if (num44 == 2)
+                                if (num44 == TileStyleID.Traps.FlameTrap)
                                 {
-                                    num45 = 187;
+                                    projType = ProjectileID.FlamethrowerTrap;
                                     damage3 = 40;
                                     num56 = 5f;
                                 }
-                                if (num44 == 5)
+                                if (num44 == TileStyleID.Traps.VenomDartTrap)
                                 {
-                                    num45 = 980;
+                                    projType = ProjectileID.VenomDartTrap;
                                     damage3 = 30;
                                     num56 = 12f;
                                 }
-                                speedX = (float)num54 * num56;
-                                speedY = (float)num55 * num56;
+                                speedX = num54 * num56;
+                                speedY = num55 * num56;
                             }
                             break;
-                        case 3:
+                        case TileStyleID.Traps.SpikyBallTrap:
                             {
-                                if (!Wiring.CheckMech(i, j, 300))
+                                if (!Wiring.CheckMech(i, j, MechInfo.StaticSpikyBallTrapCoolingTime))
                                 {
                                     break;
                                 }
                                 int num49 = 200;
                                 for (int num50 = 0; num50 < 1000; num50++)
                                 {
-                                    if (Main.projectile[num50].active && Main.projectile[num50].type == num45)
+                                    if (Main.projectile[num50].active && Main.projectile[num50].type == projType)
                                     {
                                         float num51 = (new Vector2(i * 16 + 8, j * 18 + 8) - Main.projectile[num50].Center).Length();
                                         num49 = ((num51 < 50f) ? (num49 - 50) : ((num51 < 100f) ? (num49 - 15) : ((num51 < 200f) ? (num49 - 10) : ((num51 < 300f) ? (num49 - 8) : ((num51 < 400f) ? (num49 - 6) : ((num51 < 500f) ? (num49 - 5) : ((num51 < 700f) ? (num49 - 4) : ((num51 < 900f) ? (num49 - 3) : ((!(num51 < 1200f)) ? (num49 - 1) : (num49 - 2))))))))));
@@ -782,7 +782,7 @@ public static class ReplaceWiring
                                 }
                                 if (num49 > 0)
                                 {
-                                    num45 = 185;
+                                    projType = ProjectileID.SpikyBallTrap;
                                     damage3 = 40;
                                     int num52 = 0;
                                     int num53 = 0;
@@ -808,12 +808,12 @@ public static class ReplaceWiring
                                     }
                                     speedX = (float)(4 * num52) + (float)Main.rand.Next(-20 + ((num52 == 1) ? 20 : 0), 21 - ((num52 == -1) ? 20 : 0)) * 0.05f;
                                     speedY = (float)(4 * num53) + (float)Main.rand.Next(-20 + ((num53 == 1) ? 20 : 0), 21 - ((num53 == -1) ? 20 : 0)) * 0.05f;
-                                    vector3 = new Vector2(i * 16 + 8 + 14 * num52, j * 16 + 8 + 14 * num53);
+                                    projPosition = new Vector2(i * 16 + 8 + 14 * num52, j * 16 + 8 + 14 * num53);
                                 }
                                 break;
                             }
-                        case 4:
-                            if (Wiring.CheckMech(i, j, 90))
+                        case TileStyleID.Traps.SpearTrap:
+                            if (Wiring.CheckMech(i, j, MechInfo.StaticSpearTrapCoolingTime))
                             {
                                 int num47 = 0;
                                 int num48 = 0;
@@ -840,15 +840,15 @@ public static class ReplaceWiring
                                 speedX = 8 * num47;
                                 speedY = 8 * num48;
                                 damage3 = 60;
-                                num45 = 186;
-                                vector3 = new Vector2(i * 16 + 8 + 18 * num47, j * 16 + 8 + 18 * num48);
+                                projType = ProjectileID.SpearTrap;
+                                projPosition = new Vector2(i * 16 + 8 + 18 * num47, j * 16 + 8 + 18 * num48);
                             }
                             break;
                     }
                     switch (num44)
                     {
                         case -10:
-                            if (Wiring.CheckMech(i, j, 200))
+                            if (Wiring.CheckMech(i, j, MechInfo.StaticDartTrapCoolingTime))
                             {
                                 int num62 = -1;
                                 if (tile.frameX != 0)
@@ -857,14 +857,14 @@ public static class ReplaceWiring
                                 }
                                 speedX = 12 * num62;
                                 damage3 = 20;
-                                num45 = 98;
-                                vector3 = new Vector2(i * 16 + 8, j * 16 + 7);
-                                vector3.X += 10 * num62;
-                                vector3.Y += 2f;
+                                projType = ProjectileID.PoisonDart;
+                                projPosition = new Vector2(i * 16 + 8, j * 16 + 7);
+                                projPosition.X += 10 * num62;
+                                projPosition.Y += 2f;
                             }
                             break;
                         case -9:
-                            if (Wiring.CheckMech(i, j, 200))
+                            if (Wiring.CheckMech(i, j, MechInfo.StaticDartTrapCoolingTime))
                             {
                                 int num58 = -1;
                                 if (tile.frameX != 0)
@@ -873,14 +873,14 @@ public static class ReplaceWiring
                                 }
                                 speedX = 12 * num58;
                                 damage3 = 40;
-                                num45 = 184;
-                                vector3 = new Vector2(i * 16 + 8, j * 16 + 7);
-                                vector3.X += 10 * num58;
-                                vector3.Y += 2f;
+                                projType = ProjectileID.PoisonDartTrap;
+                                projPosition = new Vector2(i * 16 + 8, j * 16 + 7);
+                                projPosition.X += 10 * num58;
+                                projPosition.Y += 2f;
                             }
                             break;
                         case -8:
-                            if (Wiring.CheckMech(i, j, 200))
+                            if (Wiring.CheckMech(i, j, MechInfo.StaticDartTrapCoolingTime))
                             {
                                 int num63 = -1;
                                 if (tile.frameX != 0)
@@ -889,23 +889,23 @@ public static class ReplaceWiring
                                 }
                                 speedX = 5 * num63;
                                 damage3 = 40;
-                                num45 = 187;
-                                vector3 = new Vector2(i * 16 + 8, j * 16 + 7);
-                                vector3.X += 10 * num63;
-                                vector3.Y += 2f;
+                                projType = ProjectileID.FlamethrowerTrap;
+                                projPosition = new Vector2(i * 16 + 8, j * 16 + 7);
+                                projPosition.X += 10 * num63;
+                                projPosition.Y += 2f;
                             }
                             break;
                         case -7:
                             {
-                                if (!Wiring.CheckMech(i, j, 300))
+                                if (!Wiring.CheckMech(i, j, MechInfo.StaticSpikyBallTrapCoolingTime))
                                 {
                                     break;
                                 }
-                                num45 = 185;
+                                projType = 185;
                                 int num59 = 200;
                                 for (int num60 = 0; num60 < 1000; num60++)
                                 {
-                                    if (Main.projectile[num60].active && Main.projectile[num60].type == num45)
+                                    if (Main.projectile[num60].active && Main.projectile[num60].type == projType)
                                     {
                                         float num61 = (new Vector2(i * 16 + 8, j * 18 + 8) - Main.projectile[num60].Center).Length();
                                         num59 = ((num61 < 50f) ? (num59 - 50) : ((num61 < 100f) ? (num59 - 15) : ((num61 < 200f) ? (num59 - 10) : ((num61 < 300f) ? (num59 - 8) : ((num61 < 400f) ? (num59 - 6) : ((num61 < 500f) ? (num59 - 5) : ((num61 < 700f) ? (num59 - 4) : ((num61 < 900f) ? (num59 - 3) : ((!(num61 < 1200f)) ? (num59 - 1) : (num59 - 2))))))))));
@@ -916,50 +916,63 @@ public static class ReplaceWiring
                                     speedX = (float)Main.rand.Next(-20, 21) * 0.05f;
                                     speedY = 4f + (float)Main.rand.Next(0, 21) * 0.05f;
                                     damage3 = 40;
-                                    vector3 = new Vector2(i * 16 + 8, j * 16 + 16);
-                                    vector3.Y += 6f;
-                                    Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), (int)vector3.X, (int)vector3.Y, speedX, speedY, num45, damage3, 2f, Main.myPlayer);
+                                    projPosition = new Vector2(i * 16 + 8, j * 16 + 16);
+                                    projPosition.Y += 6f;
+                                    Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), (int)projPosition.X, (int)projPosition.Y, speedX, speedY, projType, damage3, 2f, Main.myPlayer);
                                 }
                                 break;
                             }
                         case -6:
-                            if (Wiring.CheckMech(i, j, 90))
+                            if (Wiring.CheckMech(i, j, MechInfo.StaticSpearTrapCoolingTime))
                             {
                                 speedX = 0f;
                                 speedY = 8f;
                                 damage3 = 60;
-                                num45 = 186;
-                                vector3 = new Vector2(i * 16 + 8, j * 16 + 16);
-                                vector3.Y += 10f;
+                                projType = ProjectileID.SpearTrap;
+                                projPosition = new Vector2(i * 16 + 8, j * 16 + 16);
+                                projPosition.Y += 10f;
                             }
                             break;
                     }
-                    if (num45 != 0)
+                    if (projType != 0)
                     {
-                        Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), (int)vector3.X, (int)vector3.Y, speedX, speedY, num45, damage3, 2f, Main.myPlayer);
+                        Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), (int)projPosition.X, (int)projPosition.Y, speedX, speedY, projType, damage3, 2f, Main.myPlayer);
                     }
                     break;
                 }
-            case 443:
-                Wiring.GeyserTrap(i, j);
+            case TileID.GeyserTrap:
+                //Wiring.GeyserTrap(i, j);
+                int num = tile.frameX / 36;
+                int num2 = i - (tile.frameX - num * 36) / 18;
+                if (Wiring.CheckMech(num2, j, MechInfo.StaticGeyserTrapCoolingTime))
+                {
+                    Vector2 position;
+                    Vector2 speed;
+                    if (num < 2)
+                    {
+                        position = new Vector2(num2 + 1, j) * 16f;
+                        speed = new Vector2(0f, -8f);
+                    }
+                    else
+                    {
+                        position = new Vector2(num2 + 1, j + 1) * 16f;
+                        speed = new Vector2(0f, 8f);
+                    }
+
+                    Projectile.NewProjectile(Wiring.GetProjectileSource(num2, j), (int)position.X, (int)position.Y, speed.X, speed.Y, ProjectileID.GeyserTrap, 20, 2f, Main.myPlayer);
+                }
                 break;
-            case 531:
+            case TileID.BoulderStatue:
                 {
                     int num31 = tile.frameX / 36;
                     int num32 = tile.frameY / 54;
-                    int num33 = i - (tile.frameX - num31 * 36) / 18;
-                    int num34 = j - (tile.frameY - num32 * 54) / 18;
-                    if (Wiring.CheckMech(num33, num34, 900))
+                    int num33 = i - (tile.frameX - (num31 * 36)) / 18;
+                    int num34 = j - (tile.frameY - (num32 * 54)) / 18;
+                    if (Wiring.CheckMech(num33, num34, MechInfo.StaticBoulderStatueCoolingTime))
                     {
                         Vector2 vector2 = new Vector2(num33 + 1, num34) * 16f;
                         vector2.Y += 28f;
-                        int num36 = 99;
-                        int damage2 = 70;
-                        float knockBack2 = 10f;
-                        if (num36 != 0)
-                        {
-                            Projectile.NewProjectile(Wiring.GetProjectileSource(num33, num34), (int)vector2.X, (int)vector2.Y, 0f, 0f, num36, damage2, knockBack2, Main.myPlayer);
-                        }
+                        Projectile.NewProjectile(Wiring.GetProjectileSource(num33, num34), (int)vector2.X, (int)vector2.Y, 0f, 0f, ProjectileID.Boulder, 70, (float)10f, Main.myPlayer);
                     }
                     break;
                 }
@@ -1070,7 +1083,7 @@ public static class ReplaceWiring
                     }
                     break;
                 }
-            case 105:
+            case TileID.Statues:
                 {
                     int num11;
                     int num12 = tile.frameX / 18;
@@ -1093,129 +1106,129 @@ public static class ReplaceWiring
                     Wiring.SkipWire(num12 + 1, num11 + 2);
                     int num16 = num12 * 16 + 16;
                     int num17 = (num11 + 3) * 16;
-                    int num18 = -1;
-                    int num19 = -1;
+                    int newNpcIndex = -1;
+                    int newNpcType = -1;
                     bool flag3 = true;
                     bool flag4 = false;
                     switch (num14)
                     {
                         case 5:
-                            num19 = 73;
+                            newNpcType = 73;
                             break;
                         case 13:
-                            num19 = 24;
+                            newNpcType = 24;
                             break;
                         case 30:
-                            num19 = 6;
+                            newNpcType = 6;
                             break;
                         case 35:
-                            num19 = 2;
+                            newNpcType = 2;
                             break;
                         case 51:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 299, 538 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 299, 538 });
                             break;
                         case 52:
-                            num19 = 356;
+                            newNpcType = 356;
                             break;
                         case 53:
-                            num19 = 357;
+                            newNpcType = 357;
                             break;
                         case 54:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 355, 358 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 355, 358 });
                             break;
                         case 55:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 367, 366 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 367, 366 });
                             break;
                         case 56:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[5] { 359, 359, 359, 359, 360 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[5] { 359, 359, 359, 359, 360 });
                             break;
                         case 57:
-                            num19 = 377;
+                            newNpcType = 377;
                             break;
                         case 58:
-                            num19 = 300;
+                            newNpcType = 300;
                             break;
                         case 59:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 364, 362 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 364, 362 });
                             break;
                         case 60:
-                            num19 = 148;
+                            newNpcType = 148;
                             break;
                         case 61:
-                            num19 = 361;
+                            newNpcType = 361;
                             break;
                         case 62:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[3] { 487, 486, 485 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[3] { 487, 486, 485 });
                             break;
                         case 63:
-                            num19 = 164;
+                            newNpcType = 164;
                             flag3 &= NPC.MechSpawn(num16, num17, 165);
                             break;
                         case 64:
-                            num19 = 86;
+                            newNpcType = 86;
                             flag4 = true;
                             break;
                         case 65:
-                            num19 = 490;
+                            newNpcType = 490;
                             break;
                         case 66:
-                            num19 = 82;
+                            newNpcType = 82;
                             break;
                         case 67:
-                            num19 = 449;
+                            newNpcType = 449;
                             break;
                         case 68:
-                            num19 = 167;
+                            newNpcType = 167;
                             break;
                         case 69:
-                            num19 = 480;
+                            newNpcType = 480;
                             break;
                         case 70:
-                            num19 = 48;
+                            newNpcType = 48;
                             break;
                         case 71:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[3] { 170, 180, 171 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[3] { 170, 180, 171 });
                             flag4 = true;
                             break;
                         case 72:
-                            num19 = 481;
+                            newNpcType = 481;
                             break;
                         case 73:
-                            num19 = 482;
+                            newNpcType = 482;
                             break;
                         case 74:
-                            num19 = 430;
+                            newNpcType = 430;
                             break;
                         case 75:
-                            num19 = 489;
+                            newNpcType = 489;
                             break;
                         case 76:
-                            num19 = 611;
+                            newNpcType = 611;
                             break;
                         case 77:
-                            num19 = 602;
+                            newNpcType = 602;
                             break;
                         case 78:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[6] { 595, 596, 599, 597, 600, 598 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[6] { 595, 596, 599, 597, 600, 598 });
                             break;
                         case 79:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 616, 617 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 616, 617 });
                             break;
                         case 80:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 671, 672 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 671, 672 });
                             break;
                         case 81:
-                            num19 = 673;
+                            newNpcType = 673;
                             break;
                         case 82:
-                            num19 = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 674, 675 });
+                            newNpcType = Terraria.Utils.SelectRandom(Main.rand, new short[2] { 674, 675 });
                             break;
                     }
-                    if (num19 != -1 && Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, num19) && flag3)
+                    if (newNpcType != -1 && Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, newNpcType) && flag3)
                     {
                         if (!flag4 || !Collision.SolidTiles(num12 - 2, num12 + 3, num11, num11 + 2))
                         {
-                            num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17, num19);
+                            newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17, newNpcType);
                         }
                         else
                         {
@@ -1224,26 +1237,26 @@ public static class ReplaceWiring
                             NetMessage.SendData(106, -1, -1, null, (int)position.X, position.Y);
                         }
                     }
-                    if (num18 <= -1)
+                    if (newNpcIndex <= -1)
                     {
                         switch (num14)
                         {
                             case 4:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 1))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 1))
                                 {
-                                    num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 1);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 1);
                                 }
                                 break;
                             case 7:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 49))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 49))
                                 {
-                                    num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16 - 4, num17 - 6, 49);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16 - 4, num17 - 6, 49);
                                 }
                                 break;
                             case 8:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 55))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 55))
                                 {
-                                    num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 55);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 55);
                                 }
                                 break;
                             case 9:
@@ -1253,24 +1266,24 @@ public static class ReplaceWiring
                                     {
                                         type4 = 540;
                                     }
-                                    if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, type4))
+                                    if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, type4))
                                     {
-                                        num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, type4);
+                                        newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, type4);
                                     }
                                     break;
                                 }
                             case 10:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 21))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 21))
                                 {
-                                    num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17, 21);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17, 21);
                                 }
                                 break;
                             case 16:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 42))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 42))
                                 {
                                     if (!Collision.SolidTiles(num12 - 1, num12 + 1, num11, num11 + 1))
                                     {
-                                        num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 42);
+                                        newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 42);
                                         break;
                                     }
                                     Vector2 position3 = new Vector2(num16 - 4, num17 - 22) - new Vector2(10f);
@@ -1279,27 +1292,27 @@ public static class ReplaceWiring
                                 }
                                 break;
                             case 18:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 67))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 67))
                                 {
-                                    num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 67);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 67);
                                 }
                                 break;
                             case 23:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 63))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 63))
                                 {
-                                    num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 63);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 63);
                                 }
                                 break;
                             case 27:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 85))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 85))
                                 {
-                                    num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16 - 9, num17, 85);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16 - 9, num17, 85);
                                 }
                                 break;
                             case 28:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 74))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 74))
                                 {
-                                    num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, Terraria.Utils.SelectRandom(Main.rand, new short[3] { 74, 297, 298 }));
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, Terraria.Utils.SelectRandom(Main.rand, new short[3] { 74, 297, 298 }));
                                 }
                                 break;
                             case 34:
@@ -1319,23 +1332,23 @@ public static class ReplaceWiring
                                     break;
                                 }
                             case 42:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 58))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 58))
                                 {
-                                    num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 58);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 58);
                                 }
                                 break;
                             case 37:
-                                if (Wiring.CheckMech(num12, num11, 600) && Item.MechSpawn(num16, num17, 58) && Item.MechSpawn(num16, num17, 1734) && Item.MechSpawn(num16, num17, 1867))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticItemSpawnCoolingTime) && Item.MechSpawn(num16, num17, 58) && Item.MechSpawn(num16, num17, 1734) && Item.MechSpawn(num16, num17, 1867))
                                 {
                                     Item.NewItem(Wiring.GetItemSource(num16, num17), num16, num17 - 16, 0, 0, 58);
                                 }
                                 break;
                             case 50:
-                                if (Wiring.CheckMech(num12, num11, 30) && NPC.MechSpawn(num16, num17, 65))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 65))
                                 {
                                     if (!Collision.SolidTiles(num12 - 2, num12 + 3, num11, num11 + 2))
                                     {
-                                        num18 = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 65);
+                                        newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 65);
                                         break;
                                     }
                                     Vector2 position2 = new Vector2(num16 - 4, num17 - 22) - new Vector2(10f);
@@ -1344,13 +1357,13 @@ public static class ReplaceWiring
                                 }
                                 break;
                             case 2:
-                                if (Wiring.CheckMech(num12, num11, 600) && Item.MechSpawn(num16, num17, 184) && Item.MechSpawn(num16, num17, 1735) && Item.MechSpawn(num16, num17, 1868))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticItemSpawnCoolingTime) && Item.MechSpawn(num16, num17, 184) && Item.MechSpawn(num16, num17, 1735) && Item.MechSpawn(num16, num17, 1868))
                                 {
                                     Item.NewItem(Wiring.GetItemSource(num16, num17), num16, num17 - 16, 0, 0, 184);
                                 }
                                 break;
                             case 17:
-                                if (Wiring.CheckMech(num12, num11, 600) && Item.MechSpawn(num16, num17, 166))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticItemSpawnCoolingTime) && Item.MechSpawn(num16, num17, 166))
                                 {
                                     Item.NewItem(Wiring.GetItemSource(num16, num17), num16, num17 - 20, 0, 0, 166);
                                 }
@@ -1417,12 +1430,12 @@ public static class ReplaceWiring
                                 }
                         }
                     }
-                    if (num18 >= 0)
+                    if (newNpcIndex >= 0)
                     {
-                        Main.npc[num18].value = 0f;
-                        Main.npc[num18].npcSlots = 0f;
-                        Main.npc[num18].SpawnedFromStatue = true;
-                        Main.npc[num18].CanBeReplacedByOtherNPCs = true;
+                        Main.npc[newNpcIndex].value = 0f;
+                        Main.npc[newNpcIndex].npcSlots = 0f;
+                        Main.npc[newNpcIndex].SpawnedFromStatue = true;
+                        Main.npc[newNpcIndex].CanBeReplacedByOtherNPCs = true;
                     }
                     break;
                 }

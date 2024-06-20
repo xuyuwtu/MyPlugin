@@ -334,7 +334,7 @@ internal static class Utils
         }
         return true;
     }
-    public static void UpdateItem(FSPlayer fsplayer, Item item)
+    public static void UpdateItem(FSPlayer? fsplayer, Item item)
     {
         if (fsplayer?.ShimmerAddDamage ?? false)
         {
@@ -400,11 +400,11 @@ internal static class Utils
             return input;
         }
     }
-    public static GetDataHandlerManager<T> GetHookManager<T>(this HandlerList<T> handlerList, EventHandler<T> handler,bool init = true) where T : EventArgs
+    public static GetDataHandlerManager<T> GetHookManager<T>(this HandlerList<T> handlerList, EventHandler<T> handler, bool init = true) where T : EventArgs
     {
         return new(handlerList, handler, init);
     }
-    public static ServerHookHandlerManager<T> GetHookManager<T>(this TerrariaApi.Server.HandlerCollection<T> handlerList, TerrariaApi.Server.TerrariaPlugin plugin,TerrariaApi.Server.HookHandler<T> handler,bool init = true) where T : EventArgs
+    public static ServerHookHandlerManager<T> GetHookManager<T>(this TerrariaApi.Server.HandlerCollection<T> handlerList, TerrariaApi.Server.TerrariaPlugin plugin, TerrariaApi.Server.HookHandler<T> handler, bool init = true) where T : EventArgs
     {
         return new(handlerList, plugin, handler, init);
     }

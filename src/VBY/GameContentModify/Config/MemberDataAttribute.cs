@@ -1,7 +1,6 @@
-﻿using System.Diagnostics;
+﻿namespace VBY.GameContentModify.Config;
 
-namespace VBY.GameContentModify.Config;
-[Conditional("ADD_MEMBERDATA")]
+[System.Diagnostics.Conditional("ADD_MEMBERDATA")]
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
 public sealed class MemberDataAttribute : Attribute
 {

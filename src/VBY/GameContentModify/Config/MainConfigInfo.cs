@@ -1,13 +1,17 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
 
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.Net;
+using Terraria.ObjectData;
+
+using Newtonsoft.Json;
+
+using VBY.Common.Config;
+using VBY.GameContentModify.ID;
 
 namespace VBY.GameContentModify.Config;
 
@@ -29,6 +33,10 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     public NetMessageInfo NetMessage = new();
     [JsonProperty("扩展")]
     public ExtensionInfo Extension = new();
+    [JsonProperty("液体")]
+    public LiquidInfo Liquid = new();
+    [JsonProperty("机械")]
+    public MechInfo Mech = new();
 
     [Description("自然生成日食几率: 1/{0}")]
     [JsonProperty("自然生成日食几率")]
@@ -40,10 +48,12 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     [DefaultValue((int)ProjectileID.BombSkeletronPrime)]
     public int[] DisableProjectile_ExplodeTilesIDs = new int[] { ProjectileID.BombSkeletronPrime };
 
-    [Description("老旧摇摇箱在长者史莱姆解锁后依旧生成: {0}")]
-    [JsonProperty("老旧摇摇箱在长者史莱姆解锁后依旧生成")]
-    [DefaultValue(false)]
-    public bool BoundTownSlimeOldSpawnAtUnlock = false;
+    [MemberData("老旧摇摇箱在长者史莱姆解锁后依旧生成", false, PrivateField = true)]
+    public static bool StaticBoundTownSlimeOldSpawnAtUnlock
+    {
+        get => _StaticBoundTownSlimeOldSpawnAtUnlock;
+        set => Utils.HandleNamedDetour(ref _StaticBoundTownSlimeOldSpawnAtUnlock, value, DetourNames.NPC_SpawnNPC, DetourNames.NPC_TransformElderSlime);
+    }
     [Description("老旧摇摇箱开启后生成的物品ID列表")]
     [JsonProperty("老旧摇摇箱开启后生成的物品ID列表")]
     public int[] BoundTownSlimeOldSpawnItemIDs = Array.Empty<int>();
@@ -100,12 +110,8 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
         set => Utils.HandleNamedDetour(ref _StaticDisablePotDropBombProj, value, DetourNames.WorldGen_SpawnThingsFromPot);
     }
 
-    [MemberData("禁止马桶生成射弹", false, PrivateField = true)]
-    public static bool StaticDisableToiletSpawnProj
-    {
-        get => _StaticDisableToiletSpawnProj;
-        set => Utils.HandleNamedDetour(ref _StaticDisableToiletSpawnProj, value, DetourNames.Wiring_HitWireSingle);
-    }
+    [MemberData("禁止马桶生成射弹", false)]
+    public static bool StaticDisableToiletSpawnProj;
 
     [Description("毒气陷阱叠加: {0}")]
     [JsonProperty("毒气陷阱叠加")]
@@ -143,128 +149,105 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     [MemberData("禁止NPC死亡时生成熔岩")]
     [CorrelationMethod(typeof(ReplaceNPC), nameof(ReplaceNPC.HitEffect))]
     public static bool StaticDisableSpawnLavaWhenNPCDead = false;
-
-    private static bool _StaticHookedProjectileKill = false;
-    private static bool StaticHookedProjectileKill
+    private static void CheckProjectileKillHook() 
+        => Utils.HandleNamedActionHook(_StaticDisableHostileSnowBallFromGeneratingSnowBlock || _StaticDisableSandBallOfAntlionFromGeneratingSandBlock || StaticSandBallOfAntlionCanDropItem, ActionHookNames.Projectile_Kill);
+    internal static void OnProjectile_Kill(On.Terraria.Projectile.orig_Kill orig, Projectile self)
     {
-        get => _StaticHookedProjectileKill;
-        set
+        if (!self.active)
         {
-            if(value != _StaticHookedProjectileKill)
+            return;
+        }
+        if (!self.noDropItem && self.aiStyle == 10 && (self.type is ProjectileID.SnowBallHostile or ProjectileID.SandBallFalling))
+        {
+            //int tileType = 0;
+            //int itemType = 2;
+            int tileType, itemType;
+            if (self.type == ProjectileID.SandBallFalling)
             {
-                if (value)
+                tileType = TileID.Sand;
+                itemType = ItemID.SandBlock;
+                if (self.ai[0] == 2f)
                 {
-                    On.Terraria.Projectile.Kill += OnProjectile_Kill;
-                }
-                else
-                {
-                    On.Terraria.Projectile.Kill -= OnProjectile_Kill;
-                }
-                _StaticHookedProjectileKill = value;
-                static void OnProjectile_Kill(On.Terraria.Projectile.orig_Kill orig, Projectile self)
-                {
-                    if (!self.active)
+                    if (_StaticDisableSandBallOfAntlionFromGeneratingSandBlock)
                     {
-                        return;
+                        tileType = -1;
                     }
-                    if (!self.noDropItem && self.aiStyle == 10 && (self.type is ProjectileID.SnowBallHostile or ProjectileID.SandBallFalling))
+                    if (!StaticSandBallOfAntlionCanDropItem)
                     {
-                        //int tileType = 0;
-                        //int itemType = 2;
-                        int tileType, itemType;
-                        if (self.type == ProjectileID.SandBallFalling)
-                        {
-                            tileType = TileID.Sand;
-                            itemType = ItemID.SandBlock;
-                            if (self.ai[0] == 2f)
-                            {
-                                if (_StaticDisableSandBallOfAntlionFromGeneratingSandBlock)
-                                {
-                                    tileType = -1;
-                                }
-                                if (!StaticSandBallOfAntlionCanDropItem)
-                                {
-                                    itemType = 0;
-                                }
-                            }
-                        }
-                        else
-                        //if (self.type == ProjectileID.SnowBallHostile)
-                        {
-                            tileType = TileID.SnowBlock;
-                            itemType = 0;
-                        }
-                        if (self.type == ProjectileID.SnowBallHostile)
-                        {
-                            if (_StaticDisableHostileSnowBallFromGeneratingSnowBlock || ((double)(self.Center - Main.player[Player.FindClosest(self.position, self.width, self.height)].Center).Length() > Main.LogicCheckScreenWidth * 0.75))
-                            {
-                                tileType = -1;
-                                if (!StaticDisableHostileSnowBallDropItem)
-                                {
-                                    itemType = ItemID.SnowBlock;
-                                }
-                            }
-                        }
-                        int tileX = (int)(self.position.X + (self.width / 2)) / 16;
-                        int tileY = (int)(self.position.Y + (self.height / 2)) / 16;
-                        if (Main.tile[tileX, tileY].nactive() && Main.tile[tileX, tileY].halfBrick() && self.velocity.Y > 0f && Math.Abs(self.velocity.Y) > Math.Abs(self.velocity.X))
-                        {
-                            tileY--;
-                        }
-                        if (!Main.tile[tileX, tileY].active() && tileType >= 0)
-                        {
-                            bool placeSuccess = false;
-                            bool cannotPlace = false;
-                            if (tileY < Main.maxTilesY - 2)
-                            {
-                                ITile tile2 = Main.tile[tileX, tileY + 1];
-                                if (tile2 != null && tile2.active())
-                                {
-                                    if (tile2.active() && tile2.type == 314)
-                                    {
-                                        cannotPlace = true;
-                                    }
-                                    if (tile2.active() && WorldGen.BlockBelowMakesSandFall(tileX, tileY))
-                                    {
-                                        cannotPlace = true;
-                                    }
-                                }
-                            }
-                            if (!cannotPlace)
-                            {
-                                placeSuccess = WorldGen.PlaceTile(tileX, tileY, tileType, mute: false, forced: true);
-                            }
-                            if (!cannotPlace && Main.tile[tileX, tileY].active() && Main.tile[tileX, tileY].type == tileType)
-                            {
-                                if (Main.tile[tileX, tileY + 1].halfBrick() || Main.tile[tileX, tileY + 1].slope() != 0)
-                                {
-                                    WorldGen.SlopeTile(tileX, tileY + 1);
-                                    Terraria.NetMessage.SendData(17, -1, -1, null, 14, tileX, tileY + 1);
-                                }
-                                Terraria.NetMessage.SendData(17, -1, -1, null, 1, tileX, tileY, tileType);
-                            }
-                            else if (!placeSuccess && itemType > 0)
-                            {
-                                Item.NewItem(self.GetItemSource_DropAsItem(), (int)self.position.X, (int)self.position.Y, self.width, self.height, itemType);
-                            }
-                        }
-                        else if (itemType > 0)
-                        {
-                            Item.NewItem(self.GetItemSource_DropAsItem(), (int)self.position.X, (int)self.position.Y, self.width, self.height, itemType);
-                        }
-                        self.active = false;
-                    }
-                    else
-                    {
-                        orig(self);
+                        itemType = 0;
                     }
                 }
             }
+            else
+            //if (self.type == ProjectileID.SnowBallHostile)
+            {
+                tileType = TileID.SnowBlock;
+                itemType = 0;
+            }
+            if (self.type == ProjectileID.SnowBallHostile)
+            {
+                if (_StaticDisableHostileSnowBallFromGeneratingSnowBlock || ((double)(self.Center - Main.player[Player.FindClosest(self.position, self.width, self.height)].Center).Length() > Main.LogicCheckScreenWidth * 0.75))
+                {
+                    tileType = -1;
+                    if (!StaticDisableHostileSnowBallDropItem)
+                    {
+                        itemType = ItemID.SnowBlock;
+                    }
+                }
+            }
+            int tileX = (int)(self.position.X + (self.width / 2)) / 16;
+            int tileY = (int)(self.position.Y + (self.height / 2)) / 16;
+            if (Main.tile[tileX, tileY].nactive() && Main.tile[tileX, tileY].halfBrick() && self.velocity.Y > 0f && Math.Abs(self.velocity.Y) > Math.Abs(self.velocity.X))
+            {
+                tileY--;
+            }
+            if (!Main.tile[tileX, tileY].active() && tileType >= 0)
+            {
+                bool placeSuccess = false;
+                bool cannotPlace = false;
+                if (tileY < Main.maxTilesY - 2)
+                {
+                    ITile tile2 = Main.tile[tileX, tileY + 1];
+                    if (tile2 != null && tile2.active())
+                    {
+                        if (tile2.active() && tile2.type == 314)
+                        {
+                            cannotPlace = true;
+                        }
+                        if (tile2.active() && WorldGen.BlockBelowMakesSandFall(tileX, tileY))
+                        {
+                            cannotPlace = true;
+                        }
+                    }
+                }
+                if (!cannotPlace)
+                {
+                    placeSuccess = WorldGen.PlaceTile(tileX, tileY, tileType, mute: false, forced: true);
+                }
+                if (!cannotPlace && Main.tile[tileX, tileY].active() && Main.tile[tileX, tileY].type == tileType)
+                {
+                    if (Main.tile[tileX, tileY + 1].halfBrick() || Main.tile[tileX, tileY + 1].slope() != 0)
+                    {
+                        WorldGen.SlopeTile(tileX, tileY + 1);
+                        Terraria.NetMessage.SendData(17, -1, -1, null, 14, tileX, tileY + 1);
+                    }
+                    Terraria.NetMessage.SendData(17, -1, -1, null, 1, tileX, tileY, tileType);
+                }
+                else if (!placeSuccess && itemType > 0)
+                {
+                    Item.NewItem(self.GetItemSource_DropAsItem(), (int)self.position.X, (int)self.position.Y, self.width, self.height, itemType);
+                }
+            }
+            else if (itemType > 0)
+            {
+                Item.NewItem(self.GetItemSource_DropAsItem(), (int)self.position.X, (int)self.position.Y, self.width, self.height, itemType);
+            }
+            self.active = false;
         }
-    }
-    private static void CheckProjectileKillHook()
-    {
-        StaticHookedProjectileKill = StaticDisableHostileSnowBallFromGeneratingSnowBlock || StaticDisableSandBallOfAntlionFromGeneratingSandBlock || StaticSandBallOfAntlionCanDropItem;
+        else
+        {
+            orig(self);
+        }
     }
 
     [MemberData("禁止敌对雪球生成雪块", false, PrivateField = true)]
@@ -291,82 +274,68 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     }
     [MemberData("蚁狮的沙球会掉落物品")]
     public static bool StaticSandBallOfAntlionCanDropItem = false;
-    [MemberData("禁止墓碑射弹放置墓碑并掉落墓碑物品", false, PrivateField = true)]
+    [MemberData("禁止墓碑射弹放置墓碑并掉落墓碑物品", false)]
     public static bool StaticDisableTombstoneProjPlaceTombstoneAndDropTombstoneItem
     {
-        get => _StaticDisableTombstoneProjPlaceTombstoneAndDropTombstoneItem;
-        set 
+        get => Utils.NamedActionHookIsRegistered(ActionHookNames.Projectile_AI);
+        set => Utils.HandleNamedActionHook(value, ActionHookNames.Projectile_AI);
+    }
+    internal static void OnProjectile_AI(On.Terraria.Projectile.orig_AI orig, Projectile self)
+    {
+        if (self.aiStyle == 17)
         {
-            if(value != _StaticDisableTombstoneProjPlaceTombstoneAndDropTombstoneItem)
+            if (self.velocity.Y == 0f)
             {
-                if (value)
-                {
-                    On.Terraria.Projectile.AI += OnProjectile_AI;
-                }
-                else
-                {
-                    On.Terraria.Projectile.AI -= OnProjectile_AI;
-                }
-                _StaticDisableTombstoneProjPlaceTombstoneAndDropTombstoneItem = value;
+                self.velocity.X *= 0.98f;
             }
-            static void OnProjectile_AI(On.Terraria.Projectile.orig_AI orig, Projectile self)
+            self.rotation += self.velocity.X * 0.1f;
+            self.velocity.Y += 0.2f;
+            if (Main.getGoodWorld && Math.Abs(self.velocity.X) + Math.Abs(self.velocity.Y) < 1f)
             {
-                if (self.aiStyle == 17)
-                {
-                    if (self.velocity.Y == 0f)
-                    {
-                        self.velocity.X *= 0.98f;
-                    }
-                    self.rotation += self.velocity.X * 0.1f;
-                    self.velocity.Y += 0.2f;
-                    if (Main.getGoodWorld && Math.Abs(self.velocity.X) + Math.Abs(self.velocity.Y) < 1f)
-                    {
-                        self.damage = 0;
-                        self.knockBack = 0f;
-                    }
-                    if (self.owner != Main.myPlayer)
-                    {
-                        return;
-                    }
-                    int num173 = (int)((self.position.X + self.width / 2) / 16f);
-                    int num174 = (int)((self.position.Y + self.height - 4f) / 16f);
-                    if (Main.tile[num173, num174] == null)
-                    {
-                        return;
-                    }
-                    int style = 0;
-                    if (self.type >= 201 && self.type <= 205)
-                    {
-                        style = self.type - 200;
-                    }
-                    if (self.type >= 527 && self.type <= 531)
-                    {
-                        style = self.type - 527 + 6;
-                    }
-                    if (TileObject.CanPlace(num173, num174, 85, style, self.direction, out _, true))
-                    {
-                        Item.NewItem(self.GetItemSource_FromThis(), self.Center, Vector2.Zero, style switch
-                        {
-                            TileSubID.Tombstones.GraveMarker => ItemID.GraveMarker,
-                            TileSubID.Tombstones.CrossGraveMarker => ItemID.CrossGraveMarker,
-                            TileSubID.Tombstones.Headstone => ItemID.Headstone,
-                            TileSubID.Tombstones.Gravestone => ItemID.Gravestone,
-                            TileSubID.Tombstones.Obelisk => ItemID.Obelisk,
-                            TileSubID.Tombstones.RichGravestone1 => ItemID.RichGravestone1,
-                            TileSubID.Tombstones.RichGravestone2 => ItemID.RichGravestone2,
-                            TileSubID.Tombstones.RichGravestone3 => ItemID.RichGravestone3,
-                            TileSubID.Tombstones.RichGravestone4 => ItemID.RichGravestone4,
-                            TileSubID.Tombstones.RichGravestone5 => ItemID.RichGravestone5,
-                            _ => ItemID.Tombstone,
-                        });
-                        self.Kill();
-                    }
-                }
-                else
-                {
-                    orig(self);
-                }
+                self.damage = 0;
+                self.knockBack = 0f;
             }
+            if (self.owner != Main.myPlayer)
+            {
+                return;
+            }
+            int num173 = (int)((self.position.X + self.width / 2) / 16f);
+            int num174 = (int)((self.position.Y + self.height - 4f) / 16f);
+            if (Main.tile[num173, num174] == null)
+            {
+                return;
+            }
+            int style = 0;
+            if (self.type >= 201 && self.type <= 205)
+            {
+                style = self.type - 200;
+            }
+            if (self.type >= 527 && self.type <= 531)
+            {
+                style = self.type - 527 + 6;
+            }
+            if (TileObject.CanPlace(num173, num174, 85, style, self.direction, out _, true))
+            {
+                Item.NewItem(self.GetItemSource_FromThis(), self.Center, Vector2.Zero, style switch
+                {
+                    TileStyleID.Tombstones.GraveMarker => ItemID.GraveMarker,
+                    TileStyleID.Tombstones.CrossGraveMarker => ItemID.CrossGraveMarker,
+                    TileStyleID.Tombstones.Headstone => ItemID.Headstone,
+                    TileStyleID.Tombstones.Gravestone => ItemID.Gravestone,
+                    TileStyleID.Tombstones.Obelisk => ItemID.Obelisk,
+                    TileStyleID.Tombstones.RichGravestone1 => ItemID.RichGravestone1,
+                    TileStyleID.Tombstones.RichGravestone2 => ItemID.RichGravestone2,
+                    TileStyleID.Tombstones.RichGravestone3 => ItemID.RichGravestone3,
+                    TileStyleID.Tombstones.RichGravestone4 => ItemID.RichGravestone4,
+                    TileStyleID.Tombstones.RichGravestone5 => ItemID.RichGravestone5,
+                    _ => ItemID.Tombstone,
+                });
+                self.Kill();
+            }
+        }
+        else
+        {
+            orig(self);
         }
     }
     [MemberData("药草生长改为随机", false, PrivateField = true)]
@@ -377,13 +346,39 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     }
     [MemberData("药草随机生长几率: 1/{0}")]
     public static int StaticHerbGrowRandomNumWhenIsRandom = 50;
-    public void LoadToStatic()
+    [MemberData("下雨基础随机数: 1/{0}")]
+    public static int StaticStartRainBaseRandomNum = 86000;
+    [JsonProperty("附魔剑冢掉落物品信息")]
+    [Description("附魔剑冢掉落物品信息")]
+    public DropItemInfo[] EnchantedSwordInStoneDropItemInfo = new DropItemInfo()
     {
-        Extension.LoadNotSendPacketID();
+        RandomValue = 50,
+        Items = new RandomItemInfo(ItemID.Terragrim).MakeArray(),
+        Else = new DropItemInfo()
+        {
+            Items = new RandomItemInfo(ItemID.EnchantedSword).MakeArray()
+        }.MakeArray(),
+    }.MakeArray();
+    [MemberData("城镇NPC死亡时掉落墓碑")]
+    public static bool StaticTownNPCDropTombstoneWhenDead = false;
+    [MemberData("城镇NPC不会淹死")]
+    public static bool StaticTownNPCDrowningImmunity = false;
+    [MemberData("向导巫毒娃娃生成血肉墙时可以没有向导", false, PrivateField = true)]
+    public static bool StaticGuideVoodooDollSpawnWOFCanWithoutGuide
+    {
+        get => _StaticGuideVoodooDollSpawnWOFCanWithoutGuide;
+        set => Utils.HandleNamedDetour(ref _StaticGuideVoodooDollSpawnWOFCanWithoutGuide, value, DetourNames.Item_CheckLavaDeath);
+    }
+    [MemberData("NPC不掉落旗帜", false, PrivateField = true)]
+    public static bool StaticNPCNotDropBanner
+    {
+        get => _StaticNPCNotDropBanner;
+        set => Utils.HandleNamedDetour(ref _StaticNPCNotDropBanner, value, DetourNames.NPC_CountKillForBannersAndDropThem);
     }
     public static void Reset()
     {
         ExtensionInfo.NotSendNetPacketIDs.Clear();
+        GameContentModify.MainConfig.Instance.Liquid.Restore();
         var instance = GameContentModify.MainConfig.GetDefaultFunc();
         Reset(instance);
         GameContentModify.MainConfig.Instance = instance;
@@ -442,38 +437,34 @@ public sealed partial class SpawnInfo
     [Description("城镇NPC")]
     public sealed partial class TownNPCInfo
     {
-        [MemberData("晚上生成", false, PrivateField = true)]
+        [MemberData("禁止自然生成")]
+        public static bool StaticDisableSpawn = false;
+        [MemberData("晚上生成", false)]
         public static bool StaticSpawnAtNight
         {
-            get => _StaticSpawnAtNight;
-            set
+            get => Utils.NamedActionHookIsRegistered(ActionHookNames.Main_UpdateTime);
+            set => Utils.HandleNamedActionHook(value, ActionHookNames.Main_UpdateTime);
+        }
+        internal static void OnMain_UpdateTime(On.Terraria.Main.orig_UpdateTime orig)
+        {
+            orig();
+            if (!Main.dayTime)
             {
-                if(value != _StaticSpawnAtNight)
-                {
-                    if (value)
-                    {
-                        On.Terraria.Main.UpdateTime += OnMain_UpdateTime;
-                    }
-                    else
-                    {
-                        On.Terraria.Main.UpdateTime -= OnMain_UpdateTime;
-                    }
-                    _StaticSpawnAtNight = value;
-                }
-                static void OnMain_UpdateTime(On.Terraria.Main.orig_UpdateTime orig)
-                {
-                    orig();
-                    if (!Main.dayTime)
-                    {
-                        Main.UpdateTime_SpawnTownNPCs();
-                    }
-                }
+                Main.UpdateTime_SpawnTownNPCs();
             }
         }
         [MemberData("有入侵时生成")]
         public static bool StaticSpawnAtInvasion = false;
         [MemberData("日食时生成")]
         public static bool StaticSpawnAtEclipse = false;
+        [MemberData("时间速率为0时仍然生成", false, PrivateField = true)]
+        public static bool StaticSpawnStillWhenTimeRateIsZero
+        {
+            get => _StaticSpawnStillWhenTimeRateIsZero;
+            set => Utils.HandleNamedDetour(ref _StaticSpawnStillWhenTimeRateIsZero, value, DetourNames.Main_UpdateTime_SpawnTownNPCs);
+        }
+        [MemberData("时间速率为0时的生成速率: {0}")]
+        public static int StaticSpawnTimeRateWhenTimeRateIsZero = 1;
     }
     [JsonProperty("城镇NPC")]
     public TownNPCInfo TownNPC = new();
@@ -504,31 +495,6 @@ public sealed partial class SpawnInfo
     [JsonProperty("克苏鲁之眼")]
     public EyeOfCthulhuInfo EyeOfCthulhu = new();
 
-    //[Description("自然生成克眼已击败检测: {0}")]
-    //[DefaultValue(true)]
-    //[JsonProperty("自然生成克眼已击败检测")]
-    //public bool EyeSpawnDownedCheck = true;
-
-    //[Description("自然生成克眼生命和防御检测: {0}")]
-    //[DefaultValue(true)]
-    //[JsonProperty("自然生成克眼生命和防御检测")]
-    //public bool EyeSpawnLifeAndDefenseCheck = true;
-
-    //[Description("未击败时自然生成克眼的几率: 1/{0}")]
-    //[DefaultValue(3)]
-    //[JsonProperty("未击败时自然生成克眼的几率")]
-    //public int EyeSpawnRandomNum = 3;
-
-    //[Description("已击败时自然生成克眼的几率: 1/{0}")]
-    //[DefaultValue(3)]
-    //[JsonProperty("已击败时自然生成克眼的几率")]
-    //public int DownedEyeSpawnRandomNum = 3;
-
-    //[Description("自然生成克眼城镇NPC数量检测检测: {0}")]
-    //[DefaultValue(true)]
-    //[JsonProperty("自然生成克眼城镇NPC数量检测检测")]
-    //public bool EyeSpawnTownNPCCountCheck = true;
-
     [Description("机械Boss")]
     public sealed partial class MechBossInfo
     {
@@ -545,31 +511,11 @@ public sealed partial class SpawnInfo
     }
     [JsonProperty("机械Boss")]
     public MechBossInfo MechBoss = new();
-    //[Description("自然生成机械Boss的几率: 1/{0}")]
-    //[DefaultValue(10)]
-    //[JsonProperty("自然生成机械Boss的几率")]
-    //public int MechBossSpawnRandomNum = 10;
 
-    //[Description("自然生成机械Boss已击败检测: {0}")]
-    //[DefaultValue(true)]
-    //[JsonProperty("自然生成机械Boss已击败检测")]
-    //public bool MechBossSpawnDownedCheck = true;
-
-    //[Description("自然生成机械Boss克眼自然生成检测: {0}")]
-    //[DefaultValue(true)]
-    //[JsonProperty("自然生成机械Boss克眼自然生成检测")]
-    //public bool MechBossSpawnEyeCheck = true;
-
-    //[Description("自然生成机械Boss时三王为或者的关系: {0}")]
-    //[DefaultValue(false)]
-    //[JsonProperty("自然生成机械Boss时三王为或者的关系")]
-    //public bool MechBossSpawnIsOr = false;
-
-    //[Description("自然生成机械Boss时世界上是否有Boss检测: {0}")]
-    //[DefaultValue(true)]
-    //[JsonProperty("自然生成机械Boss时世界上是否有Boss检测")]
-    //public bool MechBossSpawnHaveBossInWorldCheck = true;
-
+    [MemberData("召唤月亮领主等待时间")]
+    public static int StaticMoonLordCountdownOfSummon = 720;
+    [MemberData("柱子死亡后月亮领主等待时间")]
+    public static int StaticMoonLordCountdownOfTowerKilled = 3600;
 }
 [Description("入侵")]
 public sealed class InvasionInfo
@@ -626,9 +572,9 @@ public sealed class BloodMoonInfo
 [Description("世界")]
 public sealed partial class WorldInfo
 {
-    [MemberData("困难模式世界更新是否检测困难模式")]
+    [MemberData("非困难模式时启用困难模式更新")]
     [CorrelationMethod(typeof(ReplaceWorldGen), nameof(ReplaceWorldGen.hardUpdateWorld))]
-    public static bool StatichardUpdateWorldCheck = true;
+    public static bool StaticEnableHardModeUpdateWhenNotHardMode = false;
 
     [MemberData("感染传播距离: {0}")]
     public static int StaticInfectionTransmissionDistance = 3;
@@ -637,6 +583,19 @@ public sealed partial class WorldInfo
     public static bool StaticNoSpawnFallenStar = false;
     [MemberData("白天也生成落星")]
     public static bool StaticSpawnFallenStarAtDay = false;
+
+    [JsonProperty("生长生命果需要的进度ID")]
+    [Description("生长生命果需要的进度ID")]
+    public int[] GrowLifeFruitRequireProgressIDs = new int[] { ProgressQueryID.HardMode, ProgressQueryID.MechBossAny };
+    public static byte[] StaticGrowLifeFruitRequireProgressIDs = new byte[] { ProgressQueryID.HardMode, ProgressQueryID.MechBossAny };
+
+    [MemberData("时间速率为0时仍然更新")]
+    public static bool StaticUpdateStillWhenTimeRateIsZero = false;
+    [MemberData("时间速率为0时的更新速率: {0}")]
+    public static int StaticUpdateTimeRateWhenTimeRateIsZero = 1;
+
+    [MemberData("禁止液体更新")]
+    public static bool StaticDisableLiquidUpdate = false;
   
 }
 [Description("球体")]
@@ -728,47 +687,60 @@ public sealed class TeleportPylonsInfo
 [Description("网络消息")]
 public sealed partial class NetMessageInfo
 {
-    [MemberData("同步所有NPC")]
-    public static bool StaticSyncAllNPC = false;
-    [MemberData("同步所有物品")]
-    public static bool StaticSyncAllItem = false;
-    [MemberData("同步所有射弹")]
-    public static bool StaticSyncAllProjectile = false;
+    [MemberData("同步所有NPC", false, PrivateField = true)]
+    public static bool StaticSyncAllNPC
+    {
+        get => _StaticSyncAllNPC;
+        set
+        {
+            _StaticSyncAllNPC = value;
+            CheckMessageBufferGetDataHook();
+        }
+    }
+    [MemberData("同步所有物品", false, PrivateField = true)]
+    public static bool StaticSyncAllItem
+    {
+        get => _StaticSyncAllItem;
+        set
+        {
+            _StaticSyncAllItem = value;
+            CheckMessageBufferGetDataHook();
+        }
+    }
+    [MemberData("同步所有射弹", false, PrivateField = true)]
+    public static bool StaticSyncAllProjectile
+    {
+        get => _StaticSyncAllProjectile;
+        set
+        {
+            _StaticSyncAllProjectile = value;
+            CheckMessageBufferGetDataHook();
+        }
+    }
+    private static bool _HookedMessageBufferGetData = false;
+    private static void CheckMessageBufferGetDataHook() 
+        => Utils.HandleNamedDetour(ref _HookedMessageBufferGetData, _StaticSyncAllNPC || _StaticSyncAllItem || _StaticSyncAllProjectile, DetourNames.MessageBuffer_GetData);
 }
 [Description("扩展")]
 public sealed partial class ExtensionInfo
 {
-    [MemberData("渔夫在海边水里死亡时会生成猪鲨", false, PrivateField = true)]
+    [MemberData("渔夫在海边水里死亡时会生成猪鲨", false)]
     public static bool StaticSpawnDukeFishronWhenAnglerDeadAtSeaZoneInWater
     {
-        get => _StaticSpawnDukeFishronWhenAnglerDeadAtSeaZoneInWater;
-        set
+        get => Utils.NamedActionHookIsRegistered(ActionHookNames.NPC_DoDeathEvents);
+        set => Utils.HandleNamedActionHook(value, ActionHookNames.NPC_DoDeathEvents);
+    }
+    internal static void OnNPC_DoDeathEvents(On.Terraria.NPC.orig_DoDeathEvents orig, NPC self, Player closestPlayer)
+    {
+        orig(self, closestPlayer);
+        if (!Main.hardMode || self.type != NPCID.Angler)
         {
-            if (value != _StaticSpawnDukeFishronWhenAnglerDeadAtSeaZoneInWater)
-            {
-                if (value)
-                {
-                    On.Terraria.NPC.DoDeathEvents += OnNPC_DoDeathEvents;
-                }
-                else
-                {
-                    On.Terraria.NPC.DoDeathEvents -= OnNPC_DoDeathEvents;
-                }
-                _StaticSpawnDukeFishronWhenAnglerDeadAtSeaZoneInWater = value;
-            }
-            static void OnNPC_DoDeathEvents(On.Terraria.NPC.orig_DoDeathEvents orig, NPC self, Player closestPlayer)
-            {
-                orig(self, closestPlayer);
-                if (!Main.hardMode || self.type != NPCID.Angler)
-                {
-                    return;
-                }
-                var point = self.position.ToTileCoordinates();
-                if (WorldGen.oceanDepths(point.X, point.Y) && Collision.WetCollision(self.position, self.width, self.height))
-                {
-                    NPC.SpawnBoss((int)self.position.X, (int)self.position.Y, NPCID.DukeFishron, closestPlayer.whoAmI);
-                }
-            }
+            return;
+        }
+        var point = self.position.ToTileCoordinates();
+        if (WorldGen.oceanDepths(point.X, point.Y) && Collision.WetCollision(self.position, self.width, self.height))
+        {
+            NPC.SpawnBoss((int)self.position.X, (int)self.position.Y, NPCID.DukeFishron, closestPlayer.whoAmI);
         }
     }
 
@@ -803,6 +775,331 @@ public sealed partial class ExtensionInfo
     [DefaultValue(10)]
     [JsonProperty("在每天开始的时候生成旅商的几率")]
     public int SpawnTravelNPCWhenStartDayRandomNum = 10;
+
+    public static HashSet<int> StaticIgnoreLavaNPCs = new();
+    public static HashSet<int> StaticIgnoreProjectileNPCs = new();
+    [Description("免疫熔岩的NPC")]
+    [JsonProperty("免疫熔岩的NPC")]
+    public object[] IgnoreLavaNPCs = Array.Empty<object>();
+    [Description("免疫射弹的NPC")]
+    [JsonProperty("免疫射弹的NPC")]
+    public object[] IgnoreProjectileNPCs = Array.Empty<object>();
+    public void LoadIgnoreNPCs()
+    {
+        StaticIgnoreLavaNPCs = ConfigUtlis.GetIntsAsHashSet(IgnoreLavaNPCs);
+        StaticIgnoreProjectileNPCs = ConfigUtlis.GetIntsAsHashSet(IgnoreProjectileNPCs);
+        Utils.HandleNamedActionHook(StaticIgnoreLavaNPCs.Any() || StaticIgnoreProjectileNPCs.Any(), ActionHookNames.NPC_NewNPC);
+    }
+    public static void SetIgnore()
+    {
+        foreach(var type in StaticIgnoreLavaNPCs)
+        {
+            for(int i = 0; i < Main.maxNPCs; i++)
+            {
+                if (Main.npc[i].active && Main.npc[i].netID == type)
+                {
+                    Main.npc[i].lavaImmune = true;
+                }
+            }
+        }
+        foreach (var type in StaticIgnoreProjectileNPCs)
+        {
+            for (int i = 0; i < Main.maxNPCs; i++)
+            {
+                if (Main.npc[i].active && Main.npc[i].netID == type)
+                {
+                    Main.npc[i].dontTakeDamageFromHostiles = true;
+                }
+            }
+        }
+    }
+    internal static int OnNPC_NewNPC(On.Terraria.NPC.orig_NewNPC orig, IEntitySource source, int X, int Y, int Type, int Start, float ai0, float ai1, float ai2, float ai3, int Target)
+    {
+        var index = orig(source, X, Y, Type, Start, ai0, ai1, ai2, ai3, Target);
+        var npc = Main.npc[index];
+        if (StaticIgnoreLavaNPCs.Contains(npc.netID))
+        {
+            npc.lavaImmune = true;
+            Utils.ArgumentWriteLine(npc.type);
+            Utils.ArgumentWriteLine(npc.lavaImmune);
+        }
+        if (StaticIgnoreProjectileNPCs.Contains(npc.netID))
+        {
+            npc.dontTakeDamageFromHostiles = true;
+            Utils.ArgumentWriteLine(npc.type);
+            Utils.ArgumentWriteLine(npc.dontTakeDamageFromHostiles);
+        }
+        return index;
+    }
+}
+[Description("液体")]
+public sealed partial class LiquidInfo : IRestoreable
+{
+    [MemberData("禁止熔岩破坏草方块", false, PrivateField = true)]
+    public static bool StaticDisableLavaDestoryGrassTile
+    {
+        get => _StaticDisableLavaDestoryGrassTile;
+        set => Utils.HandleNamedDetour(ref _StaticDisableLavaDestoryGrassTile, value, DetourNames.Liquid_DelWater);
+    }
+    public sealed class LiquidDeathInfo
+    {
+        public bool? LavaDeath;
+        public bool? WaterDeath;
+    }
+    [MemberData("启用液体破坏修改", false, PrivateField = true)]
+    public static bool StaticEnableLiquidDeathModify
+    {
+        get => _StaticEnableLiquidDeathModify;
+        set => Utils.HandleNamedDetour(ref _StaticEnableLiquidDeathModify, value, DetourNames.ObjectData_TileObjectData_GetTileData);
+    }
+    [JsonProperty("破坏信息")]
+    public Dictionary<int, Dictionary<int, LiquidDeathInfo>> DestoryInfo = new();
+    private static readonly Dictionary<int, Dictionary<int, LiquidDeathInfo>> SettedInfo = new();
+    public void SetValue()
+    {
+        if (!_StaticEnableLiquidDeathModify)
+        {
+            return;
+        }
+        try
+        {
+            TileObjectData.readOnlyData = false;
+            foreach (var (type, sub) in DestoryInfo)
+            {
+                if (sub is null)
+                {
+                    continue;
+                }
+                if (type < 0 || type >= TileObjectData._data.Count)
+                {
+                    continue;
+                }
+                SettedInfo.Add(type, new());
+                foreach (var (style, info) in sub)
+                {
+                    if (style < 0)
+                    {
+                        continue;
+                    }
+                    var data = TileObjectData._data[type];
+                    if (data is null)
+                    {
+                        bool origValue;
+                        if (info.LavaDeath.HasValue)
+                        {
+                            origValue = Main.tileLavaDeath[type];
+                            Main.tileLavaDeath[type] = info.LavaDeath.Value;
+                            info.LavaDeath = origValue;
+                            if (GameContentModify.Debug)
+                            {
+                                Console.WriteLine($"Set Main.tileLavaDeath[{type}] {origValue} => {Main.tileLavaDeath[type]}");
+                            }
+                        }
+                        if (info.WaterDeath.HasValue)
+                        {
+                            origValue = Main.tileWaterDeath[type];
+                            Main.tileWaterDeath[type] = info.WaterDeath.Value;
+                            info.WaterDeath = origValue;
+                            if (GameContentModify.Debug)
+                            {
+                                Console.WriteLine($"Set Main.tileWaterDeath[{type}] {origValue} => {Main.tileWaterDeath[type]}");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!data._hasOwnSubTiles)
+                        {
+                            data.SubTiles = new();
+                        }
+                        var subTiles = data.SubTiles;
+                        if (subTiles.Count <= style)
+                        {
+                            for (int i = subTiles.Count; i <= style; i++)
+                            {
+                                subTiles.Add(null);
+                            }
+                        }
+                        var subData = subTiles[style];
+                        if(subData is null)
+                        {
+                            subData = new(data);
+                            subTiles[style] = subData;
+                        }
+
+                        bool origValue;
+                        if (info.LavaDeath.HasValue)
+                        {
+                            origValue = subData.LavaDeath;
+                            subData.LavaDeath = info.LavaDeath.Value;
+                            info.LavaDeath = origValue;
+                            if (GameContentModify.Debug)
+                            {
+                                Console.WriteLine($"Set TileObjectData[{type}][{style}].LavaDeath {origValue} => {subData.LavaDeath}");
+                            }
+                        }
+                        if (info.WaterDeath.HasValue)
+                        {
+                            origValue = subData.WaterDeath;
+                            subData.WaterDeath = info.WaterDeath.Value;
+                            info.WaterDeath = origValue;
+                            if (GameContentModify.Debug)
+                            {
+                                Console.WriteLine($"Set TileObjectData[{type}][{style}].WaterDeath {origValue} => {subData.WaterDeath}");
+                            }
+                        }
+                    }
+                    SettedInfo[type].Add(style, info);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+        finally
+        {
+            TileObjectData.readOnlyData = true;
+        }
+    }
+    public void Restore()
+    {
+        if(SettedInfo.Count == 0)
+        {
+            return;
+        }
+        try
+        {
+            TileObjectData.readOnlyData = false;
+            foreach (var (type, sub) in SettedInfo)
+            {
+                if (sub is null)
+                {
+                    continue;
+                }
+                if (type < 0 || type >= TileObjectData._data.Count)
+                {
+                    continue;
+                }
+                foreach (var (style, info) in sub)
+                {
+                    if (style < 0)
+                    {
+                        continue;
+                    }
+                    var data = TileObjectData._data[type];
+                    if (data is null)
+                    {
+                        bool value;
+                        if (info.LavaDeath.HasValue)
+                        {
+                            value = Main.tileLavaDeath[type];
+                            Main.tileLavaDeath[type] = info.LavaDeath.Value;
+                            info.LavaDeath = value;
+                            if (GameContentModify.Debug)
+                            {
+                                Console.WriteLine($"Restore Main.tileLavaDeath[{type}] {value} => {Main.tileLavaDeath[type]}");
+                            }
+                        }
+                        if (info.WaterDeath.HasValue)
+                        {
+                            value = Main.tileWaterDeath[type];
+                            Main.tileWaterDeath[type] = info.WaterDeath.Value;
+                            info.WaterDeath = value;
+                            if (GameContentModify.Debug)
+                            {
+                                Console.WriteLine($"Restore Main.tileWaterDeath[{type}] {value} => {Main.tileWaterDeath[type]}");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!data._hasOwnSubTiles)
+                        {
+                            continue;
+                        }
+                        var subTiles = data.SubTiles;
+                        if (subTiles is null)
+                        {
+                            continue;
+                        }
+                        if (subTiles.Count <= style)
+                        {
+                            continue;
+                        }
+                        var subData = subTiles[style];
+                        if(subData is null)
+                        {
+                            continue;
+                        }
+
+                        bool value;
+                        if (info.LavaDeath.HasValue)
+                        {
+                            value = subData.LavaDeath;
+                            subData.LavaDeath = info.LavaDeath.Value;
+                            info.LavaDeath = value;
+                            if (GameContentModify.Debug)
+                            {
+                                Console.WriteLine($"Restore TileObjectData[{type}][{style}].LavaDeath {value} => {subData.LavaDeath}");
+                            }
+                        }
+                        if (info.WaterDeath.HasValue)
+                        {
+                            value = subData.WaterDeath;
+                            subData.WaterDeath = info.WaterDeath.Value;
+                            info.WaterDeath = value;
+                            if (GameContentModify.Debug)
+                            {
+                                Console.WriteLine($"Restore TileObjectData[{type}][{style}].WaterDeath {value} => {subData.WaterDeath}");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+        finally
+        {
+            SettedInfo.Clear();
+            TileObjectData.readOnlyData = true;
+        }
+    }
+}
+[Description("机械")]
+public sealed partial class MechInfo
+{
+    [MemberData("300范围内的物品生成数量限制: {0}")]
+    public static int StaticItemSpawnLimitOfRange300 = 3;
+    [MemberData("800范围内的物品生成数量限制: {0}")]
+    public static int StaticItemSpawnLimitOfRange800 = 6;
+    [MemberData("世界范围内的物品生成数量限制: {0}")]
+    public static int StaticItemSpawnLimitOfWorld = 10;
+    [MemberData("物品生成数量限制使用物品数量")]
+    public static bool StaticItemSpawnLimitUseStack = false;
+    [MemberData("生成物品的冷却时间: {0}")]
+    public static int StaticItemSpawnCoolingTime = 600;
+    [MemberData("200范围内的NPC生成数量限制: {0}")]
+    public static int StaticNPCSpawnLimitOfRange200 = 3;
+    [MemberData("600范围内的NPC生成数量限制: {0}")]
+    public static int StaticNPCSpawnLimitOfRange600 = 6;
+    [MemberData("世界范围内的NPC生成数量限制: {0}")]
+    public static int StaticNPCSpawnLimitOfWorld = 10;
+    [MemberData("生成NPC的冷却时间: {0}")]
+    public static int StaticNPCSpawnCoolingTime = 30;
+    [MemberData("巨石雕像冷却时间: {0}")]
+    public static int StaticBoulderStatueCoolingTime = 900;
+    [MemberData("飞镖机关冷却时间: {0}")]
+    public static int StaticDartTrapCoolingTime = 200;
+    [MemberData("尖球机关冷却时间: {0}")]
+    public static int StaticSpikyBallTrapCoolingTime = 300;
+    [MemberData("长矛机关冷却时间: {0}")]
+    public static int StaticSpearTrapCoolingTime = 90;
+    [MemberData("热喷泉冷却时间: {0}")]
+    public static int StaticGeyserTrapCoolingTime = 200;
 }
 public class ItemInfo
 {
@@ -816,5 +1113,5 @@ public class ItemInfo
         this.stack = stack;
         this.prefix = prefix;
     }
-    public int NewItem(IEntitySource source, int X, int Y, int Width, int Height) => Terraria.Item.NewItem(source, X, Y, Width, Height, type, stack, false, prefix);
+    public virtual int NewItem(IEntitySource source, int tileX, int tileY) => Item.NewItem(source, tileX * 16, tileY * 16, 32, 32, type, stack, false, prefix);
 }

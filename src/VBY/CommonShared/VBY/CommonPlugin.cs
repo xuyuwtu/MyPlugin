@@ -32,7 +32,8 @@ public abstract class CommonPlugin : TerrariaPlugin
     public override sealed void Initialize()
     {
         PreInitialize();
-        var methods = GetType().GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        //var methods = GetType().GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        var methods = GetType().GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public);
         var attrMethods = new List<(MethodInfo method, AutoHookAttribute attr)>(methods.Length);
         foreach(var method in methods)
         {

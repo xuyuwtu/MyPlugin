@@ -7,4 +7,5 @@ public static class ActionHookNames
     public const string NPC_NewNPC = "Terraria.NPC.NewNPC"; 
     public const string Projectile_AI = "Terraria.Projectile.AI"; 
     public const string Projectile_Kill = "Terraria.Projectile.Kill"; 
+    public const string WorldGen_CheckSpecialTownNPCSpawningConditions = "Terraria.WorldGen.CheckSpecialTownNPCSpawningConditions"; 
 }

@@ -1,0 +1,1 @@
+A simple SDK for [Tshock](https://github.com/Pryaxis/TShock) development

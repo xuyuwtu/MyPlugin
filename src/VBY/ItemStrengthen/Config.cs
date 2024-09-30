@@ -1,4 +1,6 @@
-﻿using VBY.Common.Config;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using VBY.Common.Config;
 
 namespace VBY.ItemStrengthen;
 
@@ -10,12 +12,31 @@ public class Config : ConfigBase<Root>
 }
 public class Root : RootBase
 {
+    private Dictionary<string, int>? progressNames;
+    private Dictionary<string, int>? itemNames;
+    private Dictionary<string, int>? prefixNames;
     public List<ItemInfo> ItemInfos = new();
+
+    public Dictionary<string, int> ProgressNames
+    {
+        get => (progressNames ??= new Dictionary<string, int>(StringComparer.Ordinal));
+        set => progressNames = value;
+    }
+    public Dictionary<string, int> ItemNames
+    {
+        get => (itemNames ??= new Dictionary<string, int>(StringComparer.Ordinal));
+        set => itemNames = value;
+    }
+    public Dictionary<string, int> PrefixNames
+    {
+        get => (prefixNames ??= new Dictionary<string, int>(StringComparer.Ordinal));
+        set => prefixNames = value;
+    }
 }
 public class ItemInfo
 {
-    public int type;
-    public byte prefix;
+    public object? type;
+    public object? prefix;
     public string? scale;
     public string? width;
     public string? height;
@@ -29,9 +50,36 @@ public class ItemInfo
     public string? color;
     public string? useAmmo;
     public bool notAmmo;
-    public ItemModifyInfo ToModifyInfo()
+    public bool TryToModifyInfo([MaybeNullWhen(false)] out ItemModifyInfo info, [MaybeNullWhen(true)]out string message)
     {
-        var result = new ItemModifyInfo
+        info = null;
+        if(type is null)
+        {
+            message = "type is null";
+            return false;
+        }
+        if (prefix is null)
+        {
+            message = "prefix is null";
+            return false;
+        }
+        if(type is long)
+        {
+
+        }
+        else if(type is string)
+        {
+
+        }
+        if(prefix is long)
+        {
+
+        }
+        else if(prefix is string)
+        {
+
+        }
+        info = new ItemModifyInfo
         {
             type = type,
             prefix = prefix,
@@ -49,7 +97,7 @@ public class ItemInfo
             useAmmo = ParseModifyInfo(useAmmo),
             notAmmo = notAmmo
         };
-        return result;
+        return true;
     }
     public static ModifyInfo? ParseModifyInfo(string? s)
     {

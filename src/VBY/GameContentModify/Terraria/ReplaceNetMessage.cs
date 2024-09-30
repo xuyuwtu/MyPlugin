@@ -241,15 +241,15 @@ public static class ReplaceNetMessage
                     packetWriter.WriteRGB(player4.pantsColor);
                     packetWriter.WriteRGB(player4.shoeColor);
                     BitsByte bitsByte16 = (byte)0;
-                    if (player4.difficulty == 1)
+                    if (player4.difficulty == PlayerDifficultyID.MediumCore)
                     {
                         bitsByte16[0] = true;
                     }
-                    else if (player4.difficulty == 2)
+                    else if (player4.difficulty == PlayerDifficultyID.Hardcore)
                     {
                         bitsByte16[1] = true;
                     }
-                    else if (player4.difficulty == 3)
+                    else if (player4.difficulty == PlayerDifficultyID.Creative)
                     {
                         bitsByte16[3] = true;
                     }
@@ -314,7 +314,7 @@ public static class ReplaceNetMessage
                         : ((!(number2 >= PlayerItemSlotID.Armor0))
                         ? player5.inventory[(int)number2 - PlayerItemSlotID.Inventory0]
                         : player5.armor[(int)number2 - PlayerItemSlotID.Armor0]))))))))))))));
-                    if (item6.Name == "" || item6.stack == 0 || item6.type == 0)
+                    if (item6.Name == "" || item6.stack == 0 || item6.type == ItemID.None)
                     {
                         item6.SetDefaults(0, noMatCheck: true);
                     }
@@ -1868,7 +1868,7 @@ public static class ReplaceNetMessage
                                 continue;
                             }
                             bool flag4 = false;
-                            if (projectile2.type == 12 || Main.projPet[projectile2.type] || projectile2.aiStyle == 11 || projectile2.netImportant)
+                            if (projectile2.type == ProjectileID.FallingStar || Main.projPet[projectile2.type] || projectile2.aiStyle == 11 || projectile2.netImportant)
                             {
                                 flag4 = true;
                             }

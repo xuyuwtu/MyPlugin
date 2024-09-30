@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 
+using Rests;
+
 using Terraria;
 using Terraria.ID;
 
@@ -9,8 +11,11 @@ namespace VBY.GameContentExtension;
 
 public class GameContentExtension : TerrariaPlugin
 {
+    private RestCommand[] addRestCommands;
     public GameContentExtension(Main game) : base(game)
     {
+        addRestCommands = new RestCommand[] { new("/test", _ => null) };
+        ((List<RestCommand>)typeof(Rest).GetField("commands", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(TShockAPI.TShock.RestApi)!).RemoveAll(x => addRestCommands.Contains(x));
     }
     public override void Initialize()
     {
@@ -18,7 +23,6 @@ public class GameContentExtension : TerrariaPlugin
         On.Terraria.Projectile.Kill += OnProjectile_Kill;
         //On.Terraria.GameContent.ItemDropRules.CommonCode.DropItemLocalPerClientAndSetNPCMoneyTo0 += OnCommonCode_DropItemLocalPerClientAndSetNPCMoneyTo0;
     }
-
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -53,31 +57,34 @@ public class GameContentExtension : TerrariaPlugin
             {
                 if (targetIndex == -1)
                 {
-                    continue;
+                    break;
                 }
                 var targetPosition = Main.player[targetIndex].Center;
                 if (Math.Abs(targetPosition.X - projPosition.X) > 16f * 420)
                 {
                     targetIndex = -1;
-                    continue;
+                    break;
                 }
                 //var velocity = (targetPosition - projPosition).ToRotation().ToRotationVector2() * 10;
                 var velocity = (targetPosition - projPosition).ToRotation().ToRotationVector2() * 8;
                 SpeedX = velocity.X;
                 SpeedY = velocity.Y;
-                //Type = ProjectileID.Starfury;
-                //Damage = 10;
-                //ai1 = targetPosition.Y;
+                Type = ProjectileID.Starfury;
+                Damage = Main.player[targetIndex].statLifeMax / 9;
+                ai1 = targetPosition.Y;
+                ai2 = -1f;
             } while (false);
         }
+        bool orgPet = false;
         if(targetIndex != -1)
         {
+            orgPet = Main.projPet[Type];
             Main.projPet[Type] = true;
         }
         var index = orig(spawnSource, X, Y, SpeedX, SpeedY, Type, Damage, KnockBack, Owner, ai0, ai1, ai2);
         if (targetIndex != -1)
         {
-            Main.projPet[Type] = false;
+            Main.projPet[Type] = orgPet;
         }
         return index;
     }
@@ -87,7 +94,7 @@ public class GameContentExtension : TerrariaPlugin
         {
             return;
         }
-        if ((self.type == ProjectileID.FallingStar && self.damage is 999 or 1000) || (self.type == ProjectileID.Starfury && self.owner == Main.myPlayer && self.damage == 10))
+        if ((self.type == ProjectileID.FallingStar && self.damage is 999 or 1000) || (self.type == ProjectileID.Starfury && self.owner == Main.myPlayer && self.ai[2] == -1f))
         {
             Projectile.NewProjectile(null, self.position, Vector2.Zero, ProjectileID.TNTBarrel, self.damage, 0);
         }

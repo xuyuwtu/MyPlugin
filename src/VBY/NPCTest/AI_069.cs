@@ -1,6 +1,4 @@
-﻿using Org.BouncyCastle.Crypto.Tls;
-
-namespace VBY.NPCTest;
+﻿namespace VBY.NPCTest;
 
 partial class NPCAIs
 {
@@ -69,7 +67,8 @@ partial class NPCAIs
         int num11 = 90;
         int num12 = 180;
         int num13 = 180;
-        int num14 = 30;
+        //int num14 = 30;
+        int num14 = 10;
         int num15 = 120;
         float num17 = 6f;
         float num18 = 20f;
@@ -741,10 +740,11 @@ partial class NPCAIs
             {
                 var damage = (int)(npc.damage / (10 * ((float)npc.life / npc.lifeMax)));
                 var velocity = Vector2.Zero;
-                if(Main.player[npc.target].name == "kotia" || Main.player[npc.target].name == "cuifu123" || Main.player[npc.target].name == "蛙之幂")
-                {
-                    velocity = (Vector2.Normalize(npc.velocity).RotatedBy((float)Math.PI / 2f * npc.direction) * num17).Normalize(2);
-                }
+                //if(Main.player[npc.target].name == "kotia" || Main.player[npc.target].name == "cuifu123" || Main.player[npc.target].name == "蛙之幂")
+                //if(Main.player[npc.target].name == "昼隙" || Main.player[npc.target].name == "cuifu123" || Main.player[npc.target].name == "蛙之幂")
+                //{
+                //    velocity = (Vector2.Normalize(npc.velocity).RotatedBy((float)Math.PI / 2f * npc.direction) * num17).Normalize(2);
+                //}
                 if (Main.player[npc.target].velocity ==  Vector2.Zero)
                 {
                     damage = npc.damage;
@@ -866,6 +866,7 @@ partial class NPCAIs
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num2)
+            //if (npc.ai[2] >= 15)
             {
                 int num37 = 0;
                 switch ((int)npc.ai[3])
@@ -894,6 +895,12 @@ partial class NPCAIs
                         if(npc.GetTargetPlayer().velocity == Vector2.Zero)
                         {
                             npc.NewProjectile(npc.Center, Vector2.Zero, 919, npc.damage, npc.GetToTargetVector2().ToRotation());
+                        }
+                        else
+                        {
+                            var projPosition = npc.GetTargetCenter() + new Vector2(-(npc.Center.X - npc.GetTargetPlayer().Center.X), 0);
+                            projPosition.Y = npc.Center.Y;
+                            npc.NewProjectile(projPosition, Vector2.Zero, 919, npc.damage / 4, (npc.GetTargetCenter() - projPosition).ToRotation());
                         }
                         npc.rotation = (float)Math.Atan2(npc.velocity.Y, npc.velocity.X);
                         if (num36 != 0)

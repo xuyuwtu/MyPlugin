@@ -18,5 +18,8 @@ public static class DetourNames
     public const string WorldGen_ShakeTree = "Terraria.WorldGen.ShakeTree";
     public const string WorldGen_GrowAlch = "Terraria.WorldGen.GrowAlch";
     public const string WorldGen_SpawnThingsFromPot = "Terraria.WorldGen.SpawnThingsFromPot";
+    public const string WorldGen_ScoreRoom = $"Terraria.WorldGen.{nameof(WorldGen.ScoreRoom)}";
     public const string WorldGen_IsHarvestableHerbWithSeed = "Terraria.WorldGen.IsHarvestableHerbWithSeed";
+    public const string WorldGen_UpdateWorld_OvergroundTile = "Terraria.WorldGen.UpdateWorld_OvergroundTile";
+    public const string WorldGen_CheckJunglePlant = $"Terraria.WorldGen.{nameof(WorldGen.CheckJunglePlant)}";
 }

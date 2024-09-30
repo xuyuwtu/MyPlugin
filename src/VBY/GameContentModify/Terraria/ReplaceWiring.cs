@@ -15,6 +15,7 @@ namespace VBY.GameContentModify;
 [ReplaceType(typeof(Wiring))]
 public static class ReplaceWiring
 {
+    [DetourMethod]
     public static void HitWireSingle(int i, int j)
     {
         ITile tile = Main.tile[i, j];
@@ -31,23 +32,23 @@ public static class ReplaceWiring
         }
         switch (type)
         {
-            case 144:
+            case TileID.Timers:
                 Wiring.HitSwitch(i, j);
                 WorldGen.SquareTileFrame(i, j);
                 NetMessage.SendTileSquare(-1, i, j);
                 break;
-            case 421:
+            case TileID.ConveyorBeltLeft:
                 if (!tile.actuator())
                 {
-                    tile.type = 422;
+                    tile.type = TileID.ConveyorBeltRight;
                     WorldGen.SquareTileFrame(i, j);
                     NetMessage.SendTileSquare(-1, i, j);
                 }
                 break;
-            case 422:
+            case TileID.ConveyorBeltRight:
                 if (!tile.actuator())
                 {
-                    tile.type = 421;
+                    tile.type = TileID.ConveyorBeltLeft;
                     WorldGen.SquareTileFrame(i, j);
                     NetMessage.SendTileSquare(-1, i, j);
                 }
@@ -219,14 +220,14 @@ public static class ReplaceWiring
             }
             if (Main.AnnouncementBoxRange == -1)
             {
-                NetMessage.SendData(107, -1, -1, NetworkText.FromLiteral(Main.sign[num89].text), 255, (int)pink.R, (int)pink.G, (int)pink.B, 460);
+                NetMessage.SendData(MessageID.SmartTextMessage, -1, -1, NetworkText.FromLiteral(Main.sign[num89].text), 255, (int)pink.R, (int)pink.G, (int)pink.B, 460);
                 return;
             }
             for (int num90 = 0; num90 < 255; num90++)
             {
                 if (Main.player[num90].active && Main.player[num90].Distance(new Vector2(num85 * 16 + 16, num86 * 16 + 16)) <= (float)Main.AnnouncementBoxRange)
                 {
-                    NetMessage.SendData(107, num90, -1, NetworkText.FromLiteral(Main.sign[num89].text), 255, (int)pink.R, (int)pink.G, (int)pink.B, 460);
+                    NetMessage.SendData(MessageID.SmartTextMessage, num90, -1, NetworkText.FromLiteral(Main.sign[num89].text), 255, (int)pink.R, (int)pink.G, (int)pink.B, 460);
                 }
             }
             return;
@@ -391,9 +392,9 @@ public static class ReplaceWiring
         }
         if (type == 130)
         {
-            if (Main.tile[i, j - 1] == null || !Main.tile[i, j - 1].active() || (!TileID.Sets.BasicChest[Main.tile[i, j - 1].type] && !TileID.Sets.BasicChestFake[Main.tile[i, j - 1].type] && Main.tile[i, j - 1].type != 88))
+            if (Main.tile[i, j - 1] == null || !Main.tile[i, j - 1].active() || (!TileID.Sets.BasicChest[Main.tile[i, j - 1].type] && !TileID.Sets.BasicChestFake[Main.tile[i, j - 1].type] && Main.tile[i, j - 1].type != TileID.Dressers))
             {
-                tile.type = 131;
+                tile.type = TileID.InactiveStoneBlock;
                 WorldGen.SquareTileFrame(i, j);
                 NetMessage.SendTileSquare(-1, i, j);
             }
@@ -401,7 +402,7 @@ public static class ReplaceWiring
         }
         if (type == 131)
         {
-            tile.type = 130;
+            tile.type = TileID.ActiveStoneBlock;
             WorldGen.SquareTileFrame(i, j);
             NetMessage.SendTileSquare(-1, i, j);
             return;
@@ -416,7 +417,7 @@ public static class ReplaceWiring
             }
             if (num118 != 0)
             {
-                NetMessage.SendData(19, -1, -1, null, 3 - value.ToInt(), i, j, num118);
+                NetMessage.SendData(MessageID.ToggleDoorState, -1, -1, null, 3 - value.ToInt(), i, j, num118);
             }
             return;
         }
@@ -424,14 +425,14 @@ public static class ReplaceWiring
         {
             bool flag7 = type == 389;
             WorldGen.ShiftTallGate(i, j, flag7);
-            NetMessage.SendData(19, -1, -1, null, 4 + flag7.ToInt(), i, j);
+            NetMessage.SendData(MessageID.ToggleDoorState, -1, -1, null, 4 + flag7.ToInt(), i, j);
             return;
         }
         if (type == 11)
         {
             if (WorldGen.CloseDoor(i, j, forced: true))
             {
-                NetMessage.SendData(19, -1, -1, null, 1, i, j);
+                NetMessage.SendData(MessageID.ToggleDoorState, -1, -1, null, 1, i, j);
             }
             return;
         }
@@ -446,12 +447,12 @@ public static class ReplaceWiring
             {
                 if (WorldGen.OpenDoor(i, j, -num119))
                 {
-                    NetMessage.SendData(19, -1, -1, null, 0, i, j, -num119);
+                    NetMessage.SendData(MessageID.ToggleDoorState, -1, -1, null, 0, i, j, -num119);
                 }
             }
             else
             {
-                NetMessage.SendData(19, -1, -1, null, 0, i, j, num119);
+                NetMessage.SendData(MessageID.ToggleDoorState, -1, -1, null, 0, i, j, num119);
             }
             return;
         }
@@ -475,7 +476,7 @@ public static class ReplaceWiring
         }
         switch (type)
         {
-            case 335:
+            case TileID.FireworksBox:
                 {
                     int num64 = j - tile.frameY / 18;
                     int num65 = i - tile.frameX / 18;
@@ -489,7 +490,7 @@ public static class ReplaceWiring
                     }
                     break;
                 }
-            case 338:
+            case TileID.FireworkFountain:
                 {
                     int num128 = j - tile.frameY / 18;
                     int num129 = i - tile.frameX / 18;
@@ -515,10 +516,10 @@ public static class ReplaceWiring
                     }
                     break;
                 }
-            case 235:
+            case TileID.Teleporter:
                 {
                     int num10 = i - tile.frameX / 18;
-                    if (tile.wall == 87 && (double)j > Main.worldSurface && !NPC.downedPlantBoss)
+                    if (tile.wall == WallID.LihzahrdBrickUnsafe && (double)j > Main.worldSurface && !NPC.downedPlantBoss)
                     {
                         break;
                     }
@@ -542,10 +543,10 @@ public static class ReplaceWiring
                     }
                     break;
                 }
-            case 4:
+            case TileID.Torches:
                 Wiring.ToggleTorch(i, j, tile, forcedStateWhereTrueIsOn);
                 break;
-            case 429:
+            case TileID.WireBulb:
                 {
                     int num159 = Main.tile[i, j].frameX / 18;
                     bool flag9 = num159 % 2 >= 1;
@@ -584,10 +585,10 @@ public static class ReplaceWiring
                     NetMessage.SendTileSquare(-1, i, j);
                     break;
                 }
-            case 149:
+            case TileID.HolidayLights:
                 Wiring.ToggleHolidayLight(i, j, tile, forcedStateWhereTrueIsOn);
                 break;
-            case 244:
+            case TileID.BubbleMachine:
                 {
                     int num37;
                     for (num37 = tile.frameX / 18; num37 >= 3; num37 -= 3)
@@ -615,7 +616,7 @@ public static class ReplaceWiring
                     NetMessage.SendTileSquare(-1, num39, num40, 3, 2);
                     break;
                 }
-            case 565:
+            case TileID.FogMachine:
                 {
                     int num154;
                     for (num154 = tile.frameX / 18; num154 >= 2; num154 -= 2)
@@ -643,20 +644,20 @@ public static class ReplaceWiring
                     NetMessage.SendTileSquare(-1, num3, num4, 2, 2);
                     break;
                 }
-            case 42:
+            case TileID.HangingLanterns:
                 Wiring.ToggleHangingLantern(i, j, tile, forcedStateWhereTrueIsOn, doSkipWires);
                 break;
-            case 93:
+            case TileID.Lamps:
                 Wiring.ToggleLamp(i, j, tile, forcedStateWhereTrueIsOn, doSkipWires);
                 break;
-            case 95:
-            case 100:
-            case 126:
-            case 173:
-            case 564:
+            case TileID.ChineseLanterns:
+            case TileID.Candelabras:
+            case TileID.DiscoBall:
+            case TileID.PlatinumCandelabra:
+            case TileID.PlasmaLamp:
                 Wiring.Toggle2x2Light(i, j, tile, forcedStateWhereTrueIsOn, doSkipWires);
                 break;
-            case 593:
+            case TileID.VolcanoSmall:
                 {
                     Wiring.SkipWire(i, j);
                     short num8 = (short)((Main.tile[i, j].frameX != 0) ? (-18) : 18);
@@ -667,7 +668,7 @@ public static class ReplaceWiring
                     NetMessage.SendTemporaryAnimation(-1, num9, 593, i, j);
                     break;
                 }
-            case 594:
+            case TileID.VolcanoLarge:
                 {
                     int num133;
                     for (num133 = tile.frameY / 18; num133 >= 2; num133 -= 2)
@@ -698,23 +699,23 @@ public static class ReplaceWiring
                     NetMessage.SendTemporaryAnimation(-1, num138, 594, num134, num133);
                     break;
                 }
-            case 34:
+            case TileID.Chandeliers:
                 Wiring.ToggleChandelier(i, j, tile, forcedStateWhereTrueIsOn, doSkipWires);
                 break;
-            case 314:
+            case TileID.MinecartTrack:
                 if (Wiring.CheckMech(i, j, 5))
                 {
                     Minecart.FlipSwitchTrack(i, j);
                 }
                 break;
-            case 33:
-            case 49:
-            case 174:
-            case 372:
-            case 646:
+            case TileID.Candles:
+            case TileID.WaterCandle:
+            case TileID.PlatinumCandle:
+            case TileID.PeaceCandle:
+            case TileID.ShadowCandle:
                 Wiring.ToggleCandle(i, j, tile, forcedStateWhereTrueIsOn);
                 break;
-            case 92:
+            case TileID.Lampposts:
                 Wiring.ToggleLampPost(i, j, tile, forcedStateWhereTrueIsOn, doSkipWires);
                 break;
             case TileID.Traps:
@@ -976,33 +977,33 @@ public static class ReplaceWiring
                     }
                     break;
                 }
-            case 35:
-            case 139:
+            case TileID.Jackolanterns:
+            case TileID.MusicBoxes:
                 WorldGen.SwitchMB(i, j);
                 break;
-            case 207:
+            case TileID.WaterFountain:
                 WorldGen.SwitchFountain(i, j);
                 break;
-            case 410:
-            case 480:
-            case 509:
-            case 657:
-            case 658:
+            case TileID.LunarMonolith:
+            case TileID.BloodMoonMonolith:
+            case TileID.VoidMonolith:
+            case TileID.EchoMonolith:
+            case TileID.ShimmerMonolith:
                 WorldGen.SwitchMonolith(i, j);
                 break;
-            case 455:
+            case TileID.PartyMonolith:
                 BirthdayParty.ToggleManualParty();
                 break;
-            case 141:
+            case TileID.Explosives:
                 WorldGen.KillTile(i, j, fail: false, effectOnly: false, noItem: true);
                 NetMessage.SendTileSquare(-1, i, j);
                 Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), i * 16 + 8, j * 16 + 8, 0f, 0f, 108, 500, 10f, Main.myPlayer);
                 break;
-            case 210:
+            case TileID.LandMine:
                 WorldGen.ExplodeMine(i, j, fromWiring: true);
                 break;
-            case 142:
-            case 143:
+            case TileID.InletPump:
+            case TileID.OutletPump:
                 {
                     int num146 = j - tile.frameY / 18;
                     int num147 = tile.frameX / 18;
@@ -1234,7 +1235,7 @@ public static class ReplaceWiring
                         {
                             Vector2 position = new Vector2(num16 - 4, num17 - 22) - new Vector2(10f);
                             Terraria.Utils.PoofOfSmoke(position);
-                            NetMessage.SendData(106, -1, -1, null, (int)position.X, position.Y);
+                            NetMessage.SendData(MessageID.PoofOfSmoke, -1, -1, null, (int)position.X, position.Y);
                         }
                     }
                     if (newNpcIndex <= -1)
@@ -1288,7 +1289,7 @@ public static class ReplaceWiring
                                     }
                                     Vector2 position3 = new Vector2(num16 - 4, num17 - 22) - new Vector2(10f);
                                     Terraria.Utils.PoofOfSmoke(position3);
-                                    NetMessage.SendData(106, -1, -1, null, (int)position3.X, position3.Y);
+                                    NetMessage.SendData(MessageID.PoofOfSmoke, -1, -1, null, (int)position3.X, position3.Y);
                                 }
                                 break;
                             case 18:
@@ -1322,7 +1323,7 @@ public static class ReplaceWiring
                                         for (int num30 = 0; num30 < 3; num30++)
                                         {
                                             ITile tile2 = Main.tile[num12 + num29, num11 + num30];
-                                            tile2.type = 349;
+                                            tile2.type = TileID.MushroomStatue;
                                             tile2.frameX = (short)(num29 * 18 + 216);
                                             tile2.frameY = (short)(num30 * 18);
                                         }
@@ -1353,7 +1354,7 @@ public static class ReplaceWiring
                                     }
                                     Vector2 position2 = new Vector2(num16 - 4, num17 - 22) - new Vector2(10f);
                                     Terraria.Utils.PoofOfSmoke(position2);
-                                    NetMessage.SendData(106, -1, -1, null, (int)position2.X, position2.Y);
+                                    NetMessage.SendData(MessageID.PoofOfSmoke, -1, -1, null, (int)position2.X, position2.Y);
                                 }
                                 break;
                             case 2:
@@ -1379,7 +1380,7 @@ public static class ReplaceWiring
                                     int num26 = 0;
                                     for (int num27 = 0; num27 < 200; num27++)
                                     {
-                                        if (Main.npc[num27].active && (Main.npc[num27].type == 17 || Main.npc[num27].type == 19 || Main.npc[num27].type == 22 || Main.npc[num27].type == 38 || Main.npc[num27].type == 54 || Main.npc[num27].type == 107 || Main.npc[num27].type == 108 || Main.npc[num27].type == 142 || Main.npc[num27].type == 160 || Main.npc[num27].type == 207 || Main.npc[num27].type == 209 || Main.npc[num27].type == 227 || Main.npc[num27].type == 228 || Main.npc[num27].type == 229 || Main.npc[num27].type == 368 || Main.npc[num27].type == 369 || Main.npc[num27].type == 550 || Main.npc[num27].type == 441 || Main.npc[num27].type == 588))
+                                        if (Main.npc[num27].active && (Main.npc[num27].type == NPCID.Merchant || Main.npc[num27].type == NPCID.ArmsDealer || Main.npc[num27].type == NPCID.Guide || Main.npc[num27].type == NPCID.Demolitionist || Main.npc[num27].type == NPCID.Clothier || Main.npc[num27].type == NPCID.GoblinTinkerer || Main.npc[num27].type == NPCID.Wizard || Main.npc[num27].type == NPCID.SantaClaus || Main.npc[num27].type == NPCID.Truffle || Main.npc[num27].type == NPCID.DyeTrader || Main.npc[num27].type == NPCID.Cyborg || Main.npc[num27].type == NPCID.Painter || Main.npc[num27].type == NPCID.WitchDoctor || Main.npc[num27].type == NPCID.Pirate || Main.npc[num27].type == NPCID.TravellingMerchant || Main.npc[num27].type == NPCID.Angler || Main.npc[num27].type == NPCID.DD2Bartender || Main.npc[num27].type == NPCID.TaxCollector || Main.npc[num27].type == NPCID.Golfer))
                                         {
                                             array2[num26] = num27;
                                             num26++;
@@ -1394,7 +1395,7 @@ public static class ReplaceWiring
                                         int num28 = array2[Main.rand.Next(num26)];
                                         Main.npc[num28].position.X = num16 - Main.npc[num28].width / 2;
                                         Main.npc[num28].position.Y = num17 - Main.npc[num28].height - 1;
-                                        NetMessage.SendData(23, -1, -1, null, num28);
+                                        NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, num28);
                                     }
                                     break;
                                 }
@@ -1409,7 +1410,7 @@ public static class ReplaceWiring
                                     int num21 = 0;
                                     for (int num22 = 0; num22 < 200; num22++)
                                     {
-                                        if (Main.npc[num22].active && (Main.npc[num22].type == 18 || Main.npc[num22].type == 20 || Main.npc[num22].type == 124 || Main.npc[num22].type == 178 || Main.npc[num22].type == 208 || Main.npc[num22].type == 353 || Main.npc[num22].type == 633 || Main.npc[num22].type == 663))
+                                        if (Main.npc[num22].active && (Main.npc[num22].type == NPCID.Nurse || Main.npc[num22].type == NPCID.Dryad || Main.npc[num22].type == NPCID.Mechanic || Main.npc[num22].type == NPCID.Steampunker || Main.npc[num22].type == NPCID.PartyGirl || Main.npc[num22].type == NPCID.Stylist || Main.npc[num22].type == NPCID.BestiaryGirl || Main.npc[num22].type == NPCID.Princess))
                                         {
                                             array[num21] = num22;
                                             num21++;
@@ -1424,7 +1425,7 @@ public static class ReplaceWiring
                                         int num23 = array[Main.rand.Next(num21)];
                                         Main.npc[num23].position.X = num16 - Main.npc[num23].width / 2;
                                         Main.npc[num23].position.Y = num17 - Main.npc[num23].height - 1;
-                                        NetMessage.SendData(23, -1, -1, null, num23);
+                                        NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, num23);
                                     }
                                     break;
                                 }
@@ -1439,7 +1440,7 @@ public static class ReplaceWiring
                     }
                     break;
                 }
-            case 349:
+            case TileID.MushroomStatue:
                 {
                     int num139 = tile.frameY / 18;
                     num139 %= 3;
@@ -1467,7 +1468,7 @@ public static class ReplaceWiring
                     Animation.NewTemporaryAnimation((num142 <= 0) ? 1 : 0, 349, num141, num140);
                     break;
                 }
-            case 506:
+            case TileID.CatBast:
                 {
                     int num121 = tile.frameY / 18;
                     num121 %= 3;
@@ -1494,13 +1495,13 @@ public static class ReplaceWiring
                     NetMessage.SendTileSquare(-1, num124, num123, 2, 3);
                     break;
                 }
-            case 546:
-                tile.type = 557;
+            case TileID.Grate:
+                tile.type = TileID.GrateClosed;
                 WorldGen.SquareTileFrame(i, j);
                 NetMessage.SendTileSquare(-1, i, j);
                 break;
-            case 557:
-                tile.type = 546;
+            case TileID.GrateClosed:
+                tile.type = TileID.Grate;
                 WorldGen.SquareTileFrame(i, j);
                 NetMessage.SendTileSquare(-1, i, j);
                 break;

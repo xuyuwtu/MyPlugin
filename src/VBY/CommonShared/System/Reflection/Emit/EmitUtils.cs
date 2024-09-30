@@ -1,4 +1,5 @@
-﻿using System.Reflection.Metadata;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 
 using VBY.Reflection.Emit;
 
@@ -6,6 +7,47 @@ namespace System.Reflection.Emit;
 
 public static class EmitUtils
 {
+    private static OpCode?[]? shortOpCodes;
+    private static OpCode?[]? largeOpCodes;
+    public static OpCode?[] ShortOpCodes
+    {
+        get 
+        {
+            if(shortOpCodes is null)
+            {
+                InitOpcodes();
+            }
+            return shortOpCodes;
+        }
+    }
+    public static OpCode?[] LargeOpCodes
+    {
+        get
+        {
+            if (largeOpCodes is null)
+            {
+                InitOpcodes();
+            }
+            return largeOpCodes;
+        }
+    }
+    [MemberNotNull(nameof(shortOpCodes), nameof(largeOpCodes))]
+    private static void InitOpcodes()
+    {
+        var opcodes = typeof(OpCodes).GetFields().Where(x => x.FieldType == typeof(OpCode)).Select(x => (OpCode)x.GetValue(null)!).ToArray();
+        Array.Sort(opcodes, OpCodeComparer.Instance);
+        var index = Array.FindIndex(opcodes, opcode => opcode.Value < 0);
+        shortOpCodes = new OpCode?[256];
+        largeOpCodes = new OpCode?[opcodes.Where(x => x.Value < 0).Select(x => (byte)(ushort)x.Value).Max() + 1];
+        for (int i = 0; i < index; i++)
+        {
+            shortOpCodes[opcodes[i].Value] = opcodes[i];
+        }
+        for (int i = index; i < opcodes.Length; i++)
+        {
+            largeOpCodes[(byte)(ushort)opcodes[i].Value] = opcodes[i];
+        }
+    }
     public static List<Instruction> GetInstructionsFromBytes(Module module, byte[] bytes)
     {
         if (bytes is null || bytes.Length == 0)
@@ -76,6 +118,77 @@ public static class EmitUtils
         }
         return result;
     }
+    public static List<Instruction> GetInstructionsFromBytes(byte[] bytes)
+    {
+        var ilByteArray = bytes;
+        var ms = new MemoryStream(ilByteArray);
+        var br = new BinaryReader(ms);
+        var result = new List<Instruction>();
+        while (ms.Position != ms.Length)
+        {
+            var instruction = new Instruction(default, null);
+            var opcodeValue = br.ReadByte();
+            OpCode opcode; 
+            if (opcodeValue == 0xFE)
+            {
+                opcode = LargeOpCodes[br.ReadByte()]!.Value;
+            }
+            else
+            {
+                opcode = ShortOpCodes[opcodeValue]!.Value;
+            }
+            instruction.OpCode = (ILOpCode)opcode.Value;
+            switch (opcode.OperandType)
+            {
+                case OperandType.InlineBrTarget:
+                case OperandType.InlineField:
+                case OperandType.InlineMethod:
+                case OperandType.InlineI:
+                case OperandType.InlineSig:
+                case OperandType.InlineString:
+                case OperandType.InlineTok:
+                case OperandType.InlineType:
+                    instruction.Operand = br.ReadInt32();
+                    break;
+                case OperandType.InlineI8:
+                    instruction.Operand = br.ReadInt64();
+                    break;
+                case OperandType.InlineNone:
+                    break;
+#pragma warning disable CS0618 // 类型或成员已过时
+                case OperandType.InlinePhi:
+                    throw new NotSupportedException(nameof(OperandType.InlinePhi));
+#pragma warning restore CS0618 // 类型或成员已过时
+                case OperandType.InlineR:
+                    instruction.Operand = br.ReadDouble();
+                    break;
+                case OperandType.InlineSwitch:
+                    var count = br.ReadUInt32();
+                    var targets = new int[count];
+                    for (int i = 0; i < count; i++)
+                    {
+                        targets[i] = br.ReadInt32();
+                    }
+                    instruction.Operand = targets;
+                    break;
+                case OperandType.InlineVar:
+                    instruction.Operand = br.ReadUInt16();
+                    break;
+                case OperandType.ShortInlineBrTarget:
+                case OperandType.ShortInlineI:
+                    instruction.Operand = br.ReadSByte();
+                    break;
+                case OperandType.ShortInlineR:
+                    instruction.Operand = br.ReadSingle();
+                    break;
+                case OperandType.ShortInlineVar:
+                    instruction.Operand = br.ReadByte();
+                    break;
+            }
+            result.Add(instruction);
+        }
+        return result;
+    }
     public static OpCode GetOpCode(ILOpCode code)
     {
         switch (code)
@@ -139,4 +252,10 @@ public static class EmitUtils
         }
     }
     public static void Emit(ILGenerator il, Instruction instruction) => Emit(il, instruction.OpCode, instruction.Operand);
+    private class OpCodeComparer : IComparer<OpCode>
+    {
+        public static OpCodeComparer Instance = new OpCodeComparer();
+        private OpCodeComparer() { }
+        public int Compare(OpCode x, OpCode y) => ((ushort)x.Value).CompareTo((ushort)y.Value);
+    }
 }

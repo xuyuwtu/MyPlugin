@@ -1,4 +1,5 @@
 ﻿using Terraria;
+using Terraria.ID;
 
 namespace VBY.GameContentModify;
 
@@ -116,7 +117,7 @@ public static class ReplaceLiquid
         {
             WorldGen.CheckAlch(num, num2);
         }
-        else if (tile4.type == 518)
+        else if (tile4.type == TileID.LilyPad)
         {
             if (Liquid.quickFall)
             {

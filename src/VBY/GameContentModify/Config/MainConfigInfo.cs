@@ -375,6 +375,15 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
         get => _StaticNPCNotDropBanner;
         set => Utils.HandleNamedDetour(ref _StaticNPCNotDropBanner, value, DetourNames.NPC_CountKillForBannersAndDropThem);
     }
+    [MemberData("破坏蜂巢不生成蜜蜂")]
+    public static bool StaticNotSpawnBeeWhenKillHive = false;
+
+    [MemberData("草药盆不生长杂草", false, PrivateField = true)]
+    public static bool StaticPlanterBoxNotGrowingWeeds
+    {
+        get => _StaticPlanterBoxNotGrowingWeeds;
+        set => Utils.HandleNamedDetour(ref _StaticPlanterBoxNotGrowingWeeds, value, DetourNames.WorldGen_UpdateWorld_OvergroundTile);
+    }
     public static void Reset()
     {
         ExtensionInfo.NotSendNetPacketIDs.Clear();
@@ -465,6 +474,26 @@ public sealed partial class SpawnInfo
         }
         [MemberData("时间速率为0时的生成速率: {0}")]
         public static int StaticSpawnTimeRateWhenTimeRateIsZero = 1;
+
+        [MemberData("旅商晚上不离开")]
+        public static bool StaticTravelNPCNotLeavingAtNight = false;
+
+        [MemberData("房屋忽略腐化检测", false, PrivateField = true)]
+        public static bool StaticHouseIgnoreEvil
+        {
+            get => _StaticHouseIgnoreEvil;
+            set => Utils.HandleNamedDetour(ref _StaticHouseIgnoreEvil, value, DetourNames.WorldGen_ScoreRoom);
+        }
+        [MemberData("忽略松露人环境检测", false)]
+        public static bool StaticIgnoreTruffEnvCheck
+        {
+            get => Utils.NamedActionHookIsRegistered(ActionHookNames.WorldGen_CheckSpecialTownNPCSpawningConditions);
+            set => Utils.HandleNamedActionHook(value, ActionHookNames.WorldGen_CheckSpecialTownNPCSpawningConditions);
+        }
+        internal static bool OnCheckSpecialTownNPCSpawningConditions(On.Terraria.WorldGen.orig_CheckSpecialTownNPCSpawningConditions orig, int type)
+        {
+            return true;
+        }
     }
     [JsonProperty("城镇NPC")]
     public TownNPCInfo TownNPC = new();
@@ -516,6 +545,13 @@ public sealed partial class SpawnInfo
     public static int StaticMoonLordCountdownOfSummon = 720;
     [MemberData("柱子死亡后月亮领主等待时间")]
     public static int StaticMoonLordCountdownOfTowerKilled = 3600;
+
+    [MemberData("禁用世花花苞生成世花已存在检测", false, PrivateField = true)]
+    public static bool StaticDisablePlanteraBulbSpawnPlanteraExistsCheck
+    {
+        get => _StaticDisablePlanteraBulbSpawnPlanteraExistsCheck;
+        set => Utils.HandleNamedDetour(ref _StaticDisablePlanteraBulbSpawnPlanteraExistsCheck, value, DetourNames.WorldGen_CheckJunglePlant);
+    }
 }
 [Description("入侵")]
 public sealed class InvasionInfo
@@ -596,7 +632,9 @@ public sealed partial class WorldInfo
 
     [MemberData("禁止液体更新")]
     public static bool StaticDisableLiquidUpdate = false;
-  
+
+    [MemberData("宝石树可以在地表生长")]
+    public static bool StaticGemTreeCanGrowOverground = false;
 }
 [Description("球体")]
 public sealed class OrbInfo
@@ -694,7 +732,7 @@ public sealed partial class NetMessageInfo
         set
         {
             _StaticSyncAllNPC = value;
-            CheckMessageBufferGetDataHook();
+            //CheckMessageBufferGetDataHook();
         }
     }
     [MemberData("同步所有物品", false, PrivateField = true)]
@@ -704,7 +742,7 @@ public sealed partial class NetMessageInfo
         set
         {
             _StaticSyncAllItem = value;
-            CheckMessageBufferGetDataHook();
+            //CheckMessageBufferGetDataHook();
         }
     }
     [MemberData("同步所有射弹", false, PrivateField = true)]
@@ -714,12 +752,12 @@ public sealed partial class NetMessageInfo
         set
         {
             _StaticSyncAllProjectile = value;
-            CheckMessageBufferGetDataHook();
+            //CheckMessageBufferGetDataHook();
         }
     }
-    private static bool _HookedMessageBufferGetData = false;
-    private static void CheckMessageBufferGetDataHook() 
-        => Utils.HandleNamedDetour(ref _HookedMessageBufferGetData, _StaticSyncAllNPC || _StaticSyncAllItem || _StaticSyncAllProjectile, DetourNames.MessageBuffer_GetData);
+    //private static bool _HookedMessageBufferGetData = false;
+    //private static void CheckMessageBufferGetDataHook() 
+    //    => Utils.HandleNamedDetour(ref _HookedMessageBufferGetData, _StaticSyncAllNPC || _StaticSyncAllItem || _StaticSyncAllProjectile, DetourNames.MessageBuffer_GetData);
 }
 [Description("扩展")]
 public sealed partial class ExtensionInfo
@@ -831,6 +869,9 @@ public sealed partial class ExtensionInfo
         }
         return index;
     }
+
+    [MemberData("旅商每天刷新")]
+    public static bool StaticTravelNPCRefreshOnStartDay = false;
 }
 [Description("液体")]
 public sealed partial class LiquidInfo : IRestoreable

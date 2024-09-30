@@ -264,12 +264,12 @@ partial class NPCAIs
                 }
 
                 var velocity = new Vector2(num778, num779);
-                newProjIndex = npc.NewProjectile(vector99, velocity.RotatedByDegress(5), projType, projDamage);
+                newProjIndex = npc.NewProjectile(vector99, velocity.RotatedByDegress(10), projType, projDamage);
                 if (projType != 277)
                 {
                     Main.projectile[newProjIndex].timeLeft = 300;
                 }
-                newProjIndex = npc.NewProjectile(vector99, velocity.RotatedByDegress(-5), projType, projDamage);
+                newProjIndex = npc.NewProjectile(vector99, velocity.RotatedByDegress(-10), projType, projDamage);
                 if (projType != 277)
                 {
                     Main.projectile[newProjIndex].timeLeft = 300;
@@ -332,9 +332,9 @@ partial class NPCAIs
         }
         if (npc.localAI[2] == 0f)
         {
-            Gore.NewGore(new Vector2(npc.position.X + Main.rand.Next(npc.width), npc.position.Y + Main.rand.Next(npc.height)), npc.velocity, 378, npc.scale);
-            Gore.NewGore(new Vector2(npc.position.X + Main.rand.Next(npc.width), npc.position.Y + Main.rand.Next(npc.height)), npc.velocity, 379, npc.scale);
-            Gore.NewGore(new Vector2(npc.position.X + Main.rand.Next(npc.width), npc.position.Y + Main.rand.Next(npc.height)), npc.velocity, 380, npc.scale);
+            //Gore.NewGore(new Vector2(npc.position.X + Main.rand.Next(npc.width), npc.position.Y + Main.rand.Next(npc.height)), npc.velocity, 378, npc.scale);
+            //Gore.NewGore(new Vector2(npc.position.X + Main.rand.Next(npc.width), npc.position.Y + Main.rand.Next(npc.height)), npc.velocity, 379, npc.scale);
+            //Gore.NewGore(new Vector2(npc.position.X + Main.rand.Next(npc.width), npc.position.Y + Main.rand.Next(npc.height)), npc.velocity, 380, npc.scale);
             npc.localAI[2] = 1f;
         }
         if (Main.netMode == 1)
@@ -375,8 +375,14 @@ partial class NPCAIs
             num795 *= num798;
             num797 *= num798;
             int num799 = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X, (int)npc.Center.Y, 265);
-            Main.npc[num799].velocity.X = num795;
-            Main.npc[num799].velocity.Y = num797;
+            var velocity = new Vector2(num795, num797);
+            Main.npc[num799].velocity = velocity;
+            Main.npc[num799].netUpdate = true;
+            num799 = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X, (int)npc.Center.Y, 265);
+            Main.npc[num799].velocity = velocity.RotatedByDegress(30);
+            Main.npc[num799].netUpdate = true; 
+            num799 = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)npc.Center.X, (int)npc.Center.Y, 265);
+            Main.npc[num799].velocity = velocity.RotatedByDegress(-30);
             Main.npc[num799].netUpdate = true;
             npc.localAI[1] = 0f;
         }

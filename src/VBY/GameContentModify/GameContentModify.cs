@@ -1,19 +1,23 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
+using System.Text;
+
 using Microsoft.Xna.Framework;
 
-using Terraria;
-using Terraria.ID;
-using TerrariaApi.Server;
-
-using TShockAPI;
-using TShockAPI.Hooks;
+using MonoMod.RuntimeDetour;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using MonoMod.RuntimeDetour;
+using Terraria;
+using Terraria.GameContent.ItemDropRules;
+using Terraria.ID;
+
+using TerrariaApi.Server;
+
+using TShockAPI;
+using TShockAPI.Hooks;
 
 using VBY.Common;
 using VBY.Common.Config;
@@ -34,12 +38,12 @@ public partial class GameContentModify : CommonPlugin
     public static event Action<MainConfigInfo>? PreStartDay;
     public static event Action<MainConfigInfo>? PreStartNight;
     public static ConfigManager<MainConfigInfo> MainConfig = new(Strings.ConfigDirectory, Strings.MainConfigFileName, () => new());
-    public static ConfigManager<ChestSpawnInfo[]> ChestSpawnConfig = new(Strings.ConfigDirectory, Strings.ChestSpawnConfigFileName, () => new ChestSpawnInfo[]
-    {
+    public static ConfigManager<ChestSpawnInfo[]> ChestSpawnConfig = new(Strings.ConfigDirectory, Strings.ChestSpawnConfigFileName, () =>
+    [
         new ChestSpawnNPCInfo(ItemID.LightKey, NPCID.BigMimicHallow),
         new ChestSpawnNPCInfo(ItemID.NightKey, NPCID.BigMimicCorruption, NPCID.BigMimicCrimson),
         new ChestSpawnNPCInfo(ItemID.GoldenKey, NPCID.Mimic){ ItemStack = 3 }
-    }) { Converter = new ChestSpawnConverter() };
+    ]) { Converter = new ChestSpawnConverter() };
 #pragma warning disable format
     public static ConfigManager<ItemTransformConfig> ItemTrasnfromConfig = new(Strings.ConfigDirectory, Strings.ItemTrasnfromConfigFileName, () =>
     {
@@ -69,35 +73,12 @@ public partial class GameContentModify : CommonPlugin
         }
     });
 #pragma warning restore format
-    private static readonly List<Detour> Detours = new()
-    {
-        Utils.GetDetour(ReplaceMain.UpdateTime),
-        Utils.GetDetour(ReplaceMain.UpdateTime_StartDay),
-        Utils.GetDetour(ReplaceMain.UpdateTime_StartNight),
-        Utils.GetDetour(ReplaceMain.Sundialing),
-        Utils.GetDetour(ReplaceMain.Moondialing),
-        Utils.GetDetour(ReplaceNPC.checkDead),
-        Utils.GetDetour(ReplaceNPC.BigMimicSummonCheck),
-        Utils.GetDetour(ReplaceNPC.UpdateNPC),
-        Utils.GetDetour(ReplaceNPC.DoDeathEvents),
-        Utils.GetDetour(ReplaceNPC.DoDeathEvents_AdvanceSlimeRain),
-        Utils.GetDetour(ReplaceNPC.HitEffect),
-        Utils.GetDetour(ReplaceItem.CanShimmer),
-        Utils.GetDetour(ReplaceItem.GetShimmered),
-        Utils.GetDetour(ReplaceProjectile.GasTrapCheck),
-        Utils.GetDetour(ReplaceWiring.HitWireSingle),
-        Utils.GetDetour(ReplaceWorldGen.UpdateWorld),
-        Utils.GetDetour(ReplaceWorldGen.UpdateWorld_GrassGrowth),
-        Utils.GetDetour(ReplaceWorldGen.hardUpdateWorld),
-        Utils.GetDetour(ReplaceWorldGen.CheckOrb),
-        Utils.GetDetour(ReplaceWorldGen.Check3x2),
-        Utils.GetDetour(GameContent.ReplaceTeleportPylonsSystem.HandleTeleportRequest),
-    };
+    private static readonly List<Detour> Detours = new();
     internal static readonly ReadOnlyDictionary<string, Detour> NamedDetours = new(new Dictionary<string, Detour>()
     {
         { DetourNames.Item_CheckLavaDeath, Utils.GetDetour(ReplaceItem.CheckLavaDeath) },
         { DetourNames.Item_MechSpawn, Utils.GetDetour(ReplaceItem.MechSpawn) },
-        { DetourNames.MessageBuffer_GetData, Utils.GetDetour(ReplaceMessageBuffer.GetData) },
+        //{ DetourNames.MessageBuffer_GetData, Utils.GetDetour(ReplaceMessageBuffer.GetData) },
         { DetourNames.Liquid_DelWater, Utils.GetDetour(ReplaceLiquid.DelWater) },
         { DetourNames.Main_UpdateTime_SpawnTownNPCs, Utils.GetDetour(ReplaceMain.UpdateTime_SpawnTownNPCs) },
         { DetourNames.NPC_CountKillForBannersAndDropThem, Utils.GetDetour(ReplaceNPC.CountKillForBannersAndDropThem) },
@@ -109,7 +90,10 @@ public partial class GameContentModify : CommonPlugin
         { DetourNames.WorldGen_ShakeTree, Utils.GetDetour(ReplaceWorldGen.ShakeTree) },
         { DetourNames.WorldGen_GrowAlch, Utils.GetDetour(ReplaceWorldGen.GrowAlch) },
         { DetourNames.WorldGen_SpawnThingsFromPot, Utils.GetDetour(ReplaceWorldGen.SpawnThingsFromPot) },
-        { DetourNames.WorldGen_IsHarvestableHerbWithSeed, Utils.GetDetour(ReplaceWorldGen.IsHarvestableHerbWithSeed) }
+        { DetourNames.WorldGen_ScoreRoom, Utils.GetDetour(ReplaceWorldGen.ScoreRoom) },
+        { DetourNames.WorldGen_IsHarvestableHerbWithSeed, Utils.GetDetour(ReplaceWorldGen.IsHarvestableHerbWithSeed) },
+        { DetourNames.WorldGen_UpdateWorld_OvergroundTile, Utils.GetDetour(ReplaceWorldGen.UpdateWorld_OvergroundTile) },
+        { DetourNames.WorldGen_CheckJunglePlant, Utils.GetDetour(ReplaceWorldGen.CheckJunglePlant) },
     });
     internal static readonly ReadOnlyDictionary<string, ActionHook> NamedActionHooks = new(new Dictionary<string, ActionHook>()
     {
@@ -117,7 +101,8 @@ public partial class GameContentModify : CommonPlugin
         { ActionHookNames.NPC_DoDeathEvents, new ActionHook(static () => On.Terraria.NPC.DoDeathEvents += ExtensionInfo.OnNPC_DoDeathEvents) },
         { ActionHookNames.NPC_NewNPC, new ActionHook(static () => On.Terraria.NPC.NewNPC += ExtensionInfo.OnNPC_NewNPC) },
         { ActionHookNames.Projectile_AI, new ActionHook(static () => On.Terraria.Projectile.AI += MainConfigInfo.OnProjectile_AI) },
-        { ActionHookNames.Projectile_Kill, new ActionHook(static () => On.Terraria.Projectile.Kill += MainConfigInfo.OnProjectile_Kill) }
+        { ActionHookNames.Projectile_Kill, new ActionHook(static () => On.Terraria.Projectile.Kill += MainConfigInfo.OnProjectile_Kill) },
+        { ActionHookNames.WorldGen_CheckSpecialTownNPCSpawningConditions, new ActionHook(static() => On.Terraria.WorldGen.CheckSpecialTownNPCSpawningConditions += SpawnInfo.TownNPCInfo.OnCheckSpecialTownNPCSpawningConditions) }
     });
     static GameContentModify()
     {
@@ -125,23 +110,72 @@ public partial class GameContentModify : CommonPlugin
         {
             Detours.Add(Utils.GetDetour(ReplaceNetMessage.orig_SendData));
         }
+        RegisterDetours(typeof(ReplaceMain), typeof(ReplaceMessageBuffer), typeof(ReplaceItem), typeof(ReplaceNPC), typeof(ReplaceProjectile), typeof(ReplaceWiring), typeof(ReplaceWorldGen), typeof(GameContent.ReplaceTeleportPylonsSystem));
     }
     public GameContentModify(Main game) : base(game)
     {
         AddCommands.Add(new Command("gcm.ctl", Cmd, "gcm"));
+        AddCommands.Add(new Command(args =>
+        {
+            Projectile.NewProjectile(null, args.Player.TPlayer.Center, new Vector2(5, 0), 871, 1, 0);
+        }, "newproj"));
         AttachHooks.Add(new ActionHook(static () => GeneralHooks.ReloadEvent += OnTShockReload));
         Loaders.Add(Detours.GetLoader(static x => x.Apply(), static x => x.Dispose(), static () => Main.versionNumber == "v1.4.4.9"));
         Loaders.Add(NamedDetours.GetLoader(static x => x.Value.Apply(), static x => x.Value.Dispose(), null, false, true));
         Loaders.Add(NamedActionHooks.GetLoader(static x => x.Value.Register(), static x => x.Value.Unregister(), null, false, true));
+        PreStartDay += config =>
+        {
+            if (ExtensionInfo.StaticTravelNPCRefreshOnStartDay)
+            {
+                Chest.SetupTravelShop();
+                NetMessage.SendTravelShop(-1);
+            }
+        };
+        //On.Terraria.NPC.NewNPC += OnNPC_NewNPC;
         AttachOnPostInitializeHook(OnGamePostInitialize);
     }
 
+    //private int OnNPC_NewNPC(On.Terraria.NPC.orig_NewNPC orig, Terraria.DataStructures.IEntitySource source, int X, int Y, int Type, int Start, float ai0, float ai1, float ai2, float ai3, int Target)
+    //{
+    //    if(Type == NPCID.Bee)
+    //    {
+    //        Console.WriteLine(new System.Diagnostics.StackTrace());
+    //    }
+    //    return orig(source, X, Y, Type, Start, ai0, ai1, ai2, ai3, Target);
+    //}
+    private static void RegisterDetours(params Type[] types)
+    {
+        foreach (var type in types) {
+            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
+            var replaceType = type.GetCustomAttribute<ReplaceTypeAttribute>()!.Type;
+            foreach (var method in methods)
+            {
+                var attr = method.GetCustomAttribute<DetourMethodAttribute>();
+                if(attr is null)
+                {
+                    continue;
+                }
+                if (attr.UseParam)
+                {
+                    Detours.Add(Utils.GetParamDetour(replaceType, method));
+                }
+                else
+                {
+                    Detours.Add(Utils.GetNameDetour(replaceType, method));
+                }
+            }
+        }
+    }
     protected override void PreInitialize() => LoadConfig(TSPlayer.Server);
+
     protected override void PreDispose(bool disposing)
     {
-        MainConfigInfo.Reset();
-        ShimmerItemReplaceInfo.Reset();
-        MemberSetterInfo.RestoreValue();
+        if (disposing)
+        {
+            MainConfigInfo.Reset();
+            ShimmerItemReplaceInfo.Reset();
+            MemberSetterInfo.RestoreValue();
+        }
     }
     #region On
     [AutoHook]
@@ -192,10 +226,13 @@ public partial class GameContentModify : CommonPlugin
         MainConfig.Instance.Liquid.SetValue();
         MemberSetterConfig.Instance.Resolve();
         MemberSetterConfig.Instance.SetValue();
+        PreStartDay = null;
+        PreStartNight = null;
     }
     #endregion
     internal static void OnPreStartDay() => PreStartDay?.Invoke(MainConfig.Instance);
     internal static void OnPreStartNight() => PreStartNight?.Invoke(MainConfig.Instance);
+    private static int ShowRuleID;
     internal void Cmd(CommandArgs args)
     {
         var enumerator = args.Parameters.GetEnumerator();
@@ -287,6 +324,136 @@ public partial class GameContentModify : CommonPlugin
             case "debug":
                 Debug = !Debug;
                 args.Player.SendInfoMessage($"Debug => {Debug}");
+                break;
+            case "showrule":
+                if (!enumerator.MoveNext())
+                {
+                    args.Player.SendInfoMessage("global|<npcid>");
+                    break;
+                }
+                const string tabString = "  ";
+                if (enumerator.Current.Equals("global", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (!enumerator.MoveNext())
+                    {
+                        args.Player.SendInfoMessage("当前有 {0} 个全局规则", Main.ItemDropsDB._globalEntries.Count);
+                        break;
+                    }
+                    if(int.TryParse(enumerator.Current, out var index))
+                    {
+                        if (index < 1 || index > Main.ItemDropsDB._globalEntries.Count)
+                        {
+                            args.Player.SendInfoMessage("无效index");
+                            break;
+                        }
+                        index--;
+                        var rules = Main.ItemDropsDB._globalEntries;
+                        Utils.hasUnknown = false;
+                        if (args.Player == TSPlayer.Server)
+                        {
+                            using var tw = new System.CodeDom.Compiler.IndentedTextWriter(Console.Out, tabString);
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            tw.Write("规则{0}: ", index + 1);
+                            tw.Indent++;
+                            var rule = rules[index];
+                            Utils.WriteItemDropRuleInfo(tw, rule);
+                            tw.Indent--;
+                            Console.ResetColor();
+                        }
+                        else
+                        {
+                            var sb = new StringBuilder();
+                            using var tw = new System.CodeDom.Compiler.IndentedTextWriter(new StringWriter(sb), tabString);
+                            tw.Write("规则{0}: ", index + 1);
+                            tw.Indent++;
+                            var rule = rules[index];
+                            Utils.WriteItemDropRuleInfo(tw, rule);
+                            tw.Indent--;
+                            args.Player.SendInfoMessage(sb.ToString());
+                        }
+                        if (Utils.hasUnknown)
+                        {
+                            args.Player.SendErrorMessage("hasUnknown");
+                        }
+                    }
+                    else
+                    {
+                        args.Player.SendInfoMessage("无效数字");
+                    }
+                }
+                else
+                {
+                    var netID = -1;
+                    var fromNext = false;
+                    if (enumerator.Current.Equals("next", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ShowRuleID++;
+                        if (ShowRuleID >= NPCID.Count)
+                        {
+                            ShowRuleID = NPCID.Count - 1;
+                            args.Player.SendInfoMessage("已经是最后一个ID了");
+                        }
+                        fromNext = true;
+                        netID = ShowRuleID;
+                    }
+                    if(netID == -1)
+                    {
+                        if (int.TryParse(enumerator.Current, out netID))
+                        {
+                            ShowRuleID = netID;
+                        }
+                        else
+                        {
+                            args.Player.SendInfoMessage("无效数字");
+                            break;
+                        }
+                    }
+                    if (Main.ItemDropsDB._entriesByNpcNetId.TryGetValue(netID, out var rules))
+                    {
+                        Utils.hasUnknown = false;
+                        if (args.Player == TSPlayer.Server)
+                        {
+                            using var tw = new System.CodeDom.Compiler.IndentedTextWriter(Console.Out, tabString);
+                            for (int i = 0; i < rules.Count; i++)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                tw.Write("规则{0}: ", i + 1);
+                                tw.Indent++;
+                                var rule = rules[i];
+                                Utils.WriteItemDropRuleInfo(tw, rule);
+                                tw.Indent--;
+                                Console.ResetColor();
+                            }
+                        }
+                        else
+                        {
+                            var sb = new StringBuilder();
+                            using var tw = new System.CodeDom.Compiler.IndentedTextWriter(new StringWriter(sb), tabString);
+
+                            for (int i = 0; i < rules.Count; i++)
+                            {
+                                tw.Write("规则{0}: ", i + 1);
+                                tw.Indent++;
+                                var rule = rules[i];
+                                Utils.WriteItemDropRuleInfo(tw, rule);
+                                tw.Indent--;
+                                args.Player.SendInfoMessage(sb.ToString());
+                            }
+                        }
+                        if (fromNext)
+                        {
+                            args.Player.SendInfoMessage("当前ID: {0}", netID);
+                        }
+                        if (Utils.hasUnknown)
+                        {
+                            args.Player.SendErrorMessage("hasUnknown");
+                        }
+                    }
+                    else
+                    {
+                        args.Player.SendInfoMessage("找不到 netID={0} 的规则", netID);
+                    }
+                }
                 break;
         }
     }

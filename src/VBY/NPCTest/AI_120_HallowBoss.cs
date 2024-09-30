@@ -714,17 +714,25 @@ partial class NPCAIs
                                 ro *= 3f;
                                 if (Main.netMode != 1)
                                 {
-                                    //原版
-                                    //Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), origin, Vector2.Zero, 919, num7, 0f, Main.myPlayer, v2.ToRotation(), ai2);
-                                    if (DateTime.Now.Hour is > 21 or < 7)
+                                    if (!Main.dayTime)
                                     {
-                                        //迷惑偏移预判版
-                                        npc.NewProjectile(origin - (ro * 59) + targetData9.Velocity * (59 - count), ro, 919, num7, v2.ToRotation(), ai2);
+                                        //原版
+                                        var index = Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), origin, Vector2.Zero, 919, num7, 0f, Main.myPlayer, v2.ToRotation(), ai2);
+                                        Main.projectile[index].localAI[1] = 1;
+                                        Main.projectile[index].localAI[2] = npc.target;
                                     }
                                     else
                                     {
-                                        //迷惑版
-                                        npc.NewProjectile(origin - (ro * 59), ro, 919, num7, v2.ToRotation(), ai2);
+                                        if (DateTime.Now.Hour is > 21 or < 7)
+                                        {
+                                            //迷惑偏移预判版
+                                            npc.NewProjectile(origin - (ro * 59) + targetData9.Velocity * (59 - count), ro, 919, num7, v2.ToRotation(), ai2);
+                                        }
+                                        else
+                                        {
+                                            //迷惑版
+                                            npc.NewProjectile(origin - (ro * 59), ro, 919, num7, v2.ToRotation(), ai2);
+                                        }
                                     }
                                     //预判版
                                     //npc.NewProjectile(origin + targetData9.Velocity * 59, Vector2.Zero, 919, num7, v2.ToRotation(), ai2);

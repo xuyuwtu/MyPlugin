@@ -6,6 +6,7 @@ using Terraria.GameContent.Achievements;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.Creative;
 using Terraria.GameContent.Events;
+using Terraria.ID;
 
 using VBY.GameContentModify.Config;
 using static VBY.GameContentModify.GameContentModify;
@@ -15,6 +16,7 @@ namespace VBY.GameContentModify;
 [ReplaceType(typeof(Main))]
 public static class ReplaceMain
 {
+    [DetourMethod]
     public static void UpdateTime()
     {
         if (LanternNight.LanternsUp)
@@ -126,7 +128,7 @@ public static class ReplaceMain
 
         if (Main.maxRaining != Main.oldMaxRaining)
         {
-            NetMessage.SendData(7);
+            NetMessage.SendData(MessageID.WorldData);
             Main.oldMaxRaining = Main.maxRaining;
         }
         Main.UpdateTimeRate();
@@ -146,13 +148,13 @@ public static class ReplaceMain
             NPC.MoonLordCountdown--;
             if (NPC.MoonLordCountdown <= 0)
             {
-                NPC.SpawnOnPlayer(Player.FindClosest(new Vector2(Main.maxTilesX / 2, (float)Main.worldSurface / 2f) * 16f, 0, 0), 398);
+                NPC.SpawnOnPlayer(Player.FindClosest(new Vector2(Main.maxTilesX / 2, (float)Main.worldSurface / 2f) * 16f, 0, 0), NPCID.MoonLordCore);
             }
         }
 
         Main.UpdateSlimeRainWarning();
 
-        if (NPC.travelNPC)
+        if (NPC.travelNPC && !SpawnInfo.TownNPCInfo.StaticTravelNPCNotLeavingAtNight)
         {
             if (!Main.dayTime || Main.time > 48600.0)
             {
@@ -173,7 +175,7 @@ public static class ReplaceMain
                 int townNPCCount = 0;
                 for (int i = 0; i < 200; i++)
                 {
-                    if (Main.npc[i].active && Main.npc[i].townNPC && Main.npc[i].type != 37 && Main.npc[i].type != 453)
+                    if (Main.npc[i].active && Main.npc[i].townNPC && Main.npc[i].type != NPCID.OldMan && Main.npc[i].type != NPCID.SkeletonMerchant)
                     {
                         townNPCCount++;
                         if (townNPCCount >= 2)
@@ -211,7 +213,7 @@ public static class ReplaceMain
                     {
                         if (Main.player[j].active && !Main.player[j].dead && (Main.player[j].position.Y < Main.worldSurface * 16.0 || Main.remixWorld))
                         {
-                            NPC.SpawnOnPlayer(j, 4);
+                            NPC.SpawnOnPlayer(j, NPCID.EyeofCthulhu);
                             WorldGen.spawnEye = false;
                             break;
                         }
@@ -249,16 +251,16 @@ public static class ReplaceMain
                                     {
                                         if ((WorldGen.spawnHardBoss & 1) == 1)
                                         {
-                                            NPC.SpawnOnPlayer(l, 134);
+                                            NPC.SpawnOnPlayer(l, NPCID.TheDestroyer);
                                         }
                                         if ((WorldGen.spawnHardBoss & 2) == 2)
                                         {
-                                            NPC.SpawnOnPlayer(l, 125);
-                                            NPC.SpawnOnPlayer(l, 126);
+                                            NPC.SpawnOnPlayer(l, NPCID.Retinazer);
+                                            NPC.SpawnOnPlayer(l, NPCID.Spazmatism);
                                         }
                                         if ((WorldGen.spawnHardBoss & 4) == 4)
                                         {
-                                            NPC.SpawnOnPlayer(l, 127);
+                                            NPC.SpawnOnPlayer(l, NPCID.SkeletronPrime);
                                         }
                                     }
                                 }
@@ -270,16 +272,16 @@ public static class ReplaceMain
                                     }
                                     else if (WorldGen.spawnHardBoss == 1)
                                     {
-                                        NPC.SpawnOnPlayer(l, 134);
+                                        NPC.SpawnOnPlayer(l, NPCID.TheDestroyer);
                                     }
                                     else if (WorldGen.spawnHardBoss == 2)
                                     {
-                                        NPC.SpawnOnPlayer(l, 125);
-                                        NPC.SpawnOnPlayer(l, 126);
+                                        NPC.SpawnOnPlayer(l, NPCID.Retinazer);
+                                        NPC.SpawnOnPlayer(l, NPCID.Spazmatism);
                                     }
                                     else if (WorldGen.spawnHardBoss == 3)
                                     {
-                                        NPC.SpawnOnPlayer(l, 127);
+                                        NPC.SpawnOnPlayer(l, NPCID.SkeletronPrime);
                                     }
                                 }
                                 break;
@@ -296,7 +298,7 @@ public static class ReplaceMain
                         Player player = Main.player[m];
                         if (player.active && !player.dead && !(player.position.Y >= Main.worldSurface * 16.0) && player.ZoneSnow && !(player.townNPCs > 0f) && (player.statLifeMax2 >= 200 || player.statDefense >= 9) && !NPC.AnyDanger())
                         {
-                            NPC.SpawnOnPlayer(m, 668);
+                            NPC.SpawnOnPlayer(m, NPCID.Deerclops);
                             break;
                         }
                     }
@@ -310,6 +312,7 @@ public static class ReplaceMain
             Main.HandleMeteorFall();
         }
     }
+    [DetourMethod]
     public static void UpdateTime_StartDay(ref bool stopEvents)
     {
         OnPreStartDay();
@@ -353,7 +356,7 @@ public static class ReplaceMain
         {
             WorldGen.crimson = !WorldGen.crimson;
         }
-        NetMessage.SendData(7);
+        NetMessage.SendData(MessageID.WorldData);
         AchievementsHelper.NotifyProgressionEvent(1);
         if (stopEvents)
         {
@@ -376,7 +379,7 @@ public static class ReplaceMain
                     ChatHelper.BroadcastChatMessage(Lang.misc[20].ToNetworkText(), new Color(50, 255, 130));
                 }
             }
-            NetMessage.SendData(7);
+            NetMessage.SendData(MessageID.WorldData);
         }
         else
         {
@@ -398,7 +401,7 @@ public static class ReplaceMain
                     Main.StartInvasion();
                 }
             }
-            if (Main.invasionType == 0 && Main.hardMode && WorldGen.altarCount > 0 && ((NPC.downedPirates && Main.rand.NextIsZero(MainConfig.Instance.Invasion.DownedPiratesStartInvasionRandomNum)) || (!NPC.downedPirates && Main.rand.NextIsZero(MainConfig.Instance.Invasion.NoDownedPiratesStartInvasionRandomNum))))
+            if (Main.invasionType == InvasionID.None && Main.hardMode && WorldGen.altarCount > 0 && ((NPC.downedPirates && Main.rand.NextIsZero(MainConfig.Instance.Invasion.DownedPiratesStartInvasionRandomNum)) || (!NPC.downedPirates && Main.rand.NextIsZero(MainConfig.Instance.Invasion.NoDownedPiratesStartInvasionRandomNum))))
             {
                 Main.StartInvasion(3);
             }
@@ -412,6 +415,7 @@ public static class ReplaceMain
             }
         }
     }
+    [DetourMethod]
     public static void UpdateTime_StartNight(ref bool stopEvents)
     {
         OnPreStartNight();
@@ -600,7 +604,7 @@ public static class ReplaceMain
                 //maxValue = 6;
                 maxValue = MainConfig.Instance.BloodMoon.TenthAnniversaryWorldRandomNum;
             }
-            if (MainConfig.Instance.BloodMoon.SpawnEyeCheck.IsTrueRet(!WorldGen.spawnEye) && Main.moonPhase != 4 && Main.rand.NextIsZero(maxValue))
+            if (MainConfig.Instance.BloodMoon.SpawnEyeCheck.IsTrueRet(!WorldGen.spawnEye) && Main.moonPhase != (int)Terraria.Enums.MoonPhase.Empty && Main.rand.NextIsZero(maxValue))
             {
                 if (MainConfig.Instance.BloodMoon.LifeCheck)
                 {
@@ -631,7 +635,7 @@ public static class ReplaceMain
         }
         Main.time = 0.0;
         Main.dayTime = false;
-        NetMessage.SendData(7);
+        NetMessage.SendData(MessageID.WorldData);
     }
     public static void UpdateTime_SpawnTownNPCs()
     {
@@ -699,159 +703,159 @@ public static class ReplaceMain
         {
             if (Main.npc[k].active && Main.npc[k].townNPC)
             {
-                if (Main.npc[k].type != 368 && Main.npc[k].type != 37 && Main.npc[k].type != 453 && !Main.npc[k].homeless)
+                if (Main.npc[k].type != NPCID.TravellingMerchant && Main.npc[k].type != NPCID.OldMan && Main.npc[k].type != NPCID.SkeletonMerchant && !Main.npc[k].homeless)
                 {
                     WorldGen.QuickFindHome(k);
                 }
-                if (Main.npc[k].type == 37)
+                if (Main.npc[k].type == NPCID.OldMan)
                 {
                     num7++;
                 }
-                if (Main.npc[k].type == 17)
+                if (Main.npc[k].type == NPCID.Merchant)
                 {
                     num2++;
                 }
-                if (Main.npc[k].type == 18)
+                if (Main.npc[k].type == NPCID.Nurse)
                 {
                     num3++;
                 }
-                if (Main.npc[k].type == 19)
+                if (Main.npc[k].type == NPCID.ArmsDealer)
                 {
                     num5++;
                 }
-                if (Main.npc[k].type == 20)
+                if (Main.npc[k].type == NPCID.Dryad)
                 {
                     num4++;
                 }
-                if (Main.npc[k].type == 22)
+                if (Main.npc[k].type == NPCID.Guide)
                 {
                     num6++;
                 }
-                if (Main.npc[k].type == 38)
+                if (Main.npc[k].type == NPCID.Demolitionist)
                 {
                     num8++;
                 }
-                if (Main.npc[k].type == 54)
+                if (Main.npc[k].type == NPCID.Clothier)
                 {
                     num9++;
                 }
-                if (Main.npc[k].type == 107)
+                if (Main.npc[k].type == NPCID.GoblinTinkerer)
                 {
                     num11++;
                 }
-                if (Main.npc[k].type == 108)
+                if (Main.npc[k].type == NPCID.Wizard)
                 {
                     num10++;
                 }
-                if (Main.npc[k].type == 124)
+                if (Main.npc[k].type == NPCID.Mechanic)
                 {
                     num12++;
                 }
-                if (Main.npc[k].type == 142)
+                if (Main.npc[k].type == NPCID.SantaClaus)
                 {
                     num13++;
                 }
-                if (Main.npc[k].type == 160)
+                if (Main.npc[k].type == NPCID.Truffle)
                 {
                     num14++;
                 }
-                if (Main.npc[k].type == 178)
+                if (Main.npc[k].type == NPCID.Steampunker)
                 {
                     num15++;
                 }
-                if (Main.npc[k].type == 207)
+                if (Main.npc[k].type == NPCID.DyeTrader)
                 {
                     num16++;
                 }
-                if (Main.npc[k].type == 208)
+                if (Main.npc[k].type == NPCID.PartyGirl)
                 {
                     num17++;
                 }
-                if (Main.npc[k].type == 209)
+                if (Main.npc[k].type == NPCID.Cyborg)
                 {
                     num18++;
                 }
-                if (Main.npc[k].type == 227)
+                if (Main.npc[k].type == NPCID.Painter)
                 {
                     num19++;
                 }
-                if (Main.npc[k].type == 228)
+                if (Main.npc[k].type == NPCID.WitchDoctor)
                 {
                     num20++;
                 }
-                if (Main.npc[k].type == 229)
+                if (Main.npc[k].type == NPCID.Pirate)
                 {
                     num21++;
                 }
-                if (Main.npc[k].type == 353)
+                if (Main.npc[k].type == NPCID.Stylist)
                 {
                     num22++;
                 }
-                if (Main.npc[k].type == 369)
+                if (Main.npc[k].type == NPCID.Angler)
                 {
                     num23++;
                 }
-                if (Main.npc[k].type == 441)
+                if (Main.npc[k].type == NPCID.TaxCollector)
                 {
                     num24++;
                 }
-                if (Main.npc[k].type == 550)
+                if (Main.npc[k].type == NPCID.DD2Bartender)
                 {
                     num25++;
                 }
-                if (Main.npc[k].type == 588)
+                if (Main.npc[k].type == NPCID.Golfer)
                 {
                     num26++;
                 }
-                if (Main.npc[k].type == 633)
+                if (Main.npc[k].type == NPCID.BestiaryGirl)
                 {
                     num27++;
                 }
-                if (Main.npc[k].type == 637)
+                if (Main.npc[k].type == NPCID.TownCat)
                 {
                     num28++;
                 }
-                if (Main.npc[k].type == 638)
+                if (Main.npc[k].type == NPCID.TownDog)
                 {
                     num29++;
                 }
-                if (Main.npc[k].type == 656)
+                if (Main.npc[k].type == NPCID.TownBunny)
                 {
                     num30++;
                 }
-                if (Main.npc[k].type == 670)
+                if (Main.npc[k].type == NPCID.TownSlimeBlue)
                 {
                     num31++;
                 }
-                if (Main.npc[k].type == 678)
+                if (Main.npc[k].type == NPCID.TownSlimeGreen)
                 {
                     num32++;
                 }
-                if (Main.npc[k].type == 679)
+                if (Main.npc[k].type == NPCID.TownSlimeOld)
                 {
                     num33++;
                 }
-                if (Main.npc[k].type == 680)
+                if (Main.npc[k].type == NPCID.TownSlimePurple)
                 {
                     num34++;
                 }
-                if (Main.npc[k].type == 681)
+                if (Main.npc[k].type == NPCID.TownSlimeRainbow)
                 {
                     num35++;
                 }
-                if (Main.npc[k].type == 682)
+                if (Main.npc[k].type == NPCID.TownSlimeRed)
                 {
                     num36++;
                 }
-                if (Main.npc[k].type == 683)
+                if (Main.npc[k].type == NPCID.TownSlimeYellow)
                 {
                     num37++;
                 }
-                if (Main.npc[k].type == 684)
+                if (Main.npc[k].type == NPCID.TownSlimeCopper)
                 {
                     num38++;
                 }
-                if (Main.npc[k].type == 663)
+                if (Main.npc[k].type == NPCID.Princess)
                 {
                     num39++;
                 }
@@ -1197,22 +1201,24 @@ public static class ReplaceMain
             WorldGen.prioritizedTownNPCType = num42;
         }
     }
+    [DetourMethod]
     public static void Moondialing()
     {
         if (Main.moondialCooldown == 0)
         {
             Main.fastForwardTimeToDusk = true;
             Main.moondialCooldown = MainConfig.Instance.MoondialCooldown;
-            NetMessage.SendData(7);
+            NetMessage.SendData(MessageID.WorldData);
         }
     }
+    [DetourMethod]
     public static void Sundialing()
     {
         if (Main.sundialCooldown == 0)
         {
             Main.fastForwardTimeToDawn = true;
             Main.sundialCooldown = MainConfig.Instance.SundialCooldown;
-            NetMessage.SendData(7);
+            NetMessage.SendData(MessageID.WorldData);
         }
     }
 }

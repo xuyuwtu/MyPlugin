@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 
 using Terraria;
+using Terraria.ID;
 using Terraria.ObjectData;
 
 
@@ -9,6 +10,7 @@ namespace VBY.GameContentModify;
 [ReplaceType(typeof(Projectile))]
 public static class ReplaceProjectile
 {
+    [DetourMethod]
     public static bool GasTrapCheck(int x, int y, Player user)
     {
         int chestIndex = Chest.FindChest(x, y);
@@ -43,7 +45,7 @@ public static class ReplaceProjectile
                     }
                 }
             }
-            if (chest.item[i] != null && chest.item[i].type == 5346)
+            if (chest.item[i] != null && chest.item[i].type == ItemID.GasTrap)
             {
                 Projectile.UseGasTrapInChest(chestIndex, chest, i, num2, num3);
                 flag = true;

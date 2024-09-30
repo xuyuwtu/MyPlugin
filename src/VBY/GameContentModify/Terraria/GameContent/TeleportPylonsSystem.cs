@@ -10,6 +10,7 @@ namespace VBY.GameContentModify.GameContent;
 [ReplaceType(typeof(TeleportPylonsSystem))]
 public static class ReplaceTeleportPylonsSystem
 {
+    [DetourMethod]
     public static void HandleTeleportRequest(TeleportPylonsSystem self, TeleportPylonInfo info, int playerIndex)
     {
         Player player = Main.player[playerIndex];

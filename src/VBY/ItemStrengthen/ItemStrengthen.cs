@@ -20,6 +20,7 @@ public partial class ItemStrengthen : TerrariaPlugin
     public override string Description => "武器强化";
     public override string Author => "yu";
     public override Version Version => GetType().Assembly.GetName().Version!;
+    private Config Config = new(TShock.SavePath);
     private readonly Item itemInfo = new();
     private readonly Item defaultItemInfo = new();
     private static readonly string[] CanSetFieldNames = { 
@@ -39,10 +40,10 @@ public partial class ItemStrengthen : TerrariaPlugin
         nameof(Item.notAmmo) 
     };
     private static readonly string[] SetStrings = CanSetFieldNames.Select(x => x.ToLower()).ToArray();
-    private static readonly Dictionary<string, int> SetShortStrings = new();
+    private static readonly Dictionary<string, int> SetShortStrings = new(StringComparer.OrdinalIgnoreCase);
     private static readonly Action<Item, string>[] SetActions = CanSetFieldNames.Select(x => GetParseSet<Item>(x)).ToArray();
-    public SubCmdRoot CtlCommand;
-    public Command[] AddCommands;
+    private SubCmdRoot CmdCommand, CtlCommand;
+    private Command[] AddCommands;
     static ItemStrengthen()
     {
         SetShortStrings.Add("t", SetStrings.IndexOf(nameof(Item.type)));
@@ -62,13 +63,19 @@ public partial class ItemStrengthen : TerrariaPlugin
     }
     public ItemStrengthen(Main game) : base(game)
     {
+        CmdCommand = new("ItemStrengthenCtl")
+        {
+            new SubCmdRun("Flush", "刷新", CmdFlush, "f", "flush"),
+            new SubCmdRun("List", "列表", CmdList, "l", "list")
+        };
         CtlCommand = new("ItemStrengthenCtl");
         CtlCommand.Adds(2, CtlDefault, CtlGive, CtlPrint, CtlSet);
-        AddCommands = new Command[] { CtlCommand.GetCommand("isc", new string[] { "isc" }) };
+        AddCommands = new Command[] { CmdCommand.GetCommand("vby.itemstrengthen.use", new string[] { "is" }), CtlCommand.GetCommand("isc", new string[] { "isc" }) };
     }
 
     public override void Initialize()
     {
+        Config.Read(true);
         Commands.ChatCommands.AddRange(AddCommands);
     }
     protected override void Dispose(bool disposing)
@@ -79,6 +86,13 @@ public partial class ItemStrengthen : TerrariaPlugin
                 Commands.ChatCommands.Remove(cmd);
         }
         base.Dispose(disposing);
+    }
+    public void CmdFlush(SubCmdArgs args)
+    {
+    }
+    public void CmdList(SubCmdArgs args)
+    {
+
     }
     [Description("Default")]
     public void CtlDefault(SubCmdArgs args)
@@ -192,6 +206,5 @@ public partial class ItemStrengthen : TerrariaPlugin
         return method.CreateDelegate<Action<T, string>>();
     }
     private static string DefaultStr(bool ceq) => ceq ? "(default)" : "";
-    private static string DefaultStr<T>(T t1, T t2) where T : IEquatable<T> => t1.Equals(t2) ? "(default)" : "";
     private static Color NewColor(string color) => new(uint.Parse(color));
 }

@@ -4,31 +4,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <Compile Remove="AI_001.cs" />
-	  <Compile Remove="AI_004.cs" />
-	  <Compile Remove="AI_005_EaterOfSouls.cs" />
-	  <Compile Remove="AI_006_Worms.cs" />
-	  <Compile Remove="AI_011.cs" />
-	  <Compile Remove="AI_015.cs" />
-	  <Compile Remove="AI_028.cs" />
-	  <Compile Remove="AI_030.cs" />
-	  <Compile Remove="AI_031.cs" />
-	  <Compile Remove="AI_032.cs" />
-	  <Compile Remove="AI_035.cs" />
-	  <Compile Remove="AI_036.cs" />
-	  <Compile Remove="AI_037_Destroyer.cs" />
-	  <Compile Remove="AI_043-QueenBee.cs" />
-	  <Compile Remove="AI_045.cs" />
-	  <Compile Remove="AI_048.cs" />
-	  <Compile Remove="AI_051.cs" />
-	  <Compile Remove="AI_052.cs" />
-	  <Compile Remove="AI_053.cs" />
-	  <Compile Remove="AI_054.cs" />
-	  <Compile Remove="AI_069_DukeFishron.cs" />
-	  <Compile Remove="AI_077.cs" />
-	  <Compile Remove="AI_078-MoonLordHand.cs" />
-	  <Compile Remove="AI_079-MoonLordHead.cs" />
-	  <Compile Remove="AI_084_LunaticCultist.cs" />
-	  <Compile Remove="AI_121_QueenSlime.cs" />
+	  <Compile Remove="AI_069.cs" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\NPCAI\NPCAI.csproj">

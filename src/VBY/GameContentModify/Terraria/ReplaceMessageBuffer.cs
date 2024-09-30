@@ -23,6 +23,7 @@ namespace VBY.GameContentModify;
 [ReplaceType(typeof(MessageBuffer))]
 public static class ReplaceMessageBuffer
 {
+    [DetourMethod]
     public static void GetData(MessageBuffer self, int start, int length, out int messageType)
     {
         if (self.whoAmI < 256)
@@ -41,7 +42,7 @@ public static class ReplaceMessageBuffer
         }
         if (b != 38 && Netplay.Clients[self.whoAmI].State == -1)
         {
-            NetMessage.TrySendData(2, self.whoAmI, -1, Lang.mp[1].ToNetworkText());
+            NetMessage.TrySendData(MessageID.Kick, self.whoAmI, -1, Lang.mp[1].ToNetworkText());
             return;
         }
         if (Netplay.Clients[self.whoAmI].State < 10 && b > 12 && b != 93 && b != 16 && b != 42 && b != 50 && b != 38 && b != 68 && b != 147)
@@ -62,7 +63,7 @@ public static class ReplaceMessageBuffer
             case 1:
                 if (Main.dedServ && Netplay.IsBanned(Netplay.Clients[self.whoAmI].Socket.GetRemoteAddress()))
                 {
-                    NetMessage.TrySendData(2, self.whoAmI, -1, Lang.mp[3].ToNetworkText());
+                    NetMessage.TrySendData(MessageID.Kick, self.whoAmI, -1, Lang.mp[3].ToNetworkText());
                 }
                 else
                 {
@@ -75,17 +76,17 @@ public static class ReplaceMessageBuffer
                         if (string.IsNullOrEmpty(Netplay.ServerPassword))
                         {
                             Netplay.Clients[self.whoAmI].State = 1;
-                            NetMessage.TrySendData(3, self.whoAmI);
+                            NetMessage.TrySendData(MessageID.PlayerInfo, self.whoAmI);
                         }
                         else
                         {
                             Netplay.Clients[self.whoAmI].State = -1;
-                            NetMessage.TrySendData(37, self.whoAmI);
+                            NetMessage.TrySendData(MessageID.RequestPassword, self.whoAmI);
                         }
                     }
                     else
                     {
-                        NetMessage.TrySendData(2, self.whoAmI, -1, Lang.mp[4].ToNetworkText());
+                        NetMessage.TrySendData(MessageID.Kick, self.whoAmI, -1, Lang.mp[4].ToNetworkText());
                     }
                 }
                 break;
@@ -118,22 +119,22 @@ public static class ReplaceMessageBuffer
                     player13.pantsColor = self.reader.ReadRGB();
                     player13.shoeColor = self.reader.ReadRGB();
                     BitsByte bitsByte12 = self.reader.ReadByte();
-                    player13.difficulty = 0;
+                    player13.difficulty = PlayerDifficultyID.SoftCore;
                     if (bitsByte12[0])
                     {
-                        player13.difficulty = 1;
+                        player13.difficulty = PlayerDifficultyID.MediumCore;
                     }
                     if (bitsByte12[1])
                     {
-                        player13.difficulty = 2;
+                        player13.difficulty = PlayerDifficultyID.Hardcore;
                     }
                     if (bitsByte12[3])
                     {
-                        player13.difficulty = 3;
+                        player13.difficulty = PlayerDifficultyID.Creative;
                     }
                     if (player13.difficulty > 3)
                     {
-                        player13.difficulty = 3;
+                        player13.difficulty = PlayerDifficultyID.Creative;
                     }
                     player13.extraAccessory = bitsByte12[2];
                     BitsByte bitsByte13 = self.reader.ReadByte();
@@ -163,28 +164,28 @@ public static class ReplaceMessageBuffer
                     }
                     if (flag12 && Hooks.MessageBuffer.InvokeNameCollision(player13))
                     {
-                        NetMessage.TrySendData(2, self.whoAmI, -1, NetworkText.FromKey(Lang.mp[5].Key, player13.name));
+                        NetMessage.TrySendData(MessageID.Kick, self.whoAmI, -1, NetworkText.FromKey(Lang.mp[5].Key, player13.name));
                     }
                     else if (player13.name.Length > Player.nameLen)
                     {
-                        NetMessage.TrySendData(2, self.whoAmI, -1, NetworkText.FromKey("Net.NameTooLong"));
+                        NetMessage.TrySendData(MessageID.Kick, self.whoAmI, -1, NetworkText.FromKey("Net.NameTooLong"));
                     }
                     else if (player13.name == "")
                     {
-                        NetMessage.TrySendData(2, self.whoAmI, -1, NetworkText.FromKey("Net.EmptyName"));
+                        NetMessage.TrySendData(MessageID.Kick, self.whoAmI, -1, NetworkText.FromKey("Net.EmptyName"));
                     }
-                    else if (player13.difficulty == 3 && !Main.GameModeInfo.IsJourneyMode)
+                    else if (player13.difficulty == PlayerDifficultyID.Creative && !Main.GameModeInfo.IsJourneyMode)
                     {
-                        NetMessage.TrySendData(2, self.whoAmI, -1, NetworkText.FromKey("Net.PlayerIsCreativeAndWorldIsNotCreative"));
+                        NetMessage.TrySendData(MessageID.Kick, self.whoAmI, -1, NetworkText.FromKey("Net.PlayerIsCreativeAndWorldIsNotCreative"));
                     }
-                    else if (player13.difficulty != 3 && Main.GameModeInfo.IsJourneyMode)
+                    else if (player13.difficulty != PlayerDifficultyID.Creative && Main.GameModeInfo.IsJourneyMode)
                     {
-                        NetMessage.TrySendData(2, self.whoAmI, -1, NetworkText.FromKey("Net.PlayerIsNotCreativeAndWorldIsCreative"));
+                        NetMessage.TrySendData(MessageID.Kick, self.whoAmI, -1, NetworkText.FromKey("Net.PlayerIsNotCreativeAndWorldIsCreative"));
                     }
                     else
                     {
                         Netplay.Clients[self.whoAmI].Name = player13.name;
-                        NetMessage.TrySendData(4, -1, self.whoAmI, null, num203);
+                        NetMessage.TrySendData(MessageID.SyncPlayer, -1, self.whoAmI, null, num203);
                     }
                     break;
                 }
@@ -342,7 +343,7 @@ public static class ReplaceMessageBuffer
                         bool[] canRelay = PlayerItemSlotID.CanRelay;
                         if (num49 == self.whoAmI && canRelay.IndexInRange(num50) && canRelay[num50])
                         {
-                            NetMessage.TrySendData(5, -1, self.whoAmI, null, num49, num50, num51);
+                            NetMessage.TrySendData(MessageID.SyncEquipment, -1, self.whoAmI, null, num49, num50, num51);
                         }
                         break;
                     }
@@ -352,12 +353,12 @@ public static class ReplaceMessageBuffer
                 {
                     Netplay.Clients[self.whoAmI].State = 2;
                 }
-                NetMessage.TrySendData(7, self.whoAmI);
+                NetMessage.TrySendData(MessageID.WorldData, self.whoAmI);
                 Main.SyncAnInvasion(self.whoAmI);
                 break;
             case 8:
                 {
-                    NetMessage.TrySendData(7, self.whoAmI);
+                    NetMessage.TrySendData(MessageID.WorldData, self.whoAmI);
                     int num87 = self.reader.ReadInt32();
                     int num88 = self.reader.ReadInt32();
                     bool flag17 = true;
@@ -444,7 +445,7 @@ public static class ReplaceMessageBuffer
                     {
                         Netplay.Clients[self.whoAmI].State = 3;
                     }
-                    NetMessage.TrySendData(9, self.whoAmI, -1, Lang.inter[44].ToNetworkText(), num93);
+                    NetMessage.TrySendData(MessageID.StatusTextSize, self.whoAmI, -1, Lang.inter[44].ToNetworkText(), num93);
                     Netplay.Clients[self.whoAmI].StatusText2 = Language.GetTextValue("Net.IsReceivingTileData");
                     Netplay.Clients[self.whoAmI].StatusMax += num93;
                     for (int num102 = num89; num102 < num91; num102++)
@@ -473,16 +474,16 @@ public static class ReplaceMessageBuffer
                     {
                         for (index = 0; index < 400;)
                         {
-                            NetMessage.TrySendData(21, self.whoAmI, -1, null, index);
-                            NetMessage.TrySendData(22, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(21, self.whoAmI, -1, null, index);
-                            NetMessage.TrySendData(22, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(21, self.whoAmI, -1, null, index);
-                            NetMessage.TrySendData(22, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(21, self.whoAmI, -1, null, index);
-                            NetMessage.TrySendData(22, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(21, self.whoAmI, -1, null, index);
-                            NetMessage.TrySendData(22, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncItem, self.whoAmI, -1, null, index);
+                            NetMessage.TrySendData(MessageID.ItemOwner, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncItem, self.whoAmI, -1, null, index);
+                            NetMessage.TrySendData(MessageID.ItemOwner, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncItem, self.whoAmI, -1, null, index);
+                            NetMessage.TrySendData(MessageID.ItemOwner, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncItem, self.whoAmI, -1, null, index);
+                            NetMessage.TrySendData(MessageID.ItemOwner, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncItem, self.whoAmI, -1, null, index);
+                            NetMessage.TrySendData(MessageID.ItemOwner, self.whoAmI, -1, null, index++);
                         }
                     }
                     else
@@ -491,8 +492,8 @@ public static class ReplaceMessageBuffer
                         {
                             if (Main.item[num109].active)
                             {
-                                NetMessage.TrySendData(21, self.whoAmI, -1, null, num109);
-                                NetMessage.TrySendData(22, self.whoAmI, -1, null, num109);
+                                NetMessage.TrySendData(MessageID.SyncItem, self.whoAmI, -1, null, num109);
+                                NetMessage.TrySendData(MessageID.ItemOwner, self.whoAmI, -1, null, num109);
                             }
                         }
                     }
@@ -500,11 +501,11 @@ public static class ReplaceMessageBuffer
                     {
                         for (index = 0; index < 200;)
                         {
-                            NetMessage.TrySendData(23, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(23, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(23, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(23, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(23, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncNPC, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncNPC, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncNPC, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncNPC, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncNPC, self.whoAmI, -1, null, index++);
                         }
                     }
                     else
@@ -513,7 +514,7 @@ public static class ReplaceMessageBuffer
                         {
                             if (Main.npc[num110].active)
                             {
-                                NetMessage.TrySendData(23, self.whoAmI, -1, null, num110);
+                                NetMessage.TrySendData(MessageID.SyncNPC, self.whoAmI, -1, null, num110);
                             }
                         }
                     }
@@ -521,11 +522,11 @@ public static class ReplaceMessageBuffer
                     {
                         for (index = 0; index < 1000;)
                         {
-                            NetMessage.TrySendData(27, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(27, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(27, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(27, self.whoAmI, -1, null, index++);
-                            NetMessage.TrySendData(27, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncProjectile, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncProjectile, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncProjectile, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncProjectile, self.whoAmI, -1, null, index++);
+                            NetMessage.TrySendData(MessageID.SyncProjectile, self.whoAmI, -1, null, index++);
                         }
                     }
                     else
@@ -534,19 +535,19 @@ public static class ReplaceMessageBuffer
                         {
                             if (Main.projectile[num112].active && (Main.projPet[Main.projectile[num112].type] || Main.projectile[num112].netImportant))
                             {
-                                NetMessage.TrySendData(27, self.whoAmI, -1, null, num112);
+                                NetMessage.TrySendData(MessageID.SyncProjectile, self.whoAmI, -1, null, num112);
                             }
                         }
                     }
                     for (int num113 = 0; num113 < 290; num113++)
                     {
-                        NetMessage.TrySendData(83, self.whoAmI, -1, null, num113);
+                        NetMessage.TrySendData(MessageID.NPCKillCountDeathTally, self.whoAmI, -1, null, num113);
                     }
-                    NetMessage.TrySendData(57, self.whoAmI);
-                    NetMessage.TrySendData(103);
-                    NetMessage.TrySendData(101, self.whoAmI);
-                    NetMessage.TrySendData(136, self.whoAmI);
-                    NetMessage.TrySendData(49, self.whoAmI);
+                    NetMessage.TrySendData(MessageID.Unknown57, self.whoAmI);
+                    NetMessage.TrySendData(MessageID.MoonlordHorror);
+                    NetMessage.TrySendData(MessageID.UpdateTowerShieldStrengths, self.whoAmI);
+                    NetMessage.TrySendData(MessageID.SyncCavernMonsterType, self.whoAmI);
+                    NetMessage.TrySendData(MessageID.InitialSpawn, self.whoAmI);
                     Main.BestiaryTracker.OnPlayerJoining(self.whoAmI);
                     CreativePowerManager.Instance.SyncThingsToJoiningPlayer(self.whoAmI);
                     Main.PylonSystem.OnPlayerJoining(self.whoAmI);
@@ -581,22 +582,22 @@ public static class ReplaceMessageBuffer
                         Main.countsAsHostForGameplay[self.whoAmI] = flag18;
                         if (NetMessage.DoesPlayerSlotCountAsAHost(self.whoAmI))
                         {
-                            NetMessage.TrySendData(139, self.whoAmI, -1, null, self.whoAmI, flag18.ToInt());
+                            NetMessage.TrySendData(MessageID.SetCountsAsHostForGameplay, self.whoAmI, -1, null, self.whoAmI, flag18.ToInt());
                         }
-                        NetMessage.TrySendData(12, -1, self.whoAmI, null, self.whoAmI, (int)(byte)playerSpawnContext);
-                        NetMessage.TrySendData(74, self.whoAmI, -1, NetworkText.FromLiteral(Main.player[self.whoAmI].name), Main.anglerQuest);
-                        NetMessage.TrySendData(129, self.whoAmI);
+                        NetMessage.TrySendData(MessageID.PlayerSpawn, -1, self.whoAmI, null, self.whoAmI, (int)(byte)playerSpawnContext);
+                        NetMessage.TrySendData(MessageID.AnglerQuest, self.whoAmI, -1, NetworkText.FromLiteral(Main.player[self.whoAmI].name), Main.anglerQuest);
+                        NetMessage.TrySendData(MessageID.FinishedConnectingToServer, self.whoAmI);
                         NetMessage.greetPlayer(self.whoAmI);
                         if (Main.player[num114].unlockedBiomeTorches)
                         {
                             NPC nPC2 = new();
-                            nPC2.SetDefaults(664);
+                            nPC2.SetDefaults(NPCID.TorchGod);
                             Main.BestiaryTracker.Kills.RegisterKill(nPC2);
                         }
                     }
                     else
                     {
-                        NetMessage.TrySendData(12, -1, self.whoAmI, null, self.whoAmI, (int)(byte)playerSpawnContext);
+                        NetMessage.TrySendData(MessageID.PlayerSpawn, -1, self.whoAmI, null, self.whoAmI, (int)(byte)playerSpawnContext);
                     }
                     break;
                 }
@@ -665,7 +666,7 @@ public static class ReplaceMessageBuffer
                         player10.controlUseTile = bitsByte10[4];
                         if (Netplay.Clients[self.whoAmI].State == 10)
                         {
-                            NetMessage.TrySendData(13, -1, self.whoAmI, null, num138);
+                            NetMessage.TrySendData(MessageID.PlayerControls, -1, self.whoAmI, null, num138);
                         }
                     }
                     break;
@@ -684,161 +685,161 @@ public static class ReplaceMessageBuffer
                             player11.statLifeMax = 100;
                         }
                         player11.dead = player11.statLife <= 0;
-                        NetMessage.TrySendData(16, -1, self.whoAmI, null, num139);
+                        NetMessage.TrySendData(MessageID.PlayerLifeMana, -1, self.whoAmI, null, num139);
                     }
                     break;
                 }
             case 17:
                 {
-                    byte b6 = self.reader.ReadByte();
-                    int num175 = self.reader.ReadInt16();
-                    int num176 = self.reader.ReadInt16();
-                    short num177 = self.reader.ReadInt16();
-                    int num178 = self.reader.ReadByte();
-                    bool flag22 = num177 == 1;
-                    if (!WorldGen.InWorld(num175, num176, 3))
+                    byte action = self.reader.ReadByte();
+                    int tileX = self.reader.ReadInt16();
+                    int tileY = self.reader.ReadInt16();
+                    short id = self.reader.ReadInt16();
+                    int style = self.reader.ReadByte();
+                    bool flag22 = id == 1;
+                    if (!WorldGen.InWorld(tileX, tileY, 3))
                     {
                         break;
                     }
-                    if (Main.tile[num175, num176] == null)
+                    if (Main.tile[tileX, tileY] == null)
                     {
-                        Main.tile[num175, num176] = Hooks.Tile.InvokeCreate();
+                        Main.tile[tileX, tileY] = Hooks.Tile.InvokeCreate();
                     }
                     if (!flag22)
                     {
-                        if (b6 == 0 || b6 == 2 || b6 == 4)
+                        if (action == 0 || action == 2 || action == 4)
                         {
                             Netplay.Clients[self.whoAmI].SpamDeleteBlock += 1f;
                         }
-                        if (b6 == 1 || b6 == 3)
+                        if (action == NetMessageID.TileManipulation.ActionPlaceTile || action == 3)
                         {
                             Netplay.Clients[self.whoAmI].SpamAddBlock += 1f;
                         }
                     }
-                    if (!Netplay.Clients[self.whoAmI].TileSections[Netplay.GetSectionX(num175), Netplay.GetSectionY(num176)])
+                    if (!Netplay.Clients[self.whoAmI].TileSections[Netplay.GetSectionX(tileX), Netplay.GetSectionY(tileY)])
                     {
                         flag22 = true;
                     }
-                    if (b6 == 0)
+                    if (action == 0)
                     {
-                        WorldGen.KillTile(num175, num176, flag22);
+                        WorldGen.KillTile(tileX, tileY, flag22);
                     }
                     bool flag10 = false;
-                    if (b6 == 1)
+                    if (action == NetMessageID.TileManipulation.ActionPlaceTile)
                     {
                         bool forced = true;
-                        if (WorldGen.CheckTileBreakability2_ShouldTileSurvive(num175, num176))
+                        if (forced && WorldGen.CheckTileBreakability2_ShouldTileSurvive(tileX, tileY))
                         {
                             flag10 = true;
                             forced = false;
                         }
-                        WorldGen.PlaceTile(num175, num176, num177, mute: false, forced, -1, num178);
+                        WorldGen.PlaceTile(tileX, tileY, id, mute: false, forced, -1, style);
                     }
-                    else if (b6 == 2)
+                    else if (action == 2)
                     {
-                        WorldGen.KillWall(num175, num176, flag22);
+                        WorldGen.KillWall(tileX, tileY, flag22);
                     }
-                    else if (b6 == 3)
+                    else if (action == 3)
                     {
-                        WorldGen.PlaceWall(num175, num176, num177);
+                        WorldGen.PlaceWall(tileX, tileY, id);
                     }
-                    else if (b6 == 4)
+                    else if (action == 4)
                     {
-                        WorldGen.KillTile(num175, num176, flag22, effectOnly: false, noItem: true);
+                        WorldGen.KillTile(tileX, tileY, flag22, effectOnly: false, noItem: true);
                     }
-                    else if (b6 == 5)
+                    else if (action == 5)
                     {
-                        WorldGen.PlaceWire(num175, num176);
+                        WorldGen.PlaceWire(tileX, tileY);
                     }
-                    else if (b6 == 6)
+                    else if (action == 6)
                     {
-                        WorldGen.KillWire(num175, num176);
+                        WorldGen.KillWire(tileX, tileY);
                     }
-                    else if (b6 == 7)
+                    else if (action == 7)
                     {
-                        WorldGen.PoundTile(num175, num176);
+                        WorldGen.PoundTile(tileX, tileY);
                     }
-                    else if (b6 == 8)
+                    else if (action == 8)
                     {
-                        WorldGen.PlaceActuator(num175, num176);
+                        WorldGen.PlaceActuator(tileX, tileY);
                     }
-                    else if (b6 == 9)
+                    else if (action == 9)
                     {
-                        WorldGen.KillActuator(num175, num176);
+                        WorldGen.KillActuator(tileX, tileY);
                     }
-                    else if (b6 == 10)
+                    else if (action == 10)
                     {
-                        WorldGen.PlaceWire2(num175, num176);
+                        WorldGen.PlaceWire2(tileX, tileY);
                     }
-                    else if (b6 == 11)
+                    else if (action == 11)
                     {
-                        WorldGen.KillWire2(num175, num176);
+                        WorldGen.KillWire2(tileX, tileY);
                     }
-                    else if (b6 == 12)
+                    else if (action == 12)
                     {
-                        WorldGen.PlaceWire3(num175, num176);
+                        WorldGen.PlaceWire3(tileX, tileY);
                     }
-                    else if (b6 == 13)
+                    else if (action == 13)
                     {
-                        WorldGen.KillWire3(num175, num176);
+                        WorldGen.KillWire3(tileX, tileY);
                     }
-                    else if (b6 == 14)
+                    else if (action == 14)
                     {
-                        WorldGen.SlopeTile(num175, num176, num177);
+                        WorldGen.SlopeTile(tileX, tileY, id);
                     }
-                    else if (b6 == 15)
+                    else if (action == 15)
                     {
-                        Minecart.FrameTrack(num175, num176, pound: true);
+                        Minecart.FrameTrack(tileX, tileY, pound: true);
                     }
-                    else if (b6 == 16)
+                    else if (action == 16)
                     {
-                        WorldGen.PlaceWire4(num175, num176);
+                        WorldGen.PlaceWire4(tileX, tileY);
                     }
-                    else if (b6 == 17)
+                    else if (action == 17)
                     {
-                        WorldGen.KillWire4(num175, num176);
+                        WorldGen.KillWire4(tileX, tileY);
                     }
-                    switch (b6)
+                    switch (action)
                     {
                         case 18:
                             Wiring.SetCurrentUser(self.whoAmI);
-                            Wiring.PokeLogicGate(num175, num176);
+                            Wiring.PokeLogicGate(tileX, tileY);
                             Wiring.SetCurrentUser();
                             return;
                         case 19:
                             Wiring.SetCurrentUser(self.whoAmI);
-                            Wiring.Actuate(num175, num176);
+                            Wiring.Actuate(tileX, tileY);
                             Wiring.SetCurrentUser();
                             return;
                         case 20:
-                            if (WorldGen.InWorld(num175, num176, 2))
+                            if (WorldGen.InWorld(tileX, tileY, 2))
                             {
-                                int type10 = Main.tile[num175, num176].type;
-                                WorldGen.KillTile(num175, num176, flag22);
-                                num177 = (short)((Main.tile[num175, num176].active() && Main.tile[num175, num176].type == type10) ? 1 : 0);
-                                NetMessage.TrySendData(17, -1, -1, null, b6, num175, num176, num177, num178);
+                                int type10 = Main.tile[tileX, tileY].type;
+                                WorldGen.KillTile(tileX, tileY, flag22);
+                                id = (short)((Main.tile[tileX, tileY].active() && Main.tile[tileX, tileY].type == type10) ? 1 : 0);
+                                NetMessage.TrySendData(MessageID.TileManipulation, -1, -1, null, action, tileX, tileY, id, style);
                             }
                             return;
                         case 21:
-                            WorldGen.ReplaceTile(num175, num176, (ushort)num177, num178);
+                            WorldGen.ReplaceTile(tileX, tileY, (ushort)id, style);
                             break;
                     }
-                    if (b6 == 22)
+                    if (action == 22)
                     {
-                        WorldGen.ReplaceWall(num175, num176, (ushort)num177);
+                        WorldGen.ReplaceWall(tileX, tileY, (ushort)id);
                     }
-                    else if (b6 == 23)
+                    else if (action == 23)
                     {
-                        WorldGen.SlopeTile(num175, num176, num177);
-                        WorldGen.PoundTile(num175, num176);
+                        WorldGen.SlopeTile(tileX, tileY, id);
+                        WorldGen.PoundTile(tileX, tileY);
                     }
                     if (flag10)
                     {
-                        NetMessage.SendTileSquare(-1, num175, num176, 5);
+                        NetMessage.SendTileSquare(-1, tileX, tileY, 5);
                     }
-                    else if ((b6 != 1 && b6 != 21) || !TileID.Sets.Falling[num177] || Main.tile[num175, num176].active())
+                    else if ((action != 1 && action != 21) || !TileID.Sets.Falling[id] || Main.tile[tileX, tileY].active())
                     {
-                        NetMessage.TrySendData(17, -1, self.whoAmI, null, b6, num175, num176, num177, num178);
+                        NetMessage.TrySendData(MessageID.TileManipulation, -1, self.whoAmI, null, action, tileX, tileY, id, style);
                     }
                     break;
                 }
@@ -871,104 +872,149 @@ public static class ReplaceMessageBuffer
                                 WorldGen.ShiftTallGate(num190, num192, closing: true, forced: true);
                                 break;
                         }
-                        NetMessage.TrySendData(19, -1, self.whoAmI, null, b10, num190, num192, (num193 == 1) ? 1 : 0);
+                        NetMessage.TrySendData(MessageID.ToggleDoorState, -1, self.whoAmI, null, b10, num190, num192, (num193 == 1) ? 1 : 0);
                     }
                     break;
                 }
             case 20:
                 {
-                    int num18 = self.reader.ReadInt16();
-                    int num19 = self.reader.ReadInt16();
-                    ushort num20 = self.reader.ReadByte();
-                    ushort num21 = self.reader.ReadByte();
-                    byte b12 = self.reader.ReadByte();
-                    if (!WorldGen.InWorld(num18, num19, 3))
+                    int tileX = self.reader.ReadInt16();
+                    int tileY = self.reader.ReadInt16();
+                    ushort width = self.reader.ReadByte();
+                    ushort height = self.reader.ReadByte();
+                    byte tileChangeType = self.reader.ReadByte();
+                    if (!WorldGen.InWorld(tileX, tileY, 3))
                     {
                         break;
                     }
                     TileChangeType type12 = TileChangeType.None;
-                    if (Enum.IsDefined(typeof(TileChangeType), b12))
+                    if (Enum.IsDefined(typeof(TileChangeType), tileChangeType))
                     {
-                        type12 = (TileChangeType)b12;
+                        type12 = (TileChangeType)tileChangeType;
                     }
-                    ReplaceMessageBuffer.GetOnTileChangeReceivedObjectFunc()?.Invoke(num18, num19, Math.Max(num20, num21), type12);
-                    for (int num22 = num18; num22 < num18 + num20; num22++)
+                    ReplaceMessageBuffer.GetOnTileChangeReceivedObjectFunc()?.Invoke(tileX, tileY, Math.Max(width, height), type12);
+                    var hasError = false;
+                    for (int num22 = tileX; num22 < tileX + width; num22++)
                     {
-                        for (int num23 = num19; num23 < num19 + num21; num23++)
+                        for (int num23 = tileY; num23 < tileY + height; num23++)
                         {
                             if (Main.tile[num22, num23] == null)
                             {
                                 Main.tile[num22, num23] = Hooks.Tile.InvokeCreate();
                             }
                             ITile tile3 = Main.tile[num22, num23];
-                            bool flag13 = tile3.active();
-                            BitsByte bitsByte15 = self.reader.ReadByte();
-                            BitsByte bitsByte16 = self.reader.ReadByte();
-                            BitsByte bitsByte18 = self.reader.ReadByte();
-                            tile3.active(bitsByte15[0]);
-                            tile3.wall = (bitsByte15[2] ? ((ushort)1) : ((ushort)0));
-                            bool num208 = bitsByte15[3];
-                            tile3.wire(bitsByte15[4]);
-                            tile3.halfBrick(bitsByte15[5]);
-                            tile3.actuator(bitsByte15[6]);
-                            tile3.inActive(bitsByte15[7]);
-                            tile3.wire2(bitsByte16[0]);
-                            tile3.wire3(bitsByte16[1]);
-                            if (bitsByte16[2])
+                            if (tile3.type == TileID.Dirt)
                             {
-                                tile3.color(self.reader.ReadByte());
+                                hasError = true;
+                                BitsByte flag1 = self.reader.ReadByte();
+                                BitsByte flag2 = self.reader.ReadByte();
+                                self.readerStream.Seek(1, SeekOrigin.Current);
+                                var active = flag1[0];
+                                var wall = flag1[2] ? (ushort)1 : (ushort)0;
+                                var hasLiquid = flag1[3];
+                                if (flag2[2])
+                                {
+                                    self.readerStream.Seek(1, SeekOrigin.Current);
+                                }
+                                if (flag2[3])
+                                {
+                                    self.readerStream.Seek(1, SeekOrigin.Current);
+                                }
+                                if (active)
+                                {
+                                    var type = self.reader.ReadUInt16();
+                                    if (Main.tileFrameImportant[type])
+                                    {
+                                        self.readerStream.Seek(4, SeekOrigin.Current);
+                                    }
+                                }
+                                if (wall > 0)
+                                {
+                                    self.readerStream.Seek(2, SeekOrigin.Current);
+                                }
+                                if (hasLiquid)
+                                {
+                                    self.readerStream.Seek(2, SeekOrigin.Current);
+                                }
                             }
-                            if (bitsByte16[3])
+                            else
                             {
-                                tile3.wallColor(self.reader.ReadByte());
-                            }
-                            if (tile3.active())
-                            {
-                                int type13 = tile3.type;
-                                tile3.type = self.reader.ReadUInt16();
-                                if (Main.tileFrameImportant[tile3.type])
+                                bool oldActive = tile3.active();
+                                BitsByte bitsByte15 = self.reader.ReadByte();
+                                BitsByte bitsByte16 = self.reader.ReadByte();
+                                BitsByte bitsByte18 = self.reader.ReadByte();
+                                tile3.active(bitsByte15[0]);
+                                tile3.wall = (bitsByte15[2] ? ((ushort)1) : ((ushort)0));
+                                bool num208 = bitsByte15[3];
+                                tile3.wire(bitsByte15[4]);
+                                tile3.halfBrick(bitsByte15[5]);
+                                tile3.actuator(bitsByte15[6]);
+                                tile3.inActive(bitsByte15[7]);
+                                tile3.wire2(bitsByte16[0]);
+                                tile3.wire3(bitsByte16[1]);
+                                if (bitsByte16[2])
                                 {
-                                    tile3.frameX = self.reader.ReadInt16();
-                                    tile3.frameY = self.reader.ReadInt16();
+                                    tile3.color(self.reader.ReadByte());
                                 }
-                                else if (!flag13 || tile3.type != type13)
+                                if (bitsByte16[3])
                                 {
-                                    tile3.frameX = -1;
-                                    tile3.frameY = -1;
+                                    tile3.wallColor(self.reader.ReadByte());
                                 }
-                                byte b13 = 0;
-                                if (bitsByte16[4])
+                                if (tile3.active())
                                 {
-                                    b13++;
+                                    int oldType = tile3.type;
+                                    tile3.type = self.reader.ReadUInt16();
+                                    if (Main.tileFrameImportant[tile3.type])
+                                    {
+                                        tile3.frameX = self.reader.ReadInt16();
+                                        tile3.frameY = self.reader.ReadInt16();
+                                    }
+                                    else if (!oldActive || tile3.type != oldType)
+                                    {
+                                        tile3.frameX = -1;
+                                        tile3.frameY = -1;
+                                    }
+                                    byte b13 = 0;
+                                    if (bitsByte16[4])
+                                    {
+                                        b13++;
+                                    }
+                                    if (bitsByte16[5])
+                                    {
+                                        b13 += 2;
+                                    }
+                                    if (bitsByte16[6])
+                                    {
+                                        b13 += 4;
+                                    }
+                                    tile3.slope(b13);
                                 }
-                                if (bitsByte16[5])
+                                tile3.wire4(bitsByte16[7]);
+                                tile3.fullbrightBlock(bitsByte18[0]);
+                                tile3.fullbrightWall(bitsByte18[1]);
+                                tile3.invisibleBlock(bitsByte18[2]);
+                                tile3.invisibleWall(bitsByte18[3]);
+                                if (tile3.wall > 0)
                                 {
-                                    b13 += 2;
+                                    tile3.wall = self.reader.ReadUInt16();
                                 }
-                                if (bitsByte16[6])
+                                if (num208)
                                 {
-                                    b13 += 4;
+                                    tile3.liquid = self.reader.ReadByte();
+                                    tile3.liquidType(self.reader.ReadByte());
                                 }
-                                tile3.slope(b13);
-                            }
-                            tile3.wire4(bitsByte16[7]);
-                            tile3.fullbrightBlock(bitsByte18[0]);
-                            tile3.fullbrightWall(bitsByte18[1]);
-                            tile3.invisibleBlock(bitsByte18[2]);
-                            tile3.invisibleWall(bitsByte18[3]);
-                            if (tile3.wall > 0)
-                            {
-                                tile3.wall = self.reader.ReadUInt16();
-                            }
-                            if (num208)
-                            {
-                                tile3.liquid = self.reader.ReadByte();
-                                tile3.liquidType(self.reader.ReadByte());
                             }
                         }
                     }
-                    WorldGen.RangeFrame(num18, num19, num18 + num20, num19 + num21);
-                    NetMessage.TrySendData(b, -1, self.whoAmI, null, num18, num19, (int)num20, (int)num21, b12);
+                    if (hasError)
+                    {
+                        NetMessage.SendTileSquare(-1, tileX, tileY, width, height);
+                    }
+                    else
+                    {
+                        WorldGen.RangeFrame(tileX, tileY, tileX + width, tileY + height);
+                        NetMessage.TrySendData(b, -1, self.whoAmI, null, tileX, tileY, width, height, tileChangeType);
+                    }
                     break;
                 }
             case 21:
@@ -1004,7 +1050,7 @@ public static class ReplaceMessageBuffer
                         if (num163 < 400)
                         {
                             Main.item[num163].active = false;
-                            NetMessage.TrySendData(21, -1, -1, null, num163);
+                            NetMessage.TrySendData(MessageID.SyncItem, -1, -1, null, num163);
                         }
                         break;
                     }
@@ -1066,7 +1112,7 @@ public static class ReplaceMessageBuffer
                         }
                         Main.item[num68].playerIndexTheItemIsReservedFor = 255;
                         Main.item[num68].keepTime = 15;
-                        NetMessage.TrySendData(22, -1, -1, null, num68);
+                        NetMessage.TrySendData(MessageID.ItemOwner, -1, -1, null, num68);
                     }
                     break;
                 }
@@ -1077,8 +1123,8 @@ public static class ReplaceMessageBuffer
                     int num118 = self.whoAmI;
                     Player player20 = Main.player[num118];
                     Main.npc[num107].StrikeNPC(player20.inventory[player20.selectedItem].damage, player20.inventory[player20.selectedItem].knockBack, player20.direction, crit: false, noEffect: false, fromNet: false, Main.player[self.whoAmI]);
-                    NetMessage.TrySendData(24, -1, self.whoAmI, null, num107, num118);
-                    NetMessage.TrySendData(23, -1, -1, null, num107);
+                    NetMessage.TrySendData(MessageID.UnusedMeleeStrike, -1, self.whoAmI, null, num107, num118);
+                    NetMessage.TrySendData(MessageID.SyncNPC, -1, -1, null, num107);
                     break;
                 }
             case 27:
@@ -1165,7 +1211,7 @@ public static class ReplaceMessageBuffer
                         Main.projectileIdentity[num60, num62] = num64;
                     }
                     projectile.ProjectileFixDesperation();
-                    NetMessage.TrySendData(27, -1, self.whoAmI, null, num64);
+                    NetMessage.TrySendData(MessageID.SyncProjectile, -1, self.whoAmI, null, num64);
                     break;
                 }
             case 28:
@@ -1190,10 +1236,10 @@ public static class ReplaceMessageBuffer
                         Main.npc[num186].HitEffect();
                         Main.npc[num186].active = false;
                     }
-                    NetMessage.TrySendData(28, -1, self.whoAmI, null, num186, num187, num188, num189, b9);
+                    NetMessage.TrySendData(MessageID.DamageNPC, -1, self.whoAmI, null, num186, num187, num188, num189, b9);
                     if (Main.npc[num186].life <= 0)
                     {
-                        NetMessage.TrySendData(23, -1, -1, null, num186);
+                        NetMessage.TrySendData(MessageID.SyncNPC, -1, -1, null, num186);
                     }
                     else
                     {
@@ -1203,7 +1249,7 @@ public static class ReplaceMessageBuffer
                     {
                         if (Main.npc[Main.npc[num186].realLife].life <= 0)
                         {
-                            NetMessage.TrySendData(23, -1, -1, null, Main.npc[num186].realLife);
+                            NetMessage.TrySendData(MessageID.SyncNPC, -1, -1, null, Main.npc[num186].realLife);
                         }
                         else
                         {
@@ -1225,7 +1271,7 @@ public static class ReplaceMessageBuffer
                             break;
                         }
                     }
-                    NetMessage.TrySendData(29, -1, self.whoAmI, null, num120, num121);
+                    NetMessage.TrySendData(MessageID.KillProjectile, -1, self.whoAmI, null, num120, num121);
                     break;
                 }
             case 30:
@@ -1234,7 +1280,7 @@ public static class ReplaceMessageBuffer
                     int num137 = self.whoAmI;
                     bool flag21 = self.reader.ReadBoolean();
                     Main.player[num137].hostile = flag21;
-                    NetMessage.TrySendData(30, -1, self.whoAmI, null, num137);
+                    NetMessage.TrySendData(MessageID.TogglePVP, -1, self.whoAmI, null, num137);
                     LocalizedText obj3 = (flag21 ? Lang.mp[11] : Lang.mp[12]);
                     ChatHelper.BroadcastChatMessage(color: Main.teamColor[Main.player[num137].team], text: NetworkText.FromKey(obj3.Key, Main.player[num137].name));
                     break;
@@ -1248,21 +1294,21 @@ public static class ReplaceMessageBuffer
                     {
                         for (int num11 = 0; num11 < 40; num11++)
                         {
-                            NetMessage.TrySendData(32, self.whoAmI, -1, null, num10, num11);
+                            NetMessage.TrySendData(MessageID.SyncChestItem, self.whoAmI, -1, null, num10, num11);
                         }
-                        NetMessage.TrySendData(33, self.whoAmI, -1, null, num10);
+                        NetMessage.TrySendData(MessageID.SyncPlayerChest, self.whoAmI, -1, null, num10);
                         Main.player[self.whoAmI].chest = num10;
                         if (Main.myPlayer == self.whoAmI)
                         {
                             Main.recBigList = false;
                         }
-                        NetMessage.TrySendData(80, -1, self.whoAmI, null, self.whoAmI, num10);
+                        NetMessage.TrySendData(MessageID.SyncPlayerChestIndex, -1, self.whoAmI, null, self.whoAmI, num10);
                         if (WorldGen.IsChestRigged(num7, num9))
                         {
                             Wiring.SetCurrentUser(self.whoAmI);
                             Wiring.HitSwitch(num7, num9);
                             Wiring.SetCurrentUser();
-                            NetMessage.TrySendData(59, -1, self.whoAmI, null, num7, num9);
+                            NetMessage.TrySendData(MessageID.HitSwitch, -1, self.whoAmI, null, num7, num9);
                         }
                     }
                     break;
@@ -1321,11 +1367,11 @@ public static class ReplaceMessageBuffer
                         int chest = Main.player[self.whoAmI].chest;
                         Chest chest2 = Main.chest[chest];
                         chest2.name = name;
-                        NetMessage.TrySendData(69, -1, self.whoAmI, null, chest, chest2.x, chest2.y);
+                        NetMessage.TrySendData(MessageID.ChestName, -1, self.whoAmI, null, chest, chest2.x, chest2.y);
                     }
                     Main.player[self.whoAmI].chest = num191;
                     Recipe.FindRecipes(canDelayCheck: true);
-                    NetMessage.TrySendData(80, -1, self.whoAmI, null, self.whoAmI, num191);
+                    NetMessage.TrySendData(MessageID.SyncPlayerChestIndex, -1, self.whoAmI, null, self.whoAmI, num191);
                     break;
                 }
             case 34:
@@ -1342,17 +1388,17 @@ public static class ReplaceMessageBuffer
                                 int num201 = WorldGen.PlaceChest(num195, num197, 21, notNearOtherChests: false, num198);
                                 if (num201 == -1)
                                 {
-                                    NetMessage.TrySendData(34, self.whoAmI, -1, null, b11, num195, num197, num198, num201);
+                                    NetMessage.TrySendData(MessageID.ChestUpdates, self.whoAmI, -1, null, b11, num195, num197, num198, num201);
                                     Item.NewItem(new EntitySource_TileBreak(num195, num197), num195 * 16, num197 * 16, 32, 32, Chest.chestItemSpawn[num198], 1, noBroadcast: true);
                                 }
                                 else
                                 {
-                                    NetMessage.TrySendData(34, -1, -1, null, b11, num195, num197, num198, num201);
+                                    NetMessage.TrySendData(MessageID.ChestUpdates, -1, -1, null, b11, num195, num197, num198, num201);
                                 }
                                 break;
                             }
                         case 1:
-                            if (Main.tile[num195, num197].type == 21)
+                            if (Main.tile[num195, num197].type == TileID.Containers)
                             {
                                 ITile tile4 = Main.tile[num195, num197];
                                 if (tile4.frameX % 36 != 0)
@@ -1367,7 +1413,7 @@ public static class ReplaceMessageBuffer
                                 WorldGen.KillTile(num195, num197);
                                 if (!tile4.active())
                                 {
-                                    NetMessage.TrySendData(34, -1, -1, null, b11, num195, num197, 0f, number);
+                                    NetMessage.TrySendData(MessageID.ChestUpdates, -1, -1, null, b11, num195, num197, 0f, number);
                                 }
                                 break;
                             }
@@ -1380,17 +1426,17 @@ public static class ReplaceMessageBuffer
                                         int num199 = WorldGen.PlaceChest(num195, num197, 88, notNearOtherChests: false, num198);
                                         if (num199 == -1)
                                         {
-                                            NetMessage.TrySendData(34, self.whoAmI, -1, null, b11, num195, num197, num198, num199);
+                                            NetMessage.TrySendData(MessageID.ChestUpdates, self.whoAmI, -1, null, b11, num195, num197, num198, num199);
                                             Item.NewItem(new EntitySource_TileBreak(num195, num197), num195 * 16, num197 * 16, 32, 32, Chest.dresserItemSpawn[num198], 1, noBroadcast: true);
                                         }
                                         else
                                         {
-                                            NetMessage.TrySendData(34, -1, -1, null, b11, num195, num197, num198, num199);
+                                            NetMessage.TrySendData(MessageID.ChestUpdates, -1, -1, null, b11, num195, num197, num198, num199);
                                         }
                                         break;
                                     }
                                 case 3:
-                                    if (Main.tile[num195, num197].type == 88)
+                                    if (Main.tile[num195, num197].type == TileID.Dressers)
                                     {
                                         ITile tile2 = Main.tile[num195, num197];
                                         num195 -= tile2.frameX % 54 / 18;
@@ -1402,7 +1448,7 @@ public static class ReplaceMessageBuffer
                                         WorldGen.KillTile(num195, num197);
                                         if (!tile2.active())
                                         {
-                                            NetMessage.TrySendData(34, -1, -1, null, b11, num195, num197, 0f, number2);
+                                            NetMessage.TrySendData(MessageID.ChestUpdates, -1, -1, null, b11, num195, num197, 0f, number2);
                                         }
                                         break;
                                     }
@@ -1415,17 +1461,17 @@ public static class ReplaceMessageBuffer
                                                 int num200 = WorldGen.PlaceChest(num195, num197, 467, notNearOtherChests: false, num198);
                                                 if (num200 == -1)
                                                 {
-                                                    NetMessage.TrySendData(34, self.whoAmI, -1, null, b11, num195, num197, num198, num200);
+                                                    NetMessage.TrySendData(MessageID.ChestUpdates, self.whoAmI, -1, null, b11, num195, num197, num198, num200);
                                                     Item.NewItem(new EntitySource_TileBreak(num195, num197), num195 * 16, num197 * 16, 32, 32, Chest.chestItemSpawn2[num198], 1, noBroadcast: true);
                                                 }
                                                 else
                                                 {
-                                                    NetMessage.TrySendData(34, -1, -1, null, b11, num195, num197, num198, num200);
+                                                    NetMessage.TrySendData(MessageID.ChestUpdates, -1, -1, null, b11, num195, num197, num198, num200);
                                                 }
                                                 break;
                                             }
                                         case 5:
-                                            if (Main.tile[num195, num197].type == 467)
+                                            if (Main.tile[num195, num197].type == TileID.Containers2)
                                             {
                                                 ITile tile5 = Main.tile[num195, num197];
                                                 if (tile5.frameX % 36 != 0)
@@ -1440,7 +1486,7 @@ public static class ReplaceMessageBuffer
                                                 WorldGen.KillTile(num195, num197);
                                                 if (!tile5.active())
                                                 {
-                                                    NetMessage.TrySendData(34, -1, -1, null, b11, num195, num197, 0f, number3);
+                                                    NetMessage.TrySendData(MessageID.ChestUpdates, -1, -1, null, b11, num195, num197, 0f, number3);
                                                 }
                                             }
                                             break;
@@ -1460,7 +1506,7 @@ public static class ReplaceMessageBuffer
                     {
                         Main.player[num146].HealEffect(num147);
                     }
-                    NetMessage.TrySendData(35, -1, self.whoAmI, null, num146, num147);
+                    NetMessage.TrySendData(MessageID.PlayerHeal, -1, self.whoAmI, null, num146, num147);
                     break;
                 }
             case 36:
@@ -1478,18 +1524,18 @@ public static class ReplaceMessageBuffer
                     {
                         NPC.SpawnFaelings(num141);
                     }
-                    NetMessage.TrySendData(36, -1, self.whoAmI, null, num141);
+                    NetMessage.TrySendData(MessageID.SyncPlayerZone, -1, self.whoAmI, null, num141);
                     break;
                 }
             case 38:
                 if (self.reader.ReadString() == Netplay.ServerPassword)
                 {
                     Netplay.Clients[self.whoAmI].State = 1;
-                    NetMessage.TrySendData(3, self.whoAmI);
+                    NetMessage.TrySendData(MessageID.PlayerInfo, self.whoAmI);
                 }
                 else
                 {
-                    NetMessage.TrySendData(2, self.whoAmI, -1, Lang.mp[1].ToNetworkText());
+                    NetMessage.TrySendData(MessageID.Kick, self.whoAmI, -1, Lang.mp[1].ToNetworkText());
                 }
                 break;
             case 40:
@@ -1498,7 +1544,7 @@ public static class ReplaceMessageBuffer
                     int num47 = self.whoAmI;
                     int npcIndex = self.reader.ReadInt16();
                     Main.player[num47].SetTalkNPC(npcIndex, fromNet: true);
-                    NetMessage.TrySendData(40, -1, self.whoAmI, null, num47);
+                    NetMessage.TrySendData(MessageID.SyncTalkNPC, -1, self.whoAmI, null, num47);
                     break;
                 }
             case 41:
@@ -1511,7 +1557,7 @@ public static class ReplaceMessageBuffer
                     player14.itemRotation = itemRotation;
                     player14.itemAnimation = itemAnimation;
                     player14.channel = player14.inventory[player14.selectedItem].channel;
-                    NetMessage.TrySendData(41, -1, self.whoAmI, null, num16);
+                    NetMessage.TrySendData(MessageID.ShotAnimationAndSound, -1, self.whoAmI, null, num16);
                     break;
                 }
             case 42:
@@ -1533,7 +1579,7 @@ public static class ReplaceMessageBuffer
                     {
                         Main.player[num153].ManaEffect(num154);
                     }
-                    NetMessage.TrySendData(43, -1, self.whoAmI, null, num153, num154);
+                    NetMessage.TrySendData(MessageID.Unknown43, -1, self.whoAmI, null, num153, num154);
                     break;
                 }
             case 45:
@@ -1545,7 +1591,7 @@ public static class ReplaceMessageBuffer
                     int team = player19.team;
                     player19.team = num73;
                     Color color = Main.teamColor[num73];
-                    NetMessage.TrySendData(45, -1, self.whoAmI, null, num63);
+                    NetMessage.TrySendData(MessageID.Unknown45, -1, self.whoAmI, null, num63);
                     LocalizedText localizedText = Lang.mp[13 + num73];
                     if (num73 == 5)
                     {
@@ -1567,7 +1613,7 @@ public static class ReplaceMessageBuffer
                     int num2 = Sign.ReadSign(i2, j3);
                     if (num2 >= 0)
                     {
-                        NetMessage.TrySendData(47, self.whoAmI, -1, null, num2, self.whoAmI);
+                        NetMessage.TrySendData(MessageID.Unknown47, self.whoAmI, -1, null, num2, self.whoAmI);
                     }
                     break;
                 }
@@ -1595,7 +1641,7 @@ public static class ReplaceMessageBuffer
                         if (text2 != text)
                         {
                             int num111 = self.whoAmI;
-                            NetMessage.TrySendData(47, -1, self.whoAmI, null, num98, num111);
+                            NetMessage.TrySendData(MessageID.Unknown47, -1, self.whoAmI, null, num98, num111);
                         }
                     }
                     break;
@@ -1632,7 +1678,7 @@ public static class ReplaceMessageBuffer
                         WorldGen.SquareTileFrame(num28, num29);
                         if (b14 == 0)
                         {
-                            NetMessage.SendData(48, -1, self.whoAmI, null, num28, num29);
+                            NetMessage.SendData(MessageID.LiquidUpdate, -1, self.whoAmI, null, num28, num29);
                         }
                         break;
                     }
@@ -1661,7 +1707,7 @@ public static class ReplaceMessageBuffer
                             player12.buffTime[num181] = 0;
                         }
                     }
-                    NetMessage.TrySendData(50, -1, self.whoAmI, null, num180);
+                    NetMessage.TrySendData(MessageID.PlayerBuffs, -1, self.whoAmI, null, num180);
                     break;
                 }
             case 51:
@@ -1674,7 +1720,7 @@ public static class ReplaceMessageBuffer
                             NPC.SpawnSkeletron(b7);
                             break;
                         case 2:
-                            NetMessage.TrySendData(51, -1, self.whoAmI, null, b7, (int)b8);
+                            NetMessage.TrySendData(MessageID.MiscDataSync, -1, self.whoAmI, null, b7, (int)b8);
                             break;
                         case 3:
                             Main.Sundialing();
@@ -1685,7 +1731,7 @@ public static class ReplaceMessageBuffer
                         case 5:
                             {
                                 NPC nPC3 = new();
-                                nPC3.SetDefaults(664);
+                                nPC3.SetDefaults(NPCID.TorchGod);
                                 Main.BestiaryTracker.Kills.RegisterKill(nPC3);
                                 break;
                             }
@@ -1703,19 +1749,19 @@ public static class ReplaceMessageBuffer
                     if (num148 == 1)
                     {
                         Chest.Unlock(num149, num151);
-                        NetMessage.TrySendData(52, -1, self.whoAmI, null, 0, num148, num149, num151);
+                        NetMessage.TrySendData(MessageID.LockAndUnlock, -1, self.whoAmI, null, 0, num148, num149, num151);
                         NetMessage.SendTileSquare(-1, num149, num151, 2);
                     }
                     if (num148 == 2)
                     {
                         WorldGen.UnlockDoor(num149, num151);
-                        NetMessage.TrySendData(52, -1, self.whoAmI, null, 0, num148, num149, num151);
+                        NetMessage.TrySendData(MessageID.LockAndUnlock, -1, self.whoAmI, null, 0, num148, num149, num151);
                         NetMessage.SendTileSquare(-1, num149, num151, 2);
                     }
                     if (num148 == 3)
                     {
                         Chest.Lock(num149, num151);
-                        NetMessage.TrySendData(52, -1, self.whoAmI, null, 0, num148, num149, num151);
+                        NetMessage.TrySendData(MessageID.LockAndUnlock, -1, self.whoAmI, null, 0, num148, num149, num151);
                         NetMessage.SendTileSquare(-1, num149, num151, 2);
                     }
                     break;
@@ -1726,7 +1772,7 @@ public static class ReplaceMessageBuffer
                     int type17 = self.reader.ReadUInt16();
                     int time2 = self.reader.ReadInt16();
                     Main.npc[num122].AddBuff(type17, time2, quiet: true);
-                    NetMessage.TrySendData(54, -1, -1, null, num122);
+                    NetMessage.TrySendData(MessageID.NPCBuffs, -1, -1, null, num122);
                     break;
                 }
             case 55:
@@ -1736,7 +1782,7 @@ public static class ReplaceMessageBuffer
                     int num74 = self.reader.ReadInt32();
                     if (num70 == self.whoAmI || Main.pvpBuff[num71])
                     {
-                        NetMessage.TrySendData(55, -1, -1, null, num70, num71, num74);
+                        NetMessage.TrySendData(MessageID.AddPlayerBuff, -1, -1, null, num70, num71, num74);
                     }
                     break;
                 }
@@ -1745,7 +1791,7 @@ public static class ReplaceMessageBuffer
                     int num53 = self.reader.ReadInt16();
                     if (num53 >= 0 && num53 < 200)
                     {
-                        NetMessage.TrySendData(56, self.whoAmI, -1, null, num53);
+                        NetMessage.TrySendData(MessageID.UniqueTownNPCInfoSyncRequest, self.whoAmI, -1, null, num53);
                     }
                     break;
                 }
@@ -1754,7 +1800,7 @@ public static class ReplaceMessageBuffer
                     self.reader.ReadByte();
                     _ = self.whoAmI;
                     float num48 = self.reader.ReadSingle();
-                    NetMessage.TrySendData(58, -1, self.whoAmI, null, self.whoAmI, num48);
+                    NetMessage.TrySendData(MessageID.InstrumentSound, -1, self.whoAmI, null, self.whoAmI, num48);
                     break;
                 }
             case 59:
@@ -1764,7 +1810,7 @@ public static class ReplaceMessageBuffer
                     Wiring.SetCurrentUser(self.whoAmI);
                     Wiring.HitSwitch(num106, num196);
                     Wiring.SetCurrentUser();
-                    NetMessage.TrySendData(59, -1, self.whoAmI, null, num106, num196);
+                    NetMessage.TrySendData(MessageID.HitSwitch, -1, self.whoAmI, null, num106, num196);
                     break;
                 }
             case 60:
@@ -1807,8 +1853,8 @@ public static class ReplaceMessageBuffer
                         {
                             ChatHelper.BroadcastChatMessage(NetworkText.FromKey(Lang.misc[31].Key), new Color(50, 255, 130));
                             Main.startPumpkinMoon();
-                            NetMessage.TrySendData(7);
-                            NetMessage.TrySendData(78, -1, -1, null, 0, 1f, 2f, 1f);
+                            NetMessage.TrySendData(MessageID.WorldData);
+                            NetMessage.TrySendData(MessageID.InvasionProgressReport, -1, -1, null, 0, 1f, 2f, 1f);
                         }
                     }
                     else if (num5 == -5)
@@ -1817,8 +1863,8 @@ public static class ReplaceMessageBuffer
                         {
                             ChatHelper.BroadcastChatMessage(NetworkText.FromKey(Lang.misc[34].Key), new Color(50, 255, 130));
                             Main.startSnowMoon();
-                            NetMessage.TrySendData(7);
-                            NetMessage.TrySendData(78, -1, -1, null, 0, 1f, 1f, 1f);
+                            NetMessage.TrySendData(MessageID.WorldData);
+                            NetMessage.TrySendData(MessageID.InvasionProgressReport, -1, -1, null, 0, 1f, 1f, 1f);
                         }
                     }
                     else if (num5 == -6)
@@ -1834,22 +1880,22 @@ public static class ReplaceMessageBuffer
                                 ChatHelper.BroadcastChatMessage(NetworkText.FromKey(Lang.misc[20].Key), new Color(50, 255, 130));
                             }
                             Main.eclipse = true;
-                            NetMessage.TrySendData(7);
+                            NetMessage.TrySendData(MessageID.WorldData);
                         }
                     }
                     else if (num5 == -7)
                     {
                         Main.invasionDelay = 0;
                         Main.StartInvasion(4);
-                        NetMessage.TrySendData(7);
-                        NetMessage.TrySendData(78, -1, -1, null, 0, 1f, Main.invasionType + 3);
+                        NetMessage.TrySendData(MessageID.WorldData);
+                        NetMessage.TrySendData(MessageID.InvasionProgressReport, -1, -1, null, 0, 1f, Main.invasionType + 3);
                     }
                     else if (num5 == -8)
                     {
                         if (NPC.downedGolemBoss && Main.hardMode && !NPC.AnyDanger() && !NPC.AnyoneNearCultists())
                         {
                             WorldGen.StartImpendingDoom(720);
-                            NetMessage.TrySendData(7);
+                            NetMessage.TrySendData(MessageID.WorldData);
                         }
                     }
                     else if (num5 == -10)
@@ -1863,14 +1909,14 @@ public static class ReplaceMessageBuffer
                                 Main.moonPhase = 5;
                             }
                             AchievementsHelper.NotifyProgressionEvent(4);
-                            NetMessage.TrySendData(7);
+                            NetMessage.TrySendData(MessageID.WorldData);
                         }
                     }
                     else if (num5 == -11)
                     {
                         ChatHelper.BroadcastChatMessage(NetworkText.FromKey("Misc.CombatBookUsed"), new Color(50, 255, 130));
                         NPC.combatBookWasUsed = true;
-                        NetMessage.TrySendData(7);
+                        NetMessage.TrySendData(MessageID.WorldData);
                     }
                     else if (num5 == -12)
                     {
@@ -1896,13 +1942,13 @@ public static class ReplaceMessageBuffer
                     {
                         ChatHelper.BroadcastChatMessage(NetworkText.FromKey("Misc.CombatBookVolumeTwoUsed"), new Color(50, 255, 130));
                         NPC.combatBookVolumeTwoWasUsed = true;
-                        NetMessage.TrySendData(7);
+                        NetMessage.TrySendData(MessageID.WorldData);
                     }
                     else if (num5 == -18)
                     {
                         ChatHelper.BroadcastChatMessage(NetworkText.FromKey("Misc.PeddlersSatchelUsed"), new Color(50, 255, 130));
                         NPC.peddlersSatchelWasUsed = true;
-                        NetMessage.TrySendData(7);
+                        NetMessage.TrySendData(MessageID.WorldData);
                     }
                     else if (num5 < 0)
                     {
@@ -1911,12 +1957,12 @@ public static class ReplaceMessageBuffer
                         {
                             num6 = -num5;
                         }
-                        if (num6 > 0 && Main.invasionType == 0)
+                        if (num6 > 0 && Main.invasionType == InvasionID.None)
                         {
                             Main.invasionDelay = 0;
                             Main.StartInvasion(num6);
                         }
-                        NetMessage.TrySendData(78, -1, -1, null, 0, 1f, Main.invasionType + 3);
+                        NetMessage.TrySendData(MessageID.InvasionProgressReport, -1, -1, null, 0, 1f, Main.invasionType + 3);
                     }
                     break;
                 }
@@ -1937,7 +1983,7 @@ public static class ReplaceMessageBuffer
                     {
                         Main.player[num162].BrainOfConfusionDodge();
                     }
-                    NetMessage.TrySendData(62, -1, self.whoAmI, null, num162, num164);
+                    NetMessage.TrySendData(MessageID.Unknown62, -1, self.whoAmI, null, num162, num164);
                     break;
                 }
             case 63:
@@ -1954,7 +2000,7 @@ public static class ReplaceMessageBuffer
                     {
                         WorldGen.paintCoatTile(num144, num145, b4);
                     }
-                    NetMessage.TrySendData(63, -1, self.whoAmI, null, num144, num145, (int)b4, (int)b5);
+                    NetMessage.TrySendData(MessageID.Unknown63, -1, self.whoAmI, null, num144, num145, (int)b4, (int)b5);
                     break;
                 }
             case 64:
@@ -1971,7 +2017,7 @@ public static class ReplaceMessageBuffer
                     {
                         WorldGen.paintCoatWall(num131, num132, b2);
                     }
-                    NetMessage.TrySendData(64, -1, self.whoAmI, null, num131, num132, (int)b2, (int)b3);
+                    NetMessage.TrySendData(MessageID.Unknown64, -1, self.whoAmI, null, num131, num132, (int)b2, (int)b3);
                     break;
                 }
             case 65:
@@ -2016,7 +2062,7 @@ public static class ReplaceMessageBuffer
                             {
                                 Main.player[num75].Teleport(vector, num76, num78);
                                 RemoteClient.CheckSection(self.whoAmI, vector);
-                                NetMessage.TrySendData(65, -1, -1, null, 0, num75, vector.X, vector.Y, num76, flag16.ToInt(), num78);
+                                NetMessage.TrySendData(MessageID.TeleportEntity, -1, -1, null, 0, num75, vector.X, vector.Y, num76, flag16.ToInt(), num78);
                                 int num79 = -1;
                                 float num80 = 9999f;
                                 for (int num81 = 0; num81 < 255; num81++)
@@ -2040,7 +2086,7 @@ public static class ReplaceMessageBuffer
                     }
                     if (num77 == 0)
                     {
-                        NetMessage.TrySendData(65, -1, self.whoAmI, null, num77, num75, vector.X, vector.Y, num76, flag16.ToInt(), num78);
+                        NetMessage.TrySendData(MessageID.TeleportEntity, -1, self.whoAmI, null, num77, num75, vector.X, vector.Y, num76, flag16.ToInt(), num78);
                     }
                     break;
                 }
@@ -2057,7 +2103,7 @@ public static class ReplaceMessageBuffer
                             player16.statLife = player16.statLifeMax2;
                         }
                         player16.HealEffect(num58, broadcast: false);
-                        NetMessage.TrySendData(66, -1, self.whoAmI, null, num57, num58);
+                        NetMessage.TrySendData(MessageID.Unknown66, -1, self.whoAmI, null, num57, num58);
                     }
                     break;
                 }
@@ -2084,7 +2130,7 @@ public static class ReplaceMessageBuffer
                     Chest chest3 = Main.chest[num39];
                     if (chest3.x == num40 && chest3.y == num41)
                     {
-                        NetMessage.TrySendData(69, self.whoAmI, -1, null, num39, num40, num41);
+                        NetMessage.TrySendData(MessageID.ChestName, self.whoAmI, -1, null, num39, num40, num41);
                     }
                     break;
                 }
@@ -2143,7 +2189,7 @@ public static class ReplaceMessageBuffer
                         Player obj2 = Main.player[num169];
                         obj2.anglerQuestsFinished = self.reader.ReadInt32();
                         obj2.golferScoreAccumulated = self.reader.ReadInt32();
-                        NetMessage.TrySendData(76, -1, self.whoAmI, null, num169);
+                        NetMessage.TrySendData(MessageID.QuestsCountSync, -1, self.whoAmI, null, num169);
                     }
                     break;
                 }
@@ -2182,7 +2228,7 @@ public static class ReplaceMessageBuffer
                     int num152 = self.whoAmI;
                     float stealth = self.reader.ReadSingle();
                     Main.player[num152].stealth = stealth;
-                    NetMessage.TrySendData(84, -1, self.whoAmI, null, num152);
+                    NetMessage.TrySendData(MessageID.PlayerStealth, -1, self.whoAmI, null, num152);
                     break;
                 }
             case 85:
@@ -2225,7 +2271,7 @@ public static class ReplaceMessageBuffer
                     if (num170 >= 0 && num170 <= 200)
                     {
                         Main.npc[num170].extraValue += num171;
-                        NetMessage.TrySendData(92, -1, -1, null, num170, Main.npc[num170].extraValue, num172, num173);
+                        NetMessage.TrySendData(MessageID.SyncExtraValue, -1, -1, null, num170, Main.npc[num170].extraValue, num172, num173);
                     }
                     break;
                 }
@@ -2235,10 +2281,10 @@ public static class ReplaceMessageBuffer
                     int num166 = self.reader.ReadByte();
                     for (int num168 = 0; num168 < 1000; num168++)
                     {
-                        if (Main.projectile[num168].owner == num165 && Main.projectile[num168].active && Main.projectile[num168].type == 602 && Main.projectile[num168].ai[1] == (float)num166)
+                        if (Main.projectile[num168].owner == num165 && Main.projectile[num168].active && Main.projectile[num168].type == ProjectileID.PortalGunGate && Main.projectile[num168].ai[1] == (float)num166)
                         {
                             Main.projectile[num168].Kill();
-                            NetMessage.TrySendData(29, -1, -1, null, Main.projectile[num168].identity, (int)num165);
+                            NetMessage.TrySendData(MessageID.KillProjectile, -1, -1, null, Main.projectile[num168].identity, (int)num165);
                             break;
                         }
                     }
@@ -2255,7 +2301,7 @@ public static class ReplaceMessageBuffer
                     obj6.lastPortalColorIndex = lastPortalColorIndex2;
                     obj6.Teleport(newPos2, 4, num159);
                     obj6.velocity = velocity5;
-                    NetMessage.SendData(96, -1, -1, null, num158, newPos2.X, newPos2.Y, num159);
+                    NetMessage.SendData(MessageID.TeleportPlayerThroughPortal, -1, -1, null, num158, newPos2.X, newPos2.Y, num159);
                     break;
                 }
             case 99:
@@ -2263,7 +2309,7 @@ public static class ReplaceMessageBuffer
                     self.reader.ReadByte();
                     int num143 = self.whoAmI;
                     Main.player[num143].MinionRestTargetPoint = self.reader.ReadVector2();
-                    NetMessage.TrySendData(99, -1, self.whoAmI, null, num143);
+                    NetMessage.TrySendData(MessageID.MinionRestTargetUpdate, -1, self.whoAmI, null, num143);
                     break;
                 }
             case 115:
@@ -2271,7 +2317,7 @@ public static class ReplaceMessageBuffer
                     self.reader.ReadByte();
                     int num136 = self.whoAmI;
                     Main.player[num136].MinionAttackTargetNPC = self.reader.ReadInt16();
-                    NetMessage.TrySendData(115, -1, self.whoAmI, null, num136);
+                    NetMessage.TrySendData(MessageID.MinionAttackTargetUpdate, -1, self.whoAmI, null, num136);
                     break;
                 }
             case 100:
@@ -2294,7 +2340,7 @@ public static class ReplaceMessageBuffer
                     ushort num83 = self.reader.ReadUInt16();
                     Vector2 other = self.reader.ReadVector2();
                     int num82 = self.whoAmI;
-                    NetMessage.TrySendData(102, -1, -1, null, num82, (int)num83, other.X, other.Y);
+                    NetMessage.TrySendData(MessageID.NebulaLevelupRequest, -1, -1, null, num82, (int)num83, other.X, other.Y);
                     break;
                 }
             case 105:
@@ -2497,7 +2543,7 @@ public static class ReplaceMessageBuffer
                     int num125 = self.reader.ReadInt16();
                     int num126 = self.reader.ReadByte();
                     int num123 = self.whoAmI;
-                    NetMessage.TrySendData(125, -1, num123, null, num123, num124, num125, num126);
+                    NetMessage.TrySendData(MessageID.SyncTilePicking, -1, num123, null, num123, num124, num125, num126);
                     break;
                 }
             case 127:
@@ -2510,7 +2556,7 @@ public static class ReplaceMessageBuffer
                     int num35 = self.reader.ReadUInt16();
                     int num46 = self.reader.ReadUInt16();
                     int num54 = self.reader.ReadUInt16();
-                    NetMessage.SendData(128, -1, num13, null, num13, num46, num54, 0f, num24, num35);
+                    NetMessage.SendData(MessageID.LandGolfBallInCup, -1, num13, null, num13, num46, num54, 0f, num24, num35);
                     break;
                 }
             case 130:
@@ -2525,7 +2571,7 @@ public static class ReplaceMessageBuffer
                             break;
                         }
                         NPC.unlockedSlimeRedSpawn = true;
-                        NetMessage.TrySendData(7);
+                        NetMessage.TrySendData(MessageID.WorldData);
                     }
                     num115 *= 16;
                     num116 *= 16;
@@ -2537,7 +2583,7 @@ public static class ReplaceMessageBuffer
                     if (netID != type16)
                     {
                         Main.npc[num119].SetDefaults(netID);
-                        NetMessage.TrySendData(23, -1, -1, null, num119);
+                        NetMessage.TrySendData(MessageID.SyncNPC, -1, -1, null, num119);
                     }
                     if (num117 == 682)
                     {
@@ -2573,7 +2619,7 @@ public static class ReplaceMessageBuffer
                     obj4.equipmentBasedLuckBonus = equipmentBasedLuckBonus;
                     obj4.coinLuck = coinLuck;
                     obj4.RecalculateLuck();
-                    NetMessage.SendData(134, -1, num67, null, num67);
+                    NetMessage.SendData(MessageID.UpdatePlayerLuckFactors, -1, num67, null, num67);
                     break;
                 }
             case 135:
@@ -2624,7 +2670,7 @@ public static class ReplaceMessageBuffer
                     Vector2 velocity = self.reader.ReadVector2();
                     int num202 = self.reader.ReadInt32();
                     int num8 = self.reader.ReadInt32();
-                    NetMessage.SendData(141, -1, self.whoAmI, null, (int)messageSource, (int)b16, velocity.X, velocity.Y, num202, num8);
+                    NetMessage.SendData(MessageID.RequestLucyPopup, -1, self.whoAmI, null, (int)messageSource, (int)b16, velocity.X, velocity.Y, num202, num8);
                     break;
                 }
             case 142:
@@ -2634,7 +2680,7 @@ public static class ReplaceMessageBuffer
                     Player obj = Main.player[num179];
                     obj.piggyBankProjTracker.TryReading(self.reader);
                     obj.voidLensChest.TryReading(self.reader);
-                    NetMessage.TrySendData(142, -1, self.whoAmI, null, num179);
+                    NetMessage.TrySendData(MessageID.SyncProjectileTrackers, -1, self.whoAmI, null, num179);
                     break;
                 }
             case 143:

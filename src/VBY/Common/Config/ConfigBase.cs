@@ -95,6 +95,7 @@ public class ConfigBase<T> where T : RootBase, new()
         PostRead?.Invoke(this);
         return true;
     }
+    protected void OnPostRead() => PostRead?.Invoke(this);
     public virtual void LogAndOut(string message, TSPlayer? player = null, bool log = false, TraceLevel level = TraceLevel.Info)
     {
         if (player == null)

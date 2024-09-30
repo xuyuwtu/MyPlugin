@@ -1,4 +1,6 @@
-﻿namespace VBY.NPCTest;
+﻿using VBY.NPCAI;
+
+namespace VBY.NPCTest;
 
 partial class NPCAIs
 {
@@ -10,7 +12,7 @@ partial class NPCAIs
         {
             num += 2f;
         }
-        if ((!Main.player[npc.target].ZoneLihzhardTemple && !Main.player[npc.target].ZoneJungle) || (double)Main.player[npc.target].Center.Y < Main.worldSurface * 16.0)
+        if ((!Main.player[npc.target].ZoneLihzhardTemple && !Main.player[npc.target].ZoneJungle) || Main.player[npc.target].Center.Y < Main.worldSurface * 16.0)
         {
             num *= 2f;
         }
@@ -76,45 +78,45 @@ partial class NPCAIs
             }
         }
         npc.position += npc.netOffset;
-        if (!Main.getGoodWorld)
-        {
-            if (!flag2)
-            {
-                int num2 = Dust.NewDust(new Vector2(npc.Center.X - 80f * npc.scale, npc.Center.Y - 9f), 8, 8, 31, 0f, 0f, 100);
-                Main.dust[num2].alpha += Main.rand.Next(100);
-                Main.dust[num2].velocity *= 0.2f;
-                Main.dust[num2].velocity.Y -= 0.5f + (float)Main.rand.Next(10) * 0.1f;
-                Main.dust[num2].fadeIn = 0.5f + (float)Main.rand.Next(10) * 0.1f;
-                if (Main.rand.Next(10) == 0)
-                {
-                    num2 = Dust.NewDust(new Vector2(npc.Center.X - 80f * npc.scale, npc.Center.Y - 9f), 8, 8, 6);
-                    if (Main.rand.Next(20) != 0)
-                    {
-                        Main.dust[num2].noGravity = true;
-                        Main.dust[num2].scale *= 1f + (float)Main.rand.Next(10) * 0.1f;
-                        Main.dust[num2].velocity.Y -= 1f;
-                    }
-                }
-            }
-            if (!flag3)
-            {
-                int num3 = Dust.NewDust(new Vector2(npc.Center.X + 62f * npc.scale, npc.Center.Y - 9f), 8, 8, 31, 0f, 0f, 100);
-                Main.dust[num3].alpha += Main.rand.Next(100);
-                Main.dust[num3].velocity *= 0.2f;
-                Main.dust[num3].velocity.Y -= 0.5f + (float)Main.rand.Next(10) * 0.1f;
-                Main.dust[num3].fadeIn = 0.5f + (float)Main.rand.Next(10) * 0.1f;
-                if (Main.rand.Next(10) == 0)
-                {
-                    num3 = Dust.NewDust(new Vector2(npc.Center.X + 62f * npc.scale, npc.Center.Y - 9f), 8, 8, 6);
-                    if (Main.rand.Next(20) != 0)
-                    {
-                        Main.dust[num3].noGravity = true;
-                        Main.dust[num3].scale *= 1f + (float)Main.rand.Next(10) * 0.1f;
-                        Main.dust[num3].velocity.Y -= 1f;
-                    }
-                }
-            }
-        }
+        //if (!Main.getGoodWorld)
+        //{
+        //    if (!flag2)
+        //    {
+        //        int num2 = Dust.NewDust(new Vector2(npc.Center.X - 80f * npc.scale, npc.Center.Y - 9f), 8, 8, 31, 0f, 0f, 100);
+        //        Main.dust[num2].alpha += Main.rand.Next(100);
+        //        Main.dust[num2].velocity *= 0.2f;
+        //        Main.dust[num2].velocity.Y -= 0.5f + (float)Main.rand.Next(10) * 0.1f;
+        //        Main.dust[num2].fadeIn = 0.5f + (float)Main.rand.Next(10) * 0.1f;
+        //        if (Main.rand.Next(10) == 0)
+        //        {
+        //            num2 = Dust.NewDust(new Vector2(npc.Center.X - 80f * npc.scale, npc.Center.Y - 9f), 8, 8, 6);
+        //            if (Main.rand.Next(20) != 0)
+        //            {
+        //                Main.dust[num2].noGravity = true;
+        //                Main.dust[num2].scale *= 1f + (float)Main.rand.Next(10) * 0.1f;
+        //                Main.dust[num2].velocity.Y -= 1f;
+        //            }
+        //        }
+        //    }
+        //    if (!flag3)
+        //    {
+        //        int num3 = Dust.NewDust(new Vector2(npc.Center.X + 62f * npc.scale, npc.Center.Y - 9f), 8, 8, 31, 0f, 0f, 100);
+        //        Main.dust[num3].alpha += Main.rand.Next(100);
+        //        Main.dust[num3].velocity *= 0.2f;
+        //        Main.dust[num3].velocity.Y -= 0.5f + (float)Main.rand.Next(10) * 0.1f;
+        //        Main.dust[num3].fadeIn = 0.5f + (float)Main.rand.Next(10) * 0.1f;
+        //        if (Main.rand.Next(10) == 0)
+        //        {
+        //            num3 = Dust.NewDust(new Vector2(npc.Center.X + 62f * npc.scale, npc.Center.Y - 9f), 8, 8, 6);
+        //            if (Main.rand.Next(20) != 0)
+        //            {
+        //                Main.dust[num3].noGravity = true;
+        //                Main.dust[num3].scale *= 1f + (float)Main.rand.Next(10) * 0.1f;
+        //                Main.dust[num3].velocity.Y -= 1f;
+        //            }
+        //        }
+        //    }
+        //}
         npc.position -= npc.netOffset;
         if (npc.noTileCollide && !Main.player[npc.target].dead)
         {
@@ -200,17 +202,25 @@ partial class NPCAIs
                 SoundEngine.PlaySound(SoundID.Item14, npc.position);
                 npc.ai[0] = 0f;
                 var point = npc.Bottom.ToTileCoordinates();
-                point.Y += 1;
-                for(int i = -5; i <= 5; i++)
+                //point.Y += 1;
+                point.Y -= 3;
+                for(int i = -2; i <= 2; i++)
                 {
-                    if (WorldGen.InWorld(point.X + i, point.Y, 10) && Main.tile[point.X + i, point.Y] is not null && WorldGen.SolidTile(Main.tile[point.X + i, point.Y]))
+                    if(i == 0)
                     {
-                        var proj = Main.projectile[npc.NewProjectile(npc.Center, Vector2.UnitY.RotatedByDegress(Main.rand.Next(45) - 90), 526, 50, (point.X + i) << 4, point.Y)];
-                        proj.localAI[0] = 0f;
-                        proj.localAI[1] = -1f;
-                        proj.localAI[2] = 654;
-                        break;
+                        continue;
                     }
+                    var index = npc.NewProjectile(npc.Center, -Vector2.UnitY * 50, 526, 0, (point.X + i * 10) << 4, point.Y << 4, -1);
+                    NPCAIPlugin.SetNewProjectileInfo(index, new()
+                    {
+                        Type = ProjectileID.TNTBarrel,
+                        Damage = 30
+                    });
+                    //if (WorldGen.InWorld(point.X + i, point.Y, 10) && Main.tile[point.X + i, point.Y] is not null && WorldGen.SolidTile(Main.tile[point.X + i, point.Y]))
+                    //{
+                    //    npc.NewProjectile(npc.Center, Vector2.UnitY.RotatedByDegress(Main.rand.Next(45) - 90), 526, 50, (point.X + i) << 4, point.Y << 4, ProjectileID.TNTBarrel);
+                    //    break;
+                    //}
                 }
                 
                 //654

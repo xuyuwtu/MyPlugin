@@ -1,16 +1,24 @@
-﻿namespace VBY.ProjectileAI;
+﻿using System.Runtime.InteropServices;
 
-public class NewProjectileInfo
+namespace VBY.ProjectileAI;
+
+[StructLayout(LayoutKind.Explicit)]
+public struct NewProjectileInfo
 {
+    [FieldOffset(0)]
     public int Type;
+    [FieldOffset(4)]
     public int Damage;
+    [FieldOffset(8)]
     public float KnockBack;
-    public Vector2 Velocity;
-    public AI3 AI;
-}
-public struct AI3
-{
+    [FieldOffset(12)]
+    public float SpeedX;
+    [FieldOffset(16)]
+    public float SpeedY;
+    [FieldOffset(20)]
     public float AI0;
-    public float Ai1;
-    public float Ai2;
+    [FieldOffset(24)]
+    public float AI1;
+    [FieldOffset(28)]
+    public float AI2;
 }

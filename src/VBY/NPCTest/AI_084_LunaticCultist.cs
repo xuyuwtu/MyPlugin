@@ -528,7 +528,7 @@ partial class NPCAIs
                     for (int m = 0; m < 1; m++)
                     {
                         //Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector3.X, vector3.Y, spinninpoint.X, spinninpoint.Y, 468, 18, 0f, Main.myPlayer);
-                        Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector3, vec * 4f, 464, npc.GetMultiplierDamage(attackDamage_ForProjectiles), 0f, Main.myPlayer, 0, 1f);
+                        Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector3, vec * 4f, 464, attackDamage_ForProjectiles, 0f, Main.myPlayer, 0, 1f);
                     }
                 }
             }
@@ -576,7 +576,7 @@ partial class NPCAIs
                     {
                         Vector2 velocity = vec * (6f + (float)Main.rand.NextDouble() * 4f);
                         velocity = velocity.RotatedByRandom(0.5235987901687622);
-                        Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), position, velocity, 467, attackDamage_ForProjectiles, 0f, Main.myPlayer);
+                        Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), position, velocity, 467, attackDamage_ForProjectiles2, 0f, Main.myPlayer);
                     }
                 }
             }
@@ -634,7 +634,7 @@ partial class NPCAIs
             npc.localAI[2] = 10f;
             if (Vector2.Normalize(targetPlayer.Center - npcCenter).HasNaNs())
             {
-                new Vector2(npc.direction, 0f);
+                //new Vector2(npc.direction, 0f);
             }
             if (npc.ai[1] >= 0f && npc.ai[1] < 30f)
             {
@@ -904,22 +904,40 @@ partial class NPCAIs
                 }
                 if (Main.netMode != 1)
                 {
-                    vec3 = Vector2.Normalize(targetPlayer.Center - npcCenter + targetPlayer.velocity * 20f);
-                    if (vec3.HasNaNs())
+                    List<int> shadowNPCs = new() { npc.whoAmI };
+                    for (int l = 0; l < 200; l++)
                     {
-                        vec3 = new Vector2(npc.direction, 0f);
+                        if (Main.npc[l].active && Main.npc[l].type == 440 && Main.npc[l].ai[3] == npc.whoAmI)
+                        {
+                            shadowNPCs.Add(l);
+                        }
                     }
-                    Vector2 vector15 = npc.Center + new Vector2(npc.direction * 30, 12f);
-                    float num46 = 8f;
-                    float num47 = (float)Math.PI * 2f / 25f;
-                    for (int num48 = 0; num48 < 5f; num48++)
+                    foreach (int shadowNPCIndex in shadowNPCs)
                     {
-                        Vector2 spinningpoint2 = vec3 * num46;
-                        spinningpoint2 = spinningpoint2.RotatedBy(num47 * num48 - ((float)Math.PI * 2f / 5f - num47) / 2f);
-                        float ai = (Main.rand.NextFloat() - 0.5f) * 0.3f * ((float)Math.PI * 2f) / 60f;
-                        int num49 = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)vector15.X, (int)vector15.Y + 7, 522, 0, 0f, ai, spinningpoint2.X, spinningpoint2.Y);
-                        Main.npc[num49].velocity = spinningpoint2;
-                        Main.npc[num49].netUpdate = true;
+                        NPC shadowNPC = Main.npc[shadowNPCIndex];
+                        Vector2 shadowNPCCenter = shadowNPC.Center;
+                        int num17 = Math.Sign(targetPlayer.Center.X - shadowNPCCenter.X);
+                        if (num17 != 0)
+                        {
+                            shadowNPC.direction = (shadowNPC.spriteDirection = num17);
+                        }
+                        vec3 = Vector2.Normalize(targetPlayer.Center - shadowNPCCenter + targetPlayer.velocity * 20f);
+                        if (vec3.HasNaNs())
+                        {
+                            vec3 = new Vector2(shadowNPC.direction, 0f);
+                        }
+                        Vector2 vector15 = shadowNPC.Center + new Vector2(shadowNPC.direction * 30, 12f);
+                        float num46 = 8f;
+                        float num47 = (float)Math.PI * 2f / 25f;
+                        for (int num48 = 0; num48 < 5f; num48++)
+                        {
+                            Vector2 spinningpoint2 = vec3 * num46;
+                            spinningpoint2 = spinningpoint2.RotatedBy(num47 * num48 - ((float)Math.PI * 2f / 5f - num47) / 2f);
+                            float ai = (Main.rand.NextFloat() - 0.5f) * 0.3f * ((float)Math.PI * 2f) / 60f;
+                            int num49 = NPC.NewNPC(shadowNPC.GetSpawnSourceForNPCFromNPCAI(), (int)vector15.X, (int)vector15.Y + 7, 522, 0, 0f, ai, spinningpoint2.X, spinningpoint2.Y);
+                            Main.npc[num49].velocity = spinningpoint2;
+                            Main.npc[num49].netUpdate = true;
+                        }
                     }
                 }
             }

@@ -1,5 +1,11 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
 	<PropertyGroup>
 		<OutToPluginLoader>true</OutToPluginLoader>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\TerrariaIDExtension\TerrariaIDExtension.csproj">
+			<Private>False</Private>
+		</ProjectReference>
+	</ItemGroup>
 </Project>

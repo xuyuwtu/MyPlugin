@@ -1,6 +1,12 @@
-﻿using Terraria;
+﻿using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+using Terraria;
 using Terraria.ID;
+
 using TerrariaApi.Server;
+
 using TShockAPI;
 
 namespace VBY.DisableUnlockChest;
@@ -26,23 +32,36 @@ public class DisableUnlockChest : TerrariaPlugin
         }
     }
 
-    private static void OnNetGetData(GetDataEventArgs args)
+    private static unsafe void OnNetGetData(GetDataEventArgs args)
     {
-        if(args.MsgID == PacketTypes.ChestUnlock)
+        if(args.MsgID == (PacketTypes)MessageID.LockAndUnlock)
         {
-            var ms = new MemoryStream(args.Msg.readBuffer, args.Index, args.Length);
-            using var br = new BinaryReader(ms);
-            if(br.ReadByte() == LockAndUnlockTypeID.ChestUnlock)
+            if(args.Length != LockAndUnlockPacket.Length)
             {
-                int unlockX = br.ReadInt16();
-                int unlockY = br.ReadInt16();
+                Netplay.Clients[args.Msg.whoAmI].PendingTermination = true;
+                return;
+            }
+            LockAndUnlockPacket packet;
+            fixed (byte* ptr = &args.Msg.readBuffer[args.Index])
+            {
+                packet = Unsafe.ReadUnaligned<LockAndUnlockPacket>(ptr);
+                if (!BitConverter.IsLittleEndian)
+                {
+                    packet.X = BinaryPrimitives.ReverseEndianness(packet.X);
+                    packet.Y = BinaryPrimitives.ReverseEndianness(packet.Y);
+                }
+            }
+            if(packet.Action == NetMessageID.LockAndUnlock.ActionChestUnlock)
+            {
+                int unlockX = packet.X;
+                int unlockY = packet.Y;
                 if (!(Main.tile[unlockX, unlockY] == null || Main.tile[unlockX + 1, unlockY] == null || Main.tile[unlockX, unlockY + 1] == null || Main.tile[unlockX + 1, unlockY + 1] == null))
                 {
                     ITile tileSafely = Framing.GetTileSafely(unlockX, unlockY);
-                    if(tileSafely.type == TileID.Containers && tileSafely.frameX / 36 == 2 && !NPC.downedBoss3)
+                    if(tileSafely.type == TileID.Containers && tileSafely.frameX / TileSize.S2 == TileStyleID.Containers.LockedGoldChest && !NPC.downedBoss3)
                     {
                         args.Handled = true;
-                        NetMessage.SendTileSquare(args.Msg.whoAmI, unlockX, unlockY, 2);
+                        NetMessage.SendTileSquare(args.Msg.whoAmI, unlockX, unlockY, 2, 2);
                         TShock.Players[args.Msg.whoAmI]?.Kick("骷髅王前禁止解锁箱子");
                     }
                 }
@@ -50,9 +69,11 @@ public class DisableUnlockChest : TerrariaPlugin
         }
     }
 }
-public static class LockAndUnlockTypeID
+[StructLayout(LayoutKind.Sequential)]
+internal struct LockAndUnlockPacket
 {
-    public const int ChestUnlock = 1;
-    public const int Door = 2;
-    public const int ChestLock = 3;
+    public const int Length = sizeof(byte) + sizeof(short) * 2;
+    public byte Action;
+    public short X;
+    public short Y;
 }

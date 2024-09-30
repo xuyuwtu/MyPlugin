@@ -13,6 +13,7 @@ namespace VBY.GameContentModify;
 [ReplaceType(typeof(Item))]
 public static class ReplaceItem
 {
+    [DetourMethod]
     public static bool CanShimmer(Item self)
     {
         var func = ShimmerItemReplaceInfo.CanShimmerFuncs[self.type];
@@ -33,12 +34,12 @@ public static class ReplaceItem
         //    flag = true;
         //}
 
-        if (self.type == 4986 && !NPC.unlockedSlimeRainbowSpawn)
+        if (self.type == ItemID.GelBalloon && !NPC.unlockedSlimeRainbowSpawn)
         {
             flag = true;
         }
 
-        if (self.type == 3461 || self.createTile == TileID.MusicBoxes)
+        if (self.type == ItemID.LunarBrick || self.createTile == TileID.MusicBoxes)
         {
             flag = true;
         }
@@ -50,6 +51,7 @@ public static class ReplaceItem
 
         return true;
     }
+    [DetourMethod]
     public static void GetShimmered(Item self)
     {
         int shimmerEquivalentType = self.GetShimmerEquivalentType();
@@ -74,7 +76,7 @@ public static class ReplaceItem
             }
             Main.player[Main.myPlayer].AddCoinLuck(self.Center, self.stack);
             NetMessage.SendData(MessageID.ShimmerActions, -1, -1, null, 1, (int)self.Center.X, (int)self.Center.Y, self.stack);
-            self.type = 0;
+            self.type = ItemID.None;
             self.stack = 0;
         }
         else if (shimmerEquivalentType == ItemID.LunarBrick)
@@ -142,7 +144,7 @@ public static class ReplaceItem
             self.stack--;
             if (self.stack <= 0)
             {
-                self.type = 0;
+                self.type = ItemID.None;
             }
         }
         else if (self.makeNPC > 0)
@@ -165,7 +167,7 @@ public static class ReplaceItem
             self.shimmered = true;
             if (self.stack <= 0)
             {
-                self.type = 0;
+                self.type = ItemID.None;
             }
         }
         else if (decraftingRecipeIndex >= 0)
@@ -235,7 +237,7 @@ public static class ReplaceItem
             if (self.stack <= 0)
             {
                 self.stack = 0;
-                self.type = 0;
+                self.type = ItemID.None;
             }
         }
         self.shimmerTime = self.stack > 0 ? 1f : 0f;
@@ -305,7 +307,7 @@ public static class ReplaceItem
         {
             int num = self.stack;
             self.active = false;
-            self.type = 0;
+            self.type = ItemID.None;
             self.stack = 0;
             bool flag = false;
             for (int j = 0; j < 200; j++)
@@ -320,7 +322,7 @@ public static class ReplaceItem
                     Main.npc[j].StrikeNPCNoInteraction(9999, 10f, -num2);
                     num--;
                     flag = true;
-                    NetMessage.SendData(28, -1, -1, null, j, 9999f, 10f, -num2);
+                    NetMessage.SendData(MessageID.DamageNPC, -1, -1, null, j, 9999f, 10f, -num2);
                     NPC.SpawnWOF(self.position);
                 }
             }
@@ -330,7 +332,7 @@ public static class ReplaceItem
             }
             if (flag)
             {
-                List<int> list = new List<int>();
+                var list = new List<int>();
                 for (int k = 0; k < 200; k++)
                 {
                     if (num <= 0)
@@ -357,20 +359,20 @@ public static class ReplaceItem
                     num--;
                     if (Main.netMode == 2)
                     {
-                        NetMessage.SendData(28, -1, -1, null, num3, 9999f, 10f, -num4);
+                        NetMessage.SendData(MessageID.DamageNPC, -1, -1, null, num3, 9999f, 10f, -num4);
                     }
                 }
             }
-            NetMessage.SendData(21, -1, -1, null, i);
+            NetMessage.SendData(MessageID.SyncItem, -1, -1, null, i);
         }
         else if (self.playerIndexTheItemIsReservedFor == Main.myPlayer && self.rare == 0 && self.type >= 0 && self.type < ItemID.Count && !ItemID.Sets.IsLavaImmuneRegardlessOfRarity[self.type])
         {
             self.active = false;
-            self.type = 0;
+            self.type = ItemID.None;
             self.stack = 0;
             if (Main.netMode != 0)
             {
-                NetMessage.SendData(21, -1, -1, null, i);
+                NetMessage.SendData(MessageID.SyncItem, -1, -1, null, i);
             }
         }
     }

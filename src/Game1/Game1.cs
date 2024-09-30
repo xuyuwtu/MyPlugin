@@ -98,8 +98,8 @@ public class Game1 : TerrariaPlugin
     {
         if (disposing)
         {
-            Commands.ChatCommands.RemoveRange(AddCommands); 
-            Disposables.ForEach(x => x.Dispose());
+            Commands.ChatCommands.RemoveCollection(AddCommands);
+            Disposables.ForEach(static x => x.Dispose());
             Disposables.Clear();
             Utils.ClearOwner(MiniGame.OnProjectile_Kill);
         }

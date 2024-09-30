@@ -1,14 +1,15 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
   <PropertyGroup>
-    <Version>1.7.$([MSBuild]::Subtract($([System.DateTime]::Now.Year), 2023)).$([System.DateTime]::Now.ToString("MMdd"))</Version>
+    <Version>1.8.$([MSBuild]::Subtract($([System.DateTime]::Now.Year), 2023)).$([System.DateTime]::Now.ToString("MMdd"))</Version>
     <OutToPluginLoader>true</OutToPluginLoader>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <LangVersion>11.0</LangVersion>
+	  <LangVersion>12.0</LangVersion>
   </PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\TerrariaIDExtension\TerrariaIDExtension.csproj">
 		  <Private>False</Private>
 		</ProjectReference>
 		<ProjectReference Include="..\GameContentModifyGenerator\GameContentModifyGenerator.csproj" OutputItemType="Analyzer" ReferenceOutAssembly="false" />
+		<ProjectReference Include="..\..\IDAnalyzer\IDAnalyzer.csproj" OutputItemType="Analyzer" ReferenceOutAssembly="false" />
 	</ItemGroup>
 </Project>

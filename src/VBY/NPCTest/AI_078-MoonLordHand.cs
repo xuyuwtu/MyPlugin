@@ -137,7 +137,7 @@ partial class NPCAIs
                     Vector2 vector178 = Vector2.Normalize(vector176) * 8f;
                     float ai = ((float)Math.PI * 2f * (float)Main.rand.NextDouble() - (float)Math.PI) / 30f + (float)Math.PI / 180f * num1192;
                     //Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector177.X, vector177.Y, vector178.X, vector178.Y, 452, 30, 0f, Main.myPlayer, 0f, ai);
-                    var proj = Main.projectile[Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector177.X, vector177.Y, vector178.X, vector178.Y, 464, npc.GetMultiplierDamage(30), 0f, Main.myPlayer, 0f, 1f, 452)];
+                    var proj = Main.projectile[Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector177.X, vector177.Y, vector178.X, vector178.Y, 464, 30, 0f, Main.myPlayer, 0f, 1f, 452)];
                     proj.localAI[0] = 40;
                     proj.localAI[1] = 2;
                 }

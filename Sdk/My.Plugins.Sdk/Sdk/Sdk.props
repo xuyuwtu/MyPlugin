@@ -8,15 +8,14 @@
 	
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Platforms>AnyCPU;x64</Platforms>
 		<BaseOutputPath>$(SolutionDir)out\$(TShockVersion)</BaseOutputPath>
+		<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="TShock" Version="$(TShockVersion)" />
-	</ItemGroup>
-	
-	<ItemGroup>
-		<None Remove="$(HOMEDRIVE)$(HOMEPATH)\.nuget\packages\tshock\$(TShockVersion)\contentFiles\any\net6.0\HttpServer.dll" />
+		<PackageReference Include="TShock" Version="$(TShockVersion)">
+			<ExcludeAssets>contentFiles</ExcludeAssets>
+		</PackageReference>
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-6qmf-mmc7-6c2p" />
 	</ItemGroup>
 </Project>

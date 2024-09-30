@@ -28,7 +28,7 @@ public class LifeArmor : TerrariaPlugin
 
     public override void Initialize()
     {
-        AddCommand.AddToChatCommand();
+        Commands.ChatCommands.Add(AddCommand);
         GetDataHandlers.PlayerSlot.Register(OnPlayerSlot);
         GeneralHooks.ReloadEvent += OnReload;
     }
@@ -37,7 +37,7 @@ public class LifeArmor : TerrariaPlugin
     {
         if (disposing)
         {
-            AddCommand.RemoveAtChatCommand();
+            Commands.ChatCommands.Remove(AddCommand);
             GetDataHandlers.PlayerSlot.UnRegister(OnPlayerSlot);
             GeneralHooks.ReloadEvent -= OnReload;
         }

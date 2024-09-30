@@ -262,7 +262,7 @@ static partial class NPCAIs
                 //    Main.dust[num25].noLight = true;
                 //    Main.dust[num25].velocity = Vector2.Normalize(vector2) * 3f;
                 //}
-                SoundEngine.PlaySound(29, (int)npcCenter.X, (int)npcCenter.Y, 20);
+                //SoundEngine.PlaySound(29, (int)npcCenter.X, (int)npcCenter.Y, 20);
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num20)

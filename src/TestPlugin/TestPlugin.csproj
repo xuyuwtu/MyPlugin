@@ -1,5 +1,0 @@
-﻿<Project Sdk="My.Plugins.Sdk">
-	<PropertyGroup>
-		<LangVersion>11.0</LangVersion>
-	</PropertyGroup>
-</Project>

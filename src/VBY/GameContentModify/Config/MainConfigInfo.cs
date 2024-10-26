@@ -448,6 +448,9 @@ public sealed partial class SpawnInfo
     {
         [MemberData("禁止自然生成")]
         public static bool StaticDisableSpawn = false;
+        [Description("禁止生成的城镇NPC")]
+        [JsonProperty("禁止生成的城镇NPC")]
+        public int[] DisableSpawnTownNPC = [];
         [MemberData("晚上生成", false)]
         public static bool StaticSpawnAtNight
         {
@@ -466,12 +469,8 @@ public sealed partial class SpawnInfo
         public static bool StaticSpawnAtInvasion = false;
         [MemberData("日食时生成")]
         public static bool StaticSpawnAtEclipse = false;
-        [MemberData("时间速率为0时仍然生成", false, PrivateField = true)]
-        public static bool StaticSpawnStillWhenTimeRateIsZero
-        {
-            get => _StaticSpawnStillWhenTimeRateIsZero;
-            set => Utils.HandleNamedDetour(ref _StaticSpawnStillWhenTimeRateIsZero, value, DetourNames.Main_UpdateTime_SpawnTownNPCs);
-        }
+        [MemberData("时间速率为0时仍然生成")]
+        public static bool StaticSpawnStillWhenTimeRateIsZero = false;
         [MemberData("时间速率为0时的生成速率: {0}")]
         public static int StaticSpawnTimeRateWhenTimeRateIsZero = 1;
 

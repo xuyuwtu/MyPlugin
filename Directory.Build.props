@@ -1,9 +1,13 @@
 <Project>
 	<PropertyGroup>
 		<SolutionDir>$(MSBuildThisFileDirectory)</SolutionDir>
-		<CommonProjectPath>$(SolutionDir)\src\VBY\Common\Common.csproj</CommonProjectPath>
+		<CommonProjectPath>$(SolutionDir)src\VBY\Common\Common.csproj</CommonProjectPath>
+		<SharedCodePath>$(SolutionDir)src\SharedCode\</SharedCodePath>
 		<TShockVersion>5.2.0</TShockVersion>
-		<TShockPath Condition="'$(TShockPath)' == ''">$(registry:HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders@{374DE290-123F-4565-9164-39C4925E467B})\TShock$(TShockVersion)</TShockPath>
 		<OutToPlugin>true</OutToPlugin>
+	</PropertyGroup>
+	<PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows'))">
+		<!-- 374DE290-123F-4565-9164-39C4925E467B is download folder-->
+		<TShockPath>$(registry:HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders@{374DE290-123F-4565-9164-39C4925E467B})\TShock$(TShockVersion)\</TShockPath>
 	</PropertyGroup>
 </Project>

@@ -22,10 +22,6 @@ public class ActionHook : HookBase
     {
         HasActionHook = true;
         RegisterMethod = registerAction;
-        //if (!System.Diagnostics.Debugger.IsAttached)
-        //{
-        //    System.Diagnostics.Debugger.Launch();
-        //}
         var registerMethod = registerAction.Method;
         var module = registerAction.Method.Module;
         var bytes = registerMethod.GetMethodBody()!.GetILAsByteArray()!;
@@ -47,6 +43,10 @@ public class ActionHook : HookBase
         {
             throw new Exception("methodName is not startwith 'add_'");
         }
+        if (!callMethod.IsStatic)
+        {
+            throw new Exception("method is not Static");
+        }
         var removeMethodName = string.Concat("remove_", callMethod.Name.AsSpan("add_".Length));
         var removeMethod = callMethod.DeclaringType!.GetMethod(removeMethodName);
         if (removeMethod is null)
@@ -63,7 +63,6 @@ public class ActionHook : HookBase
         {
             m_delegeObject = Delegate.CreateDelegate(newobjMethod.DeclaringType!, registerAction.Target, (MethodInfo)ldftnMethod);
         }
-        //m_delegeObject = ((ConstructorInfo)newobjMethod).Invoke(new object?[] { registerAction.Target, ldftnMethod.MethodHandle.Value })!;
         m_removeMethod = removeMethod;
     }
     protected override void RegisterAction() => RegisterMethod();

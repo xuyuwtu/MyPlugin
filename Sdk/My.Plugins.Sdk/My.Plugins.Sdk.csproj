@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+		<IsPackable>true</IsPackable>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		
+        <TargetFramework>net6.0</TargetFramework>
+		<PackageId>My.Plugins.Sdk</PackageId>
+		<PackageVersion>1.0.0</PackageVersion>
+		<Authors>yu</Authors>
+		<Description>custom sdk for TShock</Description>
+		<PackageReadmeFile>docs\readme.md</PackageReadmeFile>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
+	<ItemGroup>
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-6qmf-mmc7-6c2p" />
+		<PackageReference Include="TShock" Version="5.2.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="Sdk\Sdk.props;Sdk\Sdk.targets" Pack="true" PackagePath="sdk/%(Filename)%(Extension)" />
+		<None Include="lib\net6.0\_._" Pack="true" PackagePath="lib\net6.0\_._" />
+		<None Include="readme.md" Pack="true" PackagePath="docs/readme.md" />
+	</ItemGroup>
+</Project>

@@ -70,7 +70,7 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
             return;
         }
         var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
-        if("Terraria.NPC".Equals(fullName, StringComparison.Ordinal))
+        if("Terraria.NPC".OrdinalEquals(fullName))
         {
             var methodName = memberAccess.Name.Identifier.ValueText;
             if (methodName is "AnyNPCs" or "CountNPCS" or "FindFirstNPC")
@@ -106,7 +106,7 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
                 }
             }
         }
-        else if ("Terraria.NetMessage".Equals(fullName, StringComparison.Ordinal))
+        else if ("Terraria.NetMessage".OrdinalEquals(fullName))
         {
             var methodName = memberAccess.Name.Identifier.ValueText;
             if(methodName is "SendData" or "TrySendData")
@@ -117,75 +117,46 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
                 }
             }
         }
-        Console.WriteLine(-1);
     }
     internal static void ExpressionAction(SyntaxNodeAnalysisContext context, SyntaxNode reportNode, ExpressionSyntax left, ExpressionSyntax right, DiagnosticDescriptor diagnosticDescriptor)
     {
-        if (left is not MemberAccessExpressionSyntax leftMemberAccess) return;
-        var fullName = context.SemanticModel.GetTypeInfo(leftMemberAccess.Expression, context.CancellationToken).Type!.ToString();
-        if(ExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
+        if (left is MemberAccessExpressionSyntax && right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression })
         {
-            for (int i = 0; i < idFilterInfos.Length; i++)
+            var memberemberAccess = (MemberAccessExpressionSyntax)left;
+            var literalExpression = (LiteralExpressionSyntax)right;
+            var fullName = context.SemanticModel.GetTypeInfo(memberemberAccess.Expression, context.CancellationToken).Type!.ToString();
+            if (MemberAccessExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
             {
-                var idFilterInfo = idFilterInfos[i];
-                if (leftMemberAccess.Name.Identifier.ValueText.Equals(idFilterInfo.MemberName, StringComparison.Ordinal) && right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression && short.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
+                for (int i = 0; i < idFilterInfos.Length; i++)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
+                    var idFilterInfo = idFilterInfos[i];
+                    if (memberemberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && short.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
+                    }
                 }
             }
         }
-        //if ("Terraria.NPC".Equals(fullName, StringComparison.Ordinal) && leftMemberAccess.Name.Identifier.ValueText == "type")
-        //{
-        //    if (right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression && short.TryParse(literalExpression.Token.Text, out var id) && NPCID.TryGetValue(id, out var name))
-        //    {
-        //        context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), NPCIDType,id, $"NPCID.{name}"));
-        //    }
-        //}
-        //if ("Terraria.Item".Equals(fullName, StringComparison.Ordinal) && leftMemberAccess.Name.Identifier.ValueText == "type")
-        //{
-        //    if (right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression && short.TryParse(literalExpression.Token.Text, out var id) && ItemID.TryGetValue(id, out var name))
-        //    {
-        //        context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), ItemIDType, id, $"ItemID.{name}"));
-        //    }
-        //}
-        //else if ("Terraria.ITile".Equals(fullName, StringComparison.Ordinal) && leftMemberAccess.Name.Identifier.ValueText == "type")
-        //{
-        //    if (right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression && short.TryParse(literalExpression.Token.Text, out var id) && TileID.TryGetValue(id, out var name))
-        //    {
-        //        context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), TileIDType, id, $"TileID.{name}"));
-        //    }
-        //}
-        //else if ("Terraria.ITile".Equals(fullName, StringComparison.Ordinal) && leftMemberAccess.Name.Identifier.ValueText == "wall")
-        //{
-        //    if (right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression && short.TryParse(literalExpression.Token.Text, out var id) && WallID.TryGetValue(id, out var name))
-        //    {
-        //        context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), WallIDType, id, $"WallID.{name}"));
-        //    }
-        //}
-        //else if ("Terraria.Projectile".Equals(fullName, StringComparison.Ordinal) && leftMemberAccess.Name.Identifier.ValueText == "type")
-        //{
-        //    if (right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression && short.TryParse(literalExpression.Token.Text, out var id) && ProjectileID.TryGetValue(id, out var name))
-        //    {
-        //        context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), ProjectileIDType, id, $"ProjectileID.{name}"));
-        //    }
-        //}
-        //else if ("Terraria.Main".Equals(fullName, StringComparison.Ordinal) && leftMemberAccess.Name.Identifier.ValueText == "invasionType")
-        //{
-        //    if (right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression && short.TryParse(literalExpression.Token.Text, out var id) && InvasionID.TryGetValue(id, out var name))
-        //    {
-        //        context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), InvasionIDType, id, $"InvasionID.{name}"));
-        //    }
-        //}
-        //else if("Terraria.Player".Equals(fullName, StringComparison.Ordinal) && leftMemberAccess.Name.Identifier.ValueText == "difficulty")
-        //{
-        //    if (right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression && short.TryParse(literalExpression.Token.Text, out var id) && PlayerDifficultyID.TryGetValue(id, out var name))
-        //    {
-        //        context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), PlayerDifficultyIDType, id, $"PlayerDifficultyID.{name}"));
-        //    }
-        //}
+        else if (left is ElementAccessExpressionSyntax { Expression: MemberAccessExpressionSyntax memberAccess, ArgumentList.Arguments: [{ Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } }] })
+        {
+            var literalExpression = (LiteralExpressionSyntax)((ElementAccessExpressionSyntax)left).ArgumentList.Arguments[0].Expression;
+            var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
+            if (ElementAccessExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
+            {
+                for (int i = 0; i < idFilterInfos.Length; i++)
+                {
+                    var idFilterInfo = idFilterInfos[i];
+                    if (memberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && short.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
+                    }
+                }
+            }
+        }
     }
 
-    internal static FrozenDictionary<string, IdFilterInfo[]> ExpressionReportFilter;
+    internal static FrozenDictionary<string, IdFilterInfo[]> MemberAccessExpressionReportFilter;
+    internal static FrozenDictionary<string, IdFilterInfo[]> ElementAccessExpressionReportFilter;
 
     internal static FrozenDictionary<short, string> NPCID = IDs.GetInt16ID();
     internal static ImmutableDictionary<string, string?> NPCIDType;
@@ -214,7 +185,7 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
     internal static FrozenDictionary<string, FrozenDictionary<short, string>> IDsDict;
     static IDAnalyzer()
     {
-        ExpressionReportFilter = new Dictionary<string, IdFilterInfo[]>()
+        MemberAccessExpressionReportFilter = new Dictionary<string, IdFilterInfo[]>()
         {
             { "Terraria.NPC", [GetIdFilterInfo("type", nameof(IDs.NPCID))] },
             { "Terraria.Item", [GetIdFilterInfo("type", nameof(IDs.ItemID))] },
@@ -222,7 +193,11 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
             { "Terraria.Projectile", [GetIdFilterInfo("type", nameof(IDs.ProjectileID))] },
             { "Terraria.Main", [GetIdFilterInfo("invasionType", nameof(IDs.InvasionID))] },
             { "Terraria.Player", [GetIdFilterInfo("difficulty", nameof(IDs.PlayerDifficultyID))] },
-        }.ToFrozenDictionary();
+        }.ToFrozenDictionary(StringComparer.Ordinal);
+        ElementAccessExpressionReportFilter = new Dictionary<string, IdFilterInfo[]>()
+        {
+            { "Terraria.Main", [GetIdFilterInfo("townNPCCanSpawn", nameof(IDs.NPCID))] }
+        }.ToFrozenDictionary(StringComparer.Ordinal);
 
         NPCIDType = AddType(nameof(NPCID));
         ItemIDType = AddType(nameof(ItemID));

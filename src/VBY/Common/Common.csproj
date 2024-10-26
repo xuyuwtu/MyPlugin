@@ -4,7 +4,6 @@
 		<OutToPluginLoader>true</OutToPluginLoader>
 		<AssemblyTitle>VBY基础类库</AssemblyTitle>
 		<AssemblyVersion>1.2.1.0</AssemblyVersion>
-		<Platforms>AnyCPU;x64;ARM32;ARM64</Platforms>
 	</PropertyGroup>
 	<Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
 </Project>

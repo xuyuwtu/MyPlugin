@@ -31,7 +31,31 @@ public static class EmitUtils
             return largeOpCodes;
         }
     }
-    [MemberNotNull(nameof(shortOpCodes), nameof(largeOpCodes))]
+    private static Func<Module, object, object>?[]? shortOpcodeTransformFunc;
+    public static Func<Module, object, object>?[] ShortOpcodeTransformFunc
+    {
+        get
+        {
+            if(shortOpcodeTransformFunc is null)
+            {
+                InitOpcodes();
+            }
+            return shortOpcodeTransformFunc;
+        }
+    }
+    private static Func<Module, object, object>?[]? largeOpcodeTransformFunc;
+    public static Func<Module, object, object>?[] LargeOpcodeTransformFunc
+    {
+        get
+        {
+            if(largeOpcodeTransformFunc is null)
+            {
+                InitOpcodes();
+            }
+            return largeOpcodeTransformFunc;
+        }
+    }
+    [MemberNotNull(nameof(shortOpCodes), nameof(largeOpCodes), nameof(shortOpcodeTransformFunc), nameof(largeOpcodeTransformFunc))]
     private static void InitOpcodes()
     {
         var opcodes = typeof(OpCodes).GetFields().Where(x => x.FieldType == typeof(OpCode)).Select(x => (OpCode)x.GetValue(null)!).ToArray();
@@ -46,6 +70,22 @@ public static class EmitUtils
         for (int i = index; i < opcodes.Length; i++)
         {
             largeOpCodes[(byte)(ushort)opcodes[i].Value] = opcodes[i];
+        }
+        shortOpcodeTransformFunc = new Func<Module, object, object>?[shortOpCodes.Length];
+        largeOpcodeTransformFunc = new Func<Module, object, object>?[largeOpCodes.Length];
+        var resolveField = static (Module module, object operand) => module.ResolveField((int)operand)!;
+        var resolveMember = static (Module module, object operand) => module.ResolveMember((int)operand)!;
+        var resolveMethod = static (Module module, object operand) => module.ResolveMethod((int)operand)!;
+        var resolveSignature = static (Module module, object operand) => module.ResolveSignature((int)operand)!;
+        var resolveString = static (Module module, object operand) => module.ResolveString((int)operand)!;
+        var resolveType = static (Module module, object operand) => module.ResolveType((int)operand)!;
+        foreach(var code in new ILOpCode[] { ILOpCode.Ldfld, ILOpCode.Ldflda, ILOpCode.Ldsfld, ILOpCode.Ldsflda })
+        {
+            shortOpcodeTransformFunc[(int)code] = resolveField;
+        }
+        foreach(var code in new ILOpCode[] { ILOpCode.Call, ILOpCode.Callvirt })
+        {
+            shortOpcodeTransformFunc[(int)code] = resolveMethod;
         }
     }
     public static List<Instruction> GetInstructionsFromBytes(Module module, byte[] bytes)
@@ -70,11 +110,33 @@ public static class EmitUtils
                 case ILOpCode.Nop:
                 case ILOpCode.Ldarg_0:
                 case ILOpCode.Ldnull:
+                case ILOpCode.Ldc_i4_m1:
+                case ILOpCode.Ldc_i4_0:
+                case ILOpCode.Ldc_i4_1:
+                case ILOpCode.Ldc_i4_2:
+                case ILOpCode.Ldc_i4_3:
+                case ILOpCode.Ldc_i4_4:
+                case ILOpCode.Ldc_i4_5:
+                case ILOpCode.Ldc_i4_6:
+                case ILOpCode.Ldc_i4_7:
+                case ILOpCode.Ldc_i4_8:
+                case ILOpCode.Ldc_i4:
                 case ILOpCode.Dup:
                 case ILOpCode.Pop:
                 case ILOpCode.Ret:
                     result.Add(new(opcode, null, offset));
                     offset += GetOpCode(opcode).Size;
+                    break;
+                case ILOpCode.Ldc_i4_s:
+                case ILOpCode.Brtrue_s:
+                case ILOpCode.Brfalse_s:
+                    result.Add(new(opcode, br.ReadSByte(), offset));
+                    offset += GetOpCode(opcode).Size + 1;
+                    break;
+                case ILOpCode.Brfalse:
+                case ILOpCode.Brtrue:
+                    result.Add(new(opcode, br.ReadInt32(), offset));
+                    offset += GetOpCode(opcode).Size + 4;
                     break;
                 case ILOpCode.Call:
                 case ILOpCode.Newobj:
@@ -82,10 +144,7 @@ public static class EmitUtils
                     result.Add(new(opcode, module.ResolveMethod(br.ReadInt32()), offset));
                     offset += GetOpCode(opcode).Size + 4;
                     break;
-                case ILOpCode.Brtrue_s:
-                    result.Add(new(opcode, br.ReadSByte(), offset));
-                    offset += GetOpCode(opcode).Size + 1;
-                    break;
+                case ILOpCode.Ldfld:
                 case ILOpCode.Ldsfld:
                 case ILOpCode.Stsfld:
                     result.Add(new(opcode, module.ResolveField(br.ReadInt32()), offset));
@@ -126,7 +185,7 @@ public static class EmitUtils
         var result = new List<Instruction>();
         while (ms.Position != ms.Length)
         {
-            var instruction = new Instruction(default, null);
+            var instruction = new Instruction(default, null, (int)ms.Position);
             var opcodeValue = br.ReadByte();
             OpCode opcode; 
             if (opcodeValue == 0xFE)
@@ -184,41 +243,88 @@ public static class EmitUtils
                 case OperandType.ShortInlineVar:
                     instruction.Operand = br.ReadByte();
                     break;
+                default:
+                    throw new NotSupportedException(opcode.OperandType.ToString());
             }
             result.Add(instruction);
         }
         return result;
     }
+    public static void InstructionOperandTransform(Module module, List<Instruction> instructions)
+    {
+        foreach (var instruction in instructions)
+        {
+            if((ushort)instruction.OpCode >= 0xFE00)
+            {
+                if (LargeOpcodeTransformFunc[(ushort)instruction.OpCode - 0xFE00] is { } func)
+                {
+                    instruction.Operand = func(module, instruction.Operand!);
+                }
+            }
+            else
+            {
+                if (ShortOpcodeTransformFunc[(ushort)instruction.OpCode] is { } func)
+                {
+                    instruction.Operand = func(module, instruction.Operand!);
+                }
+            }
+            var opcode = GetOpCode(instruction.OpCode);
+            if (opcode.OperandType == OperandType.InlineBrTarget)
+            {
+                instruction.Operand = instructions[instructions.BinarySearch(static (x, value) => x.Offset.CompareTo(value), instruction.Offset + instruction.GetSize() + (int)instruction.Operand!)];
+                ((Instruction)instruction.Operand).IsBranchTarget = true;
+            }
+            else if (opcode.OperandType == OperandType.ShortInlineBrTarget)
+            {
+                instruction.Operand = instructions[instructions.BinarySearch(static (x, value) => x.Offset.CompareTo(value), instruction.Offset + instruction.GetSize() + (sbyte)instruction.Operand!)];
+                ((Instruction)instruction.Operand).IsBranchTarget = true;
+            }
+            else if (opcode.OperandType == OperandType.InlineSwitch)
+            {
+                instruction.Operand = ((int[])instruction.Operand!).Select(offset => 
+                {
+                    var targetInstruction = instructions[instructions.BinarySearch(static (x, value) => x.Offset.CompareTo(value), instruction.Offset + instruction.GetSize() + offset)];
+                    targetInstruction.IsBranchTarget = true;
+                    return targetInstruction;
+                }).ToArray();
+            }
+        }
+    }
     public static OpCode GetOpCode(ILOpCode code)
     {
-        switch (code)
+        if ((ushort)code >= 0xFE00)
         {
-            case ILOpCode.Nop:
-                return OpCodes.Nop;
-            case ILOpCode.Ldarg_0:
-                return OpCodes.Ldarg_0;
-            case ILOpCode.Ldnull:
-                return OpCodes.Ldnull;
-            case ILOpCode.Dup:
-                return OpCodes.Dup;
-            case ILOpCode.Pop:
-                return OpCodes.Pop;
-            case ILOpCode.Call:
-                return OpCodes.Call;
-            case ILOpCode.Ret:
-                return OpCodes.Ret;
-            case ILOpCode.Brtrue_s:
-                return OpCodes.Brtrue_S;
-            case ILOpCode.Newobj:
-                return OpCodes.Newobj;
-            case ILOpCode.Ldsfld:
-                return OpCodes.Ldsfld;
-            case ILOpCode.Stsfld:
-                return OpCodes.Stsfld;
-            case ILOpCode.Ldftn:
-                return OpCodes.Ldftn;
+            return LargeOpCodes[(ushort)code - 0xFE00]!.Value;
+        }
+        else
+        {
+            return ShortOpCodes[(int)code]!.Value;
+        }
+    }
+    public static int GetLocIndex(Instruction instruction)
+    {
+        switch (instruction.OpCode)
+        {
+            case ILOpCode.Ldloc_0:
+            case ILOpCode.Ldloc_1:
+            case ILOpCode.Ldloc_2:
+            case ILOpCode.Ldloc_3:
+                return instruction.OpCode - ILOpCode.Ldloc_0;
+            case ILOpCode.Stloc_0:
+            case ILOpCode.Stloc_1:
+            case ILOpCode.Stloc_2:
+            case ILOpCode.Stloc_3:
+                return instruction.OpCode - ILOpCode.Stloc_0;
+            case ILOpCode.Ldloc_s:
+            case ILOpCode.Ldloca_s:
+            case ILOpCode.Stloc_s:
+                return (byte)instruction.Operand!;
+            case ILOpCode.Ldloc:
+            case ILOpCode.Ldloca:
+            case ILOpCode.Stloc:
+                return (ushort)instruction.Operand!;
             default:
-                throw new InvalidDataException(code.ToString());
+                throw new NotSupportedException(instruction.OpCode.ToString());
         }
     }
     public static void Emit(this ILGenerator il, ILOpCode code, object? operand)
@@ -257,5 +363,31 @@ public static class EmitUtils
         public static OpCodeComparer Instance = new OpCodeComparer();
         private OpCodeComparer() { }
         public int Compare(OpCode x, OpCode y) => ((ushort)x.Value).CompareTo((ushort)y.Value);
+    }
+}
+static class Utils
+{
+    public static int BinarySearch<T, TValue>(this IList<T> values, Func<T, TValue, int> comparer, TValue value)
+    {
+        int lo = 0;
+        int hi = values.Count - 1;
+        while (lo <= hi)
+        {
+            int i = lo + ((hi - lo) >> 1);
+            int order = comparer(values[i], value);
+            if (order == 0)
+            {
+                return i;
+            }
+            if (order < 0)
+            {
+                lo = i + 1;
+            }
+            else
+            {
+                hi = i - 1;
+            }
+        }
+        return ~lo;
     }
 }

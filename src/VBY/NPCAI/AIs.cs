@@ -1,9 +1,15 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Reflection.Metadata;
+using System.Runtime.InteropServices;
 
 namespace VBY.NPCAI;
 public static partial class AIs
 {
     public static void AI(NPC npc) => _NPCAIs[npc.aiStyle].Invoke(npc);
+
     private static readonly Type dType = typeof(Action<NPC>);
     public static void SetMethod(MethodInfo method)
     {
@@ -49,336 +55,704 @@ public static partial class AIs
     internal static Action<NPC>?[] _tempNPCAIs = new Action<NPC>[126];
     static AIs()
     {
-        foreach(var method in typeof(AIs).GetMethods(BindingFlags.Static | BindingFlags.Public).Where(x => x.Name.StartsWith("AI_")))
+        var type = typeof(NPC);
+        var aiMethod = type.GetMethod(nameof(NPC.AI))!;
+        var aiMethodBody = aiMethod.GetMethodBody()!;
+        var instructions = EmitUtils.GetInstructionsFromBytes(aiMethodBody.GetILAsByteArray()!);
+        EmitUtils.InstructionOperandTransform(type.Module, instructions);
+        var aiStyleField = type.GetField(nameof(NPC.aiStyle))!;
+        var findOpcodeFuncs = new Func<Instruction, bool>[]
         {
-            //Console.WriteLine(method.Name);
-            _NPCAIs[int.Parse(method.Name["AI_".Length..])] = (Action<NPC>)Delegate.CreateDelegate(dType, method);
+            static x => x.OpCode == ILOpCode.Ldarg_0,
+            x => x.OpCode == ILOpCode.Ldfld && (FieldInfo)x.Operand! == aiStyleField,
+            static x => (ushort)x.OpCode is (>= (ushort)ILOpCode.Ldc_i4_0 and <= (ushort)ILOpCode.Ldc_i4) or (ushort)ILOpCode.Brtrue
+        };
+        var foundIndices = new List<int>();
+        var aiStyleValues = new List<int>();
+        for (int i = 0; i < instructions.Count; i++)
+        {
+            var firstIns = instructions[i];
+            if (!findOpcodeFuncs[0](firstIns))
+            {
+                continue;
+            }
+            var match = true;
+            for (int j = 1; j < findOpcodeFuncs.Length; j++)
+            {
+                var checkIns = instructions[i + j];
+                if (!findOpcodeFuncs[j](checkIns))
+                {
+                    match = false;
+                    break;
+                }
+            }
+            if (match)
+            {
+                foundIndices.Add(i);
+                var ldci4Ins = instructions[i + 2];
+                int ldci4Value;
+                if (ldci4Ins.OpCode == ILOpCode.Brtrue)
+                {
+                    ldci4Value = 0;
+                }
+                else if (ldci4Ins.OpCode == ILOpCode.Ldc_i4)
+                {
+                    ldci4Value = (int)ldci4Ins.Operand!;
+                }
+                else if (ldci4Ins.OpCode == ILOpCode.Ldc_i4_s)
+                {
+                    ldci4Value = (sbyte)ldci4Ins.Operand!;
+                }
+                else
+                {
+                    ldci4Value = ldci4Ins.OpCode - ILOpCode.Ldc_i4_0;
+                }
+                aiStyleValues.Add(ldci4Value);
+                i += findOpcodeFuncs.Length - 1;
+                if (ldci4Ins.OpCode == ILOpCode.Brtrue)
+                {
+                    foundIndices[^1]--;
+                }
+            }
         }
-        foreach(var method in typeof(NPC).GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(x => x.Name.StartsWith("AI_") && !x.Name["AI_000_".Length..].Contains('_') && x.GetParameters().Length == 0))
+        var end = foundIndices.Count - 1;
+        var ranges = new List<Range>(foundIndices.Count);
+        for (int i = 0; i < end; i++)
         {
-            //Console.WriteLine(method.Name);
-            _NPCAIs[int.Parse(method.Name.Substring("AI_".Length, 3))] ??= (Action<NPC>)Delegate.CreateDelegate(dType, method);
+            // [ldarg.0] [ldfld aiStyle] [ldc.i4] [_](branch) [_](start) = +4
+            ranges.Add(new(foundIndices[i] + 4, foundIndices[i + 1]));
+        }
+        ranges.Add(new(foundIndices[^1] + 4, instructions.Count));
+        var aiActionParamTypes = new Type[] { type };
+        var exceptionHandlerInfos = new ExceptionHandlerInfo[aiMethodBody.ExceptionHandlingClauses.Count];
+        var exceptionIndices = new Queue<int>(aiMethodBody.ExceptionHandlingClauses.Count * 4);
+        for (int i = 0; i < aiMethodBody.ExceptionHandlingClauses.Count; i++)
+        {
+            var handler = aiMethodBody.ExceptionHandlingClauses[i];
+            var handlerInfo = new ExceptionHandlerInfo()
+            {
+                TryStartIndex = instructions.BinarySearch(InstructionOffsetCompare, handler.TryOffset),
+                TryEndIndex = instructions.BinarySearch(InstructionEndOffsetCompare, handler.TryOffset + handler.TryLength),
+                HandlerStartIndex = instructions.BinarySearch(InstructionOffsetCompare, handler.HandlerOffset),
+                HandlerEndIndex = instructions.BinarySearch(InstructionEndOffsetCompare, handler.HandlerOffset + handler.HandlerLength),
+                Flags = handler.Flags,
+            };
+            exceptionHandlerInfos[i] = handlerInfo;
+            if (handler.Flags != ExceptionHandlingClauseOptions.Filter && handler.Flags != ExceptionHandlingClauseOptions.Finally)
+            {
+                handlerInfo.CatchType = handler.CatchType;
+            }
+            if (handler.Flags != ExceptionHandlingClauseOptions.Finally && handler.Flags != ExceptionHandlingClauseOptions.Clause)
+            {
+                throw new NotSupportedException(handler.Flags.ToString());
+            }
+            static int InstructionOffsetCompare(Instruction instruction, int value) => instruction.Offset.CompareTo(value);
+            static int InstructionEndOffsetCompare(Instruction instruction, int value) => (instruction.Offset + instruction.GetSize()).CompareTo(value);
+        }
+        var tryBlocks = new List<TryBlockInfo>();
+        var groups = exceptionHandlerInfos.GroupBy(static x => x.TryStartIndex);
+        var offsetComparer = new FuncComparer<Instruction>(static (x, y) => x!.Offset.CompareTo(y!.Offset));
+        foreach (var infos in groups)
+        {
+            if (infos.Count() == 1)
+            {
+                var info = infos.First();
+                if (info.Flags == ExceptionHandlingClauseOptions.Clause)
+                {
+                    var block = new TryBlockInfo() { TryStartIndex = info.TryStartIndex, TryEndIndex = info.TryEndIndex };
+                    tryBlocks.Add(block);
+                    block.Catch.Add((info.HandlerStartIndex, info.HandlerEndIndex, info.CatchType!));
+                    tryBlocks.Add(block);
+                }
+                else if (info.Flags == ExceptionHandlingClauseOptions.Finally)
+                {
+                    tryBlocks.Add(new TryBlockInfo() { TryStartIndex = info.TryStartIndex, TryEndIndex = info.TryEndIndex, Finally = (info.HandlerStartIndex, info.HandlerEndIndex) });
+                }
+                else
+                {
+                    throw new NotSupportedException(info.Flags.ToString());
+                }
+            }
+            else
+            {
+                var info2s = infos.ToArray();
+                Array.Sort(info2s, static (x, y) =>
+                {
+                    var result = x.TryStartIndex.CompareTo(y.TryStartIndex);
+                    if (result == 0)
+                    {
+                        result = x.TryEndIndex.CompareTo(y.TryEndIndex);
+                    }
+                    if (result == 0)
+                    {
+                        result = x.HandlerStartIndex.CompareTo(y.HandlerStartIndex);
+                    }
+                    if (result == 0)
+                    {
+                        result = x.HandlerEndIndex.CompareTo(y.HandlerEndIndex);
+                    }
+                    return result;
+                });
+                for (int i = 0; i < info2s.Length; i++)
+                {
+                    if (info2s[i].Flags == ExceptionHandlingClauseOptions.Filter && i + 1 != info2s.Length)
+                    {
+                        throw new InvalidDataException("invalid exceptionHandler. Filter must at last");
+                    }
+                }
+                var info = info2s[0];
+                var block = new TryBlockInfo() { TryStartIndex = info.TryStartIndex, TryEndIndex = info.TryEndIndex };
+                exceptionIndices.Enqueue(block.TryStartIndex);
+                end = info2s.Length;
+                if (info2s[^1].Flags == ExceptionHandlingClauseOptions.Filter)
+                {
+                    end--;
+                }
+                for (int i = 0; i < end; i++)
+                {
+                    info = info2s[i];
+                    block.Catch.Add((info.HandlerStartIndex, info.HandlerEndIndex, info.CatchType!));
+                    exceptionIndices.Enqueue(info.HandlerStartIndex);
+                }
+                if (end != info2s.Length)
+                {
+                    info = info2s[end];
+                    block.Finally = (info.HandlerStartIndex, info.HandlerEndIndex);
+                    exceptionIndices.Enqueue(info.HandlerStartIndex);
+                }
+                tryBlocks.Add(block);
+                exceptionIndices.Enqueue(block.EndIndex);
+            }
+        }
+        var hasExceptionIndex = exceptionIndices.Count != 0;
+        for (int i = 0; i < ranges.Count; i++)
+        {
+            var aiStyle = aiStyleValues[i];
+            var rangeInstructions = CollectionsMarshal.AsSpan(instructions)[ranges[i]];
+            if (rangeInstructions is [{ OpCode: ILOpCode.Ldarg_0 }, { OpCode: ILOpCode.Callvirt }, _])
+            {
+                _NPCAIs[aiStyle] = (Action<NPC>)Delegate.CreateDelegate(typeof(Action<NPC>), null, (MethodInfo)rangeInstructions[1].Operand!);
+                continue;
+            }
+            var rangeLastInstruction = rangeInstructions[^1];
+            var rangeLastIsRet = rangeLastInstruction.OpCode == ILOpCode.Ret;
+            var rangeLastIsBranchToRet = EmitUtils.GetOpCode(rangeLastInstruction.OpCode).OperandType is OperandType.InlineBrTarget or OperandType.ShortInlineBrTarget && ((Instruction)rangeLastInstruction.Operand!).OpCode == ILOpCode.Ret;
+            if (!rangeLastIsRet && !rangeLastIsBranchToRet)
+            {
+                throw new InvalidDataException("!rangeLastIsRet && !rangeLastIsBranchToRet");
+            }
+            var retInstruction = rangeLastIsRet ? rangeLastInstruction : new Instruction(ILOpCode.Ret, null, rangeLastInstruction.Offset + rangeLastInstruction.GetSize());
+            var newAiMethod = new DynamicMethod($"AI_{aiStyle.ToString().PadLeft(3, '0')}", typeof(void), aiActionParamTypes);
+            var oplocInstructions = new List<Instruction>();
+            foreach (var instruction in rangeInstructions)
+            {
+                if (instruction.OpCode is (>= ILOpCode.Ldloc_0 and <= ILOpCode.Ldloc_3) or ILOpCode.Ldloc_s or ILOpCode.Ldloca_s or ILOpCode.Ldloc or ILOpCode.Ldloca
+                                        or (>= ILOpCode.Stloc_0 and <= ILOpCode.Stloc_3) or ILOpCode.Stloc_s or ILOpCode.Stloc)
+                {
+                    oplocInstructions.Add(instruction);
+                }
+            }
+            var il = newAiMethod.GetILGenerator();
+            var locBuilders = new Dictionary<int, LocalBuilder>();
+            var localVars = aiMethodBody.LocalVariables;
+            var selLocIndices = oplocInstructions.Select(EmitUtils.GetLocIndex);
+            foreach (var index in selLocIndices)
+            {
+                if (!locBuilders.TryGetValue(index, out var builder))
+                {
+                    locBuilders[index] = il.DeclareLocal(localVars[index].LocalType);
+                }
+            }
+            var hasLeaveOrCondBrToRet = false;
+            var branchTargetInstructions = new List<Instruction>();
+            foreach (var instruction in rangeInstructions)
+            {
+                if (instruction.IsBranchTarget)
+                {
+                    branchTargetInstructions.Add(instruction);
+                }
+                if (!hasLeaveOrCondBrToRet 
+                && (instruction is { OpCode: ILOpCode.Leave or ILOpCode.Leave_s, Operand: Instruction targetInstruction } 
+                    && targetInstruction.Offset == instructions[^1].Offset || EmitUtils.GetOpCode(instruction.OpCode).FlowControl == FlowControl.Cond_Branch))
+                {
+                    hasLeaveOrCondBrToRet = true;
+                }
+            }
+            if ((rangeLastIsBranchToRet || hasLeaveOrCondBrToRet) && !retInstruction.IsBranchTarget)
+            {
+                retInstruction.IsBranchTarget = true;
+                branchTargetInstructions.Add(retInstruction);
+            }
+            var branchTargetLabels = new Label[branchTargetInstructions.Count];
+            for (int j = 0; j < branchTargetInstructions.Count; j++)
+            {
+                branchTargetLabels[j] = il.DefineLabel();
+            }
+            var hasException = false;
+            var curRange = ranges[i];
+            foreach (var handlerInfo in exceptionHandlerInfos)
+            {
+                if (curRange.Start.Value <= handlerInfo.TryStartIndex && handlerInfo.HandlerEndIndex < curRange.End.Value)
+                {
+                    hasException = true;
+                    break;
+                }
+            }
+            if (hasException)
+            {
+                if (hasExceptionIndex && exceptionIndices.Peek() == curRange.Start.Value + i)
+                {
+                    var index = exceptionIndices.Dequeue();
+                    foreach (var block in tryBlocks)
+                    {
+                        if (index == block.TryStartIndex)
+                        {
+                            il.BeginExceptionBlock();
+                            break;
+                        }
+                        foreach (var catchInfo in block.Catch)
+                        {
+                            if (index == catchInfo.startIndex)
+                            {
+                                il.BeginCatchBlock(catchInfo.catchType);
+                                break;
+                            }
+                        }
+                        if (block.Finally.HasValue && index == block.Finally.Value.startIndex)
+                        {
+                            il.BeginFinallyBlock();
+                        }
+                        else if (index == block.EndIndex)
+                        {
+                            il.EndExceptionBlock();
+                        }
+                    }
+                    hasExceptionIndex = exceptionIndices.Count != 0;
+                }
+            }
+            end = rangeInstructions.Length - 1;
+            if (rangeLastIsBranchToRet)
+            {
+                end++;
+            }
+            var addedIns = new List<Instruction>();
+            for (int j = 0; j < end; j++)
+            {
+                var instruction = rangeInstructions[j];
+                addedIns.Add(instruction);
+                if (instruction.IsBranchTarget)
+                {
+                    il.MarkLabel(branchTargetLabels[branchTargetInstructions.BinarySearch(instruction, offsetComparer)]);
+                }
+                if (instruction.OpCode is (>= ILOpCode.Ldloc_0 and <= ILOpCode.Ldloc_3) or ILOpCode.Ldloc_s or ILOpCode.Ldloca_s or ILOpCode.Ldloc or ILOpCode.Ldloca)
+                {
+                    var newIndex = locBuilders[EmitUtils.GetLocIndex(instruction)].LocalIndex;
+                    if (instruction.OpCode is ILOpCode.Ldloca_s or ILOpCode.Ldloca)
+                    {
+                        if (newIndex <= byte.MaxValue)
+                        {
+                            il.Emit(OpCodes.Ldloca_S, (byte)newIndex);
+                        }
+                        else
+                        {
+                            il.Emit(OpCodes.Ldloca, (ushort)newIndex);
+                        }
+                    }
+                    else
+                    {
+                        if (newIndex <= 3)
+                        {
+                            il.Emit(EmitUtils.GetOpCode((ILOpCode)((ushort)ILOpCode.Ldloc_0 + newIndex)));
+                        }
+                        else if (newIndex <= byte.MaxValue)
+                        {
+                            il.Emit(OpCodes.Ldloc_S, (byte)newIndex);
+                        }
+                        else
+                        {
+                            il.Emit(OpCodes.Ldloc, (ushort)newIndex);
+                        }
+                    }
+                }
+                else if (instruction.OpCode is (>= ILOpCode.Stloc_0 and <= ILOpCode.Stloc_3) or ILOpCode.Stloc_s or ILOpCode.Stloc)
+                {
+                    var newIndex = locBuilders[EmitUtils.GetLocIndex(instruction)].LocalIndex;
+                    if (newIndex <= 3)
+                    {
+                        il.Emit(EmitUtils.GetOpCode((ILOpCode)((ushort)ILOpCode.Stloc_0 + newIndex)));
+                    }
+                    else if (newIndex <= byte.MaxValue)
+                    {
+                        il.Emit(OpCodes.Stloc_S, (byte)newIndex);
+                    }
+                    else
+                    {
+                        il.Emit(OpCodes.Stloc, (ushort)newIndex);
+                    }
+                }
+                else
+                {
+                    var opcode = EmitUtils.GetOpCode(instruction.OpCode);
+                    switch (opcode.OperandType)
+                    {
+                        case OperandType.InlineField:
+                            il.Emit(opcode, (FieldInfo)instruction.Operand!);
+                            break;
+                        case OperandType.InlineI:
+                            il.Emit(opcode, (int)instruction.Operand!);
+                            break;
+                        case OperandType.InlineI8:
+                            il.Emit(opcode, (long)instruction.Operand!);
+                            break;
+                        case OperandType.InlineMethod:
+                            if (instruction.OpCode == ILOpCode.Newobj)
+                            {
+                                il.Emit(opcode, (ConstructorInfo)instruction.Operand!);
+                            }
+                            else
+                            {
+                                var methodBase = (MethodBase)instruction.Operand!;
+                                if (methodBase.IsConstructor)
+                                {
+                                    il.Emit(opcode, (ConstructorInfo)instruction.Operand!);
+                                }
+                                else
+                                {
+                                    il.Emit(opcode, (MethodInfo)instruction.Operand!);
+                                }
+                            }
+                            break;
+                        case OperandType.InlineNone:
+                            il.Emit(opcode);
+                            break;
+                        case OperandType.InlineR:
+                            il.Emit(opcode, (double)instruction.Operand!);
+                            break;
+                        case OperandType.InlineSig:
+                            throw new NotSupportedException();
+                        case OperandType.InlineString:
+                            il.Emit(opcode, (string)instruction.Operand!);
+                            break;
+                        case OperandType.InlineSwitch:
+                            il.Emit(opcode, ((Instruction[])instruction.Operand!).Select(x => branchTargetLabels[branchTargetInstructions.BinarySearch(x, offsetComparer)]).ToArray());
+                            break;
+                        case OperandType.InlineTok:
+                            switch (instruction.Operand)
+                            {
+                                case FieldInfo:
+                                    il.Emit(opcode, (FieldInfo)instruction.Operand);
+                                    break;
+                                case MethodInfo:
+                                    il.Emit(opcode, (MethodInfo)instruction.Operand);
+                                    break;
+                                case Type:
+                                    il.Emit(opcode, (Type)instruction.Operand);
+                                    break;
+                                default:
+                                    throw new InvalidDataException(nameof(OperandType.InlineTok));
+                            }
+                            break;
+                        case OperandType.InlineType:
+                            il.Emit(opcode, (Type)instruction.Operand!);
+                            break;
+                        case OperandType.InlineVar:
+                            il.Emit(opcode, (ushort)instruction.Operand!);
+                            break;
+                        case OperandType.InlineBrTarget:
+                        case OperandType.ShortInlineBrTarget:
+                            if (((Instruction)instruction.Operand!).Offset == instructions[^1].Offset)
+                            {
+                                if (instruction.OpCode is ILOpCode.Leave or ILOpCode.Leave_s || EmitUtils.GetOpCode(instruction.OpCode).FlowControl == FlowControl.Cond_Branch)
+                                {
+                                    il.Emit(opcode, branchTargetLabels[branchTargetInstructions.BinarySearch(retInstruction, offsetComparer)]);
+                                }
+                                else
+                                {
+                                    il.Emit(OpCodes.Ret);
+                                }
+                            }
+                            else
+                            {
+                                il.Emit(opcode, branchTargetLabels[branchTargetInstructions.BinarySearch((Instruction)instruction.Operand, offsetComparer)]);
+                            }
+                            break;
+                        case OperandType.ShortInlineR:
+                            il.Emit(opcode, (float)instruction.Operand!);
+                            break;
+                        case OperandType.ShortInlineI:
+                        case OperandType.ShortInlineVar:
+                            il.Emit(opcode, (sbyte)instruction.Operand!);
+                            break;
+                    }
+                }
+            }
+            if (retInstruction.IsBranchTarget)
+            {
+                il.MarkLabel(branchTargetLabels[branchTargetInstructions.BinarySearch(retInstruction, offsetComparer)]);
+            }
+            il.Emit(EmitUtils.GetOpCode(retInstruction.OpCode));
+            addedIns.Add(retInstruction);
+            _NPCAIs[aiStyle] = (Action<NPC>)newAiMethod.CreateDelegate(typeof(Action<NPC>));
         }
     }
-    public static void TAI(NPC npc)
+}
+class ExceptionHandlerInfo
+{
+    public int TryStartIndex;
+    public int TryEndIndex;
+    public int HandlerStartIndex;
+    public int HandlerEndIndex;
+    public ExceptionHandlingClauseOptions Flags;
+    public Type? CatchType;
+}
+class TryBlockInfo
+{
+    public int TryStartIndex;
+    public int TryEndIndex;
+    public List<(int startIndex, int endIndex, Type catchType)> Catch = new();
+    public (int startIndex, int endIndex)? Finally;
+    public int EndIndex => Finally?.endIndex ?? Catch[^1].endIndex;
+}
+class FuncComparer<T> : IComparer<T>
+{
+    private readonly Func<T?, T?, int> _comparison;
+    public FuncComparer(Func<T?, T?, int> comparison)
     {
-        if (npc.aiStyle == 0)
-            npc.AI_000();
-        else if (npc.aiStyle == 1)
+        ArgumentNullException.ThrowIfNull(comparison);
+        _comparison = comparison;
+    }
+    public int Compare(T? x, T? y) => _comparison(x!, y!);
+}
+[DebuggerDisplay("OpCode = {OpCode}, Offset = {Offset}")]
+public class Instruction
+{
+    public ILOpCode OpCode;
+    public object? Operand;
+    public int Offset;
+    public bool IsBranchTarget;
+
+    public Instruction(ILOpCode opCode, object? operand = null)
+    {
+        OpCode = opCode;
+        Operand = operand;
+    }
+    public Instruction(ILOpCode opCode, object? operand, int offset) : this(opCode, operand)
+    {
+        Offset = offset;
+    }
+    public int GetSize()
+    {
+        var opcode = EmitUtils.GetOpCode(OpCode);
+        int size = opcode.Size;
+
+        return opcode.OperandType switch
         {
-            npc.AI_001_Slimes();
-        }
-        else if (npc.aiStyle == 2)
+            OperandType.InlineSwitch => size + (1 + ((Array)Operand!).Length) * 4,
+            OperandType.InlineI8 or OperandType.InlineR => size + 8,
+            OperandType.InlineBrTarget or OperandType.InlineField or OperandType.InlineI or OperandType.InlineMethod or OperandType.InlineString 
+            or OperandType.InlineTok or OperandType.InlineType or OperandType.ShortInlineR or OperandType.InlineSig => size + 4,
+            OperandType.InlineVar => size + 2,
+            OperandType.ShortInlineBrTarget or OperandType.ShortInlineI or OperandType.ShortInlineVar => size + 1,
+            _ => size,
+        };
+    }
+}
+
+static class EmitUtils
+{
+    private static OpCode?[]? shortOpCodes;
+    private static OpCode?[]? largeOpCodes;
+    public static OpCode?[] ShortOpCodes
+    {
+        get
         {
-            npc.AI_002_FloatingEye();
+            if (shortOpCodes is null)
+            {
+                InitOpcodes();
+            }
+            return shortOpCodes;
         }
-        else if (npc.aiStyle == 3)
+    }
+    public static OpCode?[] LargeOpCodes
+    {
+        get
         {
-            npc.AI_003_Fighters();
+            if (largeOpCodes is null)
+            {
+                InitOpcodes();
+            }
+            return largeOpCodes;
         }
-        else if (npc.aiStyle == 4)
-            npc.AI_004();
-        else if (npc.aiStyle == 5)
+    }
+    [MemberNotNull(nameof(shortOpCodes), nameof(largeOpCodes))]
+    private static void InitOpcodes()
+    {
+        var opcodes = typeof(OpCodes).GetFields().Where(x => x.FieldType == typeof(OpCode)).Select(x => (OpCode)x.GetValue(null)!).ToArray();
+        Array.Sort(opcodes, static (x, y) => ((ushort)x.Value).CompareTo((ushort)y.Value));
+        var index = Array.FindIndex(opcodes, opcode => opcode.Value < 0);
+        shortOpCodes = new OpCode?[256];
+        largeOpCodes = new OpCode?[opcodes.Where(x => x.Value < 0).Select(x => (byte)(ushort)x.Value).Max() + 1];
+        for (int i = 0; i < index; i++)
         {
-            npc.AI_005_EaterOfSouls();
+            shortOpCodes[opcodes[i].Value] = opcodes[i];
         }
-        else if (npc.aiStyle == 6)
+        for (int i = index; i < opcodes.Length; i++)
         {
-            npc.AI_006_Worms();
+            largeOpCodes[(byte)(ushort)opcodes[i].Value] = opcodes[i];
         }
-        else if (npc.aiStyle == 7)
+    }
+    public static List<Instruction> GetInstructionsFromBytes(byte[] bytes)
+    {
+        var ilByteArray = bytes;
+        var ms = new MemoryStream(ilByteArray);
+        var br = new BinaryReader(ms);
+        var result = new List<Instruction>();
+        while (ms.Position != ms.Length)
         {
-            npc.AI_007_TownEntities();
+            var instruction = new Instruction(default, null, (int)ms.Position);
+            var opcodeValue = br.ReadByte();
+            var opcode = opcodeValue == 0xFE ? LargeOpCodes[br.ReadByte()]!.Value : ShortOpCodes[opcodeValue]!.Value;
+            instruction.OpCode = (ILOpCode)opcode.Value;
+            switch (opcode.OperandType)
+            {
+                case OperandType.InlineBrTarget:
+                case OperandType.InlineField:
+                case OperandType.InlineMethod:
+                case OperandType.InlineI:
+                case OperandType.InlineSig:
+                case OperandType.InlineString:
+                case OperandType.InlineTok:
+                case OperandType.InlineType:
+                    instruction.Operand = br.ReadInt32();
+                    break;
+                case OperandType.InlineI8:
+                    instruction.Operand = br.ReadInt64();
+                    break;
+                case OperandType.InlineNone:
+                    break;
+#pragma warning disable CS0618 // 类型或成员已过时
+                case OperandType.InlinePhi:
+                    throw new NotSupportedException(nameof(OperandType.InlinePhi));
+#pragma warning restore CS0618 // 类型或成员已过时
+                case OperandType.InlineR:
+                    instruction.Operand = br.ReadDouble();
+                    break;
+                case OperandType.InlineSwitch:
+                    var count = br.ReadUInt32();
+                    var targets = new int[count];
+                    for (int i = 0; i < count; i++)
+                    {
+                        targets[i] = br.ReadInt32();
+                    }
+                    instruction.Operand = targets;
+                    break;
+                case OperandType.InlineVar:
+                    instruction.Operand = br.ReadUInt16();
+                    break;
+                case OperandType.ShortInlineBrTarget:
+                case OperandType.ShortInlineI:
+                    instruction.Operand = br.ReadSByte();
+                    break;
+                case OperandType.ShortInlineR:
+                    instruction.Operand = br.ReadSingle();
+                    break;
+                case OperandType.ShortInlineVar:
+                    instruction.Operand = br.ReadByte();
+                    break;
+                default:
+                    throw new NotSupportedException(opcode.OperandType.ToString());
+            }
+            result.Add(instruction);
         }
-        else if (npc.aiStyle == 8)
-            npc.AI_008();
-        else if (npc.aiStyle == 9)
-            npc.AI_009();
-        else if (npc.aiStyle == 10)
-            npc.AI_010();
-        else if (npc.aiStyle == 11)
-            npc.AI_011();
-        else if (npc.aiStyle == 12)
-            npc.AI_012();
-        else if (npc.aiStyle == 13)
-            npc.AI_013();
-        else if (npc.aiStyle == 14)
-            npc.AI_014();
-        else if (npc.aiStyle == 15)
-            npc.AI_015();
-        else if (npc.aiStyle == 16)
-            npc.AI_016();
-        else if (npc.aiStyle == 17)
-            npc.AI_017();
-        else if (npc.aiStyle == 18)
-            npc.AI_018();
-        else if (npc.aiStyle == 19)
-            npc.AI_019();
-        else if (npc.aiStyle == 20)
-            npc.AI_020();
-        else if (npc.aiStyle == 21)
-            npc.AI_021();
-        else if (npc.aiStyle == 22)
-            npc.AI_022();
-        else if (npc.aiStyle == 23)
-            npc.AI_023();
-        else if (npc.aiStyle == 24)
-            npc.AI_024();
-        else if (npc.aiStyle == 25)
-            npc.AI_025();
-        else if (npc.aiStyle == 26)
+        return result;
+    }
+    public static void InstructionOperandTransform(Module module, List<Instruction> instructions)
+    {
+        foreach (var instruction in instructions)
         {
-            npc.AI_026_Unicorns();
+            var opcode = GetOpCode(instruction.OpCode);
+            switch (opcode.OperandType)
+            {
+                case OperandType.InlineBrTarget:
+                    {
+                        instruction.Operand = instructions[instructions.BinarySearch(static (x, value) => x.Offset.CompareTo(value), instruction.Offset + instruction.GetSize() + (int)instruction.Operand!)];
+                        ((Instruction)instruction.Operand).IsBranchTarget = true;
+                    }
+                    break;
+                case OperandType.ShortInlineBrTarget:
+                    {
+                        instruction.Operand = instructions[instructions.BinarySearch(static (x, value) => x.Offset.CompareTo(value), instruction.Offset + instruction.GetSize() + (sbyte)instruction.Operand!)];
+                        ((Instruction)instruction.Operand).IsBranchTarget = true;
+                    }
+                    break;
+                case OperandType.InlineSwitch:
+                    {
+                        instruction.Operand = ((int[])instruction.Operand!).Select(offset =>
+                        {
+                            var targetInstruction = instructions[instructions.BinarySearch(static (x, value) => x.Offset.CompareTo(value), instruction.Offset + instruction.GetSize() + offset)];
+                            targetInstruction.IsBranchTarget = true;
+                            return targetInstruction;
+                        }).ToArray();
+                    }
+                    break;
+                case OperandType.InlineField:
+                    instruction.Operand = module.ResolveField((int)instruction.Operand!);
+                    break;
+                case OperandType.InlineMethod:
+                    instruction.Operand = module.ResolveMethod((int)instruction.Operand!);
+                    break;
+#pragma warning disable CS0618 // 类型或成员已过时
+                case OperandType.InlinePhi:
+                    throw new NotSupportedException(nameof(OperandType.InlinePhi));
+#pragma warning restore CS0618 // 类型或成员已过时
+                case OperandType.InlineSig:
+                    instruction.Operand = module.ResolveSignature((int)instruction.Operand!);
+                    break;
+                case OperandType.InlineString:
+                    instruction.Operand = module.ResolveString((int)instruction.Operand!);
+                    break;
+                case OperandType.InlineTok:
+                    instruction.Operand = module.ResolveMember((int)instruction.Operand!);
+                    break;
+                case OperandType.InlineType:
+                    instruction.Operand = module.ResolveType((int)instruction.Operand!);
+                    break;
+            }
         }
-        else if (npc.aiStyle == 27)
-            npc.AI_027();
-        else if (npc.aiStyle == 28)
-            npc.AI_028();
-        else if (npc.aiStyle == 29)
-            npc.AI_029();
-        else if (npc.aiStyle == 30)
-            npc.AI_030();
-        else if (npc.aiStyle == 31)
-            npc.AI_031();
-        else if (npc.aiStyle == 32)
-            npc.AI_032();
-        else if (npc.aiStyle == 33)
-            npc.AI_033();
-        else if (npc.aiStyle == 34)
-            npc.AI_034();
-        else if (npc.aiStyle == 35)
-            npc.AI_035();
-        else if (npc.aiStyle == 36)
-            npc.AI_036();
-        else if (npc.aiStyle == 37)
+    }
+    public static OpCode GetOpCode(ILOpCode code) => (ushort)code >= 0xFE00 ? LargeOpCodes[(ushort)code & byte.MaxValue]!.Value : ShortOpCodes[(int)code]!.Value;
+    public static int GetLocIndex(Instruction instruction) => instruction.OpCode switch
+    {
+        ILOpCode.Ldloc_0 or ILOpCode.Ldloc_1 or ILOpCode.Ldloc_2 or ILOpCode.Ldloc_3 => instruction.OpCode - ILOpCode.Ldloc_0,
+        ILOpCode.Stloc_0 or ILOpCode.Stloc_1 or ILOpCode.Stloc_2 or ILOpCode.Stloc_3 => instruction.OpCode - ILOpCode.Stloc_0,
+        ILOpCode.Ldloc_s or ILOpCode.Ldloca_s or ILOpCode.Stloc_s => (byte)instruction.Operand!,
+        ILOpCode.Ldloc or ILOpCode.Ldloca or ILOpCode.Stloc => (ushort)instruction.Operand!,
+        _ => throw new NotSupportedException(instruction.OpCode.ToString()),
+    };
+}
+static class IListExtensions
+{
+    public static int BinarySearch<T, TValue>(this IList<T> values, Func<T, TValue, int> comparison, TValue value)
+    {
+        int lo = 0;
+        int hi = values.Count - 1;
+        while (lo <= hi)
         {
-            npc.AI_037_Destroyer();
+            int i = lo + ((hi - lo) >> 1);
+            int order = comparison(values[i], value);
+            if (order == 0)
+            {
+                return i;
+            }
+            if (order < 0)
+            {
+                lo = i + 1;
+            }
+            else
+            {
+                hi = i - 1;
+            }
         }
-        else if (npc.aiStyle == 38)
-            npc.AI_038();
-        else if (npc.aiStyle == 39)
-            npc.AI_039();
-        else if (npc.aiStyle == 40)
-            npc.AI_040();
-        else if (npc.aiStyle == 41)
-            npc.AI_041();
-        else if (npc.aiStyle == 42)
-            npc.AI_042();
-        else if (npc.aiStyle == 43)
-            npc.AI_043();
-        else if (npc.aiStyle == 44)
-            npc.AI_044();
-        else if (npc.aiStyle == 45)
-        {
-            npc.AI_045_Golem();
-        }
-        else if (npc.aiStyle == 46)
-            npc.AI_046();
-        else if (npc.aiStyle == 47)
-        {
-            npc.AI_047_GolemFist();
-        }
-        else if (npc.aiStyle == 48)
-            npc.AI_048();
-        else if (npc.aiStyle == 49)
-            npc.AI_049();
-        else if (npc.aiStyle == 50)
-            npc.AI_050();
-        else if (npc.aiStyle == 51)
-            npc.AI_051();
-        else if (npc.aiStyle == 52)
-            npc.AI_052();
-        else if (npc.aiStyle == 53)
-            npc.AI_053();
-        else if (npc.aiStyle == 54)
-            npc.AI_054();
-        else if (npc.aiStyle == 55)
-            npc.AI_055();
-        else if (npc.aiStyle == 56)
-            npc.AI_056();
-        else if (npc.aiStyle == 57)
-            npc.AI_057();
-        else if (npc.aiStyle == 58)
-            npc.AI_058();
-        else if (npc.aiStyle == 59)
-            npc.AI_059();
-        else if (npc.aiStyle == 60)
-            npc.AI_060();
-        else if (npc.aiStyle == 61)
-            npc.AI_061();
-        else if (npc.aiStyle == 62)
-            npc.AI_062();
-        else if (npc.aiStyle == 63)
-            npc.AI_063();
-        else if (npc.aiStyle == 64)
-            npc.AI_064();
-        else if (npc.aiStyle == 65)
-        {
-            npc.AI_065_Butterflies();
-        }
-        else if (npc.aiStyle == 66)
-            npc.AI_066();
-        else if (npc.aiStyle == 67)
-            npc.AI_067();
-        else if (npc.aiStyle == 68)
-            npc.AI_068();
-        else if (npc.aiStyle == 69)
-        {
-            npc.AI_069_DukeFishron();
-        }
-        else if (npc.aiStyle == 70)
-            npc.AI_070();
-        else if (npc.aiStyle == 71)
-            npc.AI_071();
-        else if (npc.aiStyle == 72)
-            npc.AI_072();
-        else if (npc.aiStyle == 73)
-            npc.AI_073();
-        else if (npc.aiStyle == 74)
-            npc.AI_074();
-        else if (npc.aiStyle == 75)
-            npc.AI_075();
-        else if (npc.aiStyle == 76)
-            npc.AI_076();
-        else if (npc.aiStyle == 77)
-            npc.AI_077();
-        else if (npc.aiStyle == 78)
-            npc.AI_078();
-        else if (npc.aiStyle == 79)
-            npc.AI_079();
-        else if (npc.aiStyle == 80)
-            npc.AI_080();
-        else if (npc.aiStyle == 81)
-            npc.AI_081();
-        else if (npc.aiStyle == 82)
-            npc.AI_082();
-        else if (npc.aiStyle == 83)
-            npc.AI_083();
-        else if (npc.aiStyle == 84)
-        {
-            npc.AI_084_LunaticCultist();
-        }
-        else if (npc.aiStyle == 85)
-            npc.AI_085();
-        else if (npc.aiStyle == 86)
-            npc.AI_086();
-        else if (npc.aiStyle == 87)
-            npc.AI_087();
-        else if (npc.aiStyle == 88)
-            npc.AI_088();
-        else if (npc.aiStyle == 89)
-            npc.AI_089();
-        else if (npc.aiStyle == 90)
-            npc.AI_090();
-        else if (npc.aiStyle == 91)
-            npc.AI_091();
-        else if (npc.aiStyle == 92)
-            npc.AI_092();
-        else if (npc.aiStyle == 93)
-            npc.AI_093();
-        else if (npc.aiStyle == 94)
-            npc.AI_094();
-        else if (npc.aiStyle == 95)
-            npc.AI_095();
-        else if (npc.aiStyle == 96)
-            npc.AI_096();
-        else if (npc.aiStyle == 97)
-            npc.AI_097();
-        else if (npc.aiStyle == 98)
-            npc.AI_098();
-        else if (npc.aiStyle == 99)
-            npc.AI_099();
-        else if (npc.aiStyle == 100)
-            npc.AI_100();
-        else if (npc.aiStyle == 101)
-            npc.AI_101();
-        else if (npc.aiStyle == 102)
-            npc.AI_102();
-        else if (npc.aiStyle == 103)
-            npc.AI_103();
-        else if (npc.aiStyle == 104)
-        {
-            npc.AI_104();
-        }
-        else if (npc.aiStyle == 105)
-            npc.AI_105();
-        else if (npc.aiStyle == 106)
-            npc.AI_106();
-        else if (npc.aiStyle == 107)
-        {
-            npc.AI_107_ImprovedWalkers();
-        }
-        else if (npc.aiStyle == 108)
-        {
-            npc.AI_108_DivingFlyer();
-        }
-        else if (npc.aiStyle == 109)
-        {
-            npc.AI_109_DarkMage();
-        }
-        else if (npc.aiStyle == 110)
-        {
-            npc.AI_110_Betsy();
-        }
-        else if (npc.aiStyle == 111)
-        {
-            npc.AI_111_DD2LightningBug();
-        }
-        else if (npc.aiStyle == 112)
-        {
-            npc.AI_112_FairyCritter();
-        }
-        else if (npc.aiStyle == 113)
-        {
-            npc.AI_113_WindyBalloon();
-        }
-        else if (npc.aiStyle == 114)
-        {
-            npc.AI_114_Dragonflies();
-        }
-        else if (npc.aiStyle == 115)
-        {
-            npc.AI_115_LadyBugs();
-        }
-        else if (npc.aiStyle == 116)
-        {
-            npc.AI_116_WaterStriders();
-        }
-        else if (npc.aiStyle == 117)
-        {
-            npc.AI_117_BloodNautilus();
-        }
-        else if (npc.aiStyle == 118)
-        {
-            npc.AI_118_Seahorses();
-        }
-        else if (npc.aiStyle == 119)
-        {
-            npc.AI_119_Dandelion();
-        }
-        else if (npc.aiStyle == 120)
-        {
-            npc.AI_120_HallowBoss();
-        }
-        else if (npc.aiStyle == 121)
-        {
-            npc.AI_121_QueenSlime();
-        }
-        else if (npc.aiStyle == 122)
-        {
-            npc.AI_122_PirateGhost();
-        }
-        else if (npc.aiStyle == 123)
-        {
-            npc.AI_123_Deerclops();
-        }
-        else if (npc.aiStyle == 124)
-        {
-            npc.AI_124_ElderSlimeChest();
-        }
-        else if (npc.aiStyle == 125)
-        {
-            npc.AI_125_ClumsySlimeBalloon();
-        }
+        return ~lo;
     }
 }

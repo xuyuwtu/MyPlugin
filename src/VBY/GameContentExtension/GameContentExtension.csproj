@@ -2,4 +2,7 @@
 	<PropertyGroup>
 		<OutToPluginLoader>true</OutToPluginLoader>
 	</PropertyGroup>
+	<ItemGroup>
+		<SharedCodeReference Include="ReferenceList" />
+	</ItemGroup>
 </Project>

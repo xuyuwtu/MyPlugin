@@ -13,22 +13,37 @@
 	<PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.vbproj'">
 		<OptionStrict>Off</OptionStrict>
 		<OptionExplicit>On</OptionExplicit>
+		<SharedCodeFileExtension>.vb</SharedCodeFileExtension>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<SharedCodeFileExtension>.cs</SharedCodeFileExtension>
 	</PropertyGroup>
-
+	
 	<ItemGroup>
 		<ProjectReference Include="$(CommonProjectPath)" Condition="$(UsingCommon)"/>
 		<EmbeddedResource Include="$(MSBuildProjectName).json" Condition="Exists('$(MSBuildProjectName).json')"/>
 	</ItemGroup>
 
 	<ItemGroup>
-		<CopyToTShockFile Include="$(OutDir)\$(AssemblyName).pdb" />
-		<CopyToTShockFile Include="$(OutDir)\$(AssemblyName).dll" />
+		<CopyToTShockFile Include="$(OutDir)$(AssemblyName).pdb" />
+		<CopyToTShockFile Include="$(OutDir)$(AssemblyName).dll" />
 	</ItemGroup>
+
+	<Choose>
+		<When Condition="'$(SharedCodePath)' != ''">
+			<PropertyGroup>
+				<SharedCodePath>$([MSBuild]::EnsureTrailingSlash('$(SharedCodePath)'))</SharedCodePath>
+			</PropertyGroup>
+			<ItemGroup>
+				<Compile Include="@(SharedCodeReference->'$(SharedCodePath)%(Identity)$(SharedCodeFileExtension)')">
+					<Link>SharedCodeReference\%(Filename)$(SharedCodeFileExtension)</Link>
+				</Compile>
+			</ItemGroup>
+		</When>
+	</Choose>
 	
 	<ItemGroup>
 		<Compile Remove="obj\**" />
@@ -36,9 +51,12 @@
 		<None Remove="obj\**" />
 	</ItemGroup>
 	
-	<Target Name="CommonPostBuild" AfterTargets="PostBuildEvent">
-		<Copy Condition="!$(OutToPluginLoader) and $(OutToPlugin) and $(TShockPath) != ''" SourceFiles="@(CopyToTShockFile)" DestinationFolder="$(TShockPath)\ServerPlugins" SkipUnchangedFiles="true"/>
-		<Copy Condition="$(OutToPluginLoader) and $(TShockPath) != ''" SourceFiles="@(CopyToTShockFile)" DestinationFolder="$(TShockPath)\PluginLoader" SkipUnchangedFiles="true"/>
+	<Target Name="CommonPostBuild" AfterTargets="PostBuildEvent" Condition="'$(TShockPath)' != ''">
+		<PropertyGroup>
+			<TShockPath>$([MSBuild]::EnsureTrailingSlash('$(TShockPath)'))</TShockPath>
+		</PropertyGroup>
+		<Copy Condition="!$(OutToPluginLoader) and $(OutToPlugin)" SourceFiles="@(CopyToTShockFile)" DestinationFolder="$(TShockPath)ServerPlugins" SkipUnchangedFiles="true"/>
+		<Copy Condition="$(OutToPluginLoader)" SourceFiles="@(CopyToTShockFile)" DestinationFolder="$(TShockPath)PluginLoader" SkipUnchangedFiles="true"/>
 	</Target>
 
 	<Target Name="AddBuildDateAttribute" BeforeTargets="PreBuildEvent">
@@ -49,6 +67,6 @@
 			</AssemblyAttribute>
 		</ItemGroup>
 	</Target>
-
+	
 	<Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>

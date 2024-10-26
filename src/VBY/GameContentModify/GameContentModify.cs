@@ -37,7 +37,28 @@ public partial class GameContentModify : CommonPlugin
     public static event Action<ReloadEventArgs, MainConfigInfo>? PostReload;
     public static event Action<MainConfigInfo>? PreStartDay;
     public static event Action<MainConfigInfo>? PreStartNight;
-    public static ConfigManager<MainConfigInfo> MainConfig = new(Strings.ConfigDirectory, Strings.MainConfigFileName, () => new());
+    public static ConfigManager<MainConfigInfo> MainConfig = new(Strings.ConfigDirectory, Strings.MainConfigFileName, () => new()) { PostLoadAction = OnPostLoad };
+
+    private static void OnPostLoad(MainConfigInfo info, TSPlayer? player, bool first)
+    {
+        if (info.Spawn.TownNPC.DisableSpawnTownNPC.Length > 0)
+        {
+            var list = new HashSet<int>();
+            foreach (var type in info.Spawn.TownNPC.DisableSpawnTownNPC)
+            {
+                if (ReplaceMain.TownNPCIDIndexMap.TryGetValue(type, out var index))
+                {
+                    list.Add(index);
+                }
+                else
+                {
+                    player?.SendInfoMessage($"无效NPCID: {type}");
+                }
+            }
+            ReplaceMain.DisableSpawnTownNPCIndices = [.. list];
+        }
+    }
+
     public static ConfigManager<ChestSpawnInfo[]> ChestSpawnConfig = new(Strings.ConfigDirectory, Strings.ChestSpawnConfigFileName, () =>
     [
         new ChestSpawnNPCInfo(ItemID.LightKey, NPCID.BigMimicHallow),
@@ -80,7 +101,7 @@ public partial class GameContentModify : CommonPlugin
         { DetourNames.Item_MechSpawn, Utils.GetDetour(ReplaceItem.MechSpawn) },
         //{ DetourNames.MessageBuffer_GetData, Utils.GetDetour(ReplaceMessageBuffer.GetData) },
         { DetourNames.Liquid_DelWater, Utils.GetDetour(ReplaceLiquid.DelWater) },
-        { DetourNames.Main_UpdateTime_SpawnTownNPCs, Utils.GetDetour(ReplaceMain.UpdateTime_SpawnTownNPCs) },
+        //{ DetourNames.Main_UpdateTime_SpawnTownNPCs, Utils.GetDetour(ReplaceMain.UpdateTime_SpawnTownNPCs) },
         { DetourNames.NPC_CountKillForBannersAndDropThem, Utils.GetDetour(ReplaceNPC.CountKillForBannersAndDropThem) },
         { DetourNames.NPC_MechSpawn, Utils.GetDetour(ReplaceNPC.MechSpawn) },
         { DetourNames.NPC_SpawnNPC, Utils.GetDetour(ReplaceNPC.SpawnNPC) },

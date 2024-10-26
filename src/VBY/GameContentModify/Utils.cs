@@ -769,7 +769,7 @@ internal static class Utils
     {
         var sourceName = value.GetType().FullName;
         var targetName = type.FullName!;
-        if (!targetName.Equals(sourceName, StringComparison.Ordinal))
+        if (!targetName.OrdinalEquals(sourceName))
         {
             writer.WriteLine("不完全匹配:");
             writer.Indent++;

@@ -1,7 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 
-using MySqlX.XDevAPI.Relational;
-
 using Terraria;
 using Terraria.Chat;
 using Terraria.DataStructures;
@@ -417,7 +415,7 @@ public static class ReplaceWorldGen
         var count = end - start + 1;
         for (int i = 0; i < count; i++)
         {
-            SingleTileDropItem[sourceStart + i] = (short)(start + i);
+            SingleTileDropItem[start + i] = (short)(sourceStart + i);
         }
     }
     private static void RegisterStyleList(List<int> ids, List<Dictionary<int, int>> styles, ushort tileID, params int[] itemIDs)

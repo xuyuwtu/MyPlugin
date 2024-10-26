@@ -16,6 +16,63 @@ namespace VBY.GameContentModify;
 [ReplaceType(typeof(Main))]
 public static class ReplaceMain
 {
+    private static int[] TownNPCIDs;
+    internal static Dictionary<int, int> TownNPCIDIndexMap;
+    internal static int[] DisableSpawnTownNPCIndices = [];
+    private static Range[] princessCheckRanges;
+    static ReplaceMain()
+    {
+        TownNPCIDs = [
+            NPCID.Merchant,
+            NPCID.Nurse,
+            NPCID.Dryad,
+            NPCID.ArmsDealer,
+            NPCID.Guide,
+            NPCID.OldMan,
+            NPCID.Demolitionist,
+            NPCID.Clothier,
+            NPCID.Wizard,
+            NPCID.GoblinTinkerer,
+            NPCID.Mechanic,
+            NPCID.SantaClaus,
+            NPCID.Truffle,
+            NPCID.Steampunker,
+            NPCID.DyeTrader,
+            NPCID.PartyGirl,
+            NPCID.Cyborg,
+            NPCID.Painter,
+            NPCID.WitchDoctor,
+            NPCID.Pirate,
+            NPCID.Stylist,
+            NPCID.Angler,
+            NPCID.TaxCollector,
+            NPCID.DD2Bartender,
+            NPCID.Golfer,
+            NPCID.BestiaryGirl,
+            NPCID.TownCat,
+            NPCID.TownDog,
+            NPCID.TownBunny,
+            NPCID.TownSlimeBlue,
+            NPCID.TownSlimeGreen,
+            NPCID.TownSlimeOld,
+            NPCID.TownSlimePurple,
+            NPCID.TownSlimeRainbow,
+            NPCID.TownSlimeRed,
+            NPCID.TownSlimeYellow,
+            NPCID.TownSlimeCopper,
+            NPCID.Princess
+       ];
+        Array.Sort(TownNPCIDs);
+        TownNPCIDIndexMap = [];
+        for(int i = 0; i < TownNPCIDs.Length; i++)
+        {
+            TownNPCIDIndexMap.Add(TownNPCIDs[i], i);
+        }
+        princessCheckRanges = new Range[3];
+        princessCheckRanges[0] = new Range(0, TownNPCIDs.IndexOf(NPCID.OldMan));
+        princessCheckRanges[1] = new Range(princessCheckRanges[0].Start.Value + 1, Array.IndexOf(TownNPCIDs, NPCID.SantaClaus, princessCheckRanges[0].Start.Value + 1));
+        princessCheckRanges[2] = new Range(princessCheckRanges[1].Start.Value + 1, Array.IndexOf(TownNPCIDs, NPCID.TownCat, princessCheckRanges[1].Start.Value + 1));
+    }
     [DetourMethod]
     public static void UpdateTime()
     {
@@ -637,6 +694,7 @@ public static class ReplaceMain
         Main.dayTime = false;
         NetMessage.SendData(MessageID.WorldData);
     }
+    [DetourMethod]
     public static void UpdateTime_SpawnTownNPCs()
     {
         if (SpawnInfo.TownNPCInfo.StaticDisableSpawn)
@@ -660,546 +718,376 @@ public static class ReplaceMain
         Main.checkForSpawns = 0;
         Array.Fill(Main.townNPCCanSpawn, false);
         WorldGen.prioritizedTownNPCType = 0;
-        int num2 = 0;
-        int num3 = 0;
-        int num4 = 0;
-        int num5 = 0;
-        int num6 = 0;
-        int num7 = 0;
-        int num8 = 0;
-        int num9 = 0;
-        int num10 = 0;
-        int num11 = 0;
-        int num12 = 0;
-        int num13 = 0;
-        int num14 = 0;
-        int num15 = 0;
-        int num16 = 0;
-        int num17 = 0;
-        int num18 = 0;
-        int num19 = 0;
-        int num20 = 0;
-        int num21 = 0;
-        int num22 = 0;
-        int num23 = 0;
-        int num24 = 0;
-        int num25 = 0;
-        int num26 = 0;
-        int num27 = 0;
-        int num28 = 0;
-        int num29 = 0;
-        int num30 = 0;
-        int num31 = 0;
-        int num32 = 0;
-        int num33 = 0;
-        int num34 = 0;
-        int num35 = 0;
-        int num36 = 0;
-        int num37 = 0;
-        int num38 = 0;
-        int num39 = 0;
-        int num40 = 0;
-        for (int k = 0; k < 200; k++)
+        var npcCount = (stackalloc int[TownNPCIDs.Length]);
+        int totalTownNPC = 0;
+        for (int k = 0; k < Main.maxNPCs; k++)
         {
-            if (Main.npc[k].active && Main.npc[k].townNPC)
+            if (!Main.npc[k].active || !Main.npc[k].townNPC)
             {
-                if (Main.npc[k].type != NPCID.TravellingMerchant && Main.npc[k].type != NPCID.OldMan && Main.npc[k].type != NPCID.SkeletonMerchant && !Main.npc[k].homeless)
-                {
-                    WorldGen.QuickFindHome(k);
-                }
-                if (Main.npc[k].type == NPCID.OldMan)
-                {
-                    num7++;
-                }
-                if (Main.npc[k].type == NPCID.Merchant)
-                {
-                    num2++;
-                }
-                if (Main.npc[k].type == NPCID.Nurse)
-                {
-                    num3++;
-                }
-                if (Main.npc[k].type == NPCID.ArmsDealer)
-                {
-                    num5++;
-                }
-                if (Main.npc[k].type == NPCID.Dryad)
-                {
-                    num4++;
-                }
-                if (Main.npc[k].type == NPCID.Guide)
-                {
-                    num6++;
-                }
-                if (Main.npc[k].type == NPCID.Demolitionist)
-                {
-                    num8++;
-                }
-                if (Main.npc[k].type == NPCID.Clothier)
-                {
-                    num9++;
-                }
-                if (Main.npc[k].type == NPCID.GoblinTinkerer)
-                {
-                    num11++;
-                }
-                if (Main.npc[k].type == NPCID.Wizard)
-                {
-                    num10++;
-                }
-                if (Main.npc[k].type == NPCID.Mechanic)
-                {
-                    num12++;
-                }
-                if (Main.npc[k].type == NPCID.SantaClaus)
-                {
-                    num13++;
-                }
-                if (Main.npc[k].type == NPCID.Truffle)
-                {
-                    num14++;
-                }
-                if (Main.npc[k].type == NPCID.Steampunker)
-                {
-                    num15++;
-                }
-                if (Main.npc[k].type == NPCID.DyeTrader)
-                {
-                    num16++;
-                }
-                if (Main.npc[k].type == NPCID.PartyGirl)
-                {
-                    num17++;
-                }
-                if (Main.npc[k].type == NPCID.Cyborg)
-                {
-                    num18++;
-                }
-                if (Main.npc[k].type == NPCID.Painter)
-                {
-                    num19++;
-                }
-                if (Main.npc[k].type == NPCID.WitchDoctor)
-                {
-                    num20++;
-                }
-                if (Main.npc[k].type == NPCID.Pirate)
-                {
-                    num21++;
-                }
-                if (Main.npc[k].type == NPCID.Stylist)
-                {
-                    num22++;
-                }
-                if (Main.npc[k].type == NPCID.Angler)
-                {
-                    num23++;
-                }
-                if (Main.npc[k].type == NPCID.TaxCollector)
-                {
-                    num24++;
-                }
-                if (Main.npc[k].type == NPCID.DD2Bartender)
-                {
-                    num25++;
-                }
-                if (Main.npc[k].type == NPCID.Golfer)
-                {
-                    num26++;
-                }
-                if (Main.npc[k].type == NPCID.BestiaryGirl)
-                {
-                    num27++;
-                }
-                if (Main.npc[k].type == NPCID.TownCat)
-                {
-                    num28++;
-                }
-                if (Main.npc[k].type == NPCID.TownDog)
-                {
-                    num29++;
-                }
-                if (Main.npc[k].type == NPCID.TownBunny)
-                {
-                    num30++;
-                }
-                if (Main.npc[k].type == NPCID.TownSlimeBlue)
-                {
-                    num31++;
-                }
-                if (Main.npc[k].type == NPCID.TownSlimeGreen)
-                {
-                    num32++;
-                }
-                if (Main.npc[k].type == NPCID.TownSlimeOld)
-                {
-                    num33++;
-                }
-                if (Main.npc[k].type == NPCID.TownSlimePurple)
-                {
-                    num34++;
-                }
-                if (Main.npc[k].type == NPCID.TownSlimeRainbow)
-                {
-                    num35++;
-                }
-                if (Main.npc[k].type == NPCID.TownSlimeRed)
-                {
-                    num36++;
-                }
-                if (Main.npc[k].type == NPCID.TownSlimeYellow)
-                {
-                    num37++;
-                }
-                if (Main.npc[k].type == NPCID.TownSlimeCopper)
-                {
-                    num38++;
-                }
-                if (Main.npc[k].type == NPCID.Princess)
-                {
-                    num39++;
-                }
-                num40++;
+                continue;
             }
+            if (Main.npc[k].type != NPCID.TravellingMerchant && Main.npc[k].type != NPCID.OldMan && Main.npc[k].type != NPCID.SkeletonMerchant && !Main.npc[k].homeless)
+            {
+                WorldGen.QuickFindHome(k);
+            }
+            var index = Array.BinarySearch(TownNPCIDs, Main.npc[k].type);
+            if (index >= 0)
+            {
+                npcCount[index]++;
+            }
+            totalTownNPC++;
         }
-        if (WorldGen.prioritizedTownNPCType == 0)
+        if (WorldGen.prioritizedTownNPCType != 0)
         {
-            bool flag = NPC.SpawnAllowed_Merchant();
-            bool flag2 = NPC.SpawnAllowed_ArmsDealer();
-            bool flag3 = NPC.SpawnAllowed_Nurse();
-            bool flag4 = NPC.SpawnAllowed_DyeTrader();
-            bool flag5 = NPC.SpawnAllowed_Demolitionist();
-            BestiaryUnlockProgressReport bestiaryProgressReport = Main.GetBestiaryProgressReport();
-            if (!NPC.downedBoss3 && num7 == 0)
-            {
-                int num41 = NPC.NewNPC(NPC.GetSpawnSourceForTownSpawn(), Main.dungeonX * 16 + 8, Main.dungeonY * 16, 37);
-                Main.npc[num41].homeless = false;
-                Main.npc[num41].homeTileX = Main.dungeonX;
-                Main.npc[num41].homeTileY = Main.dungeonY;
-            }
-            bool flag6 = false;
-            if (Main.rand.Next(40) == 0)
-            {
-                flag6 = true;
-            }
-            bool flag7 = flag6 && num40 >= 14;
-            if (NPC.unlockedPartyGirlSpawn)
-            {
-                flag7 = true;
-            }
-            bool flag8 = BirthdayParty.GenuineParty;
-            if (NPC.unlockedSlimeGreenSpawn)
-            {
-                flag8 = true;
-            }
-            if (num6 < 1)
-            {
-                Main.townNPCCanSpawn[22] = true;
-            }
-            if (flag && num2 < 1)
-            {
-                Main.townNPCCanSpawn[17] = true;
-            }
-            if (flag3 && num3 < 1 && num2 > 0)
-            {
-                Main.townNPCCanSpawn[18] = true;
-            }
-            if (flag2 && num5 < 1)
-            {
-                Main.townNPCCanSpawn[19] = true;
-            }
-            if ((NPC.downedBoss1 || NPC.downedBoss2 || NPC.downedBoss3) && num4 < 1)
-            {
-                Main.townNPCCanSpawn[20] = true;
-            }
-            if (flag5 && num2 > 0 && num8 < 1)
-            {
-                Main.townNPCCanSpawn[38] = true;
-            }
-            if (NPC.savedStylist && num22 < 1)
-            {
-                Main.townNPCCanSpawn[353] = true;
-            }
-            if (NPC.savedAngler && num23 < 1)
-            {
-                Main.townNPCCanSpawn[369] = true;
-            }
-            if (NPC.downedBoss3 && num9 < 1)
-            {
-                Main.townNPCCanSpawn[54] = true;
-            }
-            if (NPC.savedGoblin && num11 < 1)
-            {
-                Main.townNPCCanSpawn[107] = true;
-            }
-            if (NPC.savedTaxCollector && num24 < 1)
-            {
-                Main.townNPCCanSpawn[441] = true;
-            }
-            if (NPC.savedWizard && num10 < 1)
-            {
-                Main.townNPCCanSpawn[108] = true;
-            }
-            if (NPC.savedMech && num12 < 1)
-            {
-                Main.townNPCCanSpawn[124] = true;
-            }
-            if (NPC.downedFrost && num13 < 1 && Main.xMas)
-            {
-                Main.townNPCCanSpawn[142] = true;
-            }
-            if (((Main.tenthAnniversaryWorld && !Main.remixWorld) || NPC.downedMechBossAny) && num15 < 1)
-            {
-                Main.townNPCCanSpawn[178] = true;
-            }
-            if (flag4 && num16 < 1 && num40 >= 4)
-            {
-                Main.townNPCCanSpawn[207] = true;
-            }
-            if (NPC.downedQueenBee && num20 < 1)
-            {
-                Main.townNPCCanSpawn[228] = true;
-            }
-            if (NPC.downedPirates && num21 < 1)
-            {
-                Main.townNPCCanSpawn[229] = true;
-            }
-            if (num14 < 1 && Main.hardMode)
-            {
-                Main.townNPCCanSpawn[160] = true;
-            }
-            if (Main.hardMode && NPC.downedPlantBoss && num18 < 1)
-            {
-                Main.townNPCCanSpawn[209] = true;
-            }
-            if (num40 >= 8 && num19 < 1)
-            {
-                Main.townNPCCanSpawn[227] = true;
-            }
-            if (flag7 && num17 < 1)
-            {
-                Main.townNPCCanSpawn[208] = true;
-            }
-            if (NPC.savedBartender && num25 < 1)
-            {
-                Main.townNPCCanSpawn[550] = true;
-            }
-            if (NPC.savedGolfer && num26 < 1)
-            {
-                Main.townNPCCanSpawn[588] = true;
-            }
-            if (bestiaryProgressReport.CompletionPercent >= 0.1f && num27 < 1)
-            {
-                Main.townNPCCanSpawn[633] = true;
-            }
-            if (NPC.boughtCat && num28 < 1)
-            {
-                Main.townNPCCanSpawn[637] = true;
-            }
-            if (NPC.boughtDog && num29 < 1)
-            {
-                Main.townNPCCanSpawn[638] = true;
-            }
-            if (NPC.boughtBunny && num30 < 1)
-            {
-                Main.townNPCCanSpawn[656] = true;
-            }
-            if (NPC.unlockedSlimeBlueSpawn && num31 < 1)
-            {
-                Main.townNPCCanSpawn[670] = true;
-            }
-            if (flag8 && num32 < 1)
-            {
-                Main.townNPCCanSpawn[678] = true;
-            }
-            if (NPC.unlockedSlimeOldSpawn && num33 < 1)
-            {
-                Main.townNPCCanSpawn[679] = true;
-            }
-            if (NPC.unlockedSlimePurpleSpawn && num34 < 1)
-            {
-                Main.townNPCCanSpawn[680] = true;
-            }
-            if (NPC.unlockedSlimeRainbowSpawn && num35 < 1)
-            {
-                Main.townNPCCanSpawn[681] = true;
-            }
-            if (NPC.unlockedSlimeRedSpawn && num36 < 1)
-            {
-                Main.townNPCCanSpawn[682] = true;
-            }
-            if (NPC.unlockedSlimeYellowSpawn && num37 < 1)
-            {
-                Main.townNPCCanSpawn[683] = true;
-            }
-            if (NPC.unlockedSlimeCopperSpawn && num38 < 1)
-            {
-                Main.townNPCCanSpawn[684] = true;
-            }
-            bool flag9 = num2 > 0 && num3 > 0 && num4 > 0 && num5 > 0 && num6 > 0 && num8 > 0 && num9 > 0 && num10 > 0 && num11 > 0 && num12 > 0 && num14 > 0 && num15 > 0 && num16 > 0 && num17 > 0 && num18 > 0 && num19 > 0 && num20 > 0 && num21 > 0 && num22 > 0 && num23 > 0 && num24 > 0 && num25 > 0 && num26 > 0 && num27 > 0;
-            if (Main.tenthAnniversaryWorld && !Main.remixWorld)
-            {
-                flag9 = true;
-            }
-            if (NPC.unlockedPrincessSpawn)
-            {
-                flag9 = true;
-            }
-            if (flag9 && num39 < 1)
-            {
-                Main.townNPCCanSpawn[663] = true;
-            }
-            int num42 = WorldGen.prioritizedTownNPCType;
-            if (num42 == 0 && NPC.boughtCat && num28 < 1)
-            {
-                num42 = 637;
-            }
-            if (num42 == 0 && NPC.boughtDog && num29 < 1)
-            {
-                num42 = 638;
-            }
-            if (num42 == 0 && NPC.boughtBunny && num30 < 1)
-            {
-                num42 = 656;
-            }
-            if (num42 == 0 && NPC.unlockedSlimeBlueSpawn && num31 < 1)
-            {
-                num42 = 670;
-            }
-            if (num42 == 0 && flag8 && num32 < 1)
-            {
-                num42 = 678;
-            }
-            if (num42 == 0 && NPC.unlockedSlimeOldSpawn && num33 < 1)
-            {
-                num42 = 679;
-            }
-            if (num42 == 0 && NPC.unlockedSlimePurpleSpawn && num34 < 1)
-            {
-                num42 = 680;
-            }
-            if (num42 == 0 && NPC.unlockedSlimeRainbowSpawn && num35 < 1)
-            {
-                num42 = 681;
-            }
-            if (num42 == 0 && NPC.unlockedSlimeRedSpawn && num36 < 1)
-            {
-                num42 = 682;
-            }
-            if (num42 == 0 && NPC.unlockedSlimeYellowSpawn && num37 < 1)
-            {
-                num42 = 683;
-            }
-            if (num42 == 0 && NPC.unlockedSlimeCopperSpawn && num38 < 1)
-            {
-                num42 = 684;
-            }
-            if (num42 == 0 && num6 < 1)
-            {
-                num42 = 22;
-            }
-            if (num42 == 0 && flag && num2 < 1)
-            {
-                num42 = 17;
-            }
-            if (num42 == 0 && flag3 && num3 < 1 && num2 > 0)
-            {
-                num42 = 18;
-            }
-            if (num42 == 0 && flag2 && num5 < 1)
-            {
-                num42 = 19;
-            }
-            if (num42 == 0 && NPC.savedGoblin && num11 < 1)
-            {
-                num42 = 107;
-            }
-            if (num42 == 0 && NPC.savedTaxCollector && num24 < 1)
-            {
-                num42 = 441;
-            }
-            if (num42 == 0 && NPC.savedWizard && num10 < 1)
-            {
-                num42 = 108;
-            }
-            if (num42 == 0 && Main.hardMode && num14 < 1)
-            {
-                num42 = 160;
-            }
-            if (num42 == 0 && (NPC.downedBoss1 || NPC.downedBoss2 || NPC.downedBoss3) && num4 < 1)
-            {
-                num42 = 20;
-            }
-            if (num42 == 0 && flag5 && num2 > 0 && num8 < 1)
-            {
-                num42 = 38;
-            }
-            if (num42 == 0 && NPC.downedQueenBee && num20 < 1)
-            {
-                num42 = 228;
-            }
-            if (num42 == 0 && NPC.downedMechBossAny && num15 < 1)
-            {
-                num42 = 178;
-            }
-            if (num42 == 0 && NPC.savedMech && num12 < 1)
-            {
-                num42 = 124;
-            }
-            if (num42 == 0 && NPC.savedAngler && num23 < 1)
-            {
-                num42 = 369;
-            }
-            if (num42 == 0 && Main.hardMode && NPC.downedPlantBoss && num18 < 1)
-            {
-                num42 = 209;
-            }
-            if (num42 == 0 && NPC.downedPirates && num21 < 1)
-            {
-                num42 = 229;
-            }
-            if (num42 == 0 && NPC.downedBoss3 && num9 < 1)
-            {
-                num42 = 54;
-            }
-            if (num42 == 0 && NPC.savedStylist && num22 < 1)
-            {
-                num42 = 353;
-            }
-            if (num42 == 0 && num40 >= 4 && flag4 && num16 < 1)
-            {
-                num42 = 207;
-            }
-            if (num42 == 0 && num40 >= 8 && num19 < 1)
-            {
-                num42 = 227;
-            }
-            if (num42 == 0 && flag7 && num17 < 1)
-            {
-                num42 = 208;
-            }
-            if (num42 == 0 && NPC.downedFrost && num13 < 1 && Main.xMas)
-            {
-                num42 = 142;
-            }
-            if (num42 == 0 && NPC.savedBartender && num25 < 1)
-            {
-                num42 = 550;
-            }
-            if (num42 == 0 && NPC.savedGolfer && num26 < 1)
-            {
-                num42 = 588;
-            }
-            if (num42 == 0 && bestiaryProgressReport.CompletionPercent >= 0.1f && num27 < 1)
-            {
-                num42 = 633;
-            }
-            if (num42 == 0 && flag9 && num39 < 1)
-            {
-                num42 = 663;
-            }
-            WorldGen.prioritizedTownNPCType = num42;
+            return;
         }
+        foreach (var index in DisableSpawnTownNPCIndices)
+        {
+            npcCount[index] = 1;
+        }
+        bool allowMerchant = NPC.SpawnAllowed_Merchant();
+        bool allowArmsDealer = NPC.SpawnAllowed_ArmsDealer();
+        bool allowNurse = NPC.SpawnAllowed_Nurse();
+        bool allowDyeTrader = NPC.SpawnAllowed_DyeTrader();
+        bool allowDemolitionist = NPC.SpawnAllowed_Demolitionist();
+        BestiaryUnlockProgressReport bestiaryProgressReport = Main.GetBestiaryProgressReport();
+        if (!NPC.downedBoss3 && npcCount[TownNPCIDIndexMap[NPCID.OldMan]] == 0)
+        {
+            int num41 = NPC.NewNPC(NPC.GetSpawnSourceForTownSpawn(), Main.dungeonX * 16 + 8, Main.dungeonY * 16, NPCID.OldMan);
+            Main.npc[num41].homeless = false;
+            Main.npc[num41].homeTileX = Main.dungeonX;
+            Main.npc[num41].homeTileY = Main.dungeonY;
+        }
+        bool canSpawnPartyGirl = Main.rand.Next(40) == 0 && totalTownNPC >= 14;
+        if (NPC.unlockedPartyGirlSpawn)
+        {
+            canSpawnPartyGirl = true;
+        }
+        bool isGenuineParty = BirthdayParty.GenuineParty;
+        if (NPC.unlockedSlimeGreenSpawn)
+        {
+            isGenuineParty = true;
+        }
+        if (npcCount[TownNPCIDIndexMap[NPCID.Guide]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Guide] = true;
+        }
+        if (allowMerchant && npcCount[TownNPCIDIndexMap[NPCID.Merchant]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Merchant] = true;
+        }
+        if (allowNurse && npcCount[TownNPCIDIndexMap[NPCID.Nurse]] < 1 && npcCount[TownNPCIDIndexMap[NPCID.Merchant]] > 0)
+        {
+            Main.townNPCCanSpawn[NPCID.Nurse] = true;
+        }
+        if (allowArmsDealer && npcCount[TownNPCIDIndexMap[NPCID.ArmsDealer]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.ArmsDealer] = true;
+        }
+        if ((NPC.downedBoss1 || NPC.downedBoss2 || NPC.downedBoss3) && npcCount[TownNPCIDIndexMap[NPCID.Dryad]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Dryad] = true;
+        }
+        if (allowDemolitionist && npcCount[TownNPCIDIndexMap[NPCID.Merchant]] > 0 && npcCount[TownNPCIDIndexMap[NPCID.Demolitionist]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Demolitionist] = true;
+        }
+        if (NPC.savedStylist && npcCount[TownNPCIDIndexMap[NPCID.Stylist]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Stylist] = true;
+        }
+        if (NPC.savedAngler && npcCount[TownNPCIDIndexMap[NPCID.Angler]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Angler] = true;
+        }
+        if (NPC.downedBoss3 && npcCount[TownNPCIDIndexMap[NPCID.Clothier]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Clothier] = true;
+        }
+        if (NPC.savedGoblin && npcCount[TownNPCIDIndexMap[NPCID.GoblinTinkerer]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.GoblinTinkerer] = true;
+        }
+        if (NPC.savedTaxCollector && npcCount[TownNPCIDIndexMap[NPCID.TaxCollector]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TaxCollector] = true;
+        }
+        if (NPC.savedWizard && npcCount[TownNPCIDIndexMap[NPCID.Wizard]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Wizard] = true;
+        }
+        if (NPC.savedMech && npcCount[TownNPCIDIndexMap[NPCID.Mechanic]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Mechanic] = true;
+        }
+        if (NPC.downedFrost && npcCount[TownNPCIDIndexMap[NPCID.SantaClaus]] < 1 && Main.xMas)
+        {
+            Main.townNPCCanSpawn[NPCID.SantaClaus] = true;
+        }
+        if (((Main.tenthAnniversaryWorld && !Main.remixWorld) || NPC.downedMechBossAny) && npcCount[TownNPCIDIndexMap[NPCID.Steampunker]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Steampunker] = true;
+        }
+        if (allowDyeTrader && npcCount[TownNPCIDIndexMap[NPCID.DyeTrader]] < 1 && totalTownNPC >= 4)
+        {
+            Main.townNPCCanSpawn[NPCID.DyeTrader] = true;
+        }
+        if (NPC.downedQueenBee && npcCount[TownNPCIDIndexMap[NPCID.WitchDoctor]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.WitchDoctor] = true;
+        }
+        if (NPC.downedPirates && npcCount[TownNPCIDIndexMap[NPCID.Pirate]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Pirate] = true;
+        }
+        if (npcCount[TownNPCIDIndexMap[NPCID.Truffle]] < 1 && Main.hardMode)
+        {
+            Main.townNPCCanSpawn[NPCID.Truffle] = true;
+        }
+        if (Main.hardMode && NPC.downedPlantBoss && npcCount[TownNPCIDIndexMap[NPCID.Cyborg]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Cyborg] = true;
+        }
+        if (totalTownNPC >= 8 && npcCount[TownNPCIDIndexMap[NPCID.Painter]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Painter] = true;
+        }
+        if (canSpawnPartyGirl && npcCount[TownNPCIDIndexMap[NPCID.PartyGirl]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.PartyGirl] = true;
+        }
+        if (NPC.savedBartender && npcCount[TownNPCIDIndexMap[NPCID.DD2Bartender]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.DD2Bartender] = true;
+        }
+        if (NPC.savedGolfer && npcCount[TownNPCIDIndexMap[NPCID.Golfer]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Golfer] = true;
+        }
+        if (bestiaryProgressReport.CompletionPercent >= 0.1f && npcCount[TownNPCIDIndexMap[NPCID.BestiaryGirl]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.BestiaryGirl] = true;
+        }
+        if (NPC.boughtCat && npcCount[TownNPCIDIndexMap[NPCID.TownCat]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownCat] = true;
+        }
+        if (NPC.boughtDog && npcCount[TownNPCIDIndexMap[NPCID.TownDog]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownDog] = true;
+        }
+        if (NPC.boughtBunny && npcCount[TownNPCIDIndexMap[NPCID.TownBunny]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownBunny] = true;
+        }
+        if (NPC.unlockedSlimeBlueSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeBlue]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownSlimeBlue] = true;
+        }
+        if (isGenuineParty && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeGreen]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownSlimeGreen] = true;
+        }
+        if (NPC.unlockedSlimeOldSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeOld]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownSlimeOld] = true;
+        }
+        if (NPC.unlockedSlimePurpleSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimePurple]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownSlimePurple] = true;
+        }
+        if (NPC.unlockedSlimeRainbowSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeRainbow]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownSlimeRainbow] = true;
+        }
+        if (NPC.unlockedSlimeRedSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeRed]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownSlimeRed] = true;
+        }
+        if (NPC.unlockedSlimeYellowSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeYellow]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownSlimeYellow] = true;
+        }
+        if (NPC.unlockedSlimeCopperSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeCopper]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.TownSlimeCopper] = true;
+        }
+        bool canSpawnPrincess = false;
+        if (Main.tenthAnniversaryWorld && !Main.remixWorld)
+        {
+            canSpawnPrincess = true;
+        }
+        if (NPC.unlockedPrincessSpawn)
+        {
+            canSpawnPrincess = true;
+        }
+        if (!canSpawnPrincess)
+        {
+            var canSpawn = true;
+            for (int i = 0; i < princessCheckRanges.Length; i++)
+            {
+                if (npcCount[princessCheckRanges[i]].Contains(0))
+                {
+                    canSpawn = false;
+                    break;
+                }
+            }
+            canSpawnPrincess = canSpawn;
+        }
+        if (canSpawnPrincess && npcCount[TownNPCIDIndexMap[NPCID.Princess]] < 1)
+        {
+            Main.townNPCCanSpawn[NPCID.Princess] = true;
+        }
+        int prioritiztownNPCType = WorldGen.prioritizedTownNPCType;
+        if (prioritiztownNPCType == NPCID.None && NPC.boughtCat && npcCount[TownNPCIDIndexMap[NPCID.TownCat]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownCat;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.boughtDog && npcCount[TownNPCIDIndexMap[NPCID.TownDog]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownDog;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.boughtBunny && npcCount[TownNPCIDIndexMap[NPCID.TownBunny]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownBunny;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.unlockedSlimeBlueSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeBlue]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownSlimeBlue;
+        }
+        if (prioritiztownNPCType == NPCID.None && isGenuineParty && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeGreen]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownSlimeGreen;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.unlockedSlimeOldSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeOld]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownSlimeOld;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.unlockedSlimePurpleSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimePurple]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownSlimePurple;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.unlockedSlimeRainbowSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeRainbow]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownSlimeRainbow;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.unlockedSlimeRedSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeRed]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownSlimeRed;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.unlockedSlimeYellowSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeYellow]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownSlimeYellow;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.unlockedSlimeCopperSpawn && npcCount[TownNPCIDIndexMap[NPCID.TownSlimeCopper]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TownSlimeCopper;
+        }
+        if (prioritiztownNPCType == NPCID.None && npcCount[TownNPCIDIndexMap[NPCID.Guide]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Guide;
+        }
+        if (prioritiztownNPCType == NPCID.None && allowMerchant && npcCount[TownNPCIDIndexMap[NPCID.Merchant]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Merchant;
+        }
+        if (prioritiztownNPCType == NPCID.None && allowNurse && npcCount[TownNPCIDIndexMap[NPCID.Nurse]] < 1 && npcCount[TownNPCIDIndexMap[NPCID.Merchant]] > 0)
+        {
+            prioritiztownNPCType = NPCID.Nurse;
+        }
+        if (prioritiztownNPCType == NPCID.None && allowArmsDealer && npcCount[TownNPCIDIndexMap[NPCID.ArmsDealer]] < 1)
+        {
+            prioritiztownNPCType = NPCID.ArmsDealer;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.savedGoblin && npcCount[TownNPCIDIndexMap[NPCID.GoblinTinkerer]] < 1)
+        {
+            prioritiztownNPCType = NPCID.GoblinTinkerer;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.savedTaxCollector && npcCount[TownNPCIDIndexMap[NPCID.TaxCollector]] < 1)
+        {
+            prioritiztownNPCType = NPCID.TaxCollector;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.savedWizard && npcCount[TownNPCIDIndexMap[NPCID.Wizard]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Wizard;
+        }
+        if (prioritiztownNPCType == NPCID.None && Main.hardMode && npcCount[TownNPCIDIndexMap[NPCID.Truffle]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Truffle;
+        }
+        if (prioritiztownNPCType == NPCID.None && (NPC.downedBoss1 || NPC.downedBoss2 || NPC.downedBoss3) && npcCount[TownNPCIDIndexMap[NPCID.Dryad]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Dryad;
+        }
+        if (prioritiztownNPCType == NPCID.None && allowDemolitionist && npcCount[TownNPCIDIndexMap[NPCID.Merchant]] > 0 && npcCount[TownNPCIDIndexMap[NPCID.Demolitionist]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Demolitionist;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.downedQueenBee && npcCount[TownNPCIDIndexMap[NPCID.WitchDoctor]] < 1)
+        {
+            prioritiztownNPCType = NPCID.WitchDoctor;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.downedMechBossAny && npcCount[TownNPCIDIndexMap[NPCID.Steampunker]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Steampunker;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.savedMech && npcCount[TownNPCIDIndexMap[NPCID.Mechanic]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Mechanic;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.savedAngler && npcCount[TownNPCIDIndexMap[NPCID.Angler]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Angler;
+        }
+        if (prioritiztownNPCType == NPCID.None && Main.hardMode && NPC.downedPlantBoss && npcCount[TownNPCIDIndexMap[NPCID.Cyborg]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Cyborg;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.downedPirates && npcCount[TownNPCIDIndexMap[NPCID.Pirate]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Pirate;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.downedBoss3 && npcCount[TownNPCIDIndexMap[NPCID.Clothier]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Clothier;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.savedStylist && npcCount[TownNPCIDIndexMap[NPCID.Stylist]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Stylist;
+        }
+        if (prioritiztownNPCType == NPCID.None && totalTownNPC >= 4 && allowDyeTrader && npcCount[TownNPCIDIndexMap[NPCID.DyeTrader]] < 1)
+        {
+            prioritiztownNPCType = NPCID.DyeTrader;
+        }
+        if (prioritiztownNPCType == NPCID.None && totalTownNPC >= 8 && npcCount[TownNPCIDIndexMap[NPCID.Painter]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Painter;
+        }
+        if (prioritiztownNPCType == NPCID.None && canSpawnPartyGirl && npcCount[TownNPCIDIndexMap[NPCID.PartyGirl]] < 1)
+        {
+            prioritiztownNPCType = NPCID.PartyGirl;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.downedFrost && npcCount[TownNPCIDIndexMap[NPCID.SantaClaus]] < 1 && Main.xMas)
+        {
+            prioritiztownNPCType = NPCID.SantaClaus;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.savedBartender && npcCount[TownNPCIDIndexMap[NPCID.DD2Bartender]] < 1)
+        {
+            prioritiztownNPCType = NPCID.DD2Bartender;
+        }
+        if (prioritiztownNPCType == NPCID.None && NPC.savedGolfer && npcCount[TownNPCIDIndexMap[NPCID.Golfer]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Golfer;
+        }
+        if (prioritiztownNPCType == NPCID.None && bestiaryProgressReport.CompletionPercent >= 0.1f && npcCount[TownNPCIDIndexMap[NPCID.BestiaryGirl]] < 1)
+        {
+            prioritiztownNPCType = NPCID.BestiaryGirl;
+        }
+        if (prioritiztownNPCType == NPCID.None && canSpawnPrincess && npcCount[TownNPCIDIndexMap[NPCID.Princess]] < 1)
+        {
+            prioritiztownNPCType = NPCID.Princess;
+        }
+        WorldGen.prioritizedTownNPCType = prioritiztownNPCType;
     }
     [DetourMethod]
     public static void Moondialing()

@@ -4,7 +4,7 @@
     <id>My.Plugins.Sdk</id>
     <version>1.0.0</version>
     <authors>yu</authors>
-    <description>custom sdk</description>
+    <description>custom sdk for TShock</description>
 	<readme>docs\readme.md</readme>
     <dependencies>
       <group targetFramework="net6.0">
@@ -13,6 +13,8 @@
     </dependencies>
   </metadata>
   <files>
-	<file src="..\readme.md" target="docs\" />
+    <file src="readme.md" target="docs\" />
+    <file src="Sdk\*" target="sdk\" />
+    <file src="lib\net6.0\*" target="lib\net6.0\" />
   </files>
 </package>

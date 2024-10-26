@@ -53,7 +53,7 @@ public static class SystemExt
         {
             if (paramTypes.Length == 0)
             {
-                delegateType = Type.GetType("System.Action")!;
+                delegateType = typeof(Action);
             }
             else
             {

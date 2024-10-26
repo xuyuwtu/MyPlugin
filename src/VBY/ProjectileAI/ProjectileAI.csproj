@@ -1,2 +1,9 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
+	<PropertyGroup>
+		<UsingCommon>false</UsingCommon>
+		<LangVersion>11.0</LangVersion>
+	</PropertyGroup>
+	<ItemGroup>
+		<SharedCodeReference Include="IListExtensions" />
+	</ItemGroup>
 </Project>

@@ -9,13 +9,14 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<BaseOutputPath>$(SolutionDir)out\$(TShockVersion)</BaseOutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
 	</PropertyGroup>
 	
 	<ItemGroup>
+		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-6qmf-mmc7-6c2p" />
 		<PackageReference Include="TShock" Version="$(TShockVersion)">
 			<ExcludeAssets>contentFiles</ExcludeAssets>
 		</PackageReference>
-		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-6qmf-mmc7-6c2p" />
 	</ItemGroup>
 </Project>

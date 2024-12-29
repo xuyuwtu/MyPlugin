@@ -8,7 +8,7 @@
 	
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<BaseOutputPath>$(SolutionDir)out\$(TShockVersion)</BaseOutputPath>
+		<BaseOutputPath>$(SolutionDir)out</BaseOutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
 	</PropertyGroup>

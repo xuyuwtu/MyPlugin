@@ -5,5 +5,8 @@
 	<PropertyGroup>
 		<OutToPluginLoader>true</OutToPluginLoader>
 	</PropertyGroup>
+	<ItemGroup>
+		<SharedCodeReference Include="ReferenceList" />
+	</ItemGroup>
 	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
 </Project>

@@ -3,7 +3,7 @@
 		<SolutionDir>$(MSBuildThisFileDirectory)</SolutionDir>
 		<CommonProjectPath>$(SolutionDir)src\VBY\Common\Common.csproj</CommonProjectPath>
 		<SharedCodePath>$(SolutionDir)src\SharedCode\</SharedCodePath>
-		<TShockVersion>5.2.0</TShockVersion>
+		<TShockVersion>5.2.1</TShockVersion>
 		<OutToPlugin>true</OutToPlugin>
 	</PropertyGroup>
 	<PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows'))">

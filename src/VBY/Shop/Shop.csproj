@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
-	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
+	
 	<PropertyGroup>
 		<OutToPluginLoader>true</OutToPluginLoader>
 	</PropertyGroup>
@@ -9,5 +9,5 @@
 		<ProjectReference Include="..\ProgressQuery\ProgressQuery.csproj" />
 		<ProjectReference Include="..\..\ShopSourceGenerator\ShopGenerator.csproj" OutputItemType="Analyzer" ReferenceOutAssembly="false" />
 	</ItemGroup>
-
+	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
 </Project>

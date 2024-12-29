@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 <Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
-<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
+
 <PropertyGroup>
 	<UsingCommon>false</UsingCommon>
 	<LangVersion>11.0</LangVersion>
@@ -14,5 +14,5 @@
 	<EmbeddedResource Remove="AIs\**" />
 	<None Remove="AIs\**" />
 </ItemGroup>
-
+	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
 </Project>

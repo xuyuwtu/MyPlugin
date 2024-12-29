@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
-    <Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
+    
     <PropertyGroup>
     <UsingCommon>false</UsingCommon>
     <LangVersion>11.0</LangVersion>
@@ -9,5 +9,5 @@
     <ItemGroup>
     <SharedCodeReference Include="IListExtensions" />
     </ItemGroup>
-
+    <Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
 </Project>

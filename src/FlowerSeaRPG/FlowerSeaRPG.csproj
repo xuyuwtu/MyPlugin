@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<Import Project="..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
-	<Import Project="..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
+	
 	<PropertyGroup>
 		<OutToPluginLoader>true</OutToPluginLoader>
 		<LangVersion>11.0</LangVersion>
@@ -14,5 +14,5 @@
 	<ItemGroup>
 		<ProjectReference Include="..\VBY\GameContentModify\GameContentModify.csproj" />
 	</ItemGroup>
-
+	<Import Project="..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
 </Project>

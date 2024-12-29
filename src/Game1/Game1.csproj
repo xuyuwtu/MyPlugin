@@ -1,9 +1,13 @@
-﻿<Project Sdk="My.Plugins.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
+	<Import Project="..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
 	<PropertyGroup>
 		<UsingCommon>true</UsingCommon>
 		<OutToPluginLoader>true</OutToPluginLoader>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="Vote.cs" />
+		<Compile Remove="Vote.cs" />
 	</ItemGroup>
+
 </Project>

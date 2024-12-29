@@ -1,14 +1,18 @@
-﻿<Project Sdk="My.Plugins.Sdk">
-	<PropertyGroup>
-		<OutToPluginLoader>true</OutToPluginLoader>
-	</PropertyGroup>
-	<ItemGroup>
-	  <Compile Remove="AI_001.cs" />
-	  <Compile Remove="AI_069.cs" />
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\NPCAI\NPCAI.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-	</ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
+<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
+<PropertyGroup>
+	<OutToPluginLoader>true</OutToPluginLoader>
+</PropertyGroup>
+<ItemGroup>
+	<Compile Remove="AI_001.cs" />
+	<Compile Remove="AI_069.cs" />
+</ItemGroup>
+<ItemGroup>
+	<ProjectReference Include="..\NPCAI\NPCAI.csproj">
+		<Private>false</Private>
+	</ProjectReference>
+</ItemGroup>
+
 </Project>

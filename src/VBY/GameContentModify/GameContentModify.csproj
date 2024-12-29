@@ -1,4 +1,9 @@
-﻿<Project Sdk="My.Plugins.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
+	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
+
+
   <PropertyGroup>
     <Version>1.9.$([MSBuild]::Subtract($([System.DateTime]::Now.Year), 2023)).$([System.DateTime]::Now.ToString("MMdd"))</Version>
     <OutToPluginLoader>true</OutToPluginLoader>
@@ -15,4 +20,5 @@
 	<ItemGroup>
 		<SharedCodeReference Include="StringExtensions" />
 	</ItemGroup>
+
 </Project>

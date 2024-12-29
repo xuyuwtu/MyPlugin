@@ -1,8 +1,12 @@
-﻿<Project Sdk="My.Plugins.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
+	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
 	<PropertyGroup>
 		<OutToPluginLoader>true</OutToPluginLoader>
 	</PropertyGroup>
 	<ItemGroup>
 		<SharedCodeReference Include="ReferenceList" />
 	</ItemGroup>
+
 </Project>

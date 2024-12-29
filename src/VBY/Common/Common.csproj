@@ -1,4 +1,7 @@
-﻿<Project Sdk="My.Plugins.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
+	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
 	<PropertyGroup>
 		<UsingCommon>false</UsingCommon>
 		<OutToPluginLoader>true</OutToPluginLoader>
@@ -6,4 +9,5 @@
 		<AssemblyVersion>1.2.1.0</AssemblyVersion>
 	</PropertyGroup>
 	<Import Project="..\CommonShared\CommonShared.projitems" Label="Shared" />
+
 </Project>

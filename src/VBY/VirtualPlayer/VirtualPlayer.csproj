@@ -1,7 +1,11 @@
-﻿<Project Sdk="My.Plugins.Sdk">
-  <PropertyGroup>
-	  <OutToPluginLoader>true</OutToPluginLoader>
-	  <LangVersion>11.0</LangVersion>
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
+	<Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
+	<PropertyGroup>
+		<OutToPluginLoader>true</OutToPluginLoader>
+		<LangVersion>11.0</LangVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
 </Project>

@@ -1,9 +1,13 @@
-﻿<Project Sdk="My.Plugins.Sdk">
-	<PropertyGroup>
-		<UsingCommon>false</UsingCommon>
-		<LangVersion>11.0</LangVersion>
-	</PropertyGroup>
-	<ItemGroup>
-		<SharedCodeReference Include="IListExtensions" />
-	</ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
+    <Import Project="..\..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
+    <PropertyGroup>
+    <UsingCommon>false</UsingCommon>
+    <LangVersion>11.0</LangVersion>
+    </PropertyGroup>
+    <ItemGroup>
+    <SharedCodeReference Include="IListExtensions" />
+    </ItemGroup>
+
 </Project>

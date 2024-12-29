@@ -1,14 +1,18 @@
-﻿<Project Sdk="My.Plugins.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.props"/>
+	<Import Project="..\..\Sdk\My.Plugins.Sdk\Sdk\Sdk.targets"/>
 	<PropertyGroup>
 		<OutToPluginLoader>true</OutToPluginLoader>
 		<LangVersion>11.0</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Compile Remove="VBY.Common\**" />
-	  <EmbeddedResource Remove="VBY.Common\**" />
-	  <None Remove="VBY.Common\**" />
+		<Compile Remove="VBY.Common\**" />
+		<EmbeddedResource Remove="VBY.Common\**" />
+		<None Remove="VBY.Common\**" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\VBY\GameContentModify\GameContentModify.csproj" />
+		<ProjectReference Include="..\VBY\GameContentModify\GameContentModify.csproj" />
 	</ItemGroup>
+
 </Project>

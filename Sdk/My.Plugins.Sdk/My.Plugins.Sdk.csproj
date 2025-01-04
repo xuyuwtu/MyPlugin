@@ -14,7 +14,7 @@
     </PropertyGroup>
 	<ItemGroup>
 		<NuGetAuditSuppress Include="https://github.com/advisories/GHSA-6qmf-mmc7-6c2p" />
-		<PackageReference Include="TShock" Version="5.2.0" />
+		<PackageReference Include="TShock" Version="5.2.2" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="Sdk\Sdk.props;Sdk\Sdk.targets" Pack="true" PackagePath="sdk/%(Filename)%(Extension)" />

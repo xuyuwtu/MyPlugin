@@ -95,7 +95,7 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
                 }
                 if (node.ArgumentList.Arguments.Count > methodFilterInfo.CheckIndex 
                     && node.ArgumentList.Arguments[methodFilterInfo.CheckIndex] is { Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression } 
-                    && short.TryParse(literalExpression.Token.Text, out var id) && methodFilterInfo.IdToNameDict.TryGetValue(id, out var name))
+                    && int.TryParse(literalExpression.Token.Text, out var id) && methodFilterInfo.IdToNameDict.TryGetValue(id, out var name))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), methodFilterInfo.Properties, id, $"{methodFilterInfo.IdName}.{name}"));
                 }
@@ -114,7 +114,7 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
                 for (int i = 0; i < idFilterInfos.Length; i++)
                 {
                     var idFilterInfo = idFilterInfos[i];
-                    if (memberemberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && short.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
+                    if (memberemberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && int.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
                     {
                         context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
                     }
@@ -130,7 +130,7 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
                 for (int i = 0; i < idFilterInfos.Length; i++)
                 {
                     var idFilterInfo = idFilterInfos[i];
-                    if (memberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && short.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
+                    if (memberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && int.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
                     {
                         context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
                     }
@@ -143,37 +143,7 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
     internal static FrozenDictionary<string, IdFilterInfo[]> ElementAccessExpressionReportFilter;
     public static FrozenDictionary<string, MethodFilterInfo[]> InvocationExpressionReportFilter;
 
-    internal static FrozenDictionary<short, string> NPCID = IDs.GetInt16ID();
-    internal static ImmutableDictionary<string, string?> NPCIDType;
-
-    internal static FrozenDictionary<short, string> ItemID = IDs.GetInt16ID();
-    internal static ImmutableDictionary<string, string?> ItemIDType;
-
-    internal static FrozenDictionary<short, string> TileID = IDs.GetInt16ID();
-    internal static ImmutableDictionary<string, string?> TileIDType;
-
-    internal static FrozenDictionary<short, string> WallID = IDs.GetInt16ID();
-    internal static ImmutableDictionary<string, string?> WallIDType;
-
-    internal static FrozenDictionary<short, string> MessageID = IDs.GetInt16ID();
-    internal static ImmutableDictionary<string, string?> MessageIDType;
-
-    internal static FrozenDictionary<short, string> InvasionID = IDs.GetInt16ID();
-    internal static ImmutableDictionary<string, string?> InvasionIDType;
-
-    internal static FrozenDictionary<short, string> ProjectileID = IDs.GetInt16ID();
-    internal static ImmutableDictionary<string, string?> ProjectileIDType;
-
-    internal static FrozenDictionary<short, string> PlayerDifficultyID = IDs.GetInt16ID();
-    internal static ImmutableDictionary<string, string?> PlayerDifficultyIDType;
-
-    internal static FrozenDictionary<short, string> SoundID = IDs.GetInt16ID();
-    internal static ImmutableDictionary<string, string?> SoundIDType;
-
-    internal static FrozenDictionary<short, string> BuffID = IDs.GetInt16ID();
-    internal static ImmutableDictionary<string, string?> BuffIDType;
-
-    internal static FrozenDictionary<string, FrozenDictionary<short, string>> IDsDict;
+    internal static FrozenDictionary<string, FrozenDictionary<int, string>> IDsDict;
     static IDAnalyzer()
     {
         MemberAccessExpressionReportFilter = new Dictionary<string, IdFilterInfo[]>()
@@ -199,70 +169,57 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
         InvocationExpressionReportFilter = new Dictionary<string, MethodFilterInfo[]>()
         {
             { "Terraria.NPC", [
-                GetMethodFilterInfo("AnyNPCs", nameof(NPCID), 0),
-                GetMethodFilterInfo("CountNPCS", nameof(NPCID), 0),
-                GetMethodFilterInfo("FindFirstNPC", nameof(NPCID), 0),
-                GetMethodFilterInfo("SpawnOnPlayer", nameof(NPCID), 1),
-                GetMethodFilterInfo("SpawnBoss", nameof(NPCID), 2),
-                GetMethodFilterInfo("MechSpawn", nameof(NPCID), 2),
-                GetMethodFilterInfo("NewNPC", nameof(NPCID), 3..),
-                GetMethodFilterInfo("SetDefaults", nameof(NPCID), 0..),
+                GetMethodFilterInfo("AnyNPCs", nameof(IDs.NPCID), 0),
+                GetMethodFilterInfo("CountNPCS", nameof(IDs.NPCID), 0),
+                GetMethodFilterInfo("FindFirstNPC", nameof(IDs.NPCID), 0),
+                GetMethodFilterInfo("SpawnOnPlayer", nameof(IDs.NPCID), 1),
+                GetMethodFilterInfo("SpawnBoss", nameof(IDs.NPCID), 2),
+                GetMethodFilterInfo("MechSpawn", nameof(IDs.NPCID), 2),
+                GetMethodFilterInfo("NewNPC", nameof(IDs.NPCID), 3..),
+                GetMethodFilterInfo("SetDefaults", nameof(IDs.NPCID), 0..),
             ] },
             { "Terraria.Item", [
-                GetMethodFilterInfo("NewItem", nameof(ItemID), 3, 9),
-                GetMethodFilterInfo("NewItem", nameof(ItemID), 5, 11),
-                GetMethodFilterInfo("SetDefaults", nameof(ItemID), 0..),
+                GetMethodFilterInfo("NewItem", nameof(IDs.ItemID), 3, 9),
+                GetMethodFilterInfo("NewItem", nameof(IDs.ItemID), 5, 11),
+                GetMethodFilterInfo("SetDefaults", nameof(IDs.ItemID), 0..),
             ] },
             { "Terraria.Projectile", [
-                GetMethodFilterInfo("NewProjectile", nameof(ProjectileID), 3, 10),
-                GetMethodFilterInfo("NewProjectile", nameof(ProjectileID), 5, 12),
+                GetMethodFilterInfo("NewProjectile", nameof(IDs.ProjectileID), 3, 10),
+                GetMethodFilterInfo("NewProjectile", nameof(IDs.ProjectileID), 5, 12),
             ] },
             { "Terraria.NetMessage", [
-                GetMethodFilterInfo("SendData", nameof(MessageID), 0..),
-                GetMethodFilterInfo("TrySendData", nameof(MessageID), 0..),
+                GetMethodFilterInfo("SendData", nameof(IDs.MessageID), 0..),
+                GetMethodFilterInfo("TrySendData", nameof(IDs.MessageID), 0..),
             ] },
             { "Terraria.Audio.SoundEngine", [
-                GetMethodFilterInfo("PlaySound", nameof(SoundID), 0..),
+                GetMethodFilterInfo("PlaySound", nameof(IDs.SoundID), 0..),
             ] },
             { "Terraria.TileObject", [
-                GetMethodFilterInfo("CanPlace", nameof(TileID), 2..)
+                GetMethodFilterInfo("CanPlace", nameof(IDs.TileID), 2..)
             ] },
             { "Terraria.Player", [
-                GetMethodFilterInfo("IsTileTypeInInteractionRange", nameof(TileID), 0..),
-                GetMethodFilterInfo("isNearNPC", nameof(NPCID), 0),
-                GetMethodFilterInfo("AddBuff", nameof(BuffID), 0)
+                GetMethodFilterInfo("IsTileTypeInInteractionRange", nameof(IDs.TileID), 0..),
+                GetMethodFilterInfo("isNearNPC", nameof(IDs.NPCID), 0),
+                GetMethodFilterInfo("AddBuff", nameof(IDs.BuffID), 0)
             ] }
         }.ToFrozenDictionary(StringComparer.Ordinal);
 
-        NPCIDType = AddType(nameof(NPCID));
-        ItemIDType = AddType(nameof(ItemID));
-        TileIDType = AddType(nameof(TileID));
-        WallIDType = AddType(nameof(WallID));
-        MessageIDType = AddType(nameof(MessageID));
-        InvasionIDType = AddType(nameof(InvasionID));
-        ProjectileIDType = AddType(nameof(ProjectileID));
-        PlayerDifficultyIDType = AddType(nameof(PlayerDifficultyID));
-        SoundIDType = AddType(nameof(SoundID));
-        BuffIDType = AddType(nameof(BuffID));
-
-        IDsDict = new Dictionary<string, FrozenDictionary<short, string>>()
-        {
-            { nameof(NPCID), NPCID },
-            { nameof(ItemID), ItemID },
-            { nameof(TileID), TileID },
-            { nameof(WallID), WallID },
-            { nameof(MessageID), MessageID },
-            { nameof(InvasionID), InvasionID },
-            { nameof(ProjectileID), ProjectileID },
-            { nameof(PlayerDifficultyID), PlayerDifficultyID },
-            { nameof(SoundID), SoundID },
-            { nameof(BuffID), BuffID }
-        }.ToFrozenDictionary(StringComparer.Ordinal);
+        IDsDict = new IDsDictBuilder()
+            .Add(nameof(IDs.NPCID))
+            .Add(nameof(IDs.TileID))
+            .Add(nameof(IDs.WallID))
+            .Add(nameof(IDs.MessageID))
+            .Add(nameof(IDs.InvasionID))
+            .Add(nameof(IDs.ProjectileID))
+            .Add(nameof(IDs.PlayerDifficultyID))
+            .Add(nameof(IDs.SoundID))
+            .Add(nameof(IDs.BuffID))
+            .Build();
     }
-    private static IdFilterInfo GetIdFilterInfo(string memberName, string idName) => new(memberName, IDs.GetInt16ID(idName), AddType(idName), idName);
-    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex, int argumentCount) => new(methodName, checkIndex, argumentCount, IDs.GetInt16ID(idName), AddType(idName), idName);
-    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex) => new(methodName, checkIndex, checkIndex + 1, IDs.GetInt16ID(idName), AddType(idName), idName);
-    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, Range range) => new(methodName, range.Start.Value, -1, IDs.GetInt16ID(idName), AddType(idName), idName);
+    private static IdFilterInfo GetIdFilterInfo(string memberName, string idName) => new(memberName, IDs.GetInt32ID(idName), AddType(idName), idName);
+    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex, int argumentCount) => new(methodName, checkIndex, argumentCount, IDs.GetInt32ID(idName), AddType(idName), idName);
+    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex) => new(methodName, checkIndex, checkIndex + 1, IDs.GetInt32ID(idName), AddType(idName), idName);
+    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, Range range) => new(methodName, range.Start.Value, -1, IDs.GetInt32ID(idName), AddType(idName), idName);
     private static ImmutableDictionary<string, string?> AddType(string type)
     {
         const string key = "type";
@@ -271,11 +228,24 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
         return builder.ToImmutable();
     }
 }
-
-internal sealed class IdFilterInfo(string memberName, FrozenDictionary<short, string> idToNameDict, ImmutableDictionary<string, string?> properties, string idName)
+struct IDsDictBuilder
+{
+    private Dictionary<string, FrozenDictionary<int, string>> _dict;
+    public IDsDictBuilder()
+    {
+        _dict = new();
+    }
+    public IDsDictBuilder Add(string idName)
+    {
+        _dict.Add(idName, IDs.GetInt32ID(idName));
+        return this;
+    }
+    public FrozenDictionary<string, FrozenDictionary<int, string>> Build() => _dict.ToFrozenDictionary(StringComparer.Ordinal);
+}
+internal sealed class IdFilterInfo(string memberName, FrozenDictionary<int, string> idToNameDict, ImmutableDictionary<string, string?> properties, string idName)
 {
     public string MemberName = memberName;
-    public FrozenDictionary<short, string> IdToNameDict = idToNameDict;
+    public FrozenDictionary<int, string> IdToNameDict = idToNameDict;
     public ImmutableDictionary<string, string?> Properties = properties;
     public string IdName = idName;
 }
@@ -285,11 +255,11 @@ public sealed class MethodFilterInfo
     public string MethodName;
     public int ArgumentCount;
     public int CheckIndex;
-    public FrozenDictionary<short, string> IdToNameDict;
+    public FrozenDictionary<int, string> IdToNameDict;
     public ImmutableDictionary<string, string?> Properties;
     public string IdName;
 
-    public MethodFilterInfo(string methodName, int checkIndex, int argumentCount, FrozenDictionary<short, string> idToNameDict, ImmutableDictionary<string, string?> properties, string idName)
+    public MethodFilterInfo(string methodName, int checkIndex, int argumentCount, FrozenDictionary<int, string> idToNameDict, ImmutableDictionary<string, string?> properties, string idName)
     {
         MethodName = methodName;
         if (argumentCount < 0)
@@ -357,13 +327,13 @@ public sealed class IDAnalyzerCodeFixProvider : CodeFixProvider
     private static Task<Document> ReplaceNodeAsync(string type, Document document, LiteralExpressionSyntax literalExpression, CancellationToken cancellationToken)
     {
         var root = document.GetSyntaxRootAsync(cancellationToken).Result!;
-        SyntaxNode newRoot = root.ReplaceNode(literalExpression, SyntaxFactory.IdentifierName(SyntaxFactory.Identifier($"{type}.{IDAnalyzer.IDsDict[type][short.Parse(literalExpression.Token.Text)]}")))!;
+        SyntaxNode newRoot = root.ReplaceNode(literalExpression, SyntaxFactory.IdentifierName(SyntaxFactory.Identifier($"{type}.{IDAnalyzer.IDsDict[type][int.Parse(literalExpression.Token.Text)]}")))!;
         return Task.FromResult(document.WithSyntaxRoot(newRoot));
     }
     private static Task<Document> ReplaceNodeAsync(string type, Document document, PrefixUnaryExpressionSyntax prefixUnaryExpression, CancellationToken cancellationToken)
     {
         var root = document.GetSyntaxRootAsync(cancellationToken).Result!;
-        SyntaxNode newRoot = root.ReplaceNode(prefixUnaryExpression, SyntaxFactory.IdentifierName(SyntaxFactory.Identifier($"{type}.{IDAnalyzer.IDsDict[type][short.Parse(prefixUnaryExpression.Parent!.GetText().ToString())]}")))!;
+        SyntaxNode newRoot = root.ReplaceNode(prefixUnaryExpression, SyntaxFactory.IdentifierName(SyntaxFactory.Identifier($"{type}.{IDAnalyzer.IDsDict[type][int.Parse(prefixUnaryExpression.Parent!.GetText().ToString())]}")))!;
         return Task.FromResult(document.WithSyntaxRoot(newRoot));
     }
 }

@@ -23,7 +23,7 @@ public static class IDs
     internal const int SoundID = 0;
     internal const int BuffID = 0;
 
-    private static readonly Dictionary<string, IDictionary> AllID = [];
+    private static readonly Dictionary<string, FrozenDictionary<int, string>> AllID = [];
     static IDs()
     {
         var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("OTAPI.dll");
@@ -40,9 +40,9 @@ public static class IDs
         AddID(mdReader, SoundID);
         AddID(mdReader, BuffID);
     }
-    static IDictionary AddDirectionary<T>(MetadataReader mdReader, string typeName, Func<byte[], T> reader, Func<string, bool>? fieldNameFilter = null) where T : notnull
+    static FrozenDictionary<int, string> AddDirectionary<T>(MetadataReader mdReader, string typeName, Func<byte[], T> reader, Func<string, bool>? fieldNameFilter = null) where T : notnull
     {
-        var dict = new Dictionary<T, string>();
+        var dict = new Dictionary<int, string>();
         foreach (var typeDefHandle in mdReader.TypeDefinitions)
         {
             var typeDef = mdReader.GetTypeDefinition(typeDefHandle);
@@ -58,7 +58,7 @@ public static class IDs
                     }
                     if (fieldDef.Attributes.HasFlag(FieldAttributes.Literal))
                     {
-                        dict.Add(reader(mdReader.GetBlobBytes(mdReader.GetConstant(fieldDef.GetDefaultValue()).Value)), fieldName);
+                        dict.Add(Convert.ToInt32(reader(mdReader.GetBlobBytes(mdReader.GetConstant(fieldDef.GetDefaultValue()).Value))), fieldName);
                     }
                 }
                 break;
@@ -90,21 +90,8 @@ public static class IDs
         AllID.Add(typeName, AddDirectionary(mdReader, typeName, static bytes => bytes[0], fieldNameFilter));
     }
 
-    public static FrozenDictionary<short, string> GetInt16ID([CallerMemberName] string type = "")
+    public static FrozenDictionary<int, string> GetInt32ID([CallerMemberName] string type = "")
     {
-        var sDict = AllID[type]; 
-        if (sDict is FrozenDictionary<int, string> inDict)
-        {
-            return FrozenDictionary.ToFrozenDictionary(inDict, static x => (short)x.Key, static x => x.Value);
-        }
-        if (sDict is FrozenDictionary<ushort, string> usDict)
-        {
-            return FrozenDictionary.ToFrozenDictionary(usDict, static x => (short)x.Key, static x => x.Value);
-        }
-        if(sDict is FrozenDictionary<byte, string> bDict)
-        {
-            return FrozenDictionary.ToFrozenDictionary(bDict, static x => (short)x.Key, static x => x.Value);
-        }
-        return (FrozenDictionary<short, string>)sDict;
+        return AllID[type]; 
     }
 }

@@ -1,0 +1,49 @@
+<Solution>
+  <Folder Name="/Sdk/">
+    <Project Path="Sdk/My.Plugins.Sdk/My.Plugins.Sdk.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/VBY/">
+    <Project Path="src/ShopSourceGenerator/ShopGenerator.csproj" />
+    <Project Path="src/VBY/Common/Common.csproj" />
+    <Project Path="src/VBY/CommonShared/CommonShared.shproj" />
+    <Project Path="src/VBY/DisableUnlockChest/DisableUnlockChest.csproj" />
+    <Project Path="src/VBY/EventFirstRecord/EventFirstRecord.csproj" />
+    <Project Path="src/VBY/GameContentExtension/GameContentExtension.csproj" />
+    <Project Path="src/VBY/GameContentModify/GameContentModify.csproj" />
+    <Project Path="src/VBY/GameContentModifyGenerator/GameContentModifyGenerator.csproj" />
+    <Project Path="src/VBY/ItemStrengthen/ItemStrengthen.csproj" />
+    <Project Path="src/VBY/MapTeleport/MapTeleport.csproj" />
+    <Project Path="src/VBY/MoreSpawnPoint/MoreSpawnPoint.csproj" />
+    <Project Path="src/VBY/NPCLifeChange/NpcLifeChange.csproj" />
+    <Project Path="src/VBY/OtherCommand/OtherCommand.csproj" />
+    <Project Path="src/VBY/PluginLoader/PluginLoader.csproj" />
+    <Project Path="src/VBY/PluginLoaderAutoReload/PluginLoaderAutoReload.csproj" />
+    <Project Path="src/VBY/ProgressQuery/ProgressQuery.csproj" />
+    <Project Path="src/VBY/RandomDrop/RandomDrop.csproj" />
+    <Project Path="src/VBY/RapidGrowth/RapidGrowth.csproj" />
+    <Project Path="src/VBY/RealTime/RealTime.csproj" />
+    <Project Path="src/VBY/Shop/Shop.csproj" />
+    <Project Path="src/VBY/SpawnRandomDrop/SpawnRandomDrop.csproj" />
+    <Project Path="src/VBY/TimedUnlockProgress/TimedUnlockProgress.csproj" />
+    <Project Path="src/VBY/VirtualPlayer/VirtualPlayer.csproj" />
+  </Folder>
+  <Folder Name="/VBY/AI/" Id="d88d6216-0ea8-5c38-ec73-e18f5f7939f8">
+    <Project Path="src/VBY/NPCAI/NPCAI.csproj" />
+    <Project Path="src/VBY/NPCTest/NPCTest.csproj" />
+    <Project Path="src/VBY/ProjectileAI/ProjectileAI.csproj" />
+    <Project Path="src/VBY/ProjectileTest/ProjectileTest.csproj" />
+  </Folder>
+  <Project Path="src/FlowerSeaRPG/FlowerSeaRPG.csproj" />
+  <Project Path="src/Game1/Game1.csproj" />
+  <Project Path="src/IDAnalyzer/IDAnalyzer.csproj" />
+  <Project Path="src/LifeArmor/LifeArmor.csproj" />
+  <Project Path="src/TempGroup/TempGroup.csproj" />
+  <Project Path="src/TerrariaIDExtension/TerrariaIDExtension.csproj" />
+  <Project Path="src/TerrariaPacket/TerrariaPacket.csproj" />
+  <Project Path="src/TerrariaPacketGenerator/TerrariaPacketGenerator.csproj" />
+  <Project Path="src/TerrariaServerPluginAnalyzer/TerrariaServerPluginAnalyzer.csproj" />
+  <Project Path="src/TestConsoleApp/TestConsoleApp.csproj" />
+</Solution>

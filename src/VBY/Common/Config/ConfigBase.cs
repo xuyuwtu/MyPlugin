@@ -40,10 +40,16 @@ public class ConfigBase<T> where T : RootBase, new()
         try
         {
             if (!Directory.Exists(ConfigDirectory))
+            {
                 Directory.CreateDirectory(ConfigDirectory);
+            }
+
             if (ConfigExists)
             {
-                if (!corver)
+                if (corver)
+                {
+                }
+                else
                     return true;
             }
             if (value is null)
@@ -89,7 +95,7 @@ public class ConfigBase<T> where T : RootBase, new()
         catch (Exception e)
         {
             ErrorString = e.ToString();
-            LogAndOut(ErrorString);
+            TShock.Log.ConsoleError(ErrorString);
             return false;
         }
         PostRead?.Invoke(this);
@@ -136,7 +142,9 @@ public class ConfigBase<T> where T : RootBase, new()
             }
         }
         if (log)
+        {
             TShock.Log.Write(message, level);
+        }
     }
     public event Action<ConfigBase<T>>? PostRead;
 }

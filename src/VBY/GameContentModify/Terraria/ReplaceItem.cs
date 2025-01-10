@@ -131,7 +131,7 @@ public static class ReplaceItem
             }
             NPC.unlockedSlimeRainbowSpawn = true;
             NetMessage.SendData(MessageID.WorldData);
-            int num9 = NPC.NewNPC(self.GetNPCSource_FromThis(), (int)self.Center.X + 4, (int)self.Center.Y, 681);
+            int num9 = NPC.NewNPC(self.GetNPCSource_FromThis(), (int)self.Center.X + 4, (int)self.Center.Y, NPCID.TownSlimeRainbow);
             if (num9 >= 0)
             {
                 NPC obj = Main.npc[num9];

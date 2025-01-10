@@ -4,377 +4,379 @@ namespace VBY.NPCTest;
 
 public static partial class NPCAIs
 {
-    public static void AI_015(this NPC npc)
+    public static void AI_015(this NPC self)
     {
-        float num236 = 1f;
-        float num237 = 1f;
-        bool flag6 = false;
-        bool flag7 = false;
-        bool flag8 = false;
-        float num238 = 2f;
+        const int netClientMode = 1;
+        const int netServerMode = 2;
+
+        const int countAI = 0;
+        const int mainAI = 1;
+        const int tooFarCountAI = 2;
+        const int lifeAI = 3;
+
+        const int countLocalAI = 0;
+        const int teleportXLocalAI = 1;
+        const int teleportYLocalAI = 2;
+        const int initLocalAI = 3;
+
+        const int isHighJumpLocalAI = 4;
+        const int highJumpCountLocalAI = 5;
+
+#pragma warning disable CS0219 // 变量已被赋值，但从未使用过它的值
+        const int aiNormalJump1 = 0;
+        const int aiNormalJump2 = 1;
+        const int aiFastJump = 2;
+        const int aiHighJump = 3;
+        const int aiUnknown = 4;
+        const int aiTeleporting = 5;
+        const int aiFindTarget = 6;
+#pragma warning restore CS0219 // 变量已被赋值，但从未使用过它的值
+
+        float aiScaleMultiple = 1f;
+        float lifeScaleMultiple = 1f;
+        bool isInit = false;
+        bool hasTarget = false;
+        bool isTeleported = false;
+        float goodWorldScaleMultipleBase = 2f;
         if (Main.getGoodWorld)
         {
-            num238 -= 1f - npc.life / (float)npc.lifeMax;
-            num237 *= num238;
+            lifeScaleMultiple *= goodWorldScaleMultipleBase - (1f - self.life / (float)self.lifeMax);
         }
-        npc.aiAction = 0;
-        if (npc.ai[3] == 0f && npc.life > 0)
+        self.aiAction = 0;
+        if (self.ai[lifeAI] == 0f && self.life > 0)
         {
-            npc.ai[3] = npc.lifeMax;
+            self.ai[lifeAI] = self.lifeMax;
         }
-        if (npc.localAI[3] == 0f)
+        if (self.localAI[initLocalAI] == 0f)
         {
-            npc.localAI[3] = 1f;
-            flag6 = true;
-
-            npc.ai[0] = -100f;
-            npc.TargetClosest();
-            npc.netUpdate = true;
-
-        }
-        int distance = 3000;
-        if (Main.player[npc.target].dead || Vector2.Distance(npc.Center, Main.player[npc.target].Center) > distance)
-        {
-            npc.TargetClosest();
-            if (Main.player[npc.target].dead || Vector2.Distance(npc.Center, Main.player[npc.target].Center) > distance)
+            self.localAI = new float[6];
+            self.localAI[initLocalAI] = 1f;
+            isInit = true;
+            if (Main.netMode != netClientMode)
             {
-                npc.EncourageDespawn(10);
-                if (Main.player[npc.target].Center.X < npc.Center.X)
+                self.ai[countAI] = -100f;
+                self.TargetClosest();
+                self.netUpdate = true;
+            }
+        }
+        int searchDistance = 3000;
+        if (Main.player[self.target].dead || Vector2.Distance(self.Center, Main.player[self.target].Center) > searchDistance)
+        {
+            self.TargetClosest();
+            if (Main.player[self.target].dead || Vector2.Distance(self.Center, Main.player[self.target].Center) > searchDistance)
+            {
+                self.EncourageDespawn(10);
+                if (Main.player[self.target].Center.X < self.Center.X)
                 {
-                    npc.direction = 1;
+                    self.direction = 1;
                 }
                 else
                 {
-                    npc.direction = -1;
+                    self.direction = -1;
                 }
-                if (npc.ai[1] != 5f)
+                if (Main.netMode != netClientMode && self.ai[mainAI] == aiTeleporting)
                 {
-                    npc.netUpdate = true;
-                    npc.ai[2] = 0f;
-                    npc.ai[0] = 0f;
-                    npc.ai[1] = 5f;
-                    npc.localAI[1] = Main.maxTilesX * 16;
-                    npc.localAI[2] = Main.maxTilesY * 16;
+                    self.netUpdate = true;
+                    self.ai[tooFarCountAI] = 0f;
+                    self.ai[countAI] = 0f;
+                    self.ai[mainAI] = aiTeleporting;
+                    self.localAI[teleportXLocalAI] = Main.maxTilesX * 16;
+                    self.localAI[teleportYLocalAI] = Main.maxTilesY * 16;
                 }
             }
         }
-        if (!Main.player[npc.target].dead && npc.timeLeft > 10 && npc.ai[2] >= 300f && npc.ai[1] < 5f && npc.velocity.Y == 0f)
+        if (!Main.player[self.target].dead && self.timeLeft > 10 && self.ai[tooFarCountAI] >= 300f && self.ai[mainAI] < aiTeleporting && self.velocity.Y == 0f)
         {
-            //准备传送
-            npc.ai[2] = 0f;
-            npc.ai[0] = 0f;
-            npc.ai[1] = 5f;
-
-            npc.TargetClosest(faceTarget: false);
-            Point point3 = npc.Center.ToTileCoordinates();
-            Point point4 = Main.player[npc.target].Center.ToTileCoordinates();
-            Vector2 vector30 = Main.player[npc.target].Center - npc.Center;
-            int num240 = 10;
-            int num241 = 0;
-            int num242 = 7;
-            int num243 = 0;
-            bool flag9 = false;
-            if (npc.localAI[0] >= 360f || vector30.Length() > 2000f)
+            self.ai[tooFarCountAI] = 0f;
+            self.ai[countAI] = 0f;
+            self.ai[mainAI] = aiTeleporting;
+            if (Main.netMode != netClientMode)
             {
-                if (npc.localAI[0] >= 360f)
+                self.TargetClosest(faceTarget: false);
+                Point centerPoint = self.Center.ToTileCoordinates();
+                Point targetPoint = Main.player[self.target].Center.ToTileCoordinates();
+                Vector2 toTargetDistance = Main.player[self.target].Center - self.Center;
+                int teleportMaxDistance = 10;
+                int teleportMinDistanceOfSelf = 0;
+                int teleportMinDistance = 3;
+                int searchCount = 0;
+                bool searchCompleted = false;
+                if (self.localAI[countLocalAI] >= 360f || toTargetDistance.Length() > 2000f)
                 {
-                    npc.localAI[0] = 360f;
-                }
-                flag9 = true;
-                num243 = 100;
-            }
-            while (!flag9 && num243 < 100)
-            {
-                num243++;
-                int num244 = Main.rand.Next(point4.X - num240, point4.X + num240 + 1);
-                int num245 = Main.rand.Next(point4.Y - num240, point4.Y + 1);
-                if ((num245 >= point4.Y - num242 && num245 <= point4.Y + num242 && num244 >= point4.X - num242 && num244 <= point4.X + num242) || (num245 >= point3.Y - num241 && num245 <= point3.Y + num241 && num244 >= point3.X - num241 && num244 <= point3.X + num241) || Main.tile[num244, num245].nactive())
-                {
-                    continue;
-                }
-                int num246 = num245;
-                int num247 = 0;
-                if (Main.tile[num244, num246].nactive() && Main.tileSolid[Main.tile[num244, num246].type] && !Main.tileSolidTop[Main.tile[num244, num246].type])
-                {
-                    num247 = 1;
-                }
-                else
-                {
-                    for (; num247 < 150 && num246 + num247 < Main.maxTilesY; num247++)
+                    if (self.localAI[countLocalAI] >= 360f)
                     {
-                        int y = num246 + num247;
-                        if (Main.tile[num244, y].nactive() && Main.tileSolid[Main.tile[num244, y].type] && !Main.tileSolidTop[Main.tile[num244, y].type])
-                        {
-                            num247--;
-                            break;
-                        }
+                        self.localAI[countLocalAI] = 360f;
                     }
+                    searchCompleted = true;
+                    searchCount = 100;
                 }
-                num245 += num247;
-                bool flag10 = true;
-                if (flag10 && Main.tile[num244, num245].lava())
+                while (!searchCompleted && searchCount < 100)
                 {
-                    flag10 = false;
-                }
-                if (flag10 && !Collision.CanHitLine(npc.Center, 0, 0, Main.player[npc.target].Center, 0, 0))
-                {
-                    flag10 = false;
-                }
-                if (flag10)
-                {
-                    npc.localAI[1] = num244 * 16 + 8;
-                    npc.localAI[2] = num245 * 16 + 16;
-                    break;
-                }
-
-                if (num243 >= 100)
-                {
-                    Vector2 bottom = Main.player[Player.FindClosest(npc.position, npc.width, npc.height)].Bottom;
-                    npc.localAI[1] = bottom.X;
-                    npc.localAI[2] = bottom.Y;
-                }
-            }
-        }
-        if (!Collision.CanHitLine(npc.Center, 0, 0, Main.player[npc.target].Center, 0, 0) || Math.Abs(npc.Top.Y - Main.player[npc.target].Bottom.Y) > 160f)
-        {
-            npc.ai[2]++;
-
-            npc.localAI[0]++;
-        }
-
-        npc.localAI[0]--;
-        if (npc.localAI[0] < 0f)
-        {
-            npc.localAI[0] = 0f;
-        }
-
-        if (npc.timeLeft < 10 && (npc.ai[0] != 0f || npc.ai[1] != 0f))
-        {
-            npc.ai[0] = 0f;
-            npc.ai[1] = 0f;
-            npc.netUpdate = true;
-            flag7 = false;
-        }
-        Dust dust;
-        if (npc.ai[1] == 5f)
-        {
-            flag7 = true;
-            npc.aiAction = 1;
-            npc.ai[0]++;
-            num236 = MathHelper.Clamp((60f - npc.ai[0]) / 60f, 0f, 1f);
-            num236 = 0.5f + num236 * 0.5f;
-            if (npc.ai[0] >= 60f)
-            {
-                flag8 = true;
-            }
-            if (npc.ai[0] == 60f)
-            {
-                Gore.NewGore(npc.Center + new Vector2(-40f, -npc.height / 2), npc.velocity, 734);
-            }
-            //传送
-            if (npc.ai[0] >= 60f)
-            {
-                npc.Bottom = new Vector2(npc.localAI[1], npc.localAI[2]);
-                npc.ai[1] = 6f;
-                npc.ai[0] = 0f;
-                npc.netUpdate = true;
-            }
-            if (Main.netMode == 1 && npc.ai[0] >= 120f)
-            {
-                npc.ai[1] = 6f;
-                npc.ai[0] = 0f;
-            }
-            if (!flag8)
-            {
-                for (int num248 = 0; num248 < 10; num248++)
-                {
-                    int num249 = Dust.NewDust(npc.position + Vector2.UnitX * -20f, npc.width + 40, npc.height, 4, npc.velocity.X, npc.velocity.Y, 150, new Color(78, 136, 255, 80), 2f);
-                    Main.dust[num249].noGravity = true;
-                    dust = Main.dust[num249];
-                    dust.velocity *= 0.5f;
-                }
-            }
-        }
-        else if (npc.ai[1] == 6f)
-        {
-            flag7 = true;
-            npc.aiAction = 0;
-            npc.ai[0]++;
-            num236 = MathHelper.Clamp(npc.ai[0] / 30f, 0f, 1f);
-            num236 = 0.5f + num236 * 0.5f;
-            if (npc.ai[0] >= 30f && Main.netMode != 1)
-            {
-                npc.ai[1] = 0f;
-                npc.ai[0] = 0f;
-                npc.netUpdate = true;
-                npc.TargetClosest();
-            }
-            if (Main.netMode == 1 && npc.ai[0] >= 60f)
-            {
-                npc.ai[1] = 0f;
-                npc.ai[0] = 0f;
-                npc.TargetClosest();
-            }
-            for (int num250 = 0; num250 < 10; num250++)
-            {
-                int num251 = Dust.NewDust(npc.position + Vector2.UnitX * -20f, npc.width + 40, npc.height, 4, npc.velocity.X, npc.velocity.Y, 150, new Color(78, 136, 255, 80), 2f);
-                Main.dust[num251].noGravity = true;
-                dust = Main.dust[num251];
-                dust.velocity *= 2f;
-            }
-        }
-        npc.dontTakeDamage = npc.hide = flag8;
-        if (npc.velocity.Y == 0f)
-        {
-            npc.velocity.X *= 0.8f;
-            if (npc.ai[0] == -120 || npc.ai[0] == -200)
-            {
-                npc.NewProjectile(npc.BottomLeft + new Vector2(-48, 0), new Vector2(-1, -10), ProjectileID.DeerclopsIceSpike, npc.damage / 5, 0, 0.1f + (float)npc.life / npc.lifeMax * 2);
-                npc.NewProjectile(npc.BottomLeft + new Vector2(-72, 0), new Vector2(-1, -10), ProjectileID.DeerclopsIceSpike, npc.damage / 5, 0, 0.1f + (float)npc.life / npc.lifeMax * 2);
-                npc.NewProjectile(npc.BottomRight + new Vector2(48, 0), new Vector2(1, -10), ProjectileID.DeerclopsIceSpike, npc.damage / 5, 0, 0.1f + (float)npc.life / npc.lifeMax * 2);
-                npc.NewProjectile(npc.BottomRight + new Vector2(72, 0), new Vector2(1, -10), ProjectileID.DeerclopsIceSpike, npc.damage / 5, 0, 0.1f + (float)npc.life / npc.lifeMax * 2);
-            }
-            if (npc.velocity.X > -0.1 && npc.velocity.X < 0.1)
-            {
-                npc.velocity.X = 0f;
-            }
-            if (!flag7)
-            {
-                npc.ai[0] += 2f;
-                if (npc.life < npc.lifeMax * 0.8)
-                {
-                    npc.ai[0] += 1f;
-                }
-                if (npc.life < npc.lifeMax * 0.6)
-                {
-                    npc.ai[0] += 1f;
-                }
-                if (npc.life < npc.lifeMax * 0.4)
-                {
-                    npc.ai[0] += 2f;
-                }
-                if (npc.life < npc.lifeMax * 0.2)
-                {
-                    npc.ai[0] += 3f;
-                }
-                if (npc.life < npc.lifeMax * 0.1)
-                {
-                    npc.ai[0] += 4f;
-                }
-                if (npc.ai[0] >= 0f)
-                {
-                    //跳
-                    npc.netUpdate = true;
-                    npc.TargetClosest();
-                    if (npc.ai[1] == 3f)
+                    searchCount++;
+                    int teleportTargetTileX = Main.rand.Next(targetPoint.X - teleportMaxDistance, targetPoint.X + teleportMaxDistance + 1);
+                    int teleportTargetTileY = Main.rand.Next(targetPoint.Y - teleportMaxDistance, targetPoint.Y + 1);
+                    if ((teleportTargetTileY >= targetPoint.Y - teleportMinDistance && teleportTargetTileY <= targetPoint.Y + teleportMinDistance && teleportTargetTileX >= targetPoint.X - teleportMinDistance && teleportTargetTileX <= targetPoint.X + teleportMinDistance) || (teleportTargetTileY >= centerPoint.Y - teleportMinDistanceOfSelf && teleportTargetTileY <= centerPoint.Y + teleportMinDistanceOfSelf && teleportTargetTileX >= centerPoint.X - teleportMinDistanceOfSelf && teleportTargetTileX <= centerPoint.X + teleportMinDistanceOfSelf) || Main.tile[teleportTargetTileX, teleportTargetTileY].nactive())
                     {
-                        //大跳
-                        npc.velocity.Y = -13f;
-                        npc.velocity.X += 3.5f * npc.direction;
-                        npc.ai[0] = -200f;
-                        npc.ai[1] = 0f;
+                        continue;
+                    }
+                    int searchTlieY = teleportTargetTileY;
+                    int searchTileYOffset = 0;
+                    if (Main.tile[teleportTargetTileX, searchTlieY].nactive() && Main.tileSolid[Main.tile[teleportTargetTileX, searchTlieY].type] && !Main.tileSolidTop[Main.tile[teleportTargetTileX, searchTlieY].type])
+                    {
+                        searchTileYOffset = 1;
                     }
                     else
                     {
-                        if (Collision.CanHitLine(npc.position, 1, 1, Main.player[npc.target].position, Main.player[npc.target].width, Main.player[npc.target].height))
+                        for (; searchTileYOffset < 150 && searchTlieY + searchTileYOffset < Main.maxTilesY; searchTileYOffset++)
                         {
-                            var velocity = Main.player[npc.target].Top - npc.Center;
-                            velocity.Y -= Main.rand.Next(0, 200);
-                            var distance2 = Vector2.Distance(npc.Center, Main.player[npc.target].Center);
-                            var num = 15f / distance2;
-                            velocity *= num;
-                            npc.NewProjectile(velocity, 174, npc.damage / 7);
-                            npc.NewProjectile(velocity.RotatedBy(MathHelper.ToRadians(5)), 174, npc.damage / 7);
-                            npc.NewProjectile(velocity.RotatedBy(MathHelper.ToRadians(-5)), 174, npc.damage / 7);
+                            int checkTileY = searchTlieY + searchTileYOffset;
+                            if (Main.tile[teleportTargetTileX, checkTileY].nactive() && Main.tileSolid[Main.tile[teleportTargetTileX, checkTileY].type] && !Main.tileSolidTop[Main.tile[teleportTargetTileX, checkTileY].type])
+                            {
+                                searchTileYOffset--;
+                                break;
+                            }
                         }
-                        if (npc.ai[1] == 2f)
-                        {
-                            //小小跳
-                            npc.velocity.Y = -6f;
-                            npc.velocity.X += 4.5f * npc.direction;
-                        }
-                        else
-                        {
-                            //小跳
-                            npc.velocity.Y = -8f;
-                            npc.velocity.X += 4f * npc.direction;
-                        }
-                        npc.ai[0] = -120f;
-                        npc.ai[1] += 1f;
+                    }
+                    teleportTargetTileY += searchTileYOffset;
+                    bool canTeleport = true;
+                    if (canTeleport && Main.tile[teleportTargetTileX, teleportTargetTileY].lava())
+                    {
+                        canTeleport = false;
+                    }
+                    if (canTeleport && !Collision.CanHitLine(self.Center, 0, 0, Main.player[self.target].Center, 0, 0))
+                    {
+                        canTeleport = false;
+                    }
+                    if (canTeleport)
+                    {
+                        self.localAI[teleportXLocalAI] = teleportTargetTileX * 16 + 8;
+                        self.localAI[teleportYLocalAI] = teleportTargetTileY * 16 + 16;
+                        searchCompleted = true;
+                        break;
                     }
                 }
-                else if (npc.ai[0] >= -30f)
+                if (searchCount >= 100)
                 {
-                    npc.aiAction = 1;
+                    Vector2 bottom = Main.player[Player.FindClosest(self.position, self.width, self.height)].Bottom;
+                    self.localAI[teleportXLocalAI] = bottom.X;
+                    self.localAI[teleportYLocalAI] = bottom.Y;
                 }
             }
         }
-        else if (npc.target < 255)
+        if (!Collision.CanHitLine(self.Center, 0, 0, Main.player[self.target].Center, 0, 0) || Math.Abs(self.Top.Y - Main.player[self.target].Bottom.Y) > 160f)
         {
-            float num252 = 3f;
+            self.ai[tooFarCountAI] += 1f;
+            if (Main.netMode != netClientMode)
+            {
+                self.localAI[countLocalAI] += 1f;
+            }
+        }
+        else if (Main.netMode != netClientMode)
+        {
+            self.localAI[countLocalAI] -= 1f;
+            if (self.localAI[countLocalAI] < 0f)
+            {
+                self.localAI[countLocalAI] = 0f;
+            }
+        }
+        if (self.timeLeft < 10 && (self.ai[countAI] != 0f || self.ai[mainAI] != 0f))
+        {
+            self.ai[countAI] = 0f;
+            self.ai[mainAI] = 0f;
+            self.netUpdate = true;
+            hasTarget = false;
+        }
+        if (self.ai[mainAI] == aiTeleporting)
+        {
+            hasTarget = true;
+            self.aiAction = 1;
+            self.ai[countAI] += 1f;
+            aiScaleMultiple = 0.5f + MathHelper.Clamp((60f - self.ai[countAI]) / 60f, 0f, 1f) * 0.5f;
+            if (self.ai[countAI] % 10 == 0)
+            {
+                Projectile.NewProjectile(self.GetSpawnSourceForNPCFromNPCAI(), self.TopLeft, new(-1, 0), ProjectileID.DemonSickle, self.damage / 4, 0);
+                Projectile.NewProjectile(self.GetSpawnSourceForNPCFromNPCAI(), self.TopRight, new(1, 0), ProjectileID.DemonSickle, self.damage / 4, 0);
+            }
+            if (self.ai[countAI] >= 60f)
+            {
+                isTeleported = true;
+            }
+            if (self.ai[countAI] >= 60f && Main.netMode != netClientMode)
+            {
+                self.Bottom = new Vector2(self.localAI[teleportXLocalAI], self.localAI[teleportYLocalAI]);
+                self.ai[mainAI] = aiFindTarget;
+                self.ai[countAI] = 0f;
+                self.netUpdate = true;
+            }
+            if (Main.netMode == netClientMode && self.ai[countAI] >= 120f)
+            {
+                self.ai[mainAI] = aiFindTarget;
+                self.ai[countAI] = 0f;
+            }
+        }
+        else if (self.ai[mainAI] == aiFindTarget)
+        {
+            hasTarget = true;
+            self.aiAction = 0;
+            self.ai[countAI] += 1f;
+            aiScaleMultiple = 0.5f + MathHelper.Clamp(self.ai[countAI] / 30f, 0f, 1f) * 0.5f;
+            if (self.ai[countAI] >= 30f && Main.netMode != netClientMode)
+            {
+                self.ai[mainAI] = 0f;
+                self.ai[countAI] = 0f;
+                self.netUpdate = true;
+                self.TargetClosest();
+            }
+            if (Main.netMode == netClientMode && self.ai[countAI] >= 60f)
+            {
+                self.ai[mainAI] = 0f;
+                self.ai[countAI] = 0f;
+                self.TargetClosest();
+            }
+        }
+        self.dontTakeDamage = (self.hide = isTeleported);
+        if (self.velocity.Y == 0f)
+        {
+            self.velocity.X *= 0.8f;
+            if (self.velocity.X > -0.1 && self.velocity.X < 0.1)
+            {
+                self.velocity.X = 0f;
+            }
+            if (!hasTarget)
+            {
+                self.ai[countAI] += 2f;
+                if (self.life < self.lifeMax * 0.8)
+                {
+                    self.ai[countAI] += 1f;
+                }
+                if (self.life < self.lifeMax * 0.6)
+                {
+                    self.ai[countAI] += 1f;
+                }
+                if (self.life < self.lifeMax * 0.4)
+                {
+                    self.ai[countAI] += 2f;
+                }
+                if (self.life < self.lifeMax * 0.2)
+                {
+                    self.ai[countAI] += 3f;
+                }
+                if (self.life < self.lifeMax * 0.1)
+                {
+                    self.ai[countAI] += 4f;
+                }
+                if (self.ai[countAI] >= 0f)
+                {
+                    self.netUpdate = true;
+                    self.TargetClosest();
+                    if (self.ai[mainAI] == aiHighJump)
+                    {
+                        self.velocity.Y = -16f;
+                        self.velocity.X += 4.5f * self.direction;
+                        self.ai[countAI] = -200f;
+                        self.ai[mainAI] = 0f;
+                        self.localAI[isHighJumpLocalAI] = 1;
+                        self.localAI[highJumpCountLocalAI] = 0;
+                    }
+                    else if (self.ai[mainAI] == aiFastJump)
+                    {
+                        self.velocity.Y = -6f;
+                        self.velocity.X += 5.5f * self.direction;
+                        self.ai[countAI] = -120f;
+                        self.ai[mainAI] += 1f;
+                        self.localAI[isHighJumpLocalAI] = 0;
+                    }
+                    else
+                    {
+                        self.velocity.Y = -8f;
+                        self.velocity.X += 5f * self.direction;
+                        self.ai[countAI] = -120f;
+                        self.ai[mainAI] += 1f;
+                        self.localAI[isHighJumpLocalAI] = 0;
+                    }
+                }
+                else if (self.ai[countAI] >= -30f)
+                {
+                    self.aiAction = 1;
+                }
+            }
+        }
+        else if (self.target < 255)
+        {
+            float velocityBase = 3f;
             if (Main.getGoodWorld)
             {
-                num252 = 6f;
+                velocityBase = 6f;
             }
-            if ((npc.direction == 1 && npc.velocity.X < num252) || (npc.direction == -1 && npc.velocity.X > 0f - num252))
+            if ((self.direction == 1 && self.velocity.X < velocityBase) || (self.direction == -1 && self.velocity.X > -velocityBase))
             {
-                if ((npc.direction == -1 && npc.velocity.X < 0.1) || (npc.direction == 1 && npc.velocity.X > -0.1))
+                if ((self.direction == -1 && self.velocity.X < 0.1) || (self.direction == 1 && self.velocity.X > -0.1))
                 {
-                    npc.velocity.X += 0.2f * npc.direction;
+                    self.velocity.X += 0.2f * self.direction;
                 }
                 else
                 {
-                    npc.velocity.X *= 0.93f;
+                    self.velocity.X *= 0.93f;
+                }
+            }
+            if (self.ai[mainAI] == 0 && self.localAI[isHighJumpLocalAI] == 1)
+            {
+                self.localAI[highJumpCountLocalAI]++;
+                if (self.localAI[highJumpCountLocalAI] % 15 == 0)
+                {
+                    Projectile.NewProjectile(self.GetSpawnSourceForNPCFromNPCAI(), self.Center, Vector2.Zero, ProjectileID.IceSpike, self.damage / 5, 0);
                 }
             }
         }
-
-        //npc.AIOutput();
-
-        if (npc.life <= 0)
+        if (self.life <= 0)
         {
             return;
         }
-        float num254 = npc.life / (float)npc.lifeMax;
-        num254 = num254 * 0.5f + 0.75f;
-        num254 *= num236;
-        num254 *= num237;
-        if (num254 != npc.scale || flag6)
+        float newScale = (self.life / (float)self.lifeMax * 0.5f + 0.75f) * aiScaleMultiple * lifeScaleMultiple;
+        if (newScale != self.scale || isInit)
         {
-            npc.position.X += npc.width / 2;
-            npc.position.Y += npc.height;
-            npc.scale = num254;
-            npc.width = (int)(98f * npc.scale);
-            npc.height = (int)(92f * npc.scale);
-            npc.position.X -= npc.width / 2;
-            npc.position.Y -= npc.height;
+            self.position.X += self.width / 2;
+            self.position.Y += self.height;
+            self.scale = newScale;
+            self.width = (int)(98f * self.scale);
+            self.height = (int)(92f * self.scale);
+            self.position.X -= self.width / 2;
+            self.position.Y -= self.height;
         }
-        if (!(npc.life + (int)(npc.lifeMax * 0.05) < npc.ai[3]))
+        if (Main.netMode == netClientMode)
         {
             return;
         }
-        npc.ai[3] = npc.life;
+        int spawnSlimeNeedLostLife = (int)(self.lifeMax * 0.01);
+        if (!(self.life + spawnSlimeNeedLostLife < self.ai[lifeAI]))
+        {
+            return;
+        }
+        self.ai[lifeAI] = self.life;
         int spawnCount = Main.rand.Next(1, 4);
         for (int i = 0; i < spawnCount; i++)
         {
-            int x = (int)(npc.position.X + Main.rand.Next(npc.width - 32));
-            int y2 = (int)(npc.position.Y + Main.rand.Next(npc.height - 32));
-            int npcType = 1;
+            int spawnX = (int)(self.position.X + Main.rand.Next(self.width - 32));
+            int spawnY = (int)(self.position.Y + Main.rand.Next(self.height - 32));
+            int newNpcType = NPCID.BlueSlime;
             if (Main.expertMode && Main.rand.Next(4) == 0)
             {
-                npcType = 535;
+                newNpcType = NPCID.SlimeSpiked;
             }
-            int npcIndex = NPC.NewNPC(npc.GetSpawnSourceForProjectileNPC(), x, y2, npcType);
-            Main.npc[npcIndex].SetDefaults(npcType);
+            if (Main.masterMode && Main.rand.Next(2) == 0)
+            {
+                newNpcType = Utils.SelectRandom(Main.rand, NPCID.SpikedJungleSlime, NPCID.SpikedIceSlime);
+            }
+            int npcIndex = NPC.NewNPC(self.GetSpawnSourceForProjectileNPC(), spawnX, spawnY, newNpcType);
+            Main.npc[npcIndex].SetDefaults(newNpcType);
             Main.npc[npcIndex].velocity.X = Main.rand.Next(-15, 16) * 0.1f;
             Main.npc[npcIndex].velocity.Y = Main.rand.Next(-30, 1) * 0.1f;
             Main.npc[npcIndex].ai[0] = -1000 * Main.rand.Next(3);
             Main.npc[npcIndex].ai[1] = 0f;
-            if (npcIndex < 200)
+            if (Main.netMode == netServerMode && npcIndex < Main.maxNPCs)
             {
-                NetMessage.SendData(23, -1, -1, null, npcIndex);
+                NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, npcIndex);
             }
         }
-
     }
 }

@@ -220,14 +220,14 @@ public static class ReplaceWiring
             }
             if (Main.AnnouncementBoxRange == -1)
             {
-                NetMessage.SendData(MessageID.SmartTextMessage, -1, -1, NetworkText.FromLiteral(Main.sign[num89].text), 255, (int)pink.R, (int)pink.G, (int)pink.B, 460);
+                NetMessage.SendData(MessageID.SmartTextMessage, -1, -1, NetworkText.FromLiteral(Main.sign[num89].text), 255, pink.R, pink.G, pink.B, 460);
                 return;
             }
             for (int num90 = 0; num90 < 255; num90++)
             {
-                if (Main.player[num90].active && Main.player[num90].Distance(new Vector2(num85 * 16 + 16, num86 * 16 + 16)) <= (float)Main.AnnouncementBoxRange)
+                if (Main.player[num90].active && Main.player[num90].Distance(new Vector2(num85 * 16 + 16, num86 * 16 + 16)) <= Main.AnnouncementBoxRange)
                 {
-                    NetMessage.SendData(MessageID.SmartTextMessage, num90, -1, NetworkText.FromLiteral(Main.sign[num89].text), 255, (int)pink.R, (int)pink.G, (int)pink.B, 460);
+                    NetMessage.SendData(MessageID.SmartTextMessage, num90, -1, NetworkText.FromLiteral(Main.sign[num89].text), 255, pink.R, pink.G, pink.B, 460);
                 }
             }
             return;
@@ -359,7 +359,7 @@ public static class ReplaceWiring
             }
             if (num109 != -1 && Wiring.CheckMech(num107, num108, 10))
             {
-                float num157 = 12f + (float)Main.rand.Next(450) * 0.01f;
+                float num157 = 12f + Main.rand.Next(450) * 0.01f;
                 float num114 = Main.rand.Next(85, 105);
                 float num158 = Main.rand.Next(-35, 11);
                 int type2 = 166;
@@ -470,7 +470,7 @@ public static class ReplaceWiring
             Wiring.CheckMech(i, num120, 60);
             if (Wiring.CheckMech(i, num120, 60) && !MainConfigInfo.StaticDisableToiletSpawnProj)
             {
-                Projectile.NewProjectile(Wiring.GetProjectileSource(i, num120), i * 16 + 8, num120 * 16 + 12, 0f, 0f, 733, 0, 0f, Main.myPlayer);
+                Projectile.NewProjectile(Wiring.GetProjectileSource(i, num120), i * 16 + 8, num120 * 16 + 12, 0f, 0f, ProjectileID.ToiletEffect, 0, 0f, Main.myPlayer);
             }
             return;
         }
@@ -503,7 +503,7 @@ public static class ReplaceWiring
                     bool flag8 = false;
                     for (int num130 = 0; num130 < 1000; num130++)
                     {
-                        if (Main.projectile[num130].active && Main.projectile[num130].aiStyle == 73 && Main.projectile[num130].ai[0] == (float)num129 && Main.projectile[num130].ai[1] == (float)num128)
+                        if (Main.projectile[num130].active && Main.projectile[num130].aiStyle == 73 && Main.projectile[num130].ai[0] == num129 && Main.projectile[num130].ai[1] == num128)
                         {
                             flag8 = true;
                             break;
@@ -519,7 +519,7 @@ public static class ReplaceWiring
             case TileID.Teleporter:
                 {
                     int num10 = i - tile.frameX / 18;
-                    if (tile.wall == WallID.LihzahrdBrickUnsafe && (double)j > Main.worldSurface && !NPC.downedPlantBoss)
+                    if (tile.wall == WallID.LihzahrdBrickUnsafe && j > Main.worldSurface && !NPC.downedPlantBoss)
                     {
                         break;
                     }
@@ -532,7 +532,7 @@ public static class ReplaceWiring
                             Wiring._teleport[0].Y += 0.5f;
                         }
                     }
-                    else if (Wiring._teleport[0].X != (float)num10 || Wiring._teleport[0].Y != (float)j)
+                    else if (Wiring._teleport[0].X != num10 || Wiring._teleport[0].Y != j)
                     {
                         Wiring._teleport[1].X = num10;
                         Wiring._teleport[1].Y = j;
@@ -807,8 +807,8 @@ public static class ReplaceWiring
                                             num53 = 0;
                                             break;
                                     }
-                                    speedX = (float)(4 * num52) + (float)Main.rand.Next(-20 + ((num52 == 1) ? 20 : 0), 21 - ((num52 == -1) ? 20 : 0)) * 0.05f;
-                                    speedY = (float)(4 * num53) + (float)Main.rand.Next(-20 + ((num53 == 1) ? 20 : 0), 21 - ((num53 == -1) ? 20 : 0)) * 0.05f;
+                                    speedX = 4 * num52 + Main.rand.Next(-20 + ((num52 == 1) ? 20 : 0), 21 - ((num52 == -1) ? 20 : 0)) * 0.05f;
+                                    speedY = 4 * num53 + Main.rand.Next(-20 + ((num53 == 1) ? 20 : 0), 21 - ((num53 == -1) ? 20 : 0)) * 0.05f;
                                     projPosition = new Vector2(i * 16 + 8 + 14 * num52, j * 16 + 8 + 14 * num53);
                                 }
                                 break;
@@ -914,8 +914,8 @@ public static class ReplaceWiring
                                 }
                                 if (num59 > 0)
                                 {
-                                    speedX = (float)Main.rand.Next(-20, 21) * 0.05f;
-                                    speedY = 4f + (float)Main.rand.Next(0, 21) * 0.05f;
+                                    speedX = Main.rand.Next(-20, 21) * 0.05f;
+                                    speedY = 4f + Main.rand.Next(0, 21) * 0.05f;
                                     damage3 = 40;
                                     projPosition = new Vector2(i * 16 + 8, j * 16 + 16);
                                     projPosition.Y += 6f;
@@ -997,7 +997,7 @@ public static class ReplaceWiring
             case TileID.Explosives:
                 WorldGen.KillTile(i, j, fail: false, effectOnly: false, noItem: true);
                 NetMessage.SendTileSquare(-1, i, j);
-                Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), i * 16 + 8, j * 16 + 8, 0f, 0f, 108, 500, 10f, Main.myPlayer);
+                Projectile.NewProjectile(Wiring.GetProjectileSource(i, j), i * 16 + 8, j * 16 + 8, 0f, 0f, ProjectileID.Explosives, 500, 10f, Main.myPlayer);
                 break;
             case TileID.LandMine:
                 WorldGen.ExplodeMine(i, j, fromWiring: true);
@@ -1163,7 +1163,7 @@ public static class ReplaceWiring
                             break;
                         case 63:
                             newNpcType = 164;
-                            flag3 &= NPC.MechSpawn(num16, num17, 165);
+                            flag3 &= NPC.MechSpawn(num16, num17, NPCID.WallCreeperWall);
                             break;
                         case 64:
                             newNpcType = 86;
@@ -1243,21 +1243,21 @@ public static class ReplaceWiring
                         switch (num14)
                         {
                             case 4:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 1))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.BlueSlime))
                                 {
-                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 1);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, NPCID.BlueSlime);
                                 }
                                 break;
                             case 7:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 49))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.CaveBat))
                                 {
-                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16 - 4, num17 - 6, 49);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16 - 4, num17 - 6, NPCID.CaveBat);
                                 }
                                 break;
                             case 8:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 55))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.Goldfish))
                                 {
-                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 55);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, NPCID.Goldfish);
                                 }
                                 break;
                             case 9:
@@ -1274,17 +1274,17 @@ public static class ReplaceWiring
                                     break;
                                 }
                             case 10:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 21))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.Skeleton))
                                 {
-                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17, 21);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17, NPCID.Skeleton);
                                 }
                                 break;
                             case 16:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 42))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.Hornet))
                                 {
                                     if (!Collision.SolidTiles(num12 - 1, num12 + 1, num11, num11 + 1))
                                     {
-                                        newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 42);
+                                        newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, NPCID.Hornet);
                                         break;
                                     }
                                     Vector2 position3 = new Vector2(num16 - 4, num17 - 22) - new Vector2(10f);
@@ -1293,25 +1293,25 @@ public static class ReplaceWiring
                                 }
                                 break;
                             case 18:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 67))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.Crab))
                                 {
-                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 67);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, NPCID.Crab);
                                 }
                                 break;
                             case 23:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 63))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.BlueJellyfish))
                                 {
-                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 63);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, NPCID.BlueJellyfish);
                                 }
                                 break;
                             case 27:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 85))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.Mimic))
                                 {
-                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16 - 9, num17, 85);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16 - 9, num17, NPCID.Mimic);
                                 }
                                 break;
                             case 28:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 74))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.Bird))
                                 {
                                     newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, Terraria.Utils.SelectRandom(Main.rand, new short[3] { 74, 297, 298 }));
                                 }
@@ -1333,23 +1333,23 @@ public static class ReplaceWiring
                                     break;
                                 }
                             case 42:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 58))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.Piranha))
                                 {
-                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 58);
+                                    newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, NPCID.Piranha);
                                 }
                                 break;
                             case 37:
                                 if (Wiring.CheckMech(num12, num11, MechInfo.StaticItemSpawnCoolingTime) && Item.MechSpawn(num16, num17, 58) && Item.MechSpawn(num16, num17, 1734) && Item.MechSpawn(num16, num17, 1867))
                                 {
-                                    Item.NewItem(Wiring.GetItemSource(num16, num17), num16, num17 - 16, 0, 0, 58);
+                                    Item.NewItem(Wiring.GetItemSource(num16, num17), num16, num17 - 16, 0, 0, ItemID.Heart);
                                 }
                                 break;
                             case 50:
-                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, 65))
+                                if (Wiring.CheckMech(num12, num11, MechInfo.StaticNPCSpawnCoolingTime) && NPC.MechSpawn(num16, num17, NPCID.Shark))
                                 {
                                     if (!Collision.SolidTiles(num12 - 2, num12 + 3, num11, num11 + 2))
                                     {
-                                        newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, 65);
+                                        newNpcIndex = NPC.NewNPC(Wiring.GetNPCSource(num12, num11), num16, num17 - 12, NPCID.Shark);
                                         break;
                                     }
                                     Vector2 position2 = new Vector2(num16 - 4, num17 - 22) - new Vector2(10f);
@@ -1360,13 +1360,13 @@ public static class ReplaceWiring
                             case 2:
                                 if (Wiring.CheckMech(num12, num11, MechInfo.StaticItemSpawnCoolingTime) && Item.MechSpawn(num16, num17, 184) && Item.MechSpawn(num16, num17, 1735) && Item.MechSpawn(num16, num17, 1868))
                                 {
-                                    Item.NewItem(Wiring.GetItemSource(num16, num17), num16, num17 - 16, 0, 0, 184);
+                                    Item.NewItem(Wiring.GetItemSource(num16, num17), num16, num17 - 16, 0, 0, ItemID.Star);
                                 }
                                 break;
                             case 17:
                                 if (Wiring.CheckMech(num12, num11, MechInfo.StaticItemSpawnCoolingTime) && Item.MechSpawn(num16, num17, 166))
                                 {
-                                    Item.NewItem(Wiring.GetItemSource(num16, num17), num16, num17 - 20, 0, 0, 166);
+                                    Item.NewItem(Wiring.GetItemSource(num16, num17), num16, num17 - 20, 0, 0, ItemID.Bomb);
                                 }
                                 break;
                             case 40:

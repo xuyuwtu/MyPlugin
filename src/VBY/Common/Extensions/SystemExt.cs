@@ -42,6 +42,18 @@ public static class SystemExt
         }
         return -1;
     }
+    public static int IndexOf<T>(this T[] array, T value, IEqualityComparer<T> comparer)
+    {
+        var count = array.Length;
+        for (int i = 0; i < count; i++)
+        {
+            if (comparer.Equals(array[i], value))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int IndexOf<T>(this T[] array, T value) => Array.IndexOf(array, value);
     public static Delegate GetDelegate(this MethodInfo method, object? target, bool toSubCmdD = true)

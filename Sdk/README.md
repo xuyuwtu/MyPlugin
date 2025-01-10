@@ -18,10 +18,38 @@ dotnet nuget add source --name $nugetName $nugetPath
 ##### use nuget application
 ```powershell
 nuget pack my.plugins.sdk.nuspec
-nuget add My.Plugins.Sdk.1.0.0.nupkg -Source $nugetPath
 ```
 ##### use dotnet cli
 ```powershell
 dotnet pack [My.Plugins.Sdk.csproj] --output ./ 
-dotnet nuget push My.Plugins.Sdk.1.0.0.nupkg --source $nugetPath
+```
+#### put away
+can use `nuget add My.Plugins.Sdk.1.0.0.nupkg -Source $nugetPath -Expand` or
+```powershell
+mkdir $nugetPath/My.Plugins.Sdk/1.0.0
+# copy and manually extract to the directory just created
+Expand-Archive -Path My.Plugins.Sdk.1.0.0.nupkg -DestinationPath $nugetPath
+```
+
+```powershell
+$nugetPath = <custom path>
+
+# If you already have it, skip it
+$nugetName = <custom name>
+nuget sources add -Name $nugetName -Source $nugetPath
+
+nuget pack my.plugins.sdk.nuspec
+nuget add My.Plugins.Sdk.1.0.0.nupkg -Source $nugetPath -Expand
+```
+
+```powershell
+$nugetPath = <custom path>
+
+# If you already have it, skip it
+$nugetName = <custom name>
+dotnet nuget add source --name $nugetName $nugetPath
+
+dotnet pack My.Plugins.Sdk.csproj --output ./ 
+Copy-Item -Path My.Plugins.Sdk.1.0.0.nupkg -Destination $nugetPath/My.Plugins.Sdk/1.0.0
+Expand-Archive -Path My.Plugins.Sdk.1.0.0.nupkg -DestinationPath $nugetPath/My.Plugins.Sdk/1.0.0
 ```

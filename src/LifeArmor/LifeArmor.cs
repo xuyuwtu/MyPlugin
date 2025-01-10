@@ -1,9 +1,9 @@
-﻿using Mono.Cecil;
-using Terraria;
+﻿using Terraria;
+
 using TerrariaApi.Server;
+
 using TShockAPI;
 using TShockAPI.Hooks;
-using VBY.Common;
 
 namespace LifeArmor;
 [ApiVersion(2, 1)]
@@ -45,32 +45,34 @@ public class LifeArmor : TerrariaPlugin
 
     private void OnPlayerSlot(object? sender, GetDataHandlers.PlayerSlotEventArgs e)
     {
-        if(e.Handled || e.Player.Dead)
+        if (e.Handled || e.Player.Dead)
         {
             return;
         }
-        if(e.Slot is >= 59 and <= 78)
+        if (e.Slot is not >= 59 or not <= 78)
         {
-            var updateIndex = e.Slot - 59;
-            var item = e.Player.TPlayer.armor[updateIndex];
-            //int statLifeMax = e.Player.TPlayer.statLifeMax;
-
-            int oldItemLife = 0, newItemLife = 0;
-            if (ChangeTypeDic.TryGetValue(item.type, out var oldInfo) && oldInfo.IsMatch(updateIndex, item.prefix))
-            {
-                oldItemLife = oldInfo.life;
-            }
-            if (ChangeTypeDic.TryGetValue(e.Type, out var newInfo) && newInfo.IsMatch(updateIndex, e.Prefix))
-            {
-                newItemLife = newInfo.life;
-            }
-            var addLife = newItemLife - oldItemLife;
-            if(addLife != 0)
-            {
-                //e.Player.TPlayer.statLifeMax = statLifeMax + addLife;
-                e.Player.TPlayer.statLifeMax += addLife;
-                TSPlayer.All.SendData(PacketTypes.PlayerHp, "", e.Player.Index);
-            }
+            return;
+        }
+        var updateIndex = e.Slot - 59;
+        var item = e.Player.TPlayer.armor[updateIndex];
+        //int statLifeMax = e.Player.TPlayer.statLifeMax;
+        int oldItemLife = 0, newItemLife = 0;
+        if (ChangeTypeDic.TryGetValue(item.type, out var oldInfo) && oldInfo.IsMatch(updateIndex, item.prefix))
+        {
+            oldItemLife = oldInfo.life;
+        }
+        if (ChangeTypeDic.TryGetValue(e.Type, out var newInfo) && newInfo.IsMatch(updateIndex, e.Prefix))
+        {
+            newItemLife = newInfo.life;
+        }
+        Console.WriteLine($"slot:{e.Slot}-{updateIndex} type:{item.type}->{e.Type} life:{oldItemLife}->{newItemLife}");
+        var addLife = newItemLife - oldItemLife;
+        if (addLife != 0)
+        {
+            //e.Player.TPlayer.statLifeMax = statLifeMax + addLife;
+            e.Player.TPlayer.statLifeMax += addLife;
+            TSPlayer.All.SendData(PacketTypes.PlayerHp, "", e.Player.Index);
+            Console.WriteLine($"life:{e.Player.TPlayer.statLifeMax - addLife}->{e.Player.TPlayer.statLifeMax}");
         }
     }
     private void OnReload(ReloadEventArgs e)

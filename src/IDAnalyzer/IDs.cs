@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 
 namespace IDAnalyzer;
 
@@ -21,6 +20,8 @@ public static class IDs
     internal const short InvasionID = 0;
     internal const short ProjectileID = 0;
     internal const byte PlayerDifficultyID = 0;
+    internal const int SoundID = 0;
+    internal const int BuffID = 0;
 
     private static readonly Dictionary<string, IDictionary> AllID = [];
     static IDs()
@@ -36,6 +37,8 @@ public static class IDs
         AddID(mdReader, InvasionID, static name => name.StartsWith("Cache"));
         AddID(mdReader, ProjectileID);
         AddID(mdReader, PlayerDifficultyID);
+        AddID(mdReader, SoundID);
+        AddID(mdReader, BuffID);
     }
     static IDictionary AddDirectionary<T>(MetadataReader mdReader, string typeName, Func<byte[], T> reader, Func<string, bool>? fieldNameFilter = null) where T : notnull
     {
@@ -67,17 +70,38 @@ public static class IDs
         }
         return dict.ToFrozenDictionary();
     }
-    static void AddID(MetadataReader mdReader, short value, Func<string, bool>? fieldNameFilter = null, [CallerArgumentExpression(nameof(value))] string typeName = "") => AllID.Add(typeName, AddDirectionary(mdReader, typeName, static bytes => BinaryPrimitives.ReadInt16LittleEndian(bytes), fieldNameFilter));
-    static void AddID(MetadataReader mdReader, ushort value, Func<string, bool>? fieldNameFilter = null, [CallerArgumentExpression(nameof(value))] string typeName = "") => AllID.Add(typeName, AddDirectionary(mdReader, typeName, static bytes => BinaryPrimitives.ReadUInt16LittleEndian(bytes), fieldNameFilter));
-    static void AddID(MetadataReader mdReader, byte value, Func<string, bool>? fieldNameFilter = null, [CallerArgumentExpression(nameof(value))] string typeName = "") => AllID.Add(typeName, AddDirectionary(mdReader, typeName, static bytes => bytes[0], fieldNameFilter));
+    static void AddID(MetadataReader mdReader, int value, Func<string, bool>? fieldNameFilter = null, [CallerArgumentExpression(nameof(value))] string typeName = "")
+    {
+        AllID.Add(typeName, AddDirectionary(mdReader, typeName, static bytes => BinaryPrimitives.ReadInt32LittleEndian(bytes), fieldNameFilter));
+    }
+
+    static void AddID(MetadataReader mdReader, short value, Func<string, bool>? fieldNameFilter = null, [CallerArgumentExpression(nameof(value))] string typeName = "")
+    {
+        AllID.Add(typeName, AddDirectionary(mdReader, typeName, static bytes => BinaryPrimitives.ReadInt16LittleEndian(bytes), fieldNameFilter));
+    }
+
+    static void AddID(MetadataReader mdReader, ushort value, Func<string, bool>? fieldNameFilter = null, [CallerArgumentExpression(nameof(value))] string typeName = "")
+    {
+        AllID.Add(typeName, AddDirectionary(mdReader, typeName, static bytes => BinaryPrimitives.ReadUInt16LittleEndian(bytes), fieldNameFilter));
+    }
+
+    static void AddID(MetadataReader mdReader, byte value, Func<string, bool>? fieldNameFilter = null, [CallerArgumentExpression(nameof(value))] string typeName = "")
+    {
+        AllID.Add(typeName, AddDirectionary(mdReader, typeName, static bytes => bytes[0], fieldNameFilter));
+    }
+
     public static FrozenDictionary<short, string> GetInt16ID([CallerMemberName] string type = "")
     {
-        var sDict = AllID[type];
+        var sDict = AllID[type]; 
+        if (sDict is FrozenDictionary<int, string> inDict)
+        {
+            return FrozenDictionary.ToFrozenDictionary(inDict, static x => (short)x.Key, static x => x.Value);
+        }
         if (sDict is FrozenDictionary<ushort, string> usDict)
         {
             return FrozenDictionary.ToFrozenDictionary(usDict, static x => (short)x.Key, static x => x.Value);
         }
-        else if(sDict is FrozenDictionary<byte, string> bDict)
+        if(sDict is FrozenDictionary<byte, string> bDict)
         {
             return FrozenDictionary.ToFrozenDictionary(bDict, static x => (short)x.Key, static x => x.Value);
         }

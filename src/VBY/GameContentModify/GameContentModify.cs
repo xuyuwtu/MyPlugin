@@ -107,6 +107,7 @@ public partial class GameContentModify : CommonPlugin
         { DetourNames.NPC_SpawnNPC, Utils.GetDetour(ReplaceNPC.SpawnNPC) },
         { DetourNames.NPC_TransformElderSlime, Utils.GetDetour(ReplaceNPC.TransformElderSlime) },
         { DetourNames.ObjectData_TileObjectData_GetTileData, Utils.GetParamDetour(ObjectData.ReplaceTileObjectData.GetTileData) },
+        { DetourNames.Player_Shellphone_Spawn, Utils.GetDetour(ReplacePlayer.Shellphone_Spawn) },
         //{ DetourNames.Wiring_HitWireSingle, Utils.GetDetour(ReplaceWiring.HitWireSingle) },
         { DetourNames.WorldGen_ShakeTree, Utils.GetDetour(ReplaceWorldGen.ShakeTree) },
         { DetourNames.WorldGen_GrowAlch, Utils.GetDetour(ReplaceWorldGen.GrowAlch) },
@@ -131,15 +132,11 @@ public partial class GameContentModify : CommonPlugin
         {
             Detours.Add(Utils.GetDetour(ReplaceNetMessage.orig_SendData));
         }
-        RegisterDetours(typeof(ReplaceMain), typeof(ReplaceMessageBuffer), typeof(ReplaceItem), typeof(ReplaceNPC), typeof(ReplaceProjectile), typeof(ReplaceWiring), typeof(ReplaceWorldGen), typeof(GameContent.ReplaceTeleportPylonsSystem));
+        RegisterDetours(typeof(ReplaceMain), typeof(ReplaceMessageBuffer), typeof(ReplaceItem), typeof(ReplaceNPC), typeof(ReplaceProjectile), typeof(ReplaceWiring), typeof(ReplaceWorldGen), typeof(GameContent.ReplaceTeleportPylonsSystem), typeof(ReplacePlayer));
     }
     public GameContentModify(Main game) : base(game)
     {
         AddCommands.Add(new Command("gcm.ctl", Cmd, "gcm"));
-        AddCommands.Add(new Command(args =>
-        {
-            Projectile.NewProjectile(null, args.Player.TPlayer.Center, new Vector2(5, 0), 871, 1, 0);
-        }, "newproj"));
         AttachHooks.Add(new ActionHook(static () => GeneralHooks.ReloadEvent += OnTShockReload));
         Loaders.Add(Detours.GetLoader(static x => x.Apply(), static x => x.Dispose(), static () => Main.versionNumber == "v1.4.4.9"));
         Loaders.Add(NamedDetours.GetLoader(static x => x.Value.Apply(), static x => x.Value.Dispose(), null, false, true));

@@ -1245,7 +1245,7 @@ public static class ReplaceNPC
                 {
                     if (Main.invasionSize < Main.invasionSizeStart / 2 && Main.rand.Next(20) == 0 && !NPC.AnyNPCs(NPCID.PirateShip) && !Collision.SolidTiles(tileX - 20, tileX + 20, tileY - 40, tileY - 10))
                     {
-                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, (tileY - 10) * 16, 491);
+                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, (tileY - 10) * 16, NPCID.PirateShip);
                     }
                     else if (Main.rand.Next(30) == 0 && !NPC.AnyNPCs(NPCID.PirateCaptain))
                     {
@@ -1550,7 +1550,7 @@ public static class ReplaceNPC
                     }
                     if (num59 > 0 && !flag15)
                     {
-                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num59 * 16, 376);
+                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num59 * 16, NPCID.SleepingAngler);
                         flag31 = true;
                     }
                 }
@@ -1587,18 +1587,18 @@ public static class ReplaceNPC
                     }
                     if (num61 > 0 && !flag15 && Main.rand.Next(10) == 0)
                     {
-                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num61 * 16, 602);
+                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num61 * 16, NPCID.Seagull);
                     }
                     else if (Main.rand.Next(10) == 0)
                     {
                         int num64 = Main.rand.Next(3);
                         if (num64 == 0 && num61 > 0)
                         {
-                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num61 * 16, 625);
+                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num61 * 16, NPCID.SeaTurtle);
                         }
                         else if (num64 == 1 && num62 > 0)
                         {
-                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num62 * 16, 615);
+                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num62 * 16, NPCID.Dolphin);
                         }
                         else if (num64 == 2)
                         {
@@ -1609,11 +1609,11 @@ public static class ReplaceNPC
                             }
                             if (player.RollLuck(NPC.goldCritterChance) == 0)
                             {
-                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num65 * 16, 627);
+                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num65 * 16, NPCID.GoldSeahorse);
                             }
                             else
                             {
-                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num65 * 16, 626);
+                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num65 * 16, NPCID.Seahorse);
                             }
                         }
                     }
@@ -1667,7 +1667,7 @@ public static class ReplaceNPC
                         if (Main.rand.Next(4) == 0)
                         {
                             flag32 = true;
-                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num66 * 16, 617);
+                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num66 * 16, NPCID.TurtleJungle);
                         }
                         else if (!flag && Main.cloudAlpha == 0f)
                         {
@@ -1677,11 +1677,11 @@ public static class ReplaceNPC
                             {
                                 if (player.RollLuck(NPC.goldCritterChance) == 0)
                                 {
-                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num66 * 16 - 16, 613);
+                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num66 * 16 - 16, NPCID.GoldWaterStrider);
                                 }
                                 else
                                 {
-                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num66 * 16 - 16, 612);
+                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num66 * 16 - 16, NPCID.WaterStrider);
                                 }
                             }
                         }
@@ -1739,7 +1739,7 @@ public static class ReplaceNPC
                     {
                         if (Main.rand.Next(5) == 0 && (num3 == 2 || num3 == 477))
                         {
-                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num70 * 16, 616);
+                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num70 * 16, NPCID.Turtle);
                         }
                         else if (num3 == 53)
                         {
@@ -1750,17 +1750,17 @@ public static class ReplaceNPC
                                 {
                                     if (player.RollLuck(NPC.goldCritterChance) == 0)
                                     {
-                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num70 * 16 - 16, 613);
+                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num70 * 16 - 16, NPCID.GoldWaterStrider);
                                     }
                                     else
                                     {
-                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num70 * 16 - 16, 612);
+                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num70 * 16 - 16, NPCID.WaterStrider);
                                     }
                                 }
                             }
                             else
                             {
-                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num70 * 16, 608);
+                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num70 * 16, NPCID.Grebe);
                             }
                         }
                         else
@@ -1770,7 +1770,7 @@ public static class ReplaceNPC
                     }
                     else if (num3 == 53 && tileX > WorldGen.beachDistance && tileX < Main.maxTilesX - WorldGen.beachDistance)
                     {
-                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num70 * 16, 607);
+                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num70 * 16, NPCID.Pupfish);
                     }
                     else if (player.RollLuck(NPC.goldCritterChance) == 0)
                     {
@@ -1850,11 +1850,11 @@ public static class ReplaceNPC
                             int num77 = Main.rand.Next(3);
                             if (num77 == 0 && num74 > 0)
                             {
-                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num74 * 16, 625);
+                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num74 * 16, NPCID.SeaTurtle);
                             }
                             else if (num77 == 1 && num75 > 0)
                             {
-                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num75 * 16, 615);
+                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num75 * 16, NPCID.Dolphin);
                             }
                             else if (num77 == 2)
                             {
@@ -1865,17 +1865,17 @@ public static class ReplaceNPC
                                 }
                                 if (player.RollLuck(NPC.goldCritterChance) == 0)
                                 {
-                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num78 * 16, 627);
+                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num78 * 16, NPCID.GoldSeahorse);
                                 }
                                 else
                                 {
-                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num78 * 16, 626);
+                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num78 * 16, NPCID.Seahorse);
                                 }
                             }
                         }
                         else if (num74 > 0 && !flag15)
                         {
-                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num74 * 16, 602);
+                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num74 * 16, NPCID.Seagull);
                         }
                     }
                     else
@@ -1887,7 +1887,7 @@ public static class ReplaceNPC
                 {
                     if (player.RollLuck(NPC.goldCritterChance) == 0)
                     {
-                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), cattailX * 16 + 8, cattailY * 16, 601);
+                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), cattailX * 16 + 8, cattailY * 16, NPCID.GoldDragonfly);
                     }
                     else
                     {
@@ -1931,17 +1931,17 @@ public static class ReplaceNPC
                                         {
                                             if (player.RollLuck(NPC.goldCritterChance) == 0)
                                             {
-                                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num79 * 16 - 16, 613);
+                                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num79 * 16 - 16, NPCID.GoldWaterStrider);
                                             }
                                             else
                                             {
-                                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num79 * 16 - 16, 612);
+                                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num79 * 16 - 16, NPCID.WaterStrider);
                                             }
                                         }
                                     }
                                     else
                                     {
-                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num79 * 16, 617);
+                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num79 * 16, NPCID.TurtleJungle);
                                     }
                                     break;
                                 case 53:
@@ -1952,23 +1952,23 @@ public static class ReplaceNPC
                                         {
                                             if (player.RollLuck(NPC.goldCritterChance) == 0)
                                             {
-                                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num79 * 16 - 16, 613);
+                                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num79 * 16 - 16, NPCID.GoldWaterStrider);
                                             }
                                             else
                                             {
-                                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num79 * 16 - 16, 612);
+                                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + Main.rand.Next(-16, 17), num79 * 16 - 16, NPCID.WaterStrider);
                                             }
                                         }
                                     }
                                     else
                                     {
-                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num79 * 16, 608);
+                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num79 * 16, NPCID.Grebe);
                                     }
                                     break;
                                 default:
                                     if (Main.rand.Next(5) == 0 && (num3 == 2 || num3 == 477))
                                     {
-                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num79 * 16, 616);
+                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num79 * 16, NPCID.Turtle);
                                     }
                                     else
                                     {
@@ -2134,11 +2134,11 @@ public static class ReplaceNPC
                         spawnPoint.NewNPC(669);
                         if (Main.rand.Next(4) == 0)
                         {
-                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX - 16, spawnY, 669);
+                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX - 16, spawnY, NPCID.Stinkbug);
                         }
                         if (Main.rand.Next(4) == 0)
                         {
-                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + 16, spawnY, 669);
+                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + 16, spawnY, NPCID.Stinkbug);
                         }
                     }
                     else if (!tooWindyForButterflies && !Main.raining && Main.dayTime && Main.rand.Next(NPC.butterflyChance) == 0 && flag33)
@@ -2153,11 +2153,11 @@ public static class ReplaceNPC
                         }
                         if (Main.rand.Next(4) == 0)
                         {
-                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX - 16, spawnY, 356);
+                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX - 16, spawnY, NPCID.Butterfly);
                         }
                         if (Main.rand.Next(4) == 0)
                         {
-                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + 16, spawnY, 356);
+                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + 16, spawnY, NPCID.Butterfly);
                         }
                     }
                     else if (tooWindyForButterflies && !Main.raining && Main.dayTime && Main.rand.Next(NPC.butterflyChance / 2) == 0 && flag33)
@@ -3164,7 +3164,7 @@ public static class ReplaceNPC
                 }
                 else if (Main.hardMode && !flag5 && Main.rand.Next(3) == 0 && NPC.CountNPCS(NPCID.DuneSplicerHead) < 4)
                 {
-                    newNPC = NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, (tileY + 10) * 16, 510);
+                    newNPC = NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, (tileY + 10) * 16, NPCID.DuneSplicerHead);
                 }
                 else if (!Main.hardMode || flag5 || Main.rand.Next(2) != 0)
                 {
@@ -3369,11 +3369,11 @@ public static class ReplaceNPC
                             spawnPoint.NewNPC(669);
                             if (Main.rand.Next(4) == 0)
                             {
-                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX - 16, spawnY, 669);
+                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX - 16, spawnY, NPCID.Stinkbug);
                             }
                             if (Main.rand.Next(4) == 0)
                             {
-                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + 16, spawnY, 669);
+                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + 16, spawnY, NPCID.Stinkbug);
                             }
                         }
                         else if (!tooWindyForButterflies && !Main.raining && Main.dayTime && Main.rand.Next(NPC.butterflyChance) == 0 && flag20)
@@ -3388,11 +3388,11 @@ public static class ReplaceNPC
                             }
                             if (Main.rand.Next(4) == 0)
                             {
-                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX - 16, spawnY, 356);
+                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX - 16, spawnY, NPCID.Butterfly);
                             }
                             if (Main.rand.Next(4) == 0)
                             {
-                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + 16, spawnY, 356);
+                                NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX + 16, spawnY, NPCID.Butterfly);
                             }
                         }
                         else if (tooWindyForButterflies && !Main.raining && Main.dayTime && Main.rand.Next(NPC.butterflyChance / 2) == 0 && flag20)
@@ -3459,7 +3459,7 @@ public static class ReplaceNPC
                     {
                         if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), cattailX * 16 + 8, cattailY * 16, 601);
+                            NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), cattailX * 16 + 8, cattailY * 16, NPCID.GoldDragonfly);
                         }
                         else
                         {
@@ -3562,11 +3562,11 @@ public static class ReplaceNPC
                                 int num102 = Main.rand.Next(3);
                                 if (num102 == 0 && num99 > 0)
                                 {
-                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num99 * 16, 625);
+                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num99 * 16, NPCID.SeaTurtle);
                                 }
                                 else if (num102 == 1 && num100 > 0)
                                 {
-                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num100 * 16, 615);
+                                    NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num100 * 16, NPCID.Dolphin);
                                 }
                                 else if (num102 == 2)
                                 {
@@ -3577,11 +3577,11 @@ public static class ReplaceNPC
                                     }
                                     if (player.RollLuck(NPC.goldCritterChance) == 0)
                                     {
-                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num103 * 16, 627);
+                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num103 * 16, NPCID.GoldSeahorse);
                                     }
                                     else
                                     {
-                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num103 * 16, 626);
+                                        NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX, num103 * 16, NPCID.Seahorse);
                                     }
                                 }
                             }
@@ -4507,7 +4507,7 @@ public static class ReplaceNPC
             {
                 for (int num121 = 0; num121 < 3; num121++)
                 {
-                    int num122 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)self.Center.X, (int)self.Center.Y, 428, self.whoAmI);
+                    int num122 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)self.Center.X, (int)self.Center.Y, NPCID.VortexLarva, self.whoAmI);
                     Main.npc[num122].velocity = -Vector2.UnitY.RotatedByRandom(6.2831854820251465) * Main.rand.Next(3, 6) - Vector2.UnitY * 2f;
                     Main.npc[num122].netUpdate = true;
                 }
@@ -4550,7 +4550,7 @@ public static class ReplaceNPC
                     }
                     if (flag3)
                     {
-                        Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), num128 * 16 + 8, num129 * 16 + 8, 0f, 0f, 578, 0, 1f, Main.myPlayer);
+                        Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), num128 * 16 + 8, num129 * 16 + 8, 0f, 0f, ProjectileID.VortexVortexLightning, 0, 1f, Main.myPlayer);
                         break;
                     }
                 }
@@ -4575,7 +4575,7 @@ public static class ReplaceNPC
             for (int num131 = 0; num131 < num130; num131++)
             {
                 Vector2 vector3 = Vector2.UnitY.RotatedByRandom(6.2831854820251465) * (3f + Main.rand.NextFloat() * 4f);
-                int num132 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)self.Center.X, (int)self.Bottom.Y, 406, self.whoAmI);
+                int num132 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)self.Center.X, (int)self.Bottom.Y, NPCID.StardustCellSmall, self.whoAmI);
                 Main.npc[num132].velocity = vector3;
             }
         }
@@ -4585,7 +4585,7 @@ public static class ReplaceNPC
             {
                 float num134 = (num133 < 2).ToDirectionInt() * ((float)Math.PI / 8f + (float)Math.PI / 4f * Main.rand.NextFloat());
                 Vector2 vector4 = new Vector2(0f, (0f - Main.rand.NextFloat()) * 0.5f - 0.5f).RotatedBy(num134) * 6f;
-                Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, vector4.X, vector4.Y, 594, 0, 0f, Main.myPlayer);
+                Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, vector4.X, vector4.Y, ProjectileID.BlowupSmoke, 0, 0f, Main.myPlayer);
             }
         }
         if (self.type == NPCID.MotherSlime && self.life <= 0)
@@ -4593,7 +4593,7 @@ public static class ReplaceNPC
             int num135 = Main.rand.Next(2) + 2;
             for (int num136 = 0; num136 < num135; num136++)
             {
-                int num137 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)(self.position.Y + self.height), 1);
+                int num137 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)(self.position.Y + self.height), NPCID.BlueSlime);
                 Main.npc[num137].SetDefaults(NPCID.BabySlime);
                 Main.npc[num137].velocity.X = self.velocity.X * 2f;
                 Main.npc[num137].velocity.Y = self.velocity.Y;
@@ -4608,7 +4608,7 @@ public static class ReplaceNPC
         }
         if (self.type == NPCID.GolemHead && self.life <= 0)
         {
-            NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)self.Center.X, (int)self.position.Y + self.height, 249, self.whoAmI);
+            NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)self.Center.X, (int)self.position.Y + self.height, NPCID.GolemHeadFree, self.whoAmI);
         }
         if (self.type == NPCID.Shimmerfly && self.life <= 0)
         {
@@ -4622,7 +4622,7 @@ public static class ReplaceNPC
         {
             if (self.type == NPCID.Slimer)
             {
-                int num138 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)(self.position.Y + self.height), 81);
+                int num138 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)(self.position.Y + self.height), NPCID.CorruptSlime);
                 Main.npc[num138].SetDefaults(NPCID.Slimer2);
                 Main.npc[num138].velocity.X = self.velocity.X;
                 Main.npc[num138].velocity.Y = self.velocity.Y;
@@ -4636,7 +4636,7 @@ public static class ReplaceNPC
                 int num139 = Main.rand.Next(2) + 2;
                 for (int num140 = 0; num140 < num139; num140++)
                 {
-                    int num141 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)(self.position.Y + self.height), 1);
+                    int num141 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)(self.position.Y + self.height), NPCID.BlueSlime);
                     Main.npc[num141].SetDefaults(NPCID.Slimeling);
                     Main.npc[num141].velocity.X = self.velocity.X * 3f;
                     Main.npc[num141].velocity.Y = self.velocity.Y;
@@ -4678,7 +4678,7 @@ public static class ReplaceNPC
             {
                 int x = (int)(self.position.X + Main.rand.Next(self.width - 32));
                 int y = (int)(self.position.Y + Main.rand.Next(self.height - 32));
-                int num148 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), x, y, 1, self.whoAmI + 1);
+                int num148 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), x, y, NPCID.BlueSlime, self.whoAmI + 1);
                 Main.npc[num148].SetDefaults(NPCID.BlueSlime);
                 Main.npc[num148].velocity.X = Main.rand.Next(-15, 16) * 0.1f;
                 Main.npc[num148].velocity.Y = Main.rand.Next(-30, 1) * 0.1f;
@@ -4707,14 +4707,14 @@ public static class ReplaceNPC
             for (int num151 = 0; num151 < num150; num151++)
             {
                 var vector5 = new Vector2(Main.rand.Next(-10, 10) * 0.2f, -3.5f - Main.rand.Next(5, 10) * 0.3f - num151 * 0.5f);
-                int num152 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)self.position.Y + Main.rand.Next(self.height / 2) + 10, 606);
+                int num152 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)self.position.Y + Main.rand.Next(self.height / 2) + 10, NPCID.Maggot);
                 Main.npc[num152].velocity = vector5;
                 Main.npc[num152].netUpdate = true;
             }
         }
         else if (self.type == NPCID.TheHungry && self.life <= 0)
         {
-            NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)(self.position.Y + self.height), 116);
+            NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)(self.position.Y + self.height), NPCID.TheHungryII);
         }
         else if (self.type == NPCID.TheDestroyerBody && self.life > 0)
         {
@@ -4726,7 +4726,7 @@ public static class ReplaceNPC
             if (self.ai[2] == 0f && Main.rand.Next(maxValue) == 0)
             {
                 self.ai[2] = 1f;
-                int num153 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)(self.position.Y + self.height), 139);
+                int num153 = NPC.NewNPC(self.GetSpawnSource_NPCHurt(), (int)(self.position.X + self.width / 2), (int)(self.position.Y + self.height), NPCID.Probe);
                 if (num153 < 200)
                 {
                     NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, num153);
@@ -4807,7 +4807,7 @@ public static class ReplaceNPC
                     DD2Event.AnnounceGoblinDeath(self);
                     if (DD2Event.ShouldDropCrystals())
                     {
-                        Item.NewItem(self.GetItemSource_Loot(), self.position, self.Size, 3822);
+                        Item.NewItem(self.GetItemSource_Loot(), self.position, self.Size, ItemID.DD2EnergyCrystal);
                     }
                 }
                 break;
@@ -4835,7 +4835,7 @@ public static class ReplaceNPC
             case NPCID.DD2LightningBugT3:
                 if (DD2Event.ShouldDropCrystals())
                 {
-                    Item.NewItem(self.GetItemSource_Loot(), self.position, self.Size, 3822);
+                    Item.NewItem(self.GetItemSource_Loot(), self.position, self.Size, ItemID.DD2EnergyCrystal);
                 }
                 break;
             case NPCID.SolarCrawltipedeHead:
@@ -4849,7 +4849,7 @@ public static class ReplaceNPC
             case NPCID.SolarSpearman:
                 if (NPC.ShieldStrengthTowerSolar > 0)
                 {
-                    Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, 0f, 0f, 629, 0, 0f, Main.myPlayer, NPC.FindFirstNPC(NPCID.LunarTowerSolar));
+                    Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, 0f, 0f, ProjectileID.TowerDamageBolt, 0, 0f, Main.myPlayer, NPC.FindFirstNPC(NPCID.LunarTowerSolar));
                 }
                 break;
             case NPCID.VortexRifleman:
@@ -4858,7 +4858,7 @@ public static class ReplaceNPC
             case NPCID.VortexSoldier:
                 if (NPC.ShieldStrengthTowerVortex > 0)
                 {
-                    Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, 0f, 0f, 629, 0, 0f, Main.myPlayer, NPC.FindFirstNPC(NPCID.LunarTowerVortex));
+                    Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, 0f, 0f, ProjectileID.TowerDamageBolt, 0, 0f, Main.myPlayer, NPC.FindFirstNPC(NPCID.LunarTowerVortex));
                 }
                 break;
             case NPCID.NebulaBrain:
@@ -4867,7 +4867,7 @@ public static class ReplaceNPC
             case NPCID.NebulaSoldier:
                 if (NPC.ShieldStrengthTowerNebula > 0)
                 {
-                    Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, 0f, 0f, 629, 0, 0f, Main.myPlayer, NPC.FindFirstNPC(NPCID.LunarTowerNebula));
+                    Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, 0f, 0f, ProjectileID.TowerDamageBolt, 0, 0f, Main.myPlayer, NPC.FindFirstNPC(NPCID.LunarTowerNebula));
                 }
                 break;
             case NPCID.StardustWormHead:
@@ -4877,7 +4877,7 @@ public static class ReplaceNPC
             case NPCID.StardustSoldier:
                 if (NPC.ShieldStrengthTowerStardust > 0)
                 {
-                    Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, 0f, 0f, 629, 0, 0f, Main.myPlayer, NPC.FindFirstNPC(NPCID.LunarTowerStardust));
+                    Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, 0f, 0f, ProjectileID.TowerDamageBolt, 0, 0f, Main.myPlayer, NPC.FindFirstNPC(NPCID.LunarTowerStardust));
                 }
                 break;
             case NPCID.LunarTowerSolar:
@@ -4932,7 +4932,7 @@ public static class ReplaceNPC
                     {
                         projDamage = 0;
                     }
-                    Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, 0f, 0f, 281, projDamage, 0f, Main.myPlayer, -2f, self.releaseOwner + 1);
+                    Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center.X, self.Center.Y, 0f, 0f, ProjectileID.ExplosiveBunny, projDamage, 0f, Main.myPlayer, -2f, self.releaseOwner + 1);
                     break;
                 }
             case NPCID.Clown:
@@ -5086,7 +5086,7 @@ public static class ReplaceNPC
                 self.dontTakeDamage = true;
                 if (Main.netMode != 1)
                 {
-                    int num = NPC.NewNPC(self.GetSpawnSourceForNPCFromNPCAI(), (int)self.Center.X, (int)self.Center.Y, 400);
+                    int num = NPC.NewNPC(self.GetSpawnSourceForNPCFromNPCAI(), (int)self.Center.X, (int)self.Center.Y, NPCID.MoonLordFreeEye);
                     Main.npc[num].ai[3] = self.ai[3];
                     Main.npc[num].netUpdate = true;
                 }
@@ -5149,7 +5149,7 @@ public static class ReplaceNPC
                         k--;
                         if (!WorldGen.SolidTile(num5, k))
                         {
-                            int num6 = NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), num5 * 16 + 8, k * 16, 32);
+                            int num6 = NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), num5 * 16 + 8, k * 16, NPCID.DarkCaster);
                             if (Main.netMode == 2 && num6 < 200)
                             {
                                 NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, num6);
@@ -5239,7 +5239,7 @@ public static class ReplaceNPC
         self.active = false;
         if (Main.getGoodWorld && Main.netMode != 1 && self.type == NPCID.RockGolem)
         {
-            Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center, Vector2.Zero, 99, 70, 10f, Main.myPlayer);
+            Projectile.NewProjectile(self.GetSpawnSource_ForProjectile(), self.Center, Vector2.Zero, ProjectileID.Boulder, 70, 10f, Main.myPlayer);
         }
         DD2Event.CheckProgress(self.type);
         self.CheckProgressFrostMoon();
@@ -5411,6 +5411,39 @@ public static class ReplaceNPC
             //Item.NewItem(self.GetItemSource_Loot(), (int)vector.X, (int)vector.Y, self.width, self.height, num5);
         }
     }
+    [DetourMethod]
+    public static bool SpawnMechQueen(int onWhichPlayer)
+    {
+        if (NPC.AnyNPCs(NPCID.SkeletronPrime) || NPC.AnyNPCs(NPCID.TheDestroyer) || NPC.AnyNPCs(NPCID.Retinazer) || NPC.AnyNPCs(NPCID.Spazmatism))
+        {
+            return false;
+        }
+        if (!Main.remixWorld && !Main.getGoodWorld)
+        {
+            return false;
+        }
+        if (SpawnInfo.MechBossInfo.StaticBulkMechQueen)
+        {
+            NPC.SpawnOnPlayer(onWhichPlayer, NPCID.SkeletronPrime);
+            var index = NPC.FindFirstNPC(NPCID.SkeletronPrime);
+            NPC.NewNPC(NPC.GetBossSpawnSource(onWhichPlayer), (int)Main.npc[index].Center.X, (int)Main.npc[index].Center.Y, NPCID.Retinazer);
+            NPC.NewNPC(NPC.GetBossSpawnSource(onWhichPlayer), (int)Main.npc[index].Center.X, (int)Main.npc[index].Center.Y, NPCID.Spazmatism);
+            NPC.NewNPC(NPC.GetBossSpawnSource(onWhichPlayer), (int)Main.npc[index].Center.X, (int)Main.npc[index].Center.Y, NPCID.TheDestroyer);
+        }
+        else
+        {
+            NPC.mechQueen = -2;
+            NPC.SpawnOnPlayer(onWhichPlayer, NPCID.SkeletronPrime);
+            NPC.mechQueen = NPC.FindFirstNPC(NPCID.SkeletronPrime);
+            NPC.NewNPC(NPC.GetBossSpawnSource(onWhichPlayer), (int)Main.npc[NPC.mechQueen].Center.X, (int)Main.npc[NPC.mechQueen].Center.Y, NPCID.Retinazer, 1);
+            NPC.NewNPC(NPC.GetBossSpawnSource(onWhichPlayer), (int)Main.npc[NPC.mechQueen].Center.X, (int)Main.npc[NPC.mechQueen].Center.Y, NPCID.Spazmatism, 1);
+            int num = NPC.NewNPC(NPC.GetBossSpawnSource(onWhichPlayer), (int)Main.npc[NPC.mechQueen].Center.X, (int)Main.npc[NPC.mechQueen].Center.Y, NPCID.TheDestroyer, 1);
+            NPC.NewNPC(NPC.GetBossSpawnSource(onWhichPlayer), (int)Main.npc[NPC.mechQueen].Center.X, (int)Main.npc[NPC.mechQueen].Center.Y, NPCID.Probe, 1, 0f, 0f, num, -1f);
+            NPC.NewNPC(NPC.GetBossSpawnSource(onWhichPlayer), (int)Main.npc[NPC.mechQueen].Center.X, (int)Main.npc[NPC.mechQueen].Center.Y, NPCID.Probe, 1, 0f, 0f, num, 1f);
+        }
+        return true;
+    }
+
 }
 public struct SpawnPoint
 {

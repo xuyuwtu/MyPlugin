@@ -210,7 +210,7 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
                     ITile tile2 = Main.tile[tileX, tileY + 1];
                     if (tile2 != null && tile2.active())
                     {
-                        if (tile2.active() && tile2.type == 314)
+                        if (tile2.active() && tile2.type == TileID.MinecartTrack)
                         {
                             cannotPlace = true;
                         }
@@ -229,9 +229,9 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
                     if (Main.tile[tileX, tileY + 1].halfBrick() || Main.tile[tileX, tileY + 1].slope() != 0)
                     {
                         WorldGen.SlopeTile(tileX, tileY + 1);
-                        Terraria.NetMessage.SendData(17, -1, -1, null, 14, tileX, tileY + 1);
+                        Terraria.NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 14, tileX, tileY + 1);
                     }
-                    Terraria.NetMessage.SendData(17, -1, -1, null, 1, tileX, tileY, tileType);
+                    Terraria.NetMessage.SendData(MessageID.TileManipulation, -1, -1, null, 1, tileX, tileY, tileType);
                 }
                 else if (!placeSuccess && itemType > 0)
                 {
@@ -314,7 +314,7 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
             {
                 style = self.type - 527 + 6;
             }
-            if (TileObject.CanPlace(num173, num174, 85, style, self.direction, out _, true))
+            if (TileObject.CanPlace(num173, num174, TileID.Tombstones, style, self.direction, out _, true))
             {
                 Item.NewItem(self.GetItemSource_FromThis(), self.Center, Vector2.Zero, style switch
                 {
@@ -383,6 +383,12 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     {
         get => _StaticPlanterBoxNotGrowingWeeds;
         set => Utils.HandleNamedDetour(ref _StaticPlanterBoxNotGrowingWeeds, value, DetourNames.WorldGen_UpdateWorld_OvergroundTile);
+    }
+    [MemberData("出生点贝壳电话传送到最后死亡位置", false, PrivateField = true)]
+    public static bool StaticShellphoneSpawnTeleportToLastDeathPosition
+    {
+        get => _StaticShellphoneSpawnTeleportToLastDeathPosition;
+        set => Utils.HandleNamedDetour(ref _StaticShellphoneSpawnTeleportToLastDeathPosition, value, DetourNames.Player_Shellphone_Spawn);
     }
     public static void Reset()
     {
@@ -536,6 +542,8 @@ public sealed partial class SpawnInfo
         public static bool StaticSpawnIsOr = false;
         [MemberData("自然生成时世界上是否有Boss检测")]
         public static bool StaticSpawnHaveBossInWorldCheck = true;
+        [MemberData("散装美杜莎")]
+        public static bool StaticBulkMechQueen = false;
     }
     [JsonProperty("机械Boss")]
     public MechBossInfo MechBoss = new();

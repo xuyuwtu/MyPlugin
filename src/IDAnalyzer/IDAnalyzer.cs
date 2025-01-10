@@ -70,50 +70,34 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
             return;
         }
         var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
-        if("Terraria.NPC".OrdinalEquals(fullName))
+        if (InvocationExpressionReportFilter.TryGetValue(fullName, out var methodFilterInfos))
         {
+            IMethodSymbol? methodSymbol = null;
             var methodName = memberAccess.Name.Identifier.ValueText;
-            if (methodName is "AnyNPCs" or "CountNPCS" or "FindFirstNPC")
+            for (int i = 0; i < methodFilterInfos.Length; i++)
             {
-                if (node.ArgumentList.Arguments is [{ Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression }] && short.TryParse(literalExpression.Token.Text, out var id) && NPCID.TryGetValue(id, out var name))
+                var methodFilterInfo = methodFilterInfos[i];
+                if (!methodName.OrdinalEquals(methodFilterInfo.MethodName))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), NPCIDType, id, $"NPCID.{name}"));
+                    continue;
                 }
-            }
-            else if(methodName is "SpawnOnPlayer")
-            {
-                if (node.ArgumentList.Arguments is [_, { Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression }] && short.TryParse(literalExpression.Token.Text, out var id) && NPCID.TryGetValue(id, out var name))
+                if (methodFilterInfo.ArgumentCount != -1)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), NPCIDType, id, $"NPCID.{name}"));
+                    methodSymbol ??= context.SemanticModel.GetSymbolInfo(memberAccess, context.CancellationToken).Symbol as IMethodSymbol;
+                    if (methodSymbol is null)
+                    {
+                        continue;
+                    }
+                    if (methodSymbol.Parameters.Length != methodFilterInfo.ArgumentCount)
+                    {
+                        continue;
+                    }
                 }
-            }
-            else if (methodName is "SetDefaults")
-            {
-                if (node.ArgumentList.Arguments is [{ Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression }, ..] && short.TryParse(literalExpression.Token.Text, out var id) && NPCID.TryGetValue(id, out var name))
+                if (node.ArgumentList.Arguments.Count > methodFilterInfo.CheckIndex 
+                    && node.ArgumentList.Arguments[methodFilterInfo.CheckIndex] is { Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression } 
+                    && short.TryParse(literalExpression.Token.Text, out var id) && methodFilterInfo.IdToNameDict.TryGetValue(id, out var name))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), NPCIDType, id, $"NPCID.{name}"));
-                }
-                else if (node.ArgumentList.Arguments is [{ Expression: PrefixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.UnaryMinusExpression } prefixUnaryExpression }, ..] && short.TryParse(prefixUnaryExpression.Parent!.GetText().ToString(), out id) && NPCID.TryGetValue(id, out name))
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule2, prefixUnaryExpression.GetLocation(), NPCIDType, id, $"NPCID.{name}"));
-                }
-            }
-            else if(methodName is "SpawnBoss")
-            {
-                if (node.ArgumentList.Arguments is [_, _, { Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression }] && short.TryParse(literalExpression.Token.Text, out var id) && NPCID.TryGetValue(id, out var name))
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), NPCIDType, id, $"NPCID.{name}"));
-                }
-            }
-        }
-        else if ("Terraria.NetMessage".OrdinalEquals(fullName))
-        {
-            var methodName = memberAccess.Name.Identifier.ValueText;
-            if(methodName is "SendData" or "TrySendData")
-            {
-                if (node.ArgumentList.Arguments is [{ Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression }, ..] && short.TryParse(literalExpression.Token.Text, out var id) && MessageID.TryGetValue(id, out var name))
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), MessageIDType, id, $"MessageID.{name}"));
+                    context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), methodFilterInfo.Properties, id, $"{methodFilterInfo.IdName}.{name}"));
                 }
             }
         }
@@ -157,6 +141,7 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
 
     internal static FrozenDictionary<string, IdFilterInfo[]> MemberAccessExpressionReportFilter;
     internal static FrozenDictionary<string, IdFilterInfo[]> ElementAccessExpressionReportFilter;
+    public static FrozenDictionary<string, MethodFilterInfo[]> InvocationExpressionReportFilter;
 
     internal static FrozenDictionary<short, string> NPCID = IDs.GetInt16ID();
     internal static ImmutableDictionary<string, string?> NPCIDType;
@@ -182,6 +167,12 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
     internal static FrozenDictionary<short, string> PlayerDifficultyID = IDs.GetInt16ID();
     internal static ImmutableDictionary<string, string?> PlayerDifficultyIDType;
 
+    internal static FrozenDictionary<short, string> SoundID = IDs.GetInt16ID();
+    internal static ImmutableDictionary<string, string?> SoundIDType;
+
+    internal static FrozenDictionary<short, string> BuffID = IDs.GetInt16ID();
+    internal static ImmutableDictionary<string, string?> BuffIDType;
+
     internal static FrozenDictionary<string, FrozenDictionary<short, string>> IDsDict;
     static IDAnalyzer()
     {
@@ -196,7 +187,51 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
         }.ToFrozenDictionary(StringComparer.Ordinal);
         ElementAccessExpressionReportFilter = new Dictionary<string, IdFilterInfo[]>()
         {
-            { "Terraria.Main", [GetIdFilterInfo("townNPCCanSpawn", nameof(IDs.NPCID))] }
+            { "Terraria.Main", [GetIdFilterInfo("townNPCCanSpawn", nameof(IDs.NPCID))] },
+            { "Terraria.NPC", [
+                GetIdFilterInfo("buffImmune", nameof(IDs.BuffID))
+            ] },
+            { "Terraria.Player", [
+                GetIdFilterInfo("buffImmune", nameof(IDs.BuffID))
+            ] }
+        }.ToFrozenDictionary(StringComparer.Ordinal);
+
+        InvocationExpressionReportFilter = new Dictionary<string, MethodFilterInfo[]>()
+        {
+            { "Terraria.NPC", [
+                GetMethodFilterInfo("AnyNPCs", nameof(NPCID), 0),
+                GetMethodFilterInfo("CountNPCS", nameof(NPCID), 0),
+                GetMethodFilterInfo("FindFirstNPC", nameof(NPCID), 0),
+                GetMethodFilterInfo("SpawnOnPlayer", nameof(NPCID), 1),
+                GetMethodFilterInfo("SpawnBoss", nameof(NPCID), 2),
+                GetMethodFilterInfo("MechSpawn", nameof(NPCID), 2),
+                GetMethodFilterInfo("NewNPC", nameof(NPCID), 3..),
+                GetMethodFilterInfo("SetDefaults", nameof(NPCID), 0..),
+            ] },
+            { "Terraria.Item", [
+                GetMethodFilterInfo("NewItem", nameof(ItemID), 3, 9),
+                GetMethodFilterInfo("NewItem", nameof(ItemID), 5, 11),
+                GetMethodFilterInfo("SetDefaults", nameof(ItemID), 0..),
+            ] },
+            { "Terraria.Projectile", [
+                GetMethodFilterInfo("NewProjectile", nameof(ProjectileID), 3, 10),
+                GetMethodFilterInfo("NewProjectile", nameof(ProjectileID), 5, 12),
+            ] },
+            { "Terraria.NetMessage", [
+                GetMethodFilterInfo("SendData", nameof(MessageID), 0..),
+                GetMethodFilterInfo("TrySendData", nameof(MessageID), 0..),
+            ] },
+            { "Terraria.Audio.SoundEngine", [
+                GetMethodFilterInfo("PlaySound", nameof(SoundID), 0..),
+            ] },
+            { "Terraria.TileObject", [
+                GetMethodFilterInfo("CanPlace", nameof(TileID), 2..)
+            ] },
+            { "Terraria.Player", [
+                GetMethodFilterInfo("IsTileTypeInInteractionRange", nameof(TileID), 0..),
+                GetMethodFilterInfo("isNearNPC", nameof(NPCID), 0),
+                GetMethodFilterInfo("AddBuff", nameof(BuffID), 0)
+            ] }
         }.ToFrozenDictionary(StringComparer.Ordinal);
 
         NPCIDType = AddType(nameof(NPCID));
@@ -207,6 +242,8 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
         InvasionIDType = AddType(nameof(InvasionID));
         ProjectileIDType = AddType(nameof(ProjectileID));
         PlayerDifficultyIDType = AddType(nameof(PlayerDifficultyID));
+        SoundIDType = AddType(nameof(SoundID));
+        BuffIDType = AddType(nameof(BuffID));
 
         IDsDict = new Dictionary<string, FrozenDictionary<short, string>>()
         {
@@ -218,9 +255,14 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
             { nameof(InvasionID), InvasionID },
             { nameof(ProjectileID), ProjectileID },
             { nameof(PlayerDifficultyID), PlayerDifficultyID },
+            { nameof(SoundID), SoundID },
+            { nameof(BuffID), BuffID }
         }.ToFrozenDictionary(StringComparer.Ordinal);
     }
     private static IdFilterInfo GetIdFilterInfo(string memberName, string idName) => new(memberName, IDs.GetInt16ID(idName), AddType(idName), idName);
+    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex, int argumentCount) => new(methodName, checkIndex, argumentCount, IDs.GetInt16ID(idName), AddType(idName), idName);
+    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex) => new(methodName, checkIndex, checkIndex + 1, IDs.GetInt16ID(idName), AddType(idName), idName);
+    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, Range range) => new(methodName, range.Start.Value, -1, IDs.GetInt16ID(idName), AddType(idName), idName);
     private static ImmutableDictionary<string, string?> AddType(string type)
     {
         const string key = "type";
@@ -236,6 +278,34 @@ internal sealed class IdFilterInfo(string memberName, FrozenDictionary<short, st
     public FrozenDictionary<short, string> IdToNameDict = idToNameDict;
     public ImmutableDictionary<string, string?> Properties = properties;
     public string IdName = idName;
+}
+
+public sealed class MethodFilterInfo
+{
+    public string MethodName;
+    public int ArgumentCount;
+    public int CheckIndex;
+    public FrozenDictionary<short, string> IdToNameDict;
+    public ImmutableDictionary<string, string?> Properties;
+    public string IdName;
+
+    public MethodFilterInfo(string methodName, int checkIndex, int argumentCount, FrozenDictionary<short, string> idToNameDict, ImmutableDictionary<string, string?> properties, string idName)
+    {
+        MethodName = methodName;
+        if (argumentCount < 0)
+        {
+            argumentCount = -1;
+        }
+        if (argumentCount != -1 && checkIndex >= argumentCount)
+        {
+            throw new ArgumentException("checkIndex >= argumentCount");
+        }
+        ArgumentCount = argumentCount;
+        CheckIndex = checkIndex;
+        IdToNameDict = idToNameDict;
+        Properties = properties;
+        IdName = idName;
+    }
 }
 
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(IDAnalyzerCodeFixProvider)), Shared]

@@ -1,890 +1,880 @@
-﻿using Terraria.Audio;
-using Terraria.ID;
-using VBY.NPCAI;
-
-namespace VBY.NPCTest;
+﻿namespace VBY.NPCTest;
 
 public static partial class NPCAIs
 {
-    public static void AI_004(this NPC npc)
+    public static void AI_004(NPC self)
     {
-        bool flag2 = false;
-        if (Main.expertMode && npc.life < npc.lifeMax * 0.12)
+        const int netClientMode = 1;
+        const int netServerMode = 2;
+
+        const int phaseAI = 0;
+        const int phase1or2CountAI = 1;
+        const int mainAI = 1;
+        const int phase1or2RotationValueAI = 2;
+        const int countAI = 2;
+        const int rushCountAI = 3;
+
+        const int aiFloat = 0;
+        const int aiRush = 1;
+        const int aiRushing = 2;
+        const int aiFastRush = 3;
+        const int aiFastRushing = 4;
+        const int aiHighFloat = 5;
+
+        bool isLifePhase2 = false;
+        if (Main.expertMode && self.life < self.lifeMax * 0.12)
         {
-            flag2 = true;
+            isLifePhase2 = true;
         }
-        bool flag3 = false;
-        if (Main.expertMode && npc.life < npc.lifeMax * 0.04)
+        bool isLifePhase3 = false;
+        if (Main.expertMode && self.life < self.lifeMax * 0.04)
         {
-            flag3 = true;
+            isLifePhase3 = true;
         }
-        float num4 = 20f;
-        if (flag3)
+        float fastRushDurationTime = 20f;
+        if (isLifePhase3)
         {
-            num4 = 10f;
+            fastRushDurationTime = 10f;
         }
-        if (npc.target < 0 || npc.target == 255 || Main.player[npc.target].dead || !Main.player[npc.target].active)
+        if (self.target < 0 || self.target == 255 || Main.player[self.target].dead || !Main.player[self.target].active)
         {
-            npc.TargetClosest();
+            self.TargetClosest();
         }
-        bool dead = Main.player[npc.target].dead;
-        float num5 = npc.position.X + npc.width / 2 - Main.player[npc.target].position.X - Main.player[npc.target].width / 2;
-        float num6 = npc.position.Y + npc.height - 59f - Main.player[npc.target].position.Y - Main.player[npc.target].height / 2;
-        float num7 = (float)Math.Atan2(num6, num5) + 1.57f;
-        if (num7 < 0f)
+        bool targetIsDead = Main.player[self.target].dead;
+        float toTargetRotation = (float)Math.Atan2(x: self.position.X + self.width / 2 - Main.player[self.target].position.X - Main.player[self.target].width / 2, y: self.position.Y + self.height - 59f - Main.player[self.target].position.Y - Main.player[self.target].height / 2) + 1.57f;
+        if (toTargetRotation < 0f)
         {
-            num7 += 6.283f;
+            toTargetRotation += 6.283f;
         }
-        else if ((double)num7 > 6.283)
+        else if ((double)toTargetRotation > 6.283)
         {
-            num7 -= 6.283f;
+            toTargetRotation -= 6.283f;
         }
-        float num8 = 0f;
-        if (npc.ai[0] == 0f && npc.ai[1] == 0f)
+        float rotationSpeed = 0f;
+        if (self.ai[phaseAI] == 0f && self.ai[mainAI] == aiFloat)
         {
-            num8 = 0.02f;
+            rotationSpeed = 0.02f;
         }
-        if (npc.ai[0] == 0f && npc.ai[1] == 2f && npc.ai[2] > 40f)
+        if (self.ai[phaseAI] == 0f && self.ai[mainAI] == aiRushing && self.ai[countAI] > 40f)
         {
-            num8 = 0.05f;
+            rotationSpeed = 0.05f;
         }
-        if (npc.ai[0] == 3f && npc.ai[1] == 0f)
+        if (self.ai[phaseAI] == 3f && self.ai[mainAI] == aiFloat)
         {
-            num8 = 0.05f;
+            rotationSpeed = 0.05f;
         }
-        if (npc.ai[0] == 3f && npc.ai[1] == 2f && npc.ai[2] > 40f)
+        if (self.ai[phaseAI] == 3f && self.ai[mainAI] == aiRushing && self.ai[countAI] > 40f)
         {
-            num8 = 0.08f;
+            rotationSpeed = 0.08f;
         }
-        if (npc.ai[0] == 3f && npc.ai[1] == 4f && npc.ai[2] > num4)
+        if (self.ai[phaseAI] == 3f && self.ai[mainAI] == aiFastRushing && self.ai[countAI] > fastRushDurationTime)
         {
-            num8 = 0.15f;
+            rotationSpeed = 0.15f;
         }
-        if (npc.ai[0] == 3f && npc.ai[1] == 5f)
+        if (self.ai[phaseAI] == 3f && self.ai[mainAI] == aiHighFloat)
         {
-            num8 = 0.05f;
+            rotationSpeed = 0.05f;
         }
         if (Main.expertMode)
         {
-            num8 *= 1.5f;
+            rotationSpeed *= 1.5f;
         }
-        if (flag3 && Main.expertMode)
+        if (isLifePhase3 && Main.expertMode)
         {
-            num8 = 0f;
+            rotationSpeed = 0f;
         }
-        if (npc.rotation < num7)
+        if (self.rotation < toTargetRotation)
         {
-            if ((double)(num7 - npc.rotation) > 3.1415)
+            if ((double)(toTargetRotation - self.rotation) > 3.1415)
             {
-                npc.rotation -= num8;
+                self.rotation -= rotationSpeed;
             }
             else
             {
-                npc.rotation += num8;
+                self.rotation += rotationSpeed;
             }
         }
-        else if (npc.rotation > num7)
+        else if (self.rotation > toTargetRotation)
         {
-            if ((double)(npc.rotation - num7) > 3.1415)
+            if ((double)(self.rotation - toTargetRotation) > 3.1415)
             {
-                npc.rotation += num8;
+                self.rotation += rotationSpeed;
             }
             else
             {
-                npc.rotation -= num8;
+                self.rotation -= rotationSpeed;
             }
         }
-        if (npc.rotation > num7 - num8 && npc.rotation < num7 + num8)
+        if (self.rotation > toTargetRotation - rotationSpeed && self.rotation < toTargetRotation + rotationSpeed)
         {
-            npc.rotation = num7;
+            self.rotation = toTargetRotation;
         }
-        if (npc.rotation < 0f)
+        if (self.rotation < 0f)
         {
-            npc.rotation += 6.283f;
+            self.rotation += 6.283f;
         }
-        else if (npc.rotation > 6.283)
+        else if (self.rotation > 6.283)
         {
-            npc.rotation -= 6.283f;
+            self.rotation -= 6.283f;
         }
-        if (npc.rotation > num7 - num8 && npc.rotation < num7 + num8)
+        if (self.rotation > toTargetRotation - rotationSpeed && self.rotation < toTargetRotation + rotationSpeed)
         {
-            npc.rotation = num7;
+            self.rotation = toTargetRotation;
         }
         if (Main.rand.Next(5) == 0)
         {
-            int num9 = Dust.NewDust(new Vector2(npc.position.X, npc.position.Y + npc.height * 0.25f), npc.width, (int)(npc.height * 0.5f), 5, npc.velocity.X, 2f);
-            Main.dust[num9].velocity.X *= 0.5f;
-            Main.dust[num9].velocity.Y *= 0.1f;
+            int dustIndex = Dust.NewDust(new Vector2(self.position.X, self.position.Y + self.height * 0.25f), self.width, (int)(self.height * 0.5f), 5, self.velocity.X, 2f);
+            Main.dust[dustIndex].velocity.X *= 0.5f;
+            Main.dust[dustIndex].velocity.Y *= 0.1f;
         }
-        npc.reflectsProjectiles = false;
-        if (Main.IsItDay() || dead)
+        self.reflectsProjectiles = false;
+        if (Main.IsItDay() || targetIsDead)
         {
-            npc.velocity.Y -= 0.04f;
-            npc.EncourageDespawn(10);
+            self.velocity.Y -= 0.04f;
+            self.EncourageDespawn(10);
             return;
         }
-        if (npc.ai[0] == 0f)
+        if (self.ai[phaseAI] == 0f)
         {
-            if (npc.ai[1] == 0f)
+            if (self.ai[mainAI] == aiFloat)
             {
-                float num10 = 5f;
-                float num11 = 0.04f;
+                float speedCoefficient = 5f;
+                float velocityAdjustmentThreshold = 0.04f;
                 if (Main.expertMode)
                 {
-                    num11 = 0.15f;
-                    num10 = 7f;
+                    velocityAdjustmentThreshold = 0.15f;
+                    speedCoefficient = 7f;
                 }
                 if (Main.getGoodWorld)
                 {
-                    num11 += 0.05f;
-                    num10 += 1f;
+                    velocityAdjustmentThreshold += 0.05f;
+                    speedCoefficient += 1f;
                 }
-                Vector2 vector = new(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-                float num12 = Main.player[npc.target].position.X + Main.player[npc.target].width / 2 - vector.X;
-                float num13 = Main.player[npc.target].position.Y + Main.player[npc.target].height / 2 - 200f - vector.Y;
-                float num14 = (float)Math.Sqrt(num12 * num12 + num13 * num13);
-                float num15 = num14;
-                num14 = num10 / num14;
-                num12 *= num14;
-                num13 *= num14;
-                if (npc.velocity.X < num12)
+                Vector2 selfCenter = new Vector2(self.position.X + self.width * 0.5f, self.position.Y + self.height * 0.5f);
+                float toTargetX = Main.player[self.target].position.X + Main.player[self.target].width / 2 - selfCenter.X;
+                float toTargetY = Main.player[self.target].position.Y + Main.player[self.target].height / 2 - 200f - selfCenter.Y;
+                float distanceToTarget = (float)Math.Sqrt(toTargetX * toTargetX + toTargetY * toTargetY);
+                float distanceToTargetOrigin = distanceToTarget;
+                distanceToTarget = speedCoefficient / distanceToTarget;
+                toTargetX *= distanceToTarget;
+                toTargetY *= distanceToTarget;
+                if (self.velocity.X < toTargetX)
                 {
-                    npc.velocity.X += num11;
-                    if (npc.velocity.X < 0f && num12 > 0f)
+                    self.velocity.X += velocityAdjustmentThreshold;
+                    if (self.velocity.X < 0f && toTargetX > 0f)
                     {
-                        npc.velocity.X += num11;
+                        self.velocity.X += velocityAdjustmentThreshold;
                     }
                 }
-                else if (npc.velocity.X > num12)
+                else if (self.velocity.X > toTargetX)
                 {
-                    npc.velocity.X -= num11;
-                    if (npc.velocity.X > 0f && num12 < 0f)
+                    self.velocity.X -= velocityAdjustmentThreshold;
+                    if (self.velocity.X > 0f && toTargetX < 0f)
                     {
-                        npc.velocity.X -= num11;
+                        self.velocity.X -= velocityAdjustmentThreshold;
                     }
                 }
-                if (npc.velocity.Y < num13)
+                if (self.velocity.Y < toTargetY)
                 {
-                    npc.velocity.Y += num11;
-                    if (npc.velocity.Y < 0f && num13 > 0f)
+                    self.velocity.Y += velocityAdjustmentThreshold;
+                    if (self.velocity.Y < 0f && toTargetY > 0f)
                     {
-                        npc.velocity.Y += num11;
+                        self.velocity.Y += velocityAdjustmentThreshold;
                     }
                 }
-                else if (npc.velocity.Y > num13)
+                else if (self.velocity.Y > toTargetY)
                 {
-                    npc.velocity.Y -= num11;
-                    if (npc.velocity.Y > 0f && num13 < 0f)
+                    self.velocity.Y -= velocityAdjustmentThreshold;
+                    if (self.velocity.Y > 0f && toTargetY < 0f)
                     {
-                        npc.velocity.Y -= num11;
+                        self.velocity.Y -= velocityAdjustmentThreshold;
                     }
                 }
-                npc.ai[2] += 1f;
-                float num16 = 600f;
+                self.ai[countAI] += 1f;
+                float checkDistance = 600f;
                 if (Main.expertMode)
                 {
-                    num16 *= 0.35f;
+                    checkDistance *= 0.35f;
                 }
-                if (npc.ai[2] >= num16)
+                if (self.ai[countAI] >= checkDistance)
                 {
-                    npc.ai[1] = 1f;
-                    npc.ai[2] = 0f;
-                    npc.ai[3] = 0f;
-                    npc.target = 255;
-                    npc.netUpdate = true;
+                    self.ai[mainAI] = aiRush;
+                    self.ai[countAI] = 0f;
+                    self.ai[rushCountAI] = 0f;
+                    self.target = 255;
+                    self.netUpdate = true;
                 }
-                else if ((npc.position.Y + npc.height < Main.player[npc.target].position.Y && num15 < 500f) || (Main.expertMode && num15 < 500f))
+                else if ((self.position.Y + self.height < Main.player[self.target].position.Y && distanceToTargetOrigin < 500f) || (Main.expertMode && distanceToTargetOrigin < 500f))
                 {
-                    if (!Main.player[npc.target].dead)
+                    if (!Main.player[self.target].dead)
                     {
-                        npc.ai[3] += 1f;
+                        self.ai[rushCountAI] += 1f;
                     }
-                    float num17 = 110f;
+                    float spawnThreshold = 110f;
                     if (Main.expertMode)
                     {
-                        num17 *= 0.4f;
+                        spawnThreshold *= 0.4f;
                     }
                     if (Main.getGoodWorld)
                     {
-                        num17 *= 0.8f;
+                        spawnThreshold *= 0.8f;
                     }
-                    if (npc.ai[3] >= num17)
+                    if (self.ai[rushCountAI] >= spawnThreshold)
                     {
-                        npc.ai[3] = 0f;
-                        npc.rotation = num7;
-                        float num18 = 5f;
+                        self.ai[rushCountAI] = 0f;
+                        self.rotation = toTargetRotation;
+                        speedCoefficient = 5f;
                         if (Main.expertMode)
                         {
-                            num18 = 6f;
+                            speedCoefficient = 6f;
                         }
-                        float num19 = Main.player[npc.target].position.X + Main.player[npc.target].width / 2 - vector.X;
-                        float num20 = Main.player[npc.target].position.Y + Main.player[npc.target].height / 2 - vector.Y;
-                        float num21 = (float)Math.Sqrt(num19 * num19 + num20 * num20);
-                        num21 = num18 / num21;
-                        Vector2 vector2 = vector;
-                        Vector2 vector3 = default;
-                        vector3.X = num19 * num21;
-                        vector3.Y = num20 * num21;
-                        vector2.X += vector3.X * 10f;
-                        vector2.Y += vector3.Y * 10f;
-                        if (Main.netMode != 1)
+                        toTargetX = Main.player[self.target].position.X + Main.player[self.target].width / 2 - selfCenter.X;
+                        toTargetY = Main.player[self.target].position.Y + Main.player[self.target].height / 2 - selfCenter.Y;
+                        float speedTowardsTarget = speedCoefficient / (float)Math.Sqrt(toTargetX * toTargetX + toTargetY * toTargetY);
+                        Vector2 spawnPosition = selfCenter;
+                        Vector2 toTargetSpeed = new Vector2(toTargetX * speedTowardsTarget, toTargetY * speedTowardsTarget);
+                        spawnPosition.X += toTargetSpeed.X * 10f;
+                        spawnPosition.Y += toTargetSpeed.Y * 10f;
+                        if (Main.netMode != netClientMode)
                         {
-                            int num22 = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)vector2.X, (int)vector2.Y, 5);
-                            Main.npc[num22].velocity.X = vector3.X;
-                            Main.npc[num22].velocity.Y = vector3.Y;
-                            if (Main.netMode == 2 && num22 < 200)
+                            int npcIndex = NPC.NewNPC(self.GetSpawnSourceForNPCFromNPCAI(), (int)spawnPosition.X, (int)spawnPosition.Y, NPCID.ServantofCthulhu);
+                            Main.npc[npcIndex].velocity.X = toTargetSpeed.X;
+                            Main.npc[npcIndex].velocity.Y = toTargetSpeed.Y;
+                            if (Main.netMode == netServerMode && npcIndex < Main.maxNPCs)
                             {
-                                NetMessage.SendData(23, -1, -1, null, num22);
+                                NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, npcIndex);
                             }
                         }
-                        SoundEngine.PlaySound(3, (int)vector2.X, (int)vector2.Y);
-                        for (int m = 0; m < 10; m++)
+                        for (int i = 0; i < 10; i++)
                         {
-                            Dust.NewDust(vector2, 20, 20, 5, vector3.X * 0.4f, vector3.Y * 0.4f);
                         }
                     }
                 }
             }
-            else if (npc.ai[1] == 1f)
+            else if (self.ai[mainAI] == aiRush)
             {
-                npc.rotation = num7;
-                float num23 = 6f;
+                self.rotation = toTargetRotation;
+                float speedCoefficient = 6f;
                 if (Main.expertMode)
                 {
-                    num23 = 7f;
+                    speedCoefficient = 7f;
                 }
                 if (Main.getGoodWorld)
                 {
-                    num23 += 1f;
+                    speedCoefficient += 1f;
                 }
-                Vector2 vector4 = new(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-                float num24 = Main.player[npc.target].position.X + Main.player[npc.target].width / 2 - vector4.X;
-                float num25 = Main.player[npc.target].position.Y + Main.player[npc.target].height / 2 - vector4.Y;
-                float num26 = (float)Math.Sqrt(num24 * num24 + num25 * num25);
-                num26 = num23 / num26;
-                npc.velocity.X = num24 * num26;
-                npc.velocity.Y = num25 * num26;
-                npc.ai[1] = 2f;
-                npc.netUpdate = true;
-                if (npc.netSpam > 10)
+                Vector2 selfCenter = new Vector2(self.position.X + self.width * 0.5f, self.position.Y + self.height * 0.5f);
+                float toTargetX = Main.player[self.target].position.X + Main.player[self.target].width / 2 - selfCenter.X;
+                float toTargetY = Main.player[self.target].position.Y + Main.player[self.target].height / 2 - selfCenter.Y;
+                float speedTowardsTarget = speedCoefficient / (float)Math.Sqrt(toTargetX * toTargetX + toTargetY * toTargetY);
+                self.velocity.X = toTargetX * speedTowardsTarget;
+                self.velocity.Y = toTargetY * speedTowardsTarget;
+                self.ai[mainAI] = aiRushing;
+                self.netUpdate = true;
+                if (self.netSpam > 10)
                 {
-                    npc.netSpam = 10;
+                    self.netSpam = 10;
                 }
             }
-            else if (npc.ai[1] == 2f)
+            else if (self.ai[mainAI] == aiRushing)
             {
-                npc.ai[2] += 1f;
-                if (npc.ai[2] >= 40f)
+                self.ai[countAI] += 1f;
+                if (self.ai[countAI] >= 40f)
                 {
-                    npc.velocity *= 0.98f;
+                    self.velocity *= 0.98f;
                     if (Main.expertMode)
                     {
-                        npc.velocity *= 0.985f;
+                        self.velocity *= 0.985f;
                     }
                     if (Main.getGoodWorld)
                     {
-                        npc.velocity *= 0.99f;
+                        self.velocity *= 0.99f;
                     }
-                    if (npc.velocity.X > -0.1 && npc.velocity.X < 0.1)
+                    if (self.velocity.X > -0.1 && self.velocity.X < 0.1)
                     {
-                        npc.velocity.X = 0f;
+                        self.velocity.X = 0f;
                     }
-                    if (npc.velocity.Y > -0.1 && npc.velocity.Y < 0.1)
+                    if (self.velocity.Y > -0.1 && self.velocity.Y < 0.1)
                     {
-                        npc.velocity.Y = 0f;
+                        self.velocity.Y = 0f;
                     }
                 }
                 else
                 {
-                    npc.rotation = (float)Math.Atan2(npc.velocity.Y, npc.velocity.X) - 1.57f;
+                    self.rotation = (float)Math.Atan2(self.velocity.Y, self.velocity.X) - 1.57f;
                 }
-                int num27 = 150;
+                int rushTime = 150;
                 if (Main.expertMode)
                 {
-                    num27 = 100;
+                    rushTime = 100;
                 }
                 if (Main.getGoodWorld)
                 {
-                    num27 -= 15;
+                    rushTime -= 15;
                 }
-                if (npc.ai[2] >= num27)
+                if (self.ai[countAI] >= rushTime)
                 {
-                    npc.ai[3] += 1f;
-                    npc.ai[2] = 0f;
-                    npc.target = 255;
-                    npc.rotation = num7;
-                    if (npc.ai[3] >= 3f)
+                    self.ai[rushCountAI] += 1f;
+                    self.ai[countAI] = 0f;
+                    self.target = 255;
+                    self.rotation = toTargetRotation;
+                    if (self.ai[rushCountAI] >= 3f)
                     {
-                        npc.ai[1] = 0f;
-                        npc.ai[3] = 0f;
+                        self.ai[mainAI] = aiFloat;
+                        self.ai[rushCountAI] = 0f;
                     }
                     else
                     {
-                        npc.ai[1] = 1f;
+                        self.ai[mainAI] = aiRush;
                     }
                 }
             }
-            float num28 = 0.5f;
+            float lifeThreshold = 0.5f;
             if (Main.expertMode)
             {
-                num28 = 0.65f;
+                lifeThreshold = 0.65f;
             }
-            if (npc.life < npc.lifeMax * num28)
+            if (self.life < self.lifeMax * lifeThreshold)
             {
-                npc.ai[0] = 1f;
-                npc.ai[1] = 0f;
-                npc.ai[2] = 0f;
-                npc.ai[3] = 0f;
-                npc.netUpdate = true;
-                if (npc.netSpam > 10)
+                self.ai[phaseAI] = 1f;
+                self.ai[mainAI] = aiFloat;
+                self.ai[countAI] = 0f;
+                self.ai[rushCountAI] = 0f;
+                self.netUpdate = true;
+                if (self.netSpam > 10)
                 {
-                    npc.netSpam = 10;
+                    self.netSpam = 10;
                 }
             }
             return;
         }
-        if (npc.ai[0] == 1f || npc.ai[0] == 2f)
+        if (self.ai[phaseAI] == 1f || self.ai[phaseAI] == 2f)
         {
-            if (npc.ai[0] == 1f || npc.ai[3] == 1f)
+            if (self.ai[phaseAI] == 1f || self.ai[rushCountAI] == 1f)
             {
-                npc.ai[2] += 0.005f;
-                if (npc.ai[2] > 0.5)
+                self.ai[phase1or2RotationValueAI] += 0.005f;
+                if (self.ai[phase1or2RotationValueAI] > 0.5)
                 {
-                    npc.ai[2] = 0.5f;
+                    self.ai[phase1or2RotationValueAI] = 0.5f;
                 }
             }
             else
             {
-                npc.ai[2] -= 0.005f;
-                if (npc.ai[2] < 0f)
+                self.ai[phase1or2RotationValueAI] -= 0.005f;
+                if (self.ai[phase1or2RotationValueAI] < 0f)
                 {
-                    npc.ai[2] = 0f;
+                    self.ai[phase1or2RotationValueAI] = 0f;
                 }
             }
-            npc.rotation += npc.ai[2];
-            npc.ai[1] += 1f;
+            self.rotation += self.ai[phase1or2RotationValueAI];
+            self.ai[phase1or2CountAI] += 1f;
             if (Main.getGoodWorld)
             {
-                npc.reflectsProjectiles = true;
+                self.reflectsProjectiles = true;
             }
-            int num29 = 20;
-            if (Main.getGoodWorld && npc.life < npc.lifeMax / 3)
+            int spawnInterval = 20;
+            if (Main.getGoodWorld && self.life < self.lifeMax / 3)
             {
-                num29 = 10;
+                spawnInterval = 10;
             }
-            if (Main.expertMode && npc.ai[1] % num29 == 0f)
+            if (Main.expertMode && self.ai[phase1or2CountAI] % spawnInterval == 0f)
             {
-                float num30 = 5f;
-                Vector2 vector5 = new(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-                float num31 = Main.rand.Next(-200, 200);
-                float num32 = Main.rand.Next(-200, 200);
+                float speedCoefficient = 5f;
+                Vector2 selfCenter = new Vector2(self.position.X + self.width * 0.5f, self.position.Y + self.height * 0.5f);
+                float toTargetXOffset = Main.rand.Next(-200, 200);
+                float toTargetYOffset = Main.rand.Next(-200, 200);
                 if (Main.getGoodWorld)
                 {
-                    num31 *= 3f;
-                    num32 *= 3f;
+                    toTargetXOffset *= 3f;
+                    toTargetYOffset *= 3f;
                 }
-                float num33 = (float)Math.Sqrt(num31 * num31 + num32 * num32);
-                num33 = num30 / num33;
-                Vector2 vector6 = vector5;
-                Vector2 vector7 = default;
-                vector7.X = num31 * num33;
-                vector7.Y = num32 * num33;
-                vector6.X += vector7.X * 10f;
-                vector6.Y += vector7.Y * 10f;
-                if (Main.netMode != 1)
+                float speedTowardsTarget = speedCoefficient / (float)Math.Sqrt(toTargetXOffset * toTargetXOffset + toTargetYOffset * toTargetYOffset);
+                Vector2 spawnPosition = selfCenter;
+                Vector2 spawnVelocity = new Vector2(toTargetXOffset * speedTowardsTarget, toTargetYOffset * speedTowardsTarget);
+                spawnPosition.X += spawnVelocity.X * 10f;
+                spawnPosition.Y += spawnVelocity.Y * 10f;
+                if (Main.netMode != netClientMode)
                 {
-                    int npcIndex = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)vector6.X, (int)vector6.Y, 5);
-                    Main.npc[npcIndex].velocity = vector7;
-                    if (Main.netMode == 2 && npcIndex < 200)
+                    int npcIndex = NPC.NewNPC(self.GetSpawnSourceForNPCFromNPCAI(), (int)spawnPosition.X, (int)spawnPosition.Y, NPCID.ServantofCthulhu);
+                    Main.npc[npcIndex].velocity = spawnVelocity;
+                    if (Main.netMode == netServerMode && npcIndex < Main.maxNPCs)
                     {
-                        NetMessage.SendData(23, -1, -1, null, npcIndex);
+                        NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, npcIndex);
                     }
 
-                    Projectile.NewProjectile(npc.GetSpawnSourceForNPCFromNPCAI(), npc.Center, new Vector2(1, 0).RotatedBy(npc.rotation), ProjectileID.FlamingScythe, npc.damage, 0);
+                    Projectile.NewProjectile(self.GetSpawnSourceForNPCFromNPCAI(), self.Center, new Vector2(1, 0).RotatedBy(self.rotation), ProjectileID.FlamingScythe, self.damage, 0);
+                }
+                for (int i = 0; i < 10; i++)
+                {
                 }
             }
-            if (npc.ai[1] >= 100f)
+            if (self.ai[phase1or2CountAI] >= 100f)
             {
-                if (npc.ai[3] == 1f)
+                if (self.ai[rushCountAI] == 1f)
                 {
-                    npc.ai[3] = 0f;
-                    npc.ai[1] = 0f;
+                    self.ai[rushCountAI] = 0f;
+                    self.ai[mainAI] = aiFloat;
                 }
                 else
                 {
-                    npc.ai[0] += 1f;
-                    npc.ai[1] = 0f;
-                    if (npc.ai[0] == 3f)
+                    self.ai[phaseAI] += 1f;
+                    self.ai[mainAI] = aiFloat;
+                    if (self.ai[phaseAI] == 3f)
                     {
-                        npc.ai[2] = 0f;
+                        self.ai[countAI] = 0f;
                     }
                     else
                     {
-                        SoundEngine.PlaySound(3, (int)npc.position.X, (int)npc.position.Y);
-                        for (int num35 = 0; num35 < 2; num35++)
+                        for (int i = 0; i < 2; i++)
                         {
-                            Gore.NewGore(npc.position, new Vector2(Main.rand.Next(-30, 31) * 0.2f, Main.rand.Next(-30, 31) * 0.2f), 8);
-                            Gore.NewGore(npc.position, new Vector2(Main.rand.Next(-30, 31) * 0.2f, Main.rand.Next(-30, 31) * 0.2f), 7);
-                            Gore.NewGore(npc.position, new Vector2(Main.rand.Next(-30, 31) * 0.2f, Main.rand.Next(-30, 31) * 0.2f), 6);
                         }
-                        for (int num36 = 0; num36 < 20; num36++)
+                        for (int i = 0; i < 20; i++)
                         {
-                            Dust.NewDust(npc.position, npc.width, npc.height, 5, Main.rand.Next(-30, 31) * 0.2f, Main.rand.Next(-30, 31) * 0.2f);
                         }
-                        SoundEngine.PlaySound(15, (int)npc.position.X, (int)npc.position.Y, 0);
                     }
                 }
             }
-            Dust.NewDust(npc.position, npc.width, npc.height, 5, Main.rand.Next(-30, 31) * 0.2f, Main.rand.Next(-30, 31) * 0.2f);
-            npc.velocity.X *= 0.98f;
-            npc.velocity.Y *= 0.98f;
-            if (npc.velocity.X > -0.1 && npc.velocity.X < 0.1)
+            self.velocity.X *= 0.98f;
+            self.velocity.Y *= 0.98f;
+            if (self.velocity.X > -0.1 && self.velocity.X < 0.1)
             {
-                npc.velocity.X = 0f;
+                self.velocity.X = 0f;
             }
-            if (npc.velocity.Y > -0.1 && npc.velocity.Y < 0.1)
+            if (self.velocity.Y > -0.1 && self.velocity.Y < 0.1)
             {
-                npc.velocity.Y = 0f;
+                self.velocity.Y = 0f;
             }
             return;
         }
-        npc.defense = 0;
-        int num37 = 23;
-        int num38 = 18;
+        self.defense = 0;
+        int normalDamage = 23;
+        int expertDamage = 18;
         if (Main.expertMode)
         {
-            if (flag2)
+            if (isLifePhase2)
             {
-                npc.defense = -15;
+                self.defense = -15;
             }
-            if (flag3)
+            if (isLifePhase3)
             {
-                num38 = 20;
-                npc.defense = -30;
+                expertDamage = 20;
+                self.defense = -30;
             }
         }
-        npc.damage = npc.GetAttackDamage_LerpBetweenFinalValues(num37, num38);
-        npc.damage = npc.GetAttackDamage_ScaledByStrength(npc.damage);
-        if (npc.ai[1] == 0f && flag2)
+        self.damage = self.GetAttackDamage_LerpBetweenFinalValues(normalDamage, expertDamage);
+        self.damage = self.GetAttackDamage_ScaledByStrength(self.damage);
+        if (self.ai[mainAI] == aiFloat && isLifePhase2)
         {
-            npc.ai[1] = 5f;
+            self.ai[mainAI] = aiHighFloat;
         }
-        if (npc.ai[1] == 0f)
+        if (self.ai[mainAI] == aiFloat)
         {
-            float num39 = 6f;
-            float num40 = 0.07f;
-            Vector2 vector8 = new(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-            float num41 = Main.player[npc.target].position.X + Main.player[npc.target].width / 2 - vector8.X;
-            float num42 = Main.player[npc.target].position.Y + Main.player[npc.target].height / 2 - 120f - vector8.Y;
-            float num43 = (float)Math.Sqrt(num41 * num41 + num42 * num42);
-            if (num43 > 400f && Main.expertMode)
+            float speedCoefficient = 6f;
+            float velocityAdjustmentThreshold = 0.07f;
+            Vector2 selfCenter = new Vector2(self.position.X + self.width * 0.5f, self.position.Y + self.height * 0.5f);
+            float toTargetX = Main.player[self.target].position.X + Main.player[self.target].width / 2 - selfCenter.X;
+            float toTargetY = Main.player[self.target].position.Y + Main.player[self.target].height / 2 - 120f - selfCenter.Y;
+            float distanceToTarget = (float)Math.Sqrt(toTargetX * toTargetX + toTargetY * toTargetY);
+            if (distanceToTarget > 400f && Main.expertMode)
             {
-                num39 += 1f;
-                num40 += 0.05f;
-                if (num43 > 600f)
+                speedCoefficient += 1f;
+                velocityAdjustmentThreshold += 0.05f;
+                if (distanceToTarget > 600f)
                 {
-                    num39 += 1f;
-                    num40 += 0.05f;
-                    if (num43 > 800f)
+                    speedCoefficient += 1f;
+                    velocityAdjustmentThreshold += 0.05f;
+                    if (distanceToTarget > 800f)
                     {
-                        num39 += 1f;
-                        num40 += 0.05f;
+                        speedCoefficient += 1f;
+                        velocityAdjustmentThreshold += 0.05f;
                     }
                 }
             }
             if (Main.getGoodWorld)
             {
-                num39 += 1f;
-                num40 += 0.1f;
+                speedCoefficient += 1f;
+                velocityAdjustmentThreshold += 0.1f;
             }
-            num43 = num39 / num43;
-            num41 *= num43;
-            num42 *= num43;
-            if (npc.velocity.X < num41)
+            distanceToTarget = speedCoefficient / distanceToTarget;
+            toTargetX *= distanceToTarget;
+            toTargetY *= distanceToTarget;
+            if (self.velocity.X < toTargetX)
             {
-                npc.velocity.X += num40;
-                if (npc.velocity.X < 0f && num41 > 0f)
+                self.velocity.X += velocityAdjustmentThreshold;
+                if (self.velocity.X < 0f && toTargetX > 0f)
                 {
-                    npc.velocity.X += num40;
+                    self.velocity.X += velocityAdjustmentThreshold;
                 }
             }
-            else if (npc.velocity.X > num41)
+            else if (self.velocity.X > toTargetX)
             {
-                npc.velocity.X -= num40;
-                if (npc.velocity.X > 0f && num41 < 0f)
+                self.velocity.X -= velocityAdjustmentThreshold;
+                if (self.velocity.X > 0f && toTargetX < 0f)
                 {
-                    npc.velocity.X -= num40;
+                    self.velocity.X -= velocityAdjustmentThreshold;
                 }
             }
-            if (npc.velocity.Y < num42)
+            if (self.velocity.Y < toTargetY)
             {
-                npc.velocity.Y += num40;
-                if (npc.velocity.Y < 0f && num42 > 0f)
+                self.velocity.Y += velocityAdjustmentThreshold;
+                if (self.velocity.Y < 0f && toTargetY > 0f)
                 {
-                    npc.velocity.Y += num40;
+                    self.velocity.Y += velocityAdjustmentThreshold;
                 }
             }
-            else if (npc.velocity.Y > num42)
+            else if (self.velocity.Y > toTargetY)
             {
-                npc.velocity.Y -= num40;
-                if (npc.velocity.Y > 0f && num42 < 0f)
+                self.velocity.Y -= velocityAdjustmentThreshold;
+                if (self.velocity.Y > 0f && toTargetY < 0f)
                 {
-                    npc.velocity.Y -= num40;
+                    self.velocity.Y -= velocityAdjustmentThreshold;
                 }
             }
-            npc.ai[2] += 1f;
-            if (npc.ai[2] >= 200f)
+            self.ai[countAI] += 1f;
+            if (self.ai[countAI] >= 200f)
             {
-                npc.ai[1] = 1f;
-                npc.ai[2] = 0f;
-                npc.ai[3] = 0f;
-                if (Main.expertMode && npc.life < npc.lifeMax * 0.35)
+                self.ai[mainAI] = aiRush;
+                self.ai[countAI] = 0f;
+                self.ai[rushCountAI] = 0f;
+                if (Main.expertMode && self.life < self.lifeMax * 0.35)
                 {
-                    npc.ai[1] = 3f;
+                    self.ai[mainAI] = aiFastRush;
                 }
-                npc.target = 255;
-                npc.netUpdate = true;
+                self.target = 255;
+                self.netUpdate = true;
             }
-            if (Main.expertMode && flag3)
+            if (Main.expertMode && isLifePhase3)
             {
-                npc.TargetClosest();
-                npc.netUpdate = true;
-                npc.ai[1] = 3f;
-                npc.ai[2] = 0f;
-                npc.ai[3] -= 1000f;
+                self.TargetClosest();
+                self.netUpdate = true;
+                self.ai[mainAI] = aiFastRush;
+                self.ai[countAI] = 0f;
+                self.ai[rushCountAI] -= 1000f;
             }
         }
-        else if (npc.ai[1] == 1f)
+        else if (self.ai[mainAI] == aiRush)
         {
-            SoundEngine.PlaySound(36, (int)npc.position.X, (int)npc.position.Y, 0);
-            npc.rotation = num7;
-            float num44 = 6.8f;
-            if (Main.expertMode && npc.ai[3] == 1f)
+            self.rotation = toTargetRotation;
+            float speedCoefficient = 6.8f;
+            if (Main.expertMode && self.ai[rushCountAI] == 1f)
             {
-                num44 *= 1.15f;
+                speedCoefficient *= 1.15f;
             }
-            if (Main.expertMode && npc.ai[3] == 2f)
+            if (Main.expertMode && self.ai[rushCountAI] == 2f)
             {
-                num44 *= 1.3f;
+                speedCoefficient *= 1.3f;
             }
             if (Main.getGoodWorld)
             {
-                num44 *= 1.2f;
+                speedCoefficient *= 1.2f;
             }
-            Vector2 vector9 = new(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-            float num45 = Main.player[npc.target].position.X + Main.player[npc.target].width / 2 - vector9.X;
-            float num46 = Main.player[npc.target].position.Y + Main.player[npc.target].height / 2 - vector9.Y;
-            float num47 = (float)Math.Sqrt(num45 * num45 + num46 * num46);
-            num47 = num44 / num47;
-            npc.velocity.X = num45 * num47;
-            npc.velocity.Y = num46 * num47;
-            npc.ai[1] = 2f;
-            npc.netUpdate = true;
-            if (npc.netSpam > 10)
+            Vector2 selfCenter = new Vector2(self.position.X + self.width * 0.5f, self.position.Y + self.height * 0.5f);
+            float toTargetX = Main.player[self.target].position.X + Main.player[self.target].width / 2 - selfCenter.X;
+            float toTargetY = Main.player[self.target].position.Y + Main.player[self.target].height / 2 - selfCenter.Y;
+            float speedTowardsTarget = speedCoefficient / (float)Math.Sqrt(toTargetX * toTargetX + toTargetY * toTargetY);
+            self.velocity.X = toTargetX * speedTowardsTarget;
+            self.velocity.Y = toTargetY * speedTowardsTarget;
+            self.ai[mainAI] = aiRushing;
+            self.netUpdate = true;
+            if (self.netSpam > 10)
             {
-                npc.netSpam = 10;
+                self.netSpam = 10;
             }
         }
-        else if (npc.ai[1] == 2f)
+        else if (self.ai[mainAI] == aiRushing)
         {
-            float num48 = 40f;
-            npc.ai[2] += 1f;
+            float num46 = 40f;
+            self.ai[countAI] += 1f;
             if (Main.expertMode)
             {
-                num48 = 50f;
+                num46 = 50f;
             }
-            if (npc.ai[2] >= num48)
+            if (self.ai[countAI] >= num46)
             {
-                npc.velocity *= 0.97f;
+                self.velocity *= 0.97f;
                 if (Main.expertMode)
                 {
-                    npc.velocity *= 0.98f;
+                    self.velocity *= 0.98f;
                 }
-                if (npc.velocity.X > -0.1 && npc.velocity.X < 0.1)
+                if (self.velocity.X > -0.1 && self.velocity.X < 0.1)
                 {
-                    npc.velocity.X = 0f;
+                    self.velocity.X = 0f;
                 }
-                if (npc.velocity.Y > -0.1 && npc.velocity.Y < 0.1)
+                if (self.velocity.Y > -0.1 && self.velocity.Y < 0.1)
                 {
-                    npc.velocity.Y = 0f;
+                    self.velocity.Y = 0f;
                 }
             }
             else
             {
-                npc.rotation = (float)Math.Atan2(npc.velocity.Y, npc.velocity.X) - 1.57f;
+                self.rotation = (float)Math.Atan2(self.velocity.Y, self.velocity.X) - 1.57f;
             }
-            int num49 = 130;
+            int rushTime = 130;
             if (Main.expertMode)
             {
-                num49 = 90;
+                rushTime = 90;
             }
-            if (npc.ai[2] >= num49)
+            if (self.ai[countAI] >= rushTime)
             {
-                npc.ai[3] += 1f;
-                npc.ai[2] = 0f;
-                npc.target = 255;
-                npc.rotation = num7;
-                if (npc.ai[3] >= 3f)
+                self.ai[rushCountAI] += 1f;
+                self.ai[countAI] = 0f;
+                self.target = 255;
+                self.rotation = toTargetRotation;
+                if (self.ai[rushCountAI] >= 3f)
                 {
-                    npc.ai[1] = 0f;
-                    npc.ai[3] = 0f;
-                    if (Main.expertMode && Main.netMode != 1 && npc.life < npc.lifeMax * 0.5)
+                    self.ai[mainAI] = aiFloat;
+                    self.ai[rushCountAI] = 0f;
+                    if (Main.expertMode && Main.netMode != 1 && self.life < self.lifeMax * 0.5)
                     {
-                        npc.ai[1] = 3f;
-                        npc.ai[3] += Main.rand.Next(1, 4);
+                        self.ai[mainAI] = aiFastRush;
+                        self.ai[rushCountAI] += Main.rand.Next(1, 4);
                     }
-                    npc.netUpdate = true;
-                    if (npc.netSpam > 10)
+                    self.netUpdate = true;
+                    if (self.netSpam > 10)
                     {
-                        npc.netSpam = 10;
+                        self.netSpam = 10;
                     }
                 }
                 else
                 {
-                    npc.ai[1] = 1f;
+                    self.ai[mainAI] = aiRush;
                 }
             }
         }
-        else if (npc.ai[1] == 3f)
+        else if (self.ai[mainAI] == aiFastRush)
         {
-            if (npc.ai[3] == 4f && flag2 && npc.Center.Y > Main.player[npc.target].Center.Y)
+            if (self.ai[rushCountAI] == 4f && isLifePhase2 && self.Center.Y > Main.player[self.target].Center.Y)
             {
-                npc.TargetClosest();
-                npc.ai[1] = 0f;
-                npc.ai[2] = 0f;
-                npc.ai[3] = 0f;
-                npc.netUpdate = true;
-                if (npc.netSpam > 10)
+                self.TargetClosest();
+                self.ai[mainAI] = aiFloat;
+                self.ai[countAI] = 0f;
+                self.ai[rushCountAI] = 0f;
+                self.netUpdate = true;
+                if (self.netSpam > 10)
                 {
-                    npc.netSpam = 10;
+                    self.netSpam = 10;
                 }
             }
-            else if (Main.netMode != 1)
+            else if (Main.netMode != netClientMode)
             {
-                npc.TargetClosest();
-                float num50 = 20f;
-                Vector2 vector10 = new(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-                float num51 = Main.player[npc.target].position.X + Main.player[npc.target].width / 2 - vector10.X;
-                float num52 = Main.player[npc.target].position.Y + Main.player[npc.target].height / 2 - vector10.Y;
-                float num53 = Math.Abs(Main.player[npc.target].velocity.X) + Math.Abs(Main.player[npc.target].velocity.Y) / 4f;
-                num53 += 10f - num53;
-                if (num53 < 5f)
+                self.TargetClosest();
+                float speedCoefficient = 20f;
+                Vector2 selfCenter = new Vector2(self.position.X + self.width * 0.5f, self.position.Y + self.height * 0.5f);
+                float toTargetX = Main.player[self.target].position.X + Main.player[self.target].width / 2 - selfCenter.X;
+                float toTargetY = Main.player[self.target].position.Y + Main.player[self.target].height / 2 - selfCenter.Y;
+                float speedMultiplier = Math.Abs(Main.player[self.target].velocity.X) + Math.Abs(Main.player[self.target].velocity.Y) / 4f;
+                speedMultiplier += 10f - speedMultiplier;
+                if (speedMultiplier < 5f)
                 {
-                    num53 = 5f;
+                    speedMultiplier = 5f;
                 }
-                if (num53 > 15f)
+                if (speedMultiplier > 15f)
                 {
-                    num53 = 15f;
+                    speedMultiplier = 15f;
                 }
-                if (npc.ai[2] == -1f && !flag3)
+                if (self.ai[countAI] == -1f && !isLifePhase3)
                 {
-                    num53 *= 4f;
-                    num50 *= 1.3f;
+                    speedMultiplier *= 4f;
+                    speedCoefficient *= 1.3f;
                 }
-                if (flag3)
+                if (isLifePhase3)
                 {
-                    num53 *= 2f;
+                    speedMultiplier *= 2f;
                 }
-                num51 -= Main.player[npc.target].velocity.X * num53;
-                num52 -= Main.player[npc.target].velocity.Y * num53 / 4f;
-                num51 *= 1f + Main.rand.Next(-10, 11) * 0.01f;
-                num52 *= 1f + Main.rand.Next(-10, 11) * 0.01f;
-                if (flag3)
+                toTargetX -= Main.player[self.target].velocity.X * speedMultiplier;
+                toTargetY -= Main.player[self.target].velocity.Y * speedMultiplier / 4f;
+                toTargetX *= 1f + Main.rand.Next(-10, 11) * 0.01f;
+                toTargetY *= 1f + Main.rand.Next(-10, 11) * 0.01f;
+                if (isLifePhase3)
                 {
-                    num51 *= 1f + Main.rand.Next(-10, 11) * 0.01f;
-                    num52 *= 1f + Main.rand.Next(-10, 11) * 0.01f;
+                    toTargetX *= 1f + Main.rand.Next(-10, 11) * 0.01f;
+                    toTargetY *= 1f + Main.rand.Next(-10, 11) * 0.01f;
                 }
-                float num54 = (float)Math.Sqrt(num51 * num51 + num52 * num52);
-                float num55 = num54;
-                num54 = num50 / num54;
-                npc.velocity.X = num51 * num54;
-                npc.velocity.Y = num52 * num54;
-                npc.velocity.X += Main.rand.Next(-20, 21) * 0.1f;
-                npc.velocity.Y += Main.rand.Next(-20, 21) * 0.1f;
-                if (flag3)
+                float distanceToTarget = (float)Math.Sqrt(toTargetX * toTargetX + toTargetY * toTargetY);
+                float distanceToTargetOrigin = distanceToTarget;
+                distanceToTarget = speedCoefficient / distanceToTarget;
+                self.velocity.X = toTargetX * distanceToTarget;
+                self.velocity.Y = toTargetY * distanceToTarget;
+                self.velocity.X += Main.rand.Next(-20, 21) * 0.1f;
+                self.velocity.Y += Main.rand.Next(-20, 21) * 0.1f;
+                if (isLifePhase3)
                 {
-                    npc.velocity.X += Main.rand.Next(-50, 51) * 0.1f;
-                    npc.velocity.Y += Main.rand.Next(-50, 51) * 0.1f;
-                    float num56 = Math.Abs(npc.velocity.X);
-                    float num57 = Math.Abs(npc.velocity.Y);
-                    if (npc.Center.X > Main.player[npc.target].Center.X)
+                    self.velocity.X += Main.rand.Next(-50, 51) * 0.1f;
+                    self.velocity.Y += Main.rand.Next(-50, 51) * 0.1f;
+                    float velocityX = Math.Abs(self.velocity.X);
+                    float velocityY = Math.Abs(self.velocity.Y);
+                    if (self.Center.X > Main.player[self.target].Center.X)
                     {
-                        num57 *= -1f;
+                        velocityY *= -1f;
                     }
-                    if (npc.Center.Y > Main.player[npc.target].Center.Y)
+                    if (self.Center.Y > Main.player[self.target].Center.Y)
                     {
-                        num56 *= -1f;
+                        velocityX *= -1f;
                     }
-                    npc.velocity.X = num57 + npc.velocity.X;
-                    npc.velocity.Y = num56 + npc.velocity.Y;
-                    npc.velocity.Normalize();
-                    npc.velocity *= num50;
-                    npc.velocity.X += Main.rand.Next(-20, 21) * 0.1f;
-                    npc.velocity.Y += Main.rand.Next(-20, 21) * 0.1f;
+                    self.velocity.X = velocityY + self.velocity.X;
+                    self.velocity.Y = velocityX + self.velocity.Y;
+                    self.velocity.Normalize();
+                    self.velocity *= speedCoefficient;
+                    self.velocity.X += Main.rand.Next(-20, 21) * 0.1f;
+                    self.velocity.Y += Main.rand.Next(-20, 21) * 0.1f;
                 }
-                else if (num55 < 100f)
+                else if (distanceToTargetOrigin < 100f)
                 {
-                    if (Math.Abs(npc.velocity.X) > Math.Abs(npc.velocity.Y))
+                    if (Math.Abs(self.velocity.X) > Math.Abs(self.velocity.Y))
                     {
-                        float num58 = Math.Abs(npc.velocity.X);
-                        float num59 = Math.Abs(npc.velocity.Y);
-                        if (npc.Center.X > Main.player[npc.target].Center.X)
+                        float velocityX = Math.Abs(self.velocity.X);
+                        float velocityY = Math.Abs(self.velocity.Y);
+                        if (self.Center.X > Main.player[self.target].Center.X)
                         {
-                            num59 *= -1f;
+                            velocityY *= -1f;
                         }
-                        if (npc.Center.Y > Main.player[npc.target].Center.Y)
+                        if (self.Center.Y > Main.player[self.target].Center.Y)
                         {
-                            num58 *= -1f;
+                            velocityX *= -1f;
                         }
-                        npc.velocity.X = num59;
-                        npc.velocity.Y = num58;
+                        self.velocity.X = velocityY;
+                        self.velocity.Y = velocityX;
                     }
                 }
-                else if (Math.Abs(npc.velocity.X) > Math.Abs(npc.velocity.Y))
+                else if (Math.Abs(self.velocity.X) > Math.Abs(self.velocity.Y))
                 {
-                    float num60 = (Math.Abs(npc.velocity.X) + Math.Abs(npc.velocity.Y)) / 2f;
-                    float num61 = num60;
-                    if (npc.Center.X > Main.player[npc.target].Center.X)
+                    float num58 = (Math.Abs(self.velocity.X) + Math.Abs(self.velocity.Y)) / 2f;
+                    float num59 = num58;
+                    if (self.Center.X > Main.player[self.target].Center.X)
                     {
-                        num61 *= -1f;
+                        num59 *= -1f;
                     }
-                    if (npc.Center.Y > Main.player[npc.target].Center.Y)
+                    if (self.Center.Y > Main.player[self.target].Center.Y)
                     {
-                        num60 *= -1f;
+                        num58 *= -1f;
                     }
-                    npc.velocity.X = num61;
-                    npc.velocity.Y = num60;
+                    self.velocity.X = num59;
+                    self.velocity.Y = num58;
                 }
-                npc.ai[1] = 4f;
-                npc.netUpdate = true;
-                if (npc.netSpam > 10)
+                self.ai[mainAI] = aiFastRushing;
+                self.netUpdate = true;
+                if (self.netSpam > 10)
                 {
-                    npc.netSpam = 10;
+                    self.netSpam = 10;
                 }
             }
         }
-        else if (npc.ai[1] == 4f)
+        else if (self.ai[mainAI] == aiFastRushing)
         {
-            if (npc.ai[2] == 0f)
+            if (self.ai[countAI] == 0f)
             {
-                SoundEngine.PlaySound(36, (int)npc.position.X, (int)npc.position.Y, -1);
-
-                npc.NewThreeProjectile(npc.velocity.Normalize(4), 30, ProjectileID.FrostWave, npc.damage / 5);
             }
-            float num62 = num4;
-            npc.ai[2] += 1f;
-            if (npc.ai[2] == num62 && Vector2.Distance(npc.position, Main.player[npc.target].position) < 200f)
+            float rushTime = fastRushDurationTime;
+            self.ai[countAI] += 1f;
+            if (self.ai[countAI] == rushTime && Vector2.Distance(self.position, Main.player[self.target].position) < 200f)
             {
-                npc.ai[2] -= 1f;
+                self.ai[countAI] -= 1f;
             }
-            if (npc.ai[2] >= num62)
+            if (self.ai[countAI] >= rushTime)
             {
-                npc.velocity *= 0.95f;
-                if (npc.velocity.X > -0.1 && npc.velocity.X < 0.1)
+                self.velocity *= 0.95f;
+                if (self.velocity.X > -0.1 && self.velocity.X < 0.1)
                 {
-                    npc.velocity.X = 0f;
+                    self.velocity.X = 0f;
                 }
-                if (npc.velocity.Y > -0.1 && npc.velocity.Y < 0.1)
+                if (self.velocity.Y > -0.1 && self.velocity.Y < 0.1)
                 {
-                    npc.velocity.Y = 0f;
+                    self.velocity.Y = 0f;
                 }
             }
             else
             {
-                npc.rotation = (float)Math.Atan2(npc.velocity.Y, npc.velocity.X) - 1.57f;
+                self.rotation = (float)Math.Atan2(self.velocity.Y, self.velocity.X) - 1.57f;
             }
-            float num63 = num62 + 13f;
-            if (npc.ai[2] >= num63)
+            if (self.ai[countAI] >= rushTime + 13f)
             {
-                npc.netUpdate = true;
-                if (npc.netSpam > 10)
+                self.netUpdate = true;
+                if (self.netSpam > 10)
                 {
-                    npc.netSpam = 10;
+                    self.netSpam = 10;
                 }
-                npc.ai[3] += 1f;
-                npc.ai[2] = 0f;
-                if (npc.ai[3] >= 5f)
+                self.ai[rushCountAI] += 1f;
+                self.ai[countAI] = 0f;
+                if (self.ai[rushCountAI] >= 5f)
                 {
-                    npc.ai[1] = 0f;
-                    npc.ai[3] = 0f;
-                    if (npc.target >= 0 && Main.getGoodWorld && Collision.CanHit(npc.position, npc.width, npc.height, Main.player[npc.target].position, npc.width, npc.height))
+                    self.ai[mainAI] = aiFloat;
+                    self.ai[rushCountAI] = 0f;
+                    if (self.target >= 0 && Main.getGoodWorld && Collision.CanHit(self.position, self.width, self.height, Main.player[self.target].position, self.width, self.height))
                     {
-                        SoundEngine.PlaySound(15, (int)npc.position.X, (int)npc.position.Y, 0);
-                        npc.ai[0] = 2f;
-                        npc.ai[1] = 0f;
-                        npc.ai[2] = 0f;
-                        npc.ai[3] = 1f;
-                        npc.netUpdate = true; 
+                        self.ai[phaseAI] = 2f;
+                        self.ai[mainAI] = aiFloat;
+                        self.ai[countAI] = 0f;
+                        self.ai[rushCountAI] = 1f;
+                        self.netUpdate = true;
                     }
                 }
                 else
                 {
-                    npc.ai[1] = 3f;
+                    self.ai[mainAI] = aiFastRush;
                 }
 
-                if (Vector2.Distance(npc.Center, Main.player[npc.target].Center) < 2000 && Collision.CanHit(npc.Center, 1, 1, Main.player[npc.target].Center, 1, 1))
+                if (Vector2.Distance(self.Center, Main.player[self.target].Center) < 2000 && Collision.CanHit(self.Center, 1, 1, Main.player[self.target].Center, 1, 1))
                 {
-                    Projectile.NewProjectile(npc.GetSpawnSourceForNPCFromNPCAI(), npc.Center, Vector2.Normalize((Main.player[npc.target].Center - npc.Center).RotatedByRandom(0.7853981852531433)) * 7f, 466, npc.damage / 4, 0f, Main.myPlayer, (Main.player[npc.target].Center - npc.Center).ToRotation(), Main.rand.Next(100));
+                    Projectile.NewProjectile(self.GetSpawnSourceForNPCFromNPCAI(), self.Center, Vector2.Normalize((Main.player[self.target].Center - self.Center).RotatedByRandom(0.7853981852531433)) * 7f, ProjectileID.CultistBossLightningOrbArc, self.damage / 4, 0f, Main.myPlayer, (Main.player[self.target].Center - self.Center).ToRotation(), Main.rand.Next(100));
                 }
             }
         }
-        else if (npc.ai[1] == 5f)
+        else if (self.ai[mainAI] == aiHighFloat)
         {
-            float num64 = 600f;
-            float num65 = 9f;
-            float num66 = 0.3f;
-            Vector2 vector11 = new(npc.position.X + npc.width * 0.5f, npc.position.Y + npc.height * 0.5f);
-            float num67 = Main.player[npc.target].position.X + Main.player[npc.target].width / 2 - vector11.X;
-            float num68 = Main.player[npc.target].position.Y + Main.player[npc.target].height / 2 + num64 - vector11.Y;
-            float num69 = (float)Math.Sqrt(num67 * num67 + num68 * num68);
-            num69 = num65 / num69;
-            num67 *= num69;
-            num68 *= num69;
-            if (npc.velocity.X < num67)
+            float floatDistance = 600f;
+            float speedCoefficient = 9f;
+            float velocityAdjustmentThreshold = 0.3f;
+            Vector2 selfCenter = new Vector2(self.position.X + self.width * 0.5f, self.position.Y + self.height * 0.5f);
+            float toTargetX = Main.player[self.target].position.X + Main.player[self.target].width / 2 - selfCenter.X;
+            float toTargetY = Main.player[self.target].position.Y + Main.player[self.target].height / 2 + floatDistance - selfCenter.Y;
+            float speedTowardsTarget = speedCoefficient / (float)Math.Sqrt(toTargetX * toTargetX + toTargetY * toTargetY);
+            toTargetX *= speedTowardsTarget;
+            toTargetY *= speedTowardsTarget;
+            if (self.velocity.X < toTargetX)
             {
-                npc.velocity.X += num66;
-                if (npc.velocity.X < 0f && num67 > 0f)
+                self.velocity.X += velocityAdjustmentThreshold;
+                if (self.velocity.X < 0f && toTargetX > 0f)
                 {
-                    npc.velocity.X += num66;
+                    self.velocity.X += velocityAdjustmentThreshold;
                 }
             }
-            else if (npc.velocity.X > num67)
+            else if (self.velocity.X > toTargetX)
             {
-                npc.velocity.X -= num66;
-                if (npc.velocity.X > 0f && num67 < 0f)
+                self.velocity.X -= velocityAdjustmentThreshold;
+                if (self.velocity.X > 0f && toTargetX < 0f)
                 {
-                    npc.velocity.X -= num66;
+                    self.velocity.X -= velocityAdjustmentThreshold;
                 }
             }
-            if (npc.velocity.Y < num68)
+            if (self.velocity.Y < toTargetY)
             {
-                npc.velocity.Y += num66;
-                if (npc.velocity.Y < 0f && num68 > 0f)
+                self.velocity.Y += velocityAdjustmentThreshold;
+                if (self.velocity.Y < 0f && toTargetY > 0f)
                 {
-                    npc.velocity.Y += num66;
+                    self.velocity.Y += velocityAdjustmentThreshold;
                 }
             }
-            else if (npc.velocity.Y > num68)
+            else if (self.velocity.Y > toTargetY)
             {
-                npc.velocity.Y -= num66;
-                if (npc.velocity.Y > 0f && num68 < 0f)
+                self.velocity.Y -= velocityAdjustmentThreshold;
+                if (self.velocity.Y > 0f && toTargetY < 0f)
                 {
-                    npc.velocity.Y -= num66;
+                    self.velocity.Y -= velocityAdjustmentThreshold;
                 }
             }
-            npc.ai[2] += 1f;
-            if (npc.ai[2] >= 70f)
+            self.ai[countAI] += 1f;
+            if (self.ai[countAI] >= 70f)
             {
-                npc.TargetClosest();
-                npc.ai[1] = 3f;
-                npc.ai[2] = -1f;
-                npc.ai[3] = Main.rand.Next(-3, 1);
-                npc.netUpdate = true;
+                self.TargetClosest();
+                self.ai[mainAI] = aiFastRush;
+                self.ai[countAI] = -1f;
+                self.ai[rushCountAI] = Main.rand.Next(-3, 1);
+                self.netUpdate = true;
             }
         }
-        if (flag3 && npc.ai[1] == 5f)
+        if (isLifePhase3 && self.ai[mainAI] == aiHighFloat)
         {
-            npc.ai[1] = 3f;
+            self.ai[mainAI] = aiFastRush;
         }
     }
 }

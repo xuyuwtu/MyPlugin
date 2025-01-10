@@ -262,7 +262,7 @@ partial class NPCAIs
                     Main.dust[num25].noLight = true;
                     Main.dust[num25].velocity = Vector2.Normalize(vector2) * 3f;
                 }
-                SoundEngine.PlaySound(29, (int)center.X, (int)center.Y, 20);
+                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num20)
@@ -418,7 +418,7 @@ partial class NPCAIs
             //}
             if (npc.ai[2] % 4f == 0)
             {
-                npc.NewProjectile(Vector2.Zero, 349, 1);
+                npc.NewProjectile(Vector2.Zero, ProjectileID.FrostShard, 1);
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num5)
@@ -471,15 +471,15 @@ partial class NPCAIs
             }
             if (npc.ai[2] == 0f)
             {
-                SoundEngine.PlaySound(29, (int)center.X, (int)center.Y, 20);
+                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             if (npc.ai[2] % num8 == 0f)
             {
-                SoundEngine.PlaySound(4, (int)npc.Center.X, (int)npc.Center.Y, 19);
+                SoundEngine.PlaySound(SoundID.NPCKilled, (int)npc.Center.X, (int)npc.Center.Y, 19);
                 if (Main.netMode != 1)
                 {
                     Vector2 vector7 = Vector2.Normalize(player.Center - center) * (npc.width + 20) / 2f + center;
-                    NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)vector7.X, (int)vector7.Y + 45, 371);
+                    NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)vector7.X, (int)vector7.Y + 45, NPCID.DetonatingBubble);
                 }
             }
             int num30 = Math.Sign(player.Center.X - center.X);
@@ -515,13 +515,13 @@ partial class NPCAIs
             npc.velocity.Y = MathHelper.Lerp(npc.velocity.Y, 0f, 0.02f);
             if (npc.ai[2] == num11 - 30)
             {
-                SoundEngine.PlaySound(29, (int)center.X, (int)center.Y, 9);
+                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 9);
             }
             if (Main.netMode != 1 && npc.ai[2] == num11 - 30)
             {
                 Vector2 vector8 = npc.rotation.ToRotationVector2() * (Vector2.UnitX * npc.direction) * (npc.width + 20) / 2f + center;
-                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector8.X, vector8.Y, npc.direction * 2, 8f, 385, 0, 0f, Main.myPlayer);
-                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector8.X, vector8.Y, -npc.direction * 2, 8f, 385, 0, 0f, Main.myPlayer);
+                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector8.X, vector8.Y, npc.direction * 2, 8f, ProjectileID.SharknadoBolt, 0, 0f, Main.myPlayer);
+                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector8.X, vector8.Y, -npc.direction * 2, 8f, ProjectileID.SharknadoBolt, 0, 0f, Main.myPlayer);
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num11)
@@ -547,7 +547,7 @@ partial class NPCAIs
             npc.velocity.Y = MathHelper.Lerp(npc.velocity.Y, 0f, 0.02f);
             if (npc.ai[2] == num12 - 60)
             {
-                SoundEngine.PlaySound(29, (int)center.X, (int)center.Y, 20);
+                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num12)
@@ -651,6 +651,36 @@ partial class NPCAIs
                         npc.ai[2] = 0f;
                         //
                         npc.velocity = Vector2.Normalize(player.Center - center) * num6 * 1.2f;
+
+                        var length = npc.velocity.Length();
+                        var totalLength = 0f;
+                        var targetPlayer = npc.GetTargetPlayer();
+                        var totalCenter = targetPlayer.Center;
+                        var found = false;
+                        for (int i = 0; i < num5; i++)
+                        {
+                            totalCenter += targetPlayer.velocity;
+                            totalLength += length;
+                            if (totalLength > center.Distance(totalCenter))
+                            {
+                                npc.velocity = Vector2.Normalize(totalCenter - center) * num6;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found)
+                        {
+                            if (totalCenter.X < 40 * 16)
+                            {
+                                totalCenter.X = 40 * 16;
+                            }
+                            if (totalCenter.Y < 40 * 16)
+                            {
+                                totalCenter.Y = 40 * 16;
+                            }
+                            npc.velocity = Vector2.Normalize(player.Center - center) * num6 * (1f + (1 - ((float)npc.life / npc.lifeMax)));
+                        }
+
                         npc.rotation = (float)Math.Atan2(npc.velocity.Y, npc.velocity.X);
                         if (num31 != 0)
                         {
@@ -720,16 +750,16 @@ partial class NPCAIs
         {
             if (npc.ai[2] == 0f)
             {
-                SoundEngine.PlaySound(29, (int)center.X, (int)center.Y, 20);
+                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             int num16 = 4;
             if (npc.ai[2] % num16 == 0f)
             {
-                SoundEngine.PlaySound(4, (int)npc.Center.X, (int)npc.Center.Y, 19);
+                SoundEngine.PlaySound(SoundID.NPCKilled, (int)npc.Center.X, (int)npc.Center.Y, 19);
                 if (Main.netMode != 1)
                 {
                     Vector2 vector12 = Vector2.Normalize(npc.velocity) * (npc.width + 20) / 2f + center;
-                    int num35 = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)vector12.X, (int)vector12.Y + 45, 371);
+                    int num35 = NPC.NewNPC(npc.GetSpawnSourceForNPCFromNPCAI(), (int)vector12.X, (int)vector12.Y + 45, NPCID.DetonatingBubble);
                     Main.npc[num35].target = npc.target;
                     Main.npc[num35].velocity = Vector2.Normalize(npc.velocity).RotatedBy((float)Math.PI / 2f * npc.direction) * num17;
                     Main.npc[num35].netUpdate = true;
@@ -768,11 +798,11 @@ partial class NPCAIs
             npc.velocity.Y = MathHelper.Lerp(npc.velocity.Y, 0f, 0.02f);
             if (npc.ai[2] == num11 - 30)
             {
-                SoundEngine.PlaySound(29, (int)center.X, (int)center.Y, 20);
+                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             if (Main.netMode != 1 && npc.ai[2] == num11 - 30)
             {
-                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), center.X, center.Y, 0f, 0f, 385, 0, 0f, Main.myPlayer, 1f, npc.target + 1, flag6 ? 1 : 0);
+                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), center.X, center.Y, 0f, 0f, ProjectileID.SharknadoBolt, 0, 0f, Main.myPlayer, 1f, npc.target + 1, flag6 ? 1 : 0);
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num11)
@@ -817,7 +847,7 @@ partial class NPCAIs
             npc.velocity.Y = MathHelper.Lerp(npc.velocity.Y, 0f, 0.02f);
             if (npc.ai[2] == num13 - 60)
             {
-                SoundEngine.PlaySound(29, (int)center.X, (int)center.Y, 20);
+                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num13)
@@ -892,7 +922,8 @@ partial class NPCAIs
                         npc.ai[1] = 0f;
                         npc.ai[2] = 0f;
                         npc.velocity = Vector2.Normalize(player.Center - center) * num6;
-                        if(npc.GetTargetPlayer().velocity == Vector2.Zero)
+
+                        if (npc.GetTargetPlayer().velocity == Vector2.Zero)
                         {
                             npc.NewProjectile(npc.Center, Vector2.Zero, 919, npc.damage, npc.GetToTargetVector2().ToRotation());
                         }
@@ -972,7 +1003,7 @@ partial class NPCAIs
             npc.velocity.Y = MathHelper.Lerp(npc.velocity.Y, 0f, 0.02f);
             if (npc.ai[2] == num14 / 2)
             {
-                SoundEngine.PlaySound(29, (int)center.X, (int)center.Y, 20);
+                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             if (Main.netMode != 1 && npc.ai[2] == num14 / 2)
             {
@@ -1021,7 +1052,7 @@ partial class NPCAIs
         {
             if (npc.ai[2] == 0f)
             {
-                SoundEngine.PlaySound(29, (int)center.X, (int)center.Y, 20);
+                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             npc.velocity = npc.velocity.RotatedBy((0f - num19) * npc.direction);
             npc.rotation -= num19 * npc.direction;

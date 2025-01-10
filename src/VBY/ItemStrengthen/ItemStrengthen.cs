@@ -1,30 +1,76 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
+
 using Microsoft.Xna.Framework;
 
 using Terraria;
+
 using TerrariaApi.Server;
 
 using TShockAPI;
 
-using VBY.Common;
 using VBY.Common.CommandV2;
+using VBY.Common.Config;
 
 namespace VBY.ItemStrengthen;
 
 [ApiVersion(2, 1)]
 public partial class ItemStrengthen : TerrariaPlugin
 {
-    public override string Name => GetType().Name;
+    public override string Name { get; }
     public override string Description => "武器强化";
     public override string Author => "yu";
     public override Version Version => GetType().Assembly.GetName().Version!;
-    private Config Config = new(TShock.SavePath);
-    private readonly Item itemInfo = new();
-    private readonly Item defaultItemInfo = new();
+    private ConfigManager<Configuration> Config = new("Config", "VBY.ItemStrengthen.json", static () => new()
+    {
+        IDs = new()
+        {
+            { "史莱姆王", 1 },
+            { "克眼", 2 },
+            { "世吞克脑", 3 },
+            { "蜂王", 4},
+            { "骷髅王", 5},
+            { "鹿角怪", 6},
+            { "困难模式", 7},
+            { "史莱姆皇后", 8 },
+            { "任意机械BOSS", 9 },
+            { "毁灭者", 10 },
+            { "双子魔眼", 11 },
+            { "机械骷髅王", 12 },
+            { "世纪之花", 13 },
+            { "石巨人", 14 },
+            { "猪鲨", 15 },
+            { "光女", 16 },
+            { "教徒", 17 },
+            { "日耀柱", 18 },
+            { "星云柱", 19 },
+            { "星璇柱", 20 },
+            { "星尘柱", 21 },
+            { "月总", 22 },
+            { "衰木", 23 },
+            { "南瓜王", 24 },
+            { "常绿尖叫怪", 25 },
+            { "圣诞坦克", 26 },
+            { "冰雪女王", 27 },
+            { "四柱", 28 },
+            { "血月小丑", 29 },
+            { "哥布林入侵", 30 },
+            { "海盗入侵", 31 },
+            { "火星暴乱", 32 },
+        }
+    });
+
+    private static void OnPreSave(Configuration configuration)
+    {
+        throw new NotImplementedException();
+    }
+
+    private readonly ItemModifyInfo itemInfo;
+    private readonly Item defaultItemInfo;
     private static readonly string[] CanSetFieldNames = { 
-        nameof(Item.type), 
+        nameof(Item.prefix),
         nameof(Item.scale), 
         nameof(Item.width), 
         nameof(Item.height), 
@@ -39,31 +85,35 @@ public partial class ItemStrengthen : TerrariaPlugin
         nameof(Item.useAmmo), 
         nameof(Item.notAmmo) 
     };
-    private static readonly string[] SetStrings = CanSetFieldNames.Select(x => x.ToLower()).ToArray();
+    private static readonly string[] SetStrings = CanSetFieldNames.Select(static x => x.ToLowerInvariant()).ToArray();
     private static readonly Dictionary<string, int> SetShortStrings = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly Action<Item, string>[] SetActions = CanSetFieldNames.Select(x => GetParseSet<Item>(x)).ToArray();
+    private static readonly Action<ItemModifyInfo, string>[] SetActions = CanSetFieldNames.Select(static x => GetParseSet<ItemModifyInfo>(x)).ToArray();
     private SubCmdRoot CmdCommand, CtlCommand;
     private Command[] AddCommands;
     static ItemStrengthen()
     {
-        SetShortStrings.Add("t", SetStrings.IndexOf(nameof(Item.type)));
-        SetShortStrings.Add("sc", SetStrings.IndexOf(nameof(Item.scale)));
-        SetShortStrings.Add("w", SetStrings.IndexOf(nameof(Item.width)));
-        SetShortStrings.Add("h", SetStrings.IndexOf(nameof(Item.height)));
-        SetShortStrings.Add("d", SetStrings.IndexOf(nameof(Item.damage)));
-        SetShortStrings.Add("ut", SetStrings.IndexOf(nameof(Item.useTime)));
-        SetShortStrings.Add("kb", SetStrings.IndexOf(nameof(Item.knockBack)));
-        SetShortStrings.Add("sh", SetStrings.IndexOf(nameof(Item.shoot)));
-        SetShortStrings.Add("sp", SetStrings.IndexOf(nameof(Item.shootSpeed)));
-        SetShortStrings.Add("uan", SetStrings.IndexOf(nameof(Item.useAnimation)));
-        SetShortStrings.Add("a", SetStrings.IndexOf(nameof(Item.ammo)));
-        SetShortStrings.Add("c", SetStrings.IndexOf(nameof(Item.color)));
-        SetShortStrings.Add("uam", SetStrings.IndexOf(nameof(Item.useAmmo)));
-        SetShortStrings.Add("na", SetStrings.IndexOf(nameof(Item.notAmmo)));
+        SetShortStrings.Add("p", SetStrings.IndexOf(nameof(ItemModifyInfo.prefix), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("sc", SetStrings.IndexOf(nameof(ItemModifyInfo.scale), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("w", SetStrings.IndexOf(nameof(ItemModifyInfo.width), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("h", SetStrings.IndexOf(nameof(ItemModifyInfo.height), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("d", SetStrings.IndexOf(nameof(ItemModifyInfo.damage), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("ut", SetStrings.IndexOf(nameof(ItemModifyInfo.useTime), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("kb", SetStrings.IndexOf(nameof(ItemModifyInfo.knockBack), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("sh", SetStrings.IndexOf(nameof(ItemModifyInfo.shoot), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("sp", SetStrings.IndexOf(nameof(ItemModifyInfo.shootSpeed), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("uan", SetStrings.IndexOf(nameof(ItemModifyInfo.useAnimation), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("a", SetStrings.IndexOf(nameof(ItemModifyInfo.ammo), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("c", SetStrings.IndexOf(nameof(ItemModifyInfo.color), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("uam", SetStrings.IndexOf(nameof(ItemModifyInfo.useAmmo), StringComparer.OrdinalIgnoreCase));
+        SetShortStrings.Add("na", SetStrings.IndexOf(nameof(ItemModifyInfo.notAmmo), StringComparer.OrdinalIgnoreCase));
     }
     public ItemStrengthen(Main game) : base(game)
     {
-        CmdCommand = new("ItemStrengthenCtl")
+        Name = GetType().Namespace ?? nameof(ItemStrengthen);
+        defaultItemInfo = new();
+        itemInfo = new();
+        itemInfo.PrefixChanged += OnItemInfo_PrefixChanged;
+        CmdCommand = new("ItemStrengthen")
         {
             new SubCmdRun("Flush", "刷新", CmdFlush, "f", "flush"),
             new SubCmdRun("List", "列表", CmdList, "l", "list")
@@ -73,9 +123,17 @@ public partial class ItemStrengthen : TerrariaPlugin
         AddCommands = new Command[] { CmdCommand.GetCommand("vby.itemstrengthen.use", new string[] { "is" }), CtlCommand.GetCommand("isc", new string[] { "isc" }) };
     }
 
+    private void OnItemInfo_PrefixChanged(int value)
+    {
+        if(defaultItemInfo.type > 0)
+        {
+            defaultItemInfo.Prefix(value);
+        }
+    }
+
     public override void Initialize()
     {
-        Config.Read(true);
+        Config.Load(TSPlayer.Server);
         Commands.ChatCommands.AddRange(AddCommands);
     }
     protected override void Dispose(bool disposing)
@@ -83,7 +141,9 @@ public partial class ItemStrengthen : TerrariaPlugin
         if (disposing)
         {
             foreach (var cmd in AddCommands)
+            {
                 Commands.ChatCommands.Remove(cmd);
+            }
         }
         base.Dispose(disposing);
     }
@@ -100,13 +160,23 @@ public partial class ItemStrengthen : TerrariaPlugin
         try
         {
             var type = args.Parameters.Count > 0 ? int.Parse(args.Parameters[0]) : itemInfo.type;
-            itemInfo.SetDefaults(type);
+            var prefix = args.Parameters.Count > 1 ? int.Parse(args.Parameters[1]) : 0;
+            itemInfo.ResetStats(type);
             defaultItemInfo.SetDefaults(type);
-            args.Player.SendSuccessMessage("set default type({0}) success", type);
+            if (prefix != 0)
+            {
+                defaultItemInfo.Prefix(prefix);
+                args.Player.SendSuccessMessage("set default type({0}) prefix({1}) success", type, defaultItemInfo.prefix);
+                itemInfo.prefix = defaultItemInfo.prefix;
+            }
+            else
+            {
+                args.Player.SendSuccessMessage("set default type({0}) success", type);
+            }
         }
-        catch(FormatException)
+        catch(FormatException ex)
         {
-            args.Player.SendErrorMessage($"格式错误 {args.Parameters[0]}");
+            args.Player.SendErrorMessage($"格式错误 {ex.Message}");
         }
     }
     [Description("Give")]
@@ -118,46 +188,35 @@ public partial class ItemStrengthen : TerrariaPlugin
             args.Player.SendErrorMessage("not real player can't give");
             return;
         }
-        var itemIndex = Item.NewItem(null, TShock.Players[playerIndex].TPlayer.Center, Vector2.Zero, itemInfo.type);
+        var itemIndex = Item.NewItem(null, TShock.Players[playerIndex].TPlayer.Center, Vector2.Zero, itemInfo.type, 1, false, itemInfo.prefix == -1 ? 0 : itemInfo.prefix);
         var item = Main.item[itemIndex];
         item.playerIndexTheItemIsReservedFor = playerIndex;
-        item.scale = itemInfo.scale;
-        item.width = itemInfo.width;
-        item.height = itemInfo.height;
-        item.damage = itemInfo.damage;
-        item.useTime = itemInfo.useTime;
-        item.knockBack = itemInfo.knockBack;
-        item.shootSpeed = itemInfo.shootSpeed;
-        item.useAnimation = itemInfo.useAnimation;
-        item.ammo = itemInfo.ammo;
-        item.shoot = itemInfo.shoot;
-        item.color = itemInfo.color;
-        item.useAmmo = itemInfo.useAmmo;
-        item.notAmmo = itemInfo.notAmmo;
+        var (flag1, flag2) = itemInfo.Apply(item);
         TSPlayer.All.SendData(PacketTypes.UpdateItemDrop, "", itemIndex);
         TSPlayer.All.SendData(PacketTypes.ItemOwner, "", itemIndex);
-        TSPlayer.All.SendData(PacketTypes.TweakItem, "", itemIndex, 255, 63);
+        TSPlayer.All.SendData(PacketTypes.TweakItem, "", itemIndex, flag1, flag2);
     }
     [Description("Print")]
     public void CtlPrint(SubCmdArgs args)
     {
-        args.Player.SendInfoMessage(
-            $"type={itemInfo.type}\n" +
-            $"name={itemInfo.Name}\n" +
-            $"scale={itemInfo.scale}{DefaultStr(itemInfo.scale == defaultItemInfo.scale)}\n" +
-            $"width={itemInfo.width}{DefaultStr(itemInfo.width == defaultItemInfo.width)}\n" +
-            $"height={itemInfo.height}{DefaultStr(itemInfo.height == defaultItemInfo.height)}\n" +
-            $"damage={itemInfo.damage}{DefaultStr(itemInfo.damage == defaultItemInfo.damage)}\n" +
-            $"useTime={itemInfo.useTime}{DefaultStr(itemInfo.useTime == defaultItemInfo.useTime)}\n" +
-            $"knockBack={itemInfo.knockBack}{DefaultStr(itemInfo.knockBack == defaultItemInfo.knockBack)}\n" +
-            $"shootSpeed={itemInfo.shootSpeed}{DefaultStr(itemInfo.shootSpeed == defaultItemInfo.shootSpeed)}\n" +
-            $"useAnimation={itemInfo.useAnimation}{DefaultStr(itemInfo.useAnimation == defaultItemInfo.useAnimation)}\n" +
-            $"ammo={itemInfo.ammo}{DefaultStr(itemInfo.ammo == defaultItemInfo.ammo)}\n" +
-            $"shoot={itemInfo.shoot}{DefaultStr(itemInfo.shoot == defaultItemInfo.shoot)}\n" +
-            $"color={itemInfo.color}{DefaultStr(itemInfo.color == defaultItemInfo.color)}\n" +
-            $"useAmmo={itemInfo.useAmmo}{DefaultStr(itemInfo.useAmmo == defaultItemInfo.useAmmo)}\n" +
-            $"notAmmo={itemInfo.notAmmo}{DefaultStr(itemInfo.notAmmo == defaultItemInfo.notAmmo)}\n"
-            );
+        args.Player.SendInfoMessage(new StringBuilder()
+                    .AppendFormat("type={0}\n", itemInfo.type)
+                    .AppendFormat("name={0}\n", defaultItemInfo.Name)
+                    .AppendFormat("prefix={0}\n", itemInfo.prefix)
+                    .AppendFormat("scale={0}\n", itemInfo.scale.GetApplyText(defaultItemInfo.scale))
+                    .AppendFormat("width={0}\n", itemInfo.width.GetApplyText(defaultItemInfo.width))
+                    .AppendFormat("height={0}\n", itemInfo.height.GetApplyText(defaultItemInfo.height))
+                    .AppendFormat("damage={0}\n", itemInfo.damage.GetApplyText(defaultItemInfo.damage))
+                    .AppendFormat("useTime={0}\n", itemInfo.useTime.GetApplyText(defaultItemInfo.useTime))
+                    .AppendFormat("knockBack={0}\n", itemInfo.knockBack.GetApplyText(defaultItemInfo.knockBack))
+                    .AppendFormat("shootSpeed={0}\n", itemInfo.shootSpeed.GetApplyText(defaultItemInfo.shootSpeed))
+                    .AppendFormat("useAnimation={0}\n", itemInfo.useAnimation.GetApplyText(defaultItemInfo.useAnimation))
+                    .AppendFormat("ammo={0}\n", itemInfo.ammo.GetApplyText(defaultItemInfo.ammo))
+                    .AppendFormat("shoot={0}\n", itemInfo.shoot.GetApplyText(defaultItemInfo.shoot))
+                    .AppendFormat("color={0}\n", itemInfo.color.GetApplyText(defaultItemInfo.color))
+                    .AppendFormat("useAmmo={0}\n", itemInfo.useAmmo.GetApplyText(defaultItemInfo.useAmmo))
+                    .AppendFormat("notAmmo={0}", itemInfo.notAmmo.GetApplyText(defaultItemInfo.notAmmo))
+                    .ToString());
     }
     [Description("Set")]
     public void CtlSet(SubCmdArgs args)
@@ -184,27 +243,73 @@ public partial class ItemStrengthen : TerrariaPlugin
                 }
                 index = SetStrings.IndexOf(0, x => x == where.First());
             }
-            args.Player.SendInfoMessage("{0} => {1}", SetStrings[index], args.Parameters[i + 1]);
-            SetActions[index].Invoke(itemInfo, args.Parameters[i + 1]);
+            try
+            {
+                SetActions[index].Invoke(itemInfo, args.Parameters[i + 1]);
+                args.Player.SendInfoMessage("{0} => {1}", SetStrings[index], args.Parameters[i + 1]);
+            }
+            catch(Exception ex)
+            {
+                args.Player.SendErrorMessage(ex.Message);
+            }
         }
-        args.Player.SendInfoMessage("Set success");
     }
-    private static Action<T, string> GetParseSet<T>(string fieldname)
+    private static Action<T, string> GetParseSet<T>(string memberName)
     {
         var type = typeof(T);
-        var method = new DynamicMethod("", null, new Type[] { typeof(Item), typeof(string) });
+        var method = new DynamicMethod($"DynamicSet{memberName}", null, new Type[] { typeof(ItemModifyInfo), typeof(string) });
         var il = method.GetILGenerator();
         il.Emit(OpCodes.Ldarg_0);
         il.Emit(OpCodes.Ldarg_1);
-        var field = type.GetField(fieldname) ?? throw new Exception($"{type.FullName} field '{fieldname}' not find");
-        if (field.FieldType == typeof(Color))
-            il.Emit(OpCodes.Call, ((Func<string, Color>)NewColor).Method);
+        var members = type.GetMember(memberName);
+        if(members.Length == 0)
+        {
+            throw new Exception($"{type.FullName} member '{memberName}' not find");
+        }
+        var member = members[0];
+        var isField = member.MemberType == MemberTypes.Field;
+        var memberType = isField ? ((FieldInfo)member).FieldType : ((PropertyInfo)member).PropertyType;
+        if (memberType.IsValueType)
+        {
+            Type parseType;
+            var isNullable = memberType.IsGenericType;
+            Type[] genericTypes = null!;
+            if (isNullable)
+            {
+                genericTypes = memberType.GetGenericArguments();
+                parseType = genericTypes[0];
+            }
+            else
+            {
+                parseType = memberType;
+            }
+            if (parseType == typeof(Color))
+            {
+                il.Emit(OpCodes.Call, ((Func<string, Color>)NewColor).Method);
+            }
+            else
+            {
+                il.Emit(OpCodes.Call, parseType.GetMethod("Parse", BindingFlags.Static | BindingFlags.Public, new Type[] { typeof(string) })!);
+            }
+            if (isNullable)
+            {
+                il.Emit(OpCodes.Newobj, memberType.GetConstructor(genericTypes)!);
+            }
+        }
         else
-            il.Emit(OpCodes.Call, field.FieldType.GetMethod("Parse", BindingFlags.Static | BindingFlags.Public, new Type[] { TypeOf.String })!);
-        il.Emit(OpCodes.Stfld, field);
+        {
+            il.Emit(OpCodes.Call, memberType.GetMethod("Parse", BindingFlags.Static | BindingFlags.Public, new Type[] { typeof(string) })!);
+        }
+        if (isField)
+        {
+            il.Emit(OpCodes.Stfld, (FieldInfo)member);
+        }
+        else
+        {
+            il.Emit(OpCodes.Call, ((PropertyInfo)member).SetMethod!);
+        }
         il.Emit(OpCodes.Ret);
         return method.CreateDelegate<Action<T, string>>();
     }
-    private static string DefaultStr(bool ceq) => ceq ? "(default)" : "";
     private static Color NewColor(string color) => new(uint.Parse(color));
 }

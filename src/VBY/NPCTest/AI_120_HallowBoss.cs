@@ -81,12 +81,11 @@ partial class NPCAIs
                     npc.velocity = new Vector2(0f, 5f);
                     if (Main.netMode != 1)
                     {
-                        Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + new Vector2(0f, -80f), Vector2.Zero, 874, 0, 0f, Main.myPlayer);
+                        Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + new Vector2(0f, -80f), Vector2.Zero, ProjectileID.HallowBossDeathAurora, 0, 0f, Main.myPlayer);
                     }
                 }
                 if (npc.ai[1] == 10f)
                 {
-                    SoundEngine.PlaySound(SoundID.Item161, npc.Center);
                 }
                 npc.velocity *= 0.95f;
                 //if (npc.ai[1] > 10f && npc.ai[1] < 150f)
@@ -322,7 +321,6 @@ partial class NPCAIs
                 {
                     if (npc.ai[1] == 0f)
                     {
-                        SoundEngine.PlaySound(SoundID.Item164, npc.Center);
                     }
                     float num90 = 90f - num17;
                     Vector2 vector36 = new(-55f, -30f);
@@ -351,7 +349,7 @@ partial class NPCAIs
                         }
                         if (Main.netMode != 1)
                         {
-                            Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector36, vector38, 873, num8, 0f, Main.myPlayer, npc.target, ai3);
+                            Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector36, vector38, ProjectileID.HallowBossRainbowStreak, num8, 0f, Main.myPlayer, npc.target, ai3);
                         }
                         if (Main.netMode != 1)
                         {
@@ -360,7 +358,7 @@ partial class NPCAIs
                             {
                                 if (npc.Boss_CanShootExtraAt(num93, num92 % 3, 3, 2400f))
                                 {
-                                    Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector36, vector38, 873, num8, 0f, Main.myPlayer, num93, ai3);
+                                    Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector36, vector38, ProjectileID.HallowBossRainbowStreak, num8, 0f, Main.myPlayer, num93, ai3);
                                 }
                             }
                         }
@@ -386,7 +384,7 @@ partial class NPCAIs
                     if ((int)npc.ai[1] % 180 == 0)
                     {
                         Vector2 vector24 = new(0f, -100f);
-                        Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), targetData8.Center + vector24, Vector2.Zero, 874, num5, 0f, Main.myPlayer);
+                        Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), targetData8.Center + vector24, Vector2.Zero, ProjectileID.HallowBossDeathAurora, num5, 0f, Main.myPlayer);
                     }
                     if (npc.ai[1] >= 120f)
                     {
@@ -490,7 +488,7 @@ partial class NPCAIs
                                     projPosition = targetDataCenter + targetData.Velocity * 30 + Vector2.UnitY.RotatedByDegress(360f / 100f * npc.ai[1]) * projDistance;
                                     rotation = targetDataCenter - projPosition;
                                 }
-                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), projPosition, Vector2.Zero, 919, fairyQueenLanceProjDamage, 0f, Main.myPlayer, rotation.ToRotation(), npc.ai[1] / 100f);
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), projPosition, Vector2.Zero, ProjectileID.FairyQueenLance, fairyQueenLanceProjDamage, 0f, Main.myPlayer, rotation.ToRotation(), npc.ai[1] / 100f);
                                 //npc.AIOutput();
                             }
                             if (Main.netMode == 1)
@@ -522,7 +520,7 @@ partial class NPCAIs
                                     projPosition = targetDataCenter - Vector2.Normalize(vector35) * projDistance;
                                 }
                                 rotation = vector34 - projPosition;
-                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), projPosition, Vector2.Zero, 919, fairyQueenLanceProjDamage, 0f, Main.myPlayer, rotation.ToRotation(), npc.ai[1] / 100f);
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), projPosition, Vector2.Zero, ProjectileID.FairyQueenLance, fairyQueenLanceProjDamage, 0f, Main.myPlayer, rotation.ToRotation(), npc.ai[1] / 100f);
                             }
                         }
                     }
@@ -539,7 +537,6 @@ partial class NPCAIs
                 {
                     if (npc.ai[1] == 0f)
                     {
-                        SoundEngine.PlaySound(SoundID.Item163, npc.Center);
                     }
                     float num63 = 30f;
                     num63 -= num17;
@@ -564,7 +561,8 @@ partial class NPCAIs
                             Vector2 vector22 = Vector2.UnitY.RotatedBy((float)Math.PI / 2f + (float)Math.PI * 2f * num66 + num64);
                             if (Main.netMode != 1)
                             {
-                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector20 + vector22.RotatedBy(-1.5707963705062866) * 30f, vector22 * 8f, 872, num9, 0f, Main.myPlayer, 0f, num66);
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector20 + vector22.RotatedBy(-1.5707963705062866) * 30f, vector22 * 8f, ProjectileID.HallowBossLastingRainbow, num9, 0f, Main.myPlayer, 0f, num66);
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector20 + vector22.RotatedBy(-1.5707963705062866) * 30f, vector22 * 12f, ProjectileID.HallowBossLastingRainbow, num9, 0f, Main.myPlayer, 0f, num66);
                             }
                         }
                     }
@@ -604,7 +602,7 @@ partial class NPCAIs
                             float ai = (float)Math.PI * 2f * (num31 + num27);
                             if (Main.netMode != 1)
                             {
-                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector9, Vector2.Zero, 923, fairyQueenSunDanceProjDamage, 0f, Main.myPlayer, ai, npc.whoAmI);
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector9, Vector2.Zero, ProjectileID.FairyQueenSunDance, fairyQueenSunDanceProjDamage, 0f, Main.myPlayer, ai, npc.whoAmI);
                             }
                         }
                     }
@@ -709,6 +707,11 @@ partial class NPCAIs
                                     //v2 = origin.DirectionTo(originTargetCenter).SafeNormalize(Vector2.UnitY);
                                 }
 
+                                if (Main.getGoodWorld)
+                                {
+                                    origin = targetData9.Center + (origin - targetData9.Center) * 2;
+                                }
+
                                 float ai2 = i;
                                 var ro = v2.RotatedByRandom(2 * Math.PI);
                                 ro *= 3f;
@@ -717,7 +720,7 @@ partial class NPCAIs
                                     if (!Main.dayTime)
                                     {
                                         //原版
-                                        var index = Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), origin, Vector2.Zero, 919, num7, 0f, Main.myPlayer, v2.ToRotation(), ai2);
+                                        var index = Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), origin, Vector2.Zero, ProjectileID.FairyQueenLance, num7, 0f, Main.myPlayer, v2.ToRotation(), ai2);
                                         Main.projectile[index].localAI[1] = 1;
                                         Main.projectile[index].localAI[2] = npc.target;
                                     }
@@ -726,7 +729,7 @@ partial class NPCAIs
                                         if (DateTime.Now.Hour is > 21 or < 7)
                                         {
                                             //迷惑偏移预判版
-                                            npc.NewProjectile(origin - (ro * 59) + targetData9.Velocity * (59 - count), ro, 919, num7, v2.ToRotation(), ai2);
+                                            npc.NewProjectile(origin - (ro * 59) + targetData9.Velocity * (59 - count), ro, ProjectileID.FairyQueenLance, num7, v2.ToRotation(), ai2);
                                         }
                                         else
                                         {
@@ -787,6 +790,10 @@ partial class NPCAIs
                             }
                         }
                     }
+                    if (npc.ai[1] >= 50 && npc.ai[1] % 5 == 0)
+                    {
+                        Projectile.NewProjectile(npc.GetSpawnSourceForNPCFromNPCAI(), npc.Center, Vector2.Normalize(new Vector2(Main.rand.Next(-11, 10), -1)) * 10, ProjectileID.HallowBossRainbowStreak, num8, 0);
+                    }
                     float num32 = 20 - num17;
                     //Vector2 vector11 = new Vector2(0f, -100f);
                     //_ = npc.Center + vector11;
@@ -797,7 +804,6 @@ partial class NPCAIs
                     {
                         if (npc.ai[1] == 20f)
                         {
-                            SoundEngine.PlaySound(SoundID.Item160, npc.Center);
                         }
                         NPCAimedTarget targetData3 = npc.GetTargetData();
                         Vector2 destination = (targetData3.Invalid ? npc.Center : targetData3.Center) + new Vector2(num33 * -550, 0f);
@@ -842,7 +848,6 @@ partial class NPCAIs
                     float num94 = 20 - num17;
                     if (npc.ai[1] == 0f)
                     {
-                        SoundEngine.PlaySound(SoundID.Item161, npc.Center);
                     }
                     flag6 = !(npc.ai[1] >= 30f) || !(npc.ai[1] <= 170f);
                     npc.velocity *= 0.95f;
@@ -873,7 +878,6 @@ partial class NPCAIs
                 {
                     if (npc.ai[1] == 0f)
                     {
-                        SoundEngine.PlaySound(SoundID.Item162, npc.Center);
                     }
                     float num58 = 20 - num17;
                     if (npc.ai[1] >= 6f && npc.ai[1] < 54f)
@@ -915,7 +919,7 @@ partial class NPCAIs
                             Vector2 v = vector14 - vector15;
                             if (Main.netMode != 1)
                             {
-                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector15, Vector2.Zero, 919, fairyQueenLanceProjDamage, 0f, Main.myPlayer, v.ToRotation(), npc.ai[1] / 100f);
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector15, Vector2.Zero, ProjectileID.FairyQueenLance, fairyQueenLanceProjDamage, 0f, Main.myPlayer, v.ToRotation(), npc.ai[1] / 100f);
                             }
                             if (Main.netMode == 1)
                             {
@@ -946,7 +950,7 @@ partial class NPCAIs
                                     vector15 = center2 - Vector2.Normalize(vector18) * num60;
                                 }
                                 v = vector17 - vector15;
-                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector15, Vector2.Zero, 919, fairyQueenLanceProjDamage, 0f, Main.myPlayer, v.ToRotation(), npc.ai[1] / 100f);
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector15, Vector2.Zero, ProjectileID.FairyQueenLance, fairyQueenLanceProjDamage, 0f, Main.myPlayer, v.ToRotation(), npc.ai[1] / 100f);
                             }
                         }
                     }
@@ -965,7 +969,6 @@ partial class NPCAIs
                     Vector2 vector6 = new(-55f, -30f);
                     if (npc.ai[1] == 0f)
                     {
-                        SoundEngine.PlaySound(SoundID.Item165, npc.Center);
                         npc.velocity = new Vector2(0f, -12f);
                     }
                     npc.velocity *= 0.95f;
@@ -985,7 +988,7 @@ partial class NPCAIs
                         Vector2 vector7 = new Vector2(0f, -20f).RotatedBy((float)Math.PI * 2f * num23);
                         if (Main.netMode != 1)
                         {
-                            Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector6, vector7, 873, num8, 0f, Main.myPlayer, npc.target, num23);
+                            Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector6, vector7, ProjectileID.HallowBossRainbowStreak, num8, 0f, Main.myPlayer, npc.target, num23);
                         }
                         if (Main.netMode != 1)
                         {
@@ -994,7 +997,7 @@ partial class NPCAIs
                             {
                                 if (npc.Boss_CanShootExtraAt(j, num24 % 3, 3, 2400f))
                                 {
-                                    Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector6, vector7, 873, num8, 0f, Main.myPlayer, j, num23);
+                                    Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector6, vector7, ProjectileID.HallowBossRainbowStreak, num8, 0f, Main.myPlayer, j, num23);
                                 }
                             }
                         }
@@ -1012,7 +1015,6 @@ partial class NPCAIs
                 {
                     if (npc.ai[1] == 0f)
                     {
-                        SoundEngine.PlaySound(SoundID.Item165, npc.Center);
                         npc.velocity = new Vector2(0f, -7f);
                     }
                     npc.velocity *= 0.95f;
@@ -1074,7 +1076,7 @@ partial class NPCAIs
                         npc.active = false;
                         if (Main.netMode != 1)
                         {
-                            NetMessage.SendData(23, -1, -1, null, npc.whoAmI);
+                            NetMessage.SendData(MessageID.SyncNPC, -1, -1, null, npc.whoAmI);
                         }
                         return;
                     }

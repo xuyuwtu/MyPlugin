@@ -45,7 +45,7 @@ namespace System.Collections.Generic
 
         public void Clear() => list.Clear();
 
-        public bool Contains([NotNullWhen(true)] T item)
+        public bool Contains([NotNullWhen(true)] T? item)
         {
             if (item is null)
             {
@@ -65,7 +65,7 @@ namespace System.Collections.Generic
 
         public IEnumerator<T> GetEnumerator() => list.GetEnumerator();
 
-        public int IndexOf(T item)
+        public int IndexOf(T? item)
         {
             if (item is null)
             {
@@ -91,7 +91,7 @@ namespace System.Collections.Generic
             list.Insert(index, item);
         }
 
-        public bool Remove(T item)
+        public bool Remove(T? item)
         {
             var index = IndexOf(item);
             if (index == -1)

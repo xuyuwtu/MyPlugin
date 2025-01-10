@@ -14,6 +14,7 @@ public static class DetourNames
     public const string NPC_SpawnNPC = "Terraria.NPC.SpawnNPC";
     public const string NPC_TransformElderSlime = "Terraria.NPC.TransformElderSlime";
     public const string ObjectData_TileObjectData_GetTileData = "Terraria.ObjectData.TileObjectData.GetTileData";
+    public const string Player_Shellphone_Spawn = $"Terraria.Player.{nameof(Player.Shellphone_Spawn)}";
     public const string Wiring_HitWireSingle = "Terraria.Wiring.HitWireSingle";
     public const string WorldGen_ShakeTree = "Terraria.WorldGen.ShakeTree";
     public const string WorldGen_GrowAlch = "Terraria.WorldGen.GrowAlch";

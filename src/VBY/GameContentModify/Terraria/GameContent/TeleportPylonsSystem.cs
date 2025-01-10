@@ -3,6 +3,7 @@ using Terraria;
 using Terraria.Chat;
 using Terraria.DataStructures;
 using Terraria.GameContent;
+using Terraria.ID;
 using Terraria.Localization;
 
 namespace VBY.GameContentModify.GameContent;
@@ -44,7 +45,7 @@ public static class ReplaceTeleportPylonsSystem
         }
         if (flag && GameContentModify.MainConfig.Instance.TeleportPylons.PreDownedPlantBossTempleCheck)
         {
-            if (!NPC.downedPlantBoss && info.PositionInTiles.Y > Main.worldSurface && Framing.GetTileSafely(info.PositionInTiles.X, info.PositionInTiles.Y).wall == 87)
+            if (!NPC.downedPlantBoss && info.PositionInTiles.Y > Main.worldSurface && Framing.GetTileSafely(info.PositionInTiles.X, info.PositionInTiles.Y).wall == WallID.LihzahrdBrickUnsafe)
             {
                 flag = false;
             }
@@ -124,7 +125,7 @@ public static class ReplaceTeleportPylonsSystem
             player.Teleport(newPos, num2, typeOfPylon);
             player.velocity = Vector2.Zero;
             RemoteClient.CheckSection(player.whoAmI, player.position);
-            NetMessage.SendData(65, -1, -1, null, 0, player.whoAmI, newPos.X, newPos.Y, num2, number, typeOfPylon);
+            NetMessage.SendData(MessageID.TeleportEntity, -1, -1, null, 0, player.whoAmI, newPos.X, newPos.Y, num2, number, typeOfPylon);
         }
         else
         {

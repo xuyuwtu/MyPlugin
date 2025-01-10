@@ -88,6 +88,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sdk", "Sdk", "{94ADA65A-BDD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "My.Plugins.Sdk", "Sdk\My.Plugins.Sdk\My.Plugins.Sdk.csproj", "{6258CB37-6221-44CC-934A-1E453C2200EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrariaServerPluginAnalyzer", "src\TerrariaServerPluginAnalyzer\TerrariaServerPluginAnalyzer.csproj", "{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -758,6 +760,26 @@ Global
 		{6258CB37-6221-44CC-934A-1E453C2200EA}.Release|x64.Build.0 = Release|Any CPU
 		{6258CB37-6221-44CC-934A-1E453C2200EA}.Release|x86.ActiveCfg = Release|Any CPU
 		{6258CB37-6221-44CC-934A-1E453C2200EA}.Release|x86.Build.0 = Release|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Debug|ARM32.ActiveCfg = Debug|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Debug|ARM32.Build.0 = Debug|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Debug|x64.Build.0 = Debug|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Debug|x86.Build.0 = Debug|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Release|ARM32.ActiveCfg = Release|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Release|ARM32.Build.0 = Release|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Release|ARM64.Build.0 = Release|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Release|x64.ActiveCfg = Release|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Release|x64.Build.0 = Release|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Release|x86.ActiveCfg = Release|Any CPU
+		{43B4EDCF-03F0-4D24-BEE5-EF6B28B931C0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

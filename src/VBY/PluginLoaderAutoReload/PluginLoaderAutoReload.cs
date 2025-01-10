@@ -6,15 +6,14 @@ namespace VBY.PluginLoaderAutoReload;
 public class PluginLoaderAutoReload : TerrariaPlugin
 {
     public override string Name => nameof(PluginLoaderAutoReload);
-    //public static Dictionary<string, int> ChangeCount = new();
+    public override string Description => "检测PluginLoader文件夹更改后自动重载";
     public static FileSystemWatcher Watcher = new("PluginLoader")
     {
         Filter = "*.dll",
         NotifyFilter = NotifyFilters.LastWrite,
         EnableRaisingEvents = true
     };
-    public static System.Timers.Timer Timer = new(1000) { AutoReset = false };
-    //private const int CheckCount = 3;
+    public static System.Timers.Timer Timer = new(1500) { AutoReset = false };
     static PluginLoaderAutoReload()
     {
         Timer.Elapsed += OnElapsed;
@@ -45,23 +44,6 @@ public class PluginLoaderAutoReload : TerrariaPlugin
             Timer.Stop();
         }
         Timer.Start();
-        //Console.WriteLine(e.FullPath);
-        //Console.WriteLine(e.ChangeType);
-        //PluginLoader.PluginLoader.Reload(TShockAPI.TSPlayer.Server);
-        //var name = e.Name;
-        //if (!string.IsNullOrEmpty(name))
-        //{
-        //    if (!ChangeCount.ContainsKey(name))
-        //    {
-        //        ChangeCount[name] = 0;
-        //    }
-        //    ChangeCount[name] = ChangeCount[name] + 1;
-        //    if (ChangeCount[name] == CheckCount)
-        //    {
-        //        PluginLoader.PluginLoader.Reload(TShockAPI.TSPlayer.Server);
-        //        ChangeCount[name] = 0;
-        //    }
-        //}
     }
     public static void OnElapsed(object? sender, System.Timers.ElapsedEventArgs e) => PluginLoader.PluginLoader.Reload(TShockAPI.TSPlayer.Server);
 }

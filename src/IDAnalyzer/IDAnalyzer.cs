@@ -121,18 +121,37 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
                 }
             }
         }
-        else if (left is ElementAccessExpressionSyntax { Expression: MemberAccessExpressionSyntax memberAccess, ArgumentList.Arguments: [{ Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } }] })
+        else if (left is ElementAccessExpressionSyntax { Expression: MemberAccessExpressionSyntax memberAccess } elementAccess)
         {
-            var literalExpression = (LiteralExpressionSyntax)((ElementAccessExpressionSyntax)left).ArgumentList.Arguments[0].Expression;
-            var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
-            if (ElementAccessExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
+            if (right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression })
             {
-                for (int i = 0; i < idFilterInfos.Length; i++)
+                var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
+                if (RightElementAccessExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
                 {
-                    var idFilterInfo = idFilterInfos[i];
-                    if (memberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && int.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
+                    var literalExpression = (LiteralExpressionSyntax)right;
+                    for (int i = 0; i < idFilterInfos.Length; i++)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
+                        var idFilterInfo = idFilterInfos[i];
+                        if (memberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && int.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
+                        }
+                    }
+                }
+            }
+            if (elementAccess is { ArgumentList.Arguments: [{ Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } }] })
+            {
+                var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
+                if (ElementAccessExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
+                {
+                    var literalExpression = (LiteralExpressionSyntax)((ElementAccessExpressionSyntax)left).ArgumentList.Arguments[0].Expression;
+                    for (int i = 0; i < idFilterInfos.Length; i++)
+                    {
+                        var idFilterInfo = idFilterInfos[i];
+                        if (memberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && int.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
+                        }
                     }
                 }
             }
@@ -141,7 +160,8 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
 
     internal static FrozenDictionary<string, IdFilterInfo[]> MemberAccessExpressionReportFilter;
     internal static FrozenDictionary<string, IdFilterInfo[]> ElementAccessExpressionReportFilter;
-    public static FrozenDictionary<string, MethodFilterInfo[]> InvocationExpressionReportFilter;
+    internal static FrozenDictionary<string, IdFilterInfo[]> RightElementAccessExpressionReportFilter;
+    internal static FrozenDictionary<string, MethodFilterInfo[]> InvocationExpressionReportFilter;
 
     internal static FrozenDictionary<string, FrozenDictionary<int, string>> IDsDict;
     static IDAnalyzer()
@@ -164,6 +184,11 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
             { "Terraria.Player", [
                 GetIdFilterInfo("buffImmune", nameof(IDs.BuffID))
             ] }
+        }.ToFrozenDictionary(StringComparer.Ordinal);
+        RightElementAccessExpressionReportFilter = new Dictionary<string, IdFilterInfo[]>()
+        {
+            { "Terraria.NPC", [GetIdFilterInfo("buffType", nameof(IDs.BuffID))] },
+            { "Terraria.Player", [GetIdFilterInfo("buffType", nameof(IDs.BuffID))] }
         }.ToFrozenDictionary(StringComparer.Ordinal);
 
         InvocationExpressionReportFilter = new Dictionary<string, MethodFilterInfo[]>()

@@ -7,4 +7,3 @@
 Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
 TR0000  |  Design  |  Info    | 
-TR0001  |  Design  |  Info    | 

@@ -20,15 +20,13 @@ namespace IDAnalyzer;
 public sealed class IDAnalyzer : DiagnosticAnalyzer
 {
     public const string DiagnosticId = "TR0000";
-    public const string DiagnosticId2 = "TR0001";
     internal static readonly LocalizableString Title = "Change magic numbers into appropriate ID values";
     internal static readonly LocalizableString MessageFormat = "The number {0} should be changed to {1} for readability";
     internal static readonly LocalizableString Description = "Changes magic numbers into appropriate ID values.";
     internal const string Category = "Design";
 
     internal static DiagnosticDescriptor Rule = new(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Info, true, Description);
-    internal static DiagnosticDescriptor Rule2 = new(DiagnosticId2, Title, MessageFormat, Category, DiagnosticSeverity.Info, true, Description);
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule, Rule2];
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [Rule];
 
     public override void Initialize(AnalysisContext context)
     {
@@ -40,32 +38,60 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(SimpleAssignmentExpressionAction, SyntaxKind.SimpleAssignmentExpression);
         context.RegisterSyntaxNodeAction(InvocationExpressionAction, SyntaxKind.InvocationExpression);
         context.RegisterSyntaxNodeAction(CaseSwitchLabelAction, SyntaxKind.CaseSwitchLabel);
+        context.RegisterSyntaxNodeAction(ElementAccessExpressionAction, SyntaxKind.ElementAccessExpression);
     }
+
+    private void ElementAccessExpressionAction(SyntaxNodeAnalysisContext context)
+    {
+        if (context.Node is ElementAccessExpressionSyntax
+            {
+                Expression: MemberAccessExpressionSyntax memberAccess,
+                ArgumentList.Arguments: [
+                {
+                    Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression
+                }]
+            })
+        {
+            var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
+            if (ElementAccessExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
+            {
+                for (int i = 0; i < idFilterInfos.Length; i++)
+                {
+                    var idFilterInfo = idFilterInfos[i];
+                    if (memberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && int.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(Rule, literalExpression.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
+                    }
+                }
+            }
+        }
+    }
+
     public static void EqualsExpressionAction(SyntaxNodeAnalysisContext context)
     {
         var node = (BinaryExpressionSyntax)context.Node;
-        ExpressionAction(context, node, node.Left, node.Right, Rule);
+        ExpressionAction(context, node, node.Left, node.Right);
     }
     public static void SimpleAssignmentExpressionAction(SyntaxNodeAnalysisContext context)
     {
         var node = (AssignmentExpressionSyntax)context.Node;
-        ExpressionAction(context, node, node.Left, node.Right, Rule);
+        ExpressionAction(context, node, node.Left, node.Right);
     }
     public static void CaseSwitchLabelAction(SyntaxNodeAnalysisContext context)
     {
         var node = (CaseSwitchLabelSyntax)context.Node;
-        if(node.Value is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression)
+        if (node.Value is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression)
         {
             if (node.Parent?.Parent is SwitchStatementSyntax switchStatement)
             {
-                ExpressionAction(context, literalExpression, switchStatement.Expression, literalExpression, Rule2);
+                ExpressionAction(context, literalExpression, switchStatement.Expression, literalExpression);
             }
         }
     }
     public static void InvocationExpressionAction(SyntaxNodeAnalysisContext context)
     {
         var node = (InvocationExpressionSyntax)context.Node;
-        if(node.Expression is not MemberAccessExpressionSyntax memberAccess)
+        if (node.Expression is not MemberAccessExpressionSyntax memberAccess)
         {
             return;
         }
@@ -93,17 +119,18 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
                         continue;
                     }
                 }
-                if (node.ArgumentList.Arguments.Count > methodFilterInfo.CheckIndex 
-                    && node.ArgumentList.Arguments[methodFilterInfo.CheckIndex] is { Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression } 
+                if (node.ArgumentList.Arguments.Count > methodFilterInfo.CheckIndex
+                    && node.ArgumentList.Arguments[methodFilterInfo.CheckIndex] is { Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression }
                     && int.TryParse(literalExpression.Token.Text, out var id) && methodFilterInfo.IdToNameDict.TryGetValue(id, out var name))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), methodFilterInfo.Properties, id, $"{methodFilterInfo.IdName}.{name}"));
+                    context.ReportDiagnostic(Diagnostic.Create(Rule, literalExpression.GetLocation(), methodFilterInfo.Properties, id, $"{methodFilterInfo.IdName}.{name}"));
                 }
             }
         }
     }
-    internal static void ExpressionAction(SyntaxNodeAnalysisContext context, SyntaxNode reportNode, ExpressionSyntax left, ExpressionSyntax right, DiagnosticDescriptor diagnosticDescriptor)
+    internal static void ExpressionAction(SyntaxNodeAnalysisContext context, SyntaxNode reportNode, ExpressionSyntax left, ExpressionSyntax right)
     {
+        // example: npc.type == 10
         if (left is MemberAccessExpressionSyntax && right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression })
         {
             var memberemberAccess = (MemberAccessExpressionSyntax)left;
@@ -116,42 +143,23 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
                     var idFilterInfo = idFilterInfos[i];
                     if (memberemberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && int.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(diagnosticDescriptor, reportNode.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
+                        context.ReportDiagnostic(Diagnostic.Create(Rule, literalExpression.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
                     }
                 }
             }
         }
-        else if (left is ElementAccessExpressionSyntax { Expression: MemberAccessExpressionSyntax memberAccess } elementAccess)
+        else if (left is ElementAccessExpressionSyntax { Expression: MemberAccessExpressionSyntax memberAccess } elementAccess && right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression })
         {
-            if (right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression })
+            var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
+            if (RightElementAccessExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
             {
-                var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
-                if (RightElementAccessExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
+                var literalExpression = (LiteralExpressionSyntax)right;
+                for (int i = 0; i < idFilterInfos.Length; i++)
                 {
-                    var literalExpression = (LiteralExpressionSyntax)right;
-                    for (int i = 0; i < idFilterInfos.Length; i++)
+                    var idFilterInfo = idFilterInfos[i];
+                    if (memberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && int.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
                     {
-                        var idFilterInfo = idFilterInfos[i];
-                        if (memberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && int.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
-                        }
-                    }
-                }
-            }
-            if (elementAccess is { ArgumentList.Arguments: [{ Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } }] })
-            {
-                var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
-                if (ElementAccessExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
-                {
-                    var literalExpression = (LiteralExpressionSyntax)((ElementAccessExpressionSyntax)left).ArgumentList.Arguments[0].Expression;
-                    for (int i = 0; i < idFilterInfos.Length; i++)
-                    {
-                        var idFilterInfo = idFilterInfos[i];
-                        if (memberAccess.Name.Identifier.ValueText.OrdinalEquals(idFilterInfo.MemberName) && int.TryParse(literalExpression.Token.Text, out var id) && idFilterInfo.IdToNameDict.TryGetValue(id, out var name))
-                        {
-                            context.ReportDiagnostic(Diagnostic.Create(Rule2, literalExpression.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
-                        }
+                        context.ReportDiagnostic(Diagnostic.Create(Rule, literalExpression.GetLocation(), idFilterInfo.Properties, id, $"{idFilterInfo.IdName}.{name}"));
                     }
                 }
             }
@@ -307,7 +315,7 @@ public sealed class MethodFilterInfo
 public sealed class IDAnalyzerCodeFixProvider : CodeFixProvider
 {
     private const string Title = "Change magic number into appropriate ID value";
-    public sealed override ImmutableArray<string> FixableDiagnosticIds => [IDAnalyzer.DiagnosticId, IDAnalyzer.DiagnosticId2];
+    public sealed override ImmutableArray<string> FixableDiagnosticIds => [IDAnalyzer.DiagnosticId];
     public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
 
     public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -321,20 +329,6 @@ public sealed class IDAnalyzerCodeFixProvider : CodeFixProvider
         var type = diagnostic.Properties["type"]!;
         var diagnosticSpan = diagnostic.Location.SourceSpan;
         if (diagnostic.Id == IDAnalyzer.DiagnosticId)
-        {
-            foreach (var declaration in root.FindToken(diagnosticSpan.Start).Parent!.AncestorsAndSelf())
-            {
-                if (declaration is AssignmentExpressionSyntax { Right: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression })
-                {
-                    context.RegisterCodeFix(CodeAction.Create(Title, c => ReplaceNodeAsync(type, context.Document, literalExpression, c), Title), diagnostic);
-                }
-                else if (declaration is BinaryExpressionSyntax { Right: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression2 })
-                {
-                    context.RegisterCodeFix(CodeAction.Create(Title, c => ReplaceNodeAsync(type, context.Document, literalExpression2, c), Title), diagnostic);
-                }
-            }
-        }
-        else if(diagnostic.Id == IDAnalyzer.DiagnosticId2)
         {
             foreach (var declaration in root.FindToken(diagnosticSpan.Start).Parent!.AncestorsAndSelf())
             {

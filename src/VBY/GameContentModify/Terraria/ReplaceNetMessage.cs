@@ -316,7 +316,7 @@ public static class ReplaceNetMessage
                         : player5.armor[(int)number2 - PlayerItemSlotID.Armor0]))))))))))))));
                     if (item6.Name == "" || item6.stack == 0 || item6.type == ItemID.None)
                     {
-                        item6.SetDefaults(0, noMatCheck: true);
+                        item6.SetDefaults(ItemID.None, noMatCheck: true);
                     }
                     num11 = item6.stack;
                     num12 = item6.netID;

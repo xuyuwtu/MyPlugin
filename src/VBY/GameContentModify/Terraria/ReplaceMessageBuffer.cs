@@ -1385,7 +1385,7 @@ public static class ReplaceMessageBuffer
                     {
                         case 0:
                             {
-                                int num201 = WorldGen.PlaceChest(num195, num197, 21, notNearOtherChests: false, num198);
+                                int num201 = WorldGen.PlaceChest(num195, num197, TileID.Containers, notNearOtherChests: false, num198);
                                 if (num201 == -1)
                                 {
                                     NetMessage.TrySendData(MessageID.ChestUpdates, self.whoAmI, -1, null, b11, num195, num197, num198, num201);
@@ -1423,7 +1423,7 @@ public static class ReplaceMessageBuffer
                             {
                                 case 2:
                                     {
-                                        int num199 = WorldGen.PlaceChest(num195, num197, 88, notNearOtherChests: false, num198);
+                                        int num199 = WorldGen.PlaceChest(num195, num197, TileID.Dressers, notNearOtherChests: false, num198);
                                         if (num199 == -1)
                                         {
                                             NetMessage.TrySendData(MessageID.ChestUpdates, self.whoAmI, -1, null, b11, num195, num197, num198, num199);
@@ -1458,7 +1458,7 @@ public static class ReplaceMessageBuffer
                                     {
                                         case 4:
                                             {
-                                                int num200 = WorldGen.PlaceChest(num195, num197, 467, notNearOtherChests: false, num198);
+                                                int num200 = WorldGen.PlaceChest(num195, num197, TileID.Containers2, notNearOtherChests: false, num198);
                                                 if (num200 == -1)
                                                 {
                                                     NetMessage.TrySendData(MessageID.ChestUpdates, self.whoAmI, -1, null, b11, num195, num197, num198, num200);
@@ -1920,19 +1920,19 @@ public static class ReplaceMessageBuffer
                     }
                     else if (num5 == -12)
                     {
-                        NPC.UnlockOrExchangePet(ref NPC.boughtCat, 637, "Misc.LicenseCatUsed", num5);
+                        NPC.UnlockOrExchangePet(ref NPC.boughtCat, NPCID.TownCat, "Misc.LicenseCatUsed", num5);
                     }
                     else if (num5 == -13)
                     {
-                        NPC.UnlockOrExchangePet(ref NPC.boughtDog, 638, "Misc.LicenseDogUsed", num5);
+                        NPC.UnlockOrExchangePet(ref NPC.boughtDog, NPCID.TownDog, "Misc.LicenseDogUsed", num5);
                     }
                     else if (num5 == -14)
                     {
-                        NPC.UnlockOrExchangePet(ref NPC.boughtBunny, 656, "Misc.LicenseBunnyUsed", num5);
+                        NPC.UnlockOrExchangePet(ref NPC.boughtBunny, NPCID.TownBunny, "Misc.LicenseBunnyUsed", num5);
                     }
                     else if (num5 == -15)
                     {
-                        NPC.UnlockOrExchangePet(ref NPC.unlockedSlimeBlueSpawn, 670, "Misc.LicenseSlimeUsed", num5);
+                        NPC.UnlockOrExchangePet(ref NPC.unlockedSlimeBlueSpawn, NPCID.TownSlimeBlue, "Misc.LicenseSlimeUsed", num5);
                     }
                     else if (num5 == -16)
                     {

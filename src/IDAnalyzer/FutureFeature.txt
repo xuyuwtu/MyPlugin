@@ -1,0 +1,7 @@
+﻿System
+	Index
+	Range
+	Runtime.CompilerServices
+		CallerArgumentExpressionAttribute
+		CompilerFeatureRequiredAttribute
+		IsExternalInit

@@ -583,11 +583,11 @@ public static class ReplaceWorldGen
                 speedY *= num16;
                 if (!Main.dayTime || Main.remixWorld)
                 {
-                    Projectile.NewProjectile(new EntitySource_ByProjectileSourceId(11), position.X, position.Y, speedX, speedY, 720, 0, 0f, Main.myPlayer, 0f, ai1);
+                    Projectile.NewProjectile(new EntitySource_ByProjectileSourceId(11), position.X, position.Y, speedX, speedY, ProjectileID.FallingStarSpawner, 0, 0f, Main.myPlayer, 0f, ai1);
                 }
                 else
                 {
-                    Projectile.NewProjectile(new EntitySource_ByProjectileSourceId(11), position.X, position.Y, speedX, speedY, 12, 999, 0f, Main.myPlayer, 0f, ai1);
+                    Projectile.NewProjectile(new EntitySource_ByProjectileSourceId(11), position.X, position.Y, speedX, speedY, ProjectileID.FallingStar, 999, 0f, Main.myPlayer, 0f, ai1);
                 }
             }
         }
@@ -2269,10 +2269,10 @@ public static class ReplaceWorldGen
             switch (type)
             {
                 case 12:
-                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(num, num2), num * 16, num2 * 16, 32, 32, 29);
+                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(num, num2), num * 16, num2 * 16, 32, 32, ItemID.LifeCrystal);
                     break;
                 case 639:
-                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(num, num2), num * 16, num2 * 16, 32, 32, 109);
+                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(num, num2), num * 16, num2 * 16, 32, 32, ItemID.ManaCrystal);
                     break;
                 case TileID.ShadowOrbs:
                     var config = GameContentModify.MainConfig.Instance.Orb;
@@ -2606,7 +2606,7 @@ public static class ReplaceWorldGen
                     break;
                 }
             case 114:
-                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 398);
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.TinkerersWorkshop);
                 break;
             case 26:
                 if (!WorldGen.noTileActions && !WorldGen.IsGeneratingHardMode)
@@ -2615,10 +2615,10 @@ public static class ReplaceWorldGen
                 }
                 break;
             case 298:
-                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2190);
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.FrogCage);
                 break;
             case 299:
-                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2191);
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.MouseCage);
                 break;
             case 361:
             case 362:
@@ -2635,79 +2635,79 @@ public static class ReplaceWorldGen
                 switch (type)
                 {
                     case 285:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2174);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.SnailCage);
                         break;
                     case 286:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2175);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.GlowingSnailCage);
                         break;
                     case 582:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4850);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.MagmaSnailCage);
                         break;
                     case 619:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4963);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.TruffleWormCage);
                         break;
                     case 310:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2207);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.WormCage);
                         break;
                     case 339:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 2741);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.GrasshopperCage);
                         break;
                     case 538:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4380);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.LadybugCage);
                         break;
                     case 544:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4399);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.GoldLadybugCage);
                         break;
                     case 532:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4364);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.MaggotCage);
                         break;
                     case 533:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4376);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.RatCage);
                         break;
                     case 555:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4475);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.WaterStriderCage);
                         break;
                     case 556:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4476);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.GoldWaterStriderCage);
                         break;
                     case 629:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 5133);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.StinkbugCage);
                         break;
                     case 217:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 995);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.BlendOMatic);
                         break;
                     case 218:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 996);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.MeatGrinder);
                         break;
                     case 219:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 997);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.Extractinator);
                         break;
                     case 642:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 5296);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.ChlorophyteExtractinator);
                         break;
                     case 220:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 998);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.Solidifier);
                         break;
                     case 377:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 3198);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.SharpeningStation);
                         break;
                     case 228:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 1120);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.DyeVat);
                         break;
                     case 405:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 3364);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.Fireplace);
                         break;
                     case 486:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 4063);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.DrumSet);
                         break;
                     case 488:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 9, WorldGen.genRand.Next(10, 21));
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.Wood, WorldGen.genRand.Next(10, 21));
                         break;
                     case 215:
                         Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, WorldGen.GetCampfireItemDrop(num6));
                         break;
                     case 244:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 1449);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.BubbleMachine);
                         break;
                     case 647:
                         {
@@ -2823,16 +2823,16 @@ public static class ReplaceWorldGen
                             break;
                         }
                     case 17:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 33);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.Furnace);
                         break;
                     case 77:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 221);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.Hellforge);
                         break;
                     case 86:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 332);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.Loom);
                         break;
                     case 237:
-                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 1292);
+                        Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.LihzahrdAltar);
                         break;
                     case 87:
                         {
@@ -2898,11 +2898,11 @@ public static class ReplaceWorldGen
                     case 133:
                         if (frameX >= 54)
                         {
-                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 1221);
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.TitaniumForge);
                         }
                         else
                         {
-                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 524);
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.AdamantiteForge);
                         }
                         break;
                     case TileID.LargePiles:
@@ -2913,108 +2913,108 @@ public static class ReplaceWorldGen
                         }
                         if (frameX <= 954)
                         {
-                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
-                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
-                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(20, 100));
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(30, 100));
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(40, 100));
                             if (WorldGen.genRand.Next(3) != 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
-                            }
-                            if (WorldGen.genRand.Next(3) != 0)
-                            {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(20, 100));
                             }
                             if (WorldGen.genRand.Next(3) != 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(30, 100));
+                            }
+                            if (WorldGen.genRand.Next(3) != 0)
+                            {
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(40, 100));
                             }
                             if (WorldGen.genRand.Next(2) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(20, 100));
                             }
                             if (WorldGen.genRand.Next(2) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(30, 100));
                             }
                             if (WorldGen.genRand.Next(2) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(40, 100));
                             }
                             if (WorldGen.genRand.Next(3) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(20, 100));
                             }
                             if (WorldGen.genRand.Next(3) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(30, 100));
                             }
                             if (WorldGen.genRand.Next(3) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(40, 100));
                             }
                             if (WorldGen.genRand.Next(4) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(20, 100));
                             }
                             if (WorldGen.genRand.Next(4) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(30, 100));
                             }
                             if (WorldGen.genRand.Next(4) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(40, 100));
                             }
                             if (WorldGen.genRand.Next(5) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(20, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(20, 100));
                             }
                             if (WorldGen.genRand.Next(5) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(30, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(30, 100));
                             }
                             if (WorldGen.genRand.Next(5) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 71, WorldGen.genRand.Next(40, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.CopperCoin, WorldGen.genRand.Next(40, 100));
                             }
                         }
                         else if (frameX <= 1062)
                         {
-                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 72, WorldGen.genRand.Next(10, 100));
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.SilverCoin, WorldGen.genRand.Next(10, 100));
                             if (WorldGen.genRand.Next(2) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 72, WorldGen.genRand.Next(20, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.SilverCoin, WorldGen.genRand.Next(20, 100));
                             }
                             if (WorldGen.genRand.Next(3) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 72, WorldGen.genRand.Next(30, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.SilverCoin, WorldGen.genRand.Next(30, 100));
                             }
                             if (WorldGen.genRand.Next(4) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 72, WorldGen.genRand.Next(40, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.SilverCoin, WorldGen.genRand.Next(40, 100));
                             }
                             if (WorldGen.genRand.Next(5) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 72, WorldGen.genRand.Next(50, 100));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.SilverCoin, WorldGen.genRand.Next(50, 100));
                             }
                         }
                         else if (frameX <= 1170)
                         {
-                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 73, WorldGen.genRand.Next(1, 7));
+                            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.GoldCoin, WorldGen.genRand.Next(1, 7));
                             if (WorldGen.genRand.Next(2) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 73, WorldGen.genRand.Next(2, 7));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.GoldCoin, WorldGen.genRand.Next(2, 7));
                             }
                             if (WorldGen.genRand.Next(3) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 73, WorldGen.genRand.Next(3, 7));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.GoldCoin, WorldGen.genRand.Next(3, 7));
                             }
                             if (WorldGen.genRand.Next(4) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 73, WorldGen.genRand.Next(4, 7));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.GoldCoin, WorldGen.genRand.Next(4, 7));
                             }
                             if (WorldGen.genRand.Next(5) == 0)
                             {
-                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 73, WorldGen.genRand.Next(5, 7));
+                                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.GoldCoin, WorldGen.genRand.Next(5, 7));
                             }
                         }
                         break;
@@ -3048,6 +3048,7 @@ public static class ReplaceWorldGen
             WorldGen.mysticLogsEvent.FallenLogDestroyed();
         }
     }
+    public static int[] treeShakeCount = new int[500];
     public static void ShakeTree(int i, int j)
     {
         if (WorldGen.numTreeShakes == WorldGen.maxTreeShakes)
@@ -3082,14 +3083,11 @@ public static class ReplaceWorldGen
             return;
         }
         var rand = WorldGen.genRand;
-        //if (!MainConfigInfo.StaticDisableShakeTreeDropBombProj && Main.getGoodWorld && rand.Next(17) == 0)
-        //if(rand.Next(2) == 0)
-        //{
-        //    //Projectile.NewProjectile(WorldGen.GetProjectileSource_ShakeTree(x, y), x * 16, y * 16, Main.rand.Next(-100, 101) * 0.002f, 0f, ProjectileID.Bomb, 0, 0f, Main.myPlayer, 16f, 16f);
-        //    Projectile.NewProjectile(WorldGen.GetProjectileSource_ShakeTree(x, y), x * 16, y * 16, Main.rand.Next(-100, 101) * 0.002f, 0f, ProjectileID.Boulder, 0, 0f, Main.myPlayer, 16f, 16f);
-        //}
-        //else if (rand.Next(300) == 0 && treeType == TreeTypes.Forest)
-        if (rand.Next(300) == 0 && treeType == TreeTypes.Forest)
+        if (!MainConfigInfo.StaticDisableShakeTreeDropBombProj && Main.getGoodWorld && rand.Next(17) == 0)
+        {
+            Projectile.NewProjectile(WorldGen.GetProjectileSource_ShakeTree(x, y), x * 16, y * 16, Main.rand.Next(-100, 101) * 0.002f, 0f, ProjectileID.Bomb, 0, 0f, Main.myPlayer, 16f, 16f);
+        }
+        else if (rand.Next(300) == 0 && treeType == TreeTypes.Forest)
         {
             newItem(832);
         }
@@ -3238,7 +3236,7 @@ public static class ReplaceWorldGen
         }
         else if (rand.Next(40) == 0 && treeType == TreeTypes.Jungle)
         {
-            Projectile.NewProjectile(WorldGen.GetProjectileSource_ShakeTree(x, y), x * 16 + 8, (y - 1) * 16, 0f, 0f, 655, 0, 0f, Main.myPlayer);
+            Projectile.NewProjectile(WorldGen.GetProjectileSource_ShakeTree(x, y), x * 16 + 8, (y - 1) * 16, 0f, 0f, ProjectileID.BeeHive, 0, 0f, Main.myPlayer);
         }
         else if (rand.Next(20) == 0 && (treeType == TreeTypes.Forest || treeType == TreeTypes.Hallowed) && !Main.raining && !NPC.TooWindyForButterflies && Main.dayTime)
         {
@@ -3391,13 +3389,13 @@ public static class ReplaceWorldGen
         {
             if (Main.netMode != 1)
             {
-                Projectile.NewProjectile(WorldGen.GetProjectileSource_TileBreak(i, j), i * 16 + 16, j * 16 + 16, 0f, -12f, 518, 0, 0f, Main.myPlayer);
+                Projectile.NewProjectile(WorldGen.GetProjectileSource_TileBreak(i, j), i * 16 + 16, j * 16 + 16, 0f, -12f, ProjectileID.CoinPortal, 0, 0f, Main.myPlayer);
             }
             return;
         }
         if (WorldGen.genRand.Next(35) == 0 && Main.wallDungeon[Main.tile[i, j].wall] && j > Main.worldSurface)
         {
-            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 327);
+            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.GoldenKey);
             return;
         }
         //if (MainConfigInfo.StaticDisablePotDropBombProj.IsFalseRet(Main.getGoodWorld && WorldGen.genRand.Next(6) == 0))
@@ -3410,7 +3408,7 @@ public static class ReplaceWorldGen
             Player player = Main.player[Player.FindClosest(new Vector2(i * 16, j * 16), 16, 16)];
             if (Main.rand.Next(2) == 0)
             {
-                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 75);
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.FallenStar);
             }
             else if (player.ZoneJungle)
             {
@@ -3423,7 +3421,7 @@ public static class ReplaceWorldGen
             }
             else if (j > Main.rockLayer && j < Main.maxTilesY - 350)
             {
-                int num3 = ((Main.rand.Next(9) == 0) ? NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), x2 * 16 + 16, y2 * 16 + 32, -7) : ((Main.rand.Next(7) == 0) ? NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), x2 * 16 + 16, y2 * 16 + 32, -8) : ((Main.rand.Next(6) == 0) ? NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), x2 * 16 + 16, y2 * 16 + 32, -9) : ((Main.rand.Next(3) != 0) ? NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), x2 * 16 + 16, y2 * 16 + 32, 1) : NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), x2 * 16 + 16, y2 * 16 + 32, -3)))));
+                int num3 = ((Main.rand.Next(9) == 0) ? NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), x2 * 16 + 16, y2 * 16 + 32, -7) : ((Main.rand.Next(7) == 0) ? NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), x2 * 16 + 16, y2 * 16 + 32, -8) : ((Main.rand.Next(6) == 0) ? NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), x2 * 16 + 16, y2 * 16 + 32, -9) : ((Main.rand.Next(3) != 0) ? NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), x2 * 16 + 16, y2 * 16 + 32, NPCID.BlueSlime) : NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), x2 * 16 + 16, y2 * 16 + 32, -3)))));
                 if (num3 > -1)
                 {
                     Main.npc[num3].ai[1] = 75f;
@@ -3441,14 +3439,14 @@ public static class ReplaceWorldGen
             }
             else
             {
-                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 75);
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.FallenStar);
             }
             return;
         }
         if (Main.remixWorld && i > Main.maxTilesX * 0.37 && i < Main.maxTilesX * 0.63 && j > Main.maxTilesY - 220)
         {
             int stack = Main.rand.Next(20, 41);
-            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 965, stack);
+            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.Rope, stack);
             return;
         }
         if (WorldGen.genRand.Next(45) == 0 || (Main.rand.Next(45) == 0 && Main.expertMode))
@@ -3458,7 +3456,7 @@ public static class ReplaceWorldGen
                 int randomValue = WorldGen.genRand.Next(10);
                 if (randomValue >= 7)
                 {
-                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 2350, WorldGen.genRand.Next(1, 3));
+                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.RecallPotion, WorldGen.genRand.Next(1, 3));
                 }
                 else
                 {
@@ -3470,7 +3468,7 @@ public static class ReplaceWorldGen
                 int randomValue = WorldGen.genRand.Next(11);
                 if (randomValue >= 9)
                 {
-                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 2350, WorldGen.genRand.Next(1, 3));
+                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.RecallPotion, WorldGen.genRand.Next(1, 3));
                 }
                 else
                 {
@@ -3482,7 +3480,7 @@ public static class ReplaceWorldGen
                 int randomValue = WorldGen.genRand.Next(15);
                 if (randomValue >= 14)
                 {
-                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 2350, WorldGen.genRand.Next(1, 3));
+                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.RecallPotion, WorldGen.genRand.Next(1, 3));
                 }
                 else
                 {
@@ -3510,14 +3508,14 @@ public static class ReplaceWorldGen
                 });
                 if (WorldGen.genRand.Next(5) == 0)
                 {
-                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 4870);
+                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.PotionOfReturn);
                 }
             }
             return;
         }
         if (Main.rand.Next(30) == 0)
         {
-            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 2997);
+            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.WormholePotion);
             return;
         }
         int num9 = Main.rand.Next(7);
@@ -3543,20 +3541,20 @@ public static class ReplaceWorldGen
         bool flag4 = num10 < num11;
         if (num9 == 0 && player2.statLife < player2.statLifeMax2)
         {
-            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 58);
+            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.Heart);
             if (Main.rand.Next(2) == 0)
             {
-                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 58);
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.Heart);
             }
             if (Main.expertMode)
             {
                 if (Main.rand.Next(2) == 0)
                 {
-                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 58);
+                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.Heart);
                 }
                 if (Main.rand.Next(2) == 0)
                 {
-                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 58);
+                    Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.Heart);
                 }
             }
             return;
@@ -3673,7 +3671,7 @@ public static class ReplaceWorldGen
         if ((num9 == 4 || num9 == 5) && j < Main.UnderworldLayer && !Main.hardMode)
         {
             int stack3 = Main.rand.Next(20, 41);
-            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 965, stack3);
+            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.Rope, stack3);
             return;
         }
         float num15 = 200 + WorldGen.genRand.Next(-100, 101);
@@ -3789,7 +3787,7 @@ public static class ReplaceWorldGen
                     num16 /= Main.rand.Next(3) + 1;
                 }
                 num15 -= 1000000 * num16;
-                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 74, num16);
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.PlatinumCoin, num16);
                 continue;
             }
             if (num15 > 10000f)
@@ -3804,7 +3802,7 @@ public static class ReplaceWorldGen
                     num17 /= Main.rand.Next(3) + 1;
                 }
                 num15 -= 10000 * num17;
-                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 73, num17);
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.GoldCoin, num17);
                 continue;
             }
             if (num15 > 100f)
@@ -3819,7 +3817,7 @@ public static class ReplaceWorldGen
                     num18 /= Main.rand.Next(3) + 1;
                 }
                 num15 -= 100 * num18;
-                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 72, num18);
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.SilverCoin, num18);
                 continue;
             }
             int num19 = (int)num15;
@@ -3836,7 +3834,7 @@ public static class ReplaceWorldGen
                 num19 = 1;
             }
             num15 -= num19;
-            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, 71, num19);
+            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.CopperCoin, num19);
         }
     }
     public static void GrowAlch(int x, int y)
@@ -4877,7 +4875,7 @@ public static class ReplaceWorldGen
         WorldGen.destroyObject = true;
         if (type == 235)
         {
-            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 1263);
+            Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.Teleporter);
         }
         for (int l = num; l < num + 3; l++)
         {
@@ -6218,7 +6216,7 @@ public static class ReplaceWorldGen
             }
             if (type == 236)
             {
-                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, 1291);
+                Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemID.LifeFruit);
             }
             WorldGen.destroyObject = true;
             for (int n = num; n < num + 2; n++)

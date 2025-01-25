@@ -136,7 +136,7 @@ public static class ReplaceNPC
             }
 
             bool flag3 = false;
-            if (player.isNearNPC(398, NPC.MoonLordFightingDistance))
+            if (player.isNearNPC(NPCID.MoonLordCore, NPC.MoonLordFightingDistance))
             {
                 continue;
             }
@@ -4397,7 +4397,7 @@ public static class ReplaceNPC
                 npc.GetHurtByOtherNPCs(NPCID.Sets.AllNPCs);
             }
         }
-        if (!MainConfigInfo.StaticDisableQueenBeeAndBeeHurtOtherNPC && (NPC.npcsFoundForCheckActive[210] || NPC.npcsFoundForCheckActive[211]) && !NPCID.Sets.HurtingBees[npc.type])
+        if (!MainConfigInfo.StaticDisableQueenBeeAndBeeHurtOtherNPC && (NPC.npcsFoundForCheckActive[NPCID.Bee] || NPC.npcsFoundForCheckActive[NPCID.BeeSmall]) && !NPCID.Sets.HurtingBees[npc.type])
         {
             npc.GetHurtByOtherNPCs(NPCID.Sets.HurtingBees);
         }
@@ -4414,7 +4414,7 @@ public static class ReplaceNPC
             {
                 for (int k = 0; k < NPC.maxBuffs; k++)
                 {
-                    if (npc.buffType[k] == 24)
+                    if (npc.buffType[k] == BuffID.OnFire)
                     {
                         npc.DelBuff(k);
                         break;
@@ -4447,9 +4447,9 @@ public static class ReplaceNPC
             for (int i = 0; i < 200; i++)
             {
                 NPC nPC = Main.npc[i];
-                if (nPC.active && !nPC.buffImmune[189] && self.Distance(nPC.Center) < 100f && !nPC.dontTakeDamage && nPC.lifeMax > 5 && !nPC.friendly && !nPC.townNPC)
+                if (nPC.active && !nPC.buffImmune[BuffID.Daybreak] && self.Distance(nPC.Center) < 100f && !nPC.dontTakeDamage && nPC.lifeMax > 5 && !nPC.friendly && !nPC.townNPC)
                 {
-                    nPC.AddBuff(189, 300);
+                    nPC.AddBuff(BuffID.Daybreak, 300);
                 }
             }
         }
@@ -4772,31 +4772,31 @@ public static class ReplaceNPC
             case NPCID.Pumpking:
                 if (Main.pumpkinMoon)
                 {
-                    NPC.SetEventFlagCleared(ref NPC.downedHalloweenKing, 5);
+                    NPC.SetEventFlagCleared(ref NPC.downedHalloweenKing, GameEventClearedID.DefeatedHalloweenKing);
                 }
                 break;
             case NPCID.MourningWood:
                 if (Main.pumpkinMoon)
                 {
-                    NPC.SetEventFlagCleared(ref NPC.downedHalloweenTree, 4);
+                    NPC.SetEventFlagCleared(ref NPC.downedHalloweenTree, GameEventClearedID.DefeatedHalloweenTree);
                 }
                 break;
             case NPCID.Everscream:
                 if (Main.snowMoon)
                 {
-                    NPC.SetEventFlagCleared(ref NPC.downedChristmasTree, 21);
+                    NPC.SetEventFlagCleared(ref NPC.downedChristmasTree, GameEventClearedID.DefeatedChristmassTree);
                 }
                 break;
             case NPCID.IceQueen:
                 if (Main.snowMoon)
                 {
-                    NPC.SetEventFlagCleared(ref NPC.downedChristmasIceQueen, 20);
+                    NPC.SetEventFlagCleared(ref NPC.downedChristmasIceQueen, GameEventClearedID.DefeatedIceQueen);
                 }
                 break;
             case NPCID.SantaNK1:
                 if (Main.snowMoon)
                 {
-                    NPC.SetEventFlagCleared(ref NPC.downedChristmasSantank, 22);
+                    NPC.SetEventFlagCleared(ref NPC.downedChristmasSantank, GameEventClearedID.DefeatedSantank);
                 }
                 break;
             case NPCID.DD2GoblinT1:
@@ -4905,19 +4905,19 @@ public static class ReplaceNPC
                 WorldGen.MessageLunarApocalypse();
                 break;
             case NPCID.Golem:
-                NPC.SetEventFlagCleared(ref NPC.downedGolemBoss, 6);
+                NPC.SetEventFlagCleared(ref NPC.downedGolemBoss, GameEventClearedID.DefeatedGolem);
                 break;
             case NPCID.DukeFishron:
-                NPC.SetEventFlagCleared(ref NPC.downedFishron, 7);
+                NPC.SetEventFlagCleared(ref NPC.downedFishron, GameEventClearedID.DefeatedFishron);
                 break;
             case NPCID.HallowBoss:
-                NPC.SetEventFlagCleared(ref NPC.downedEmpressOfLight, 23);
+                NPC.SetEventFlagCleared(ref NPC.downedEmpressOfLight, GameEventClearedID.DefeatedEmpressOfLight);
                 break;
             case NPCID.Deerclops:
-                NPC.SetEventFlagCleared(ref NPC.downedDeerclops, 25);
+                NPC.SetEventFlagCleared(ref NPC.downedDeerclops, GameEventClearedID.DefeatedDeerclops);
                 break;
             case NPCID.QueenSlimeBoss:
-                NPC.SetEventFlagCleared(ref NPC.downedQueenSlime, 24);
+                NPC.SetEventFlagCleared(ref NPC.downedQueenSlime, GameEventClearedID.DefeatedQueenSlime);
                 break;
             case NPCID.Guide:
                 if (Collision.LavaCollision(self.position, self.width, self.height))
@@ -4947,14 +4947,14 @@ public static class ReplaceNPC
                 {
                     needSend = true;
                 }
-                NPC.SetEventFlagCleared(ref NPC.downedQueenBee, 8);
+                NPC.SetEventFlagCleared(ref NPC.downedQueenBee, GameEventClearedID.DefeatedQueenBee);
                 break;
             case NPCID.CultistBoss:
-                NPC.SetEventFlagCleared(ref NPC.downedAncientCultist, 9);
+                NPC.SetEventFlagCleared(ref NPC.downedAncientCultist, GameEventClearedID.DefeatedAncientCultist);
                 WorldGen.TriggerLunarApocalypse();
                 break;
             case NPCID.MoonLordCore:
-                NPC.SetEventFlagCleared(ref NPC.downedMoonlord, 10);
+                NPC.SetEventFlagCleared(ref NPC.downedMoonlord, GameEventClearedID.DefeatedMoonlord);
                 NPC.LunarApocalypseIsUp = false;
                 break;
             case NPCID.KingSlime:
@@ -4974,20 +4974,20 @@ public static class ReplaceNPC
                 {
                     needSend = true;
                 }
-                NPC.SetEventFlagCleared(ref NPC.downedSlimeKing, 11);
+                NPC.SetEventFlagCleared(ref NPC.downedSlimeKing, GameEventClearedID.DefeatedSlimeKing);
                 break;
             case NPCID.Retinazer:
             case NPCID.Spazmatism:
                 if (self.boss)
                 {
-                    NPC.SetEventFlagCleared(ref NPC.downedMechBoss2, 17);
+                    NPC.SetEventFlagCleared(ref NPC.downedMechBoss2, GameEventClearedID.DefeatedTheTwins);
                     NPC.downedMechBossAny = true;
                 }
                 break;
             case NPCID.Plantera:
                 {
                     bool num3 = NPC.downedPlantBoss;
-                    NPC.SetEventFlagCleared(ref NPC.downedPlantBoss, 12);
+                    NPC.SetEventFlagCleared(ref NPC.downedPlantBoss, GameEventClearedID.DefeatedPlantera);
                     if (!num3)
                     {
                         ChatHelper.BroadcastChatMessage(NetworkText.FromKey(Lang.misc[33].Key), new Color(50, 255, 130));
@@ -4995,7 +4995,7 @@ public static class ReplaceNPC
                     break;
                 }
             case NPCID.EyeofCthulhu:
-                NPC.SetEventFlagCleared(ref NPC.downedBoss1, 13);
+                NPC.SetEventFlagCleared(ref NPC.downedBoss1, GameEventClearedID.DefeatedEyeOfCthulu);
                 break;
             case NPCID.EaterofWorldsHead:
             case NPCID.EaterofWorldsBody:
@@ -5007,26 +5007,26 @@ public static class ReplaceNPC
                     {
                         WorldGen.spawnMeteor = true;
                     }
-                    NPC.SetEventFlagCleared(ref NPC.downedBoss2, 14);
+                    NPC.SetEventFlagCleared(ref NPC.downedBoss2, GameEventClearedID.DefeatedEaterOfWorldsOrBrainOfChtulu);
                 }
                 break;
             case NPCID.SkeletronHead:
                 if (self.boss)
                 {
-                    NPC.SetEventFlagCleared(ref NPC.downedBoss3, 15);
+                    NPC.SetEventFlagCleared(ref NPC.downedBoss3, GameEventClearedID.DefeatedSkeletron);
                 }
                 break;
             case NPCID.SkeletronPrime:
                 if (self.boss)
                 {
-                    NPC.SetEventFlagCleared(ref NPC.downedMechBoss3, 18);
+                    NPC.SetEventFlagCleared(ref NPC.downedMechBoss3, GameEventClearedID.DefeatedSkeletronPrime);
                     NPC.downedMechBossAny = true;
                 }
                 break;
             case NPCID.TheDestroyer:
                 if (self.boss)
                 {
-                    NPC.SetEventFlagCleared(ref NPC.downedMechBoss1, 16);
+                    NPC.SetEventFlagCleared(ref NPC.downedMechBoss1, GameEventClearedID.DefeatedDestroyer);
                     NPC.downedMechBossAny = true;
                 }
                 break;
@@ -5039,7 +5039,7 @@ public static class ReplaceNPC
                     {
                         ChatHelper.BroadcastChatMessage(NetworkText.FromKey(Lang.misc[32].Key), new Color(50, 255, 130));
                     }
-                    NPC.SetEventFlagCleared(ref eventFlag, 19);
+                    NPC.SetEventFlagCleared(ref eventFlag, GameEventClearedID.DefeatedWallOfFleshAndStartedHardmode);
                     break;
                 }
             case NPCID.EmpressButterfly:

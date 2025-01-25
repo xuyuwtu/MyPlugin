@@ -144,7 +144,7 @@ public static class ReplaceTeleportPylonsSystem
     }
     public static bool IsPlayerNearAPylon(Player player)
     {
-        return player.IsTileTypeInInteractionRange(597, SettingPylons);
+        return player.IsTileTypeInInteractionRange(TileID.TeleportationPylon, SettingPylons);
     }
     public static TileReachCheckSettings SettingPylons => new()
     {

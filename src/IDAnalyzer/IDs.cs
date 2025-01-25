@@ -22,8 +22,9 @@ public static class IDs
     internal const byte PlayerDifficultyID = 0;
     internal const int SoundID = 0;
     internal const int BuffID = 0;
+    internal const int GameEventClearedID = 0;
 
-    private static readonly Dictionary<string, FrozenDictionary<int, string>> AllID = [];
+    internal static readonly Dictionary<string, FrozenDictionary<int, string>> AllID = [];
     static IDs()
     {
         var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("OTAPI.dll");
@@ -39,6 +40,7 @@ public static class IDs
         AddID(mdReader, PlayerDifficultyID);
         AddID(mdReader, SoundID);
         AddID(mdReader, BuffID);
+        AddID(mdReader, GameEventClearedID);
     }
     static FrozenDictionary<int, string> AddDirectionary<T>(MetadataReader mdReader, string typeName, Func<byte[], T> reader, Func<string, bool>? fieldNameFilter = null) where T : notnull
     {

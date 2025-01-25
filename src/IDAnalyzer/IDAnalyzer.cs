@@ -148,7 +148,7 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
                 }
             }
         }
-        else if (left is ElementAccessExpressionSyntax { Expression: MemberAccessExpressionSyntax memberAccess } elementAccess && right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression })
+        else if (left is ElementAccessExpressionSyntax { Expression: MemberAccessExpressionSyntax memberAccess } && right is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression })
         {
             var fullName = context.SemanticModel.GetTypeInfo(memberAccess.Expression, context.CancellationToken).Type!.ToString();
             if (RightElementAccessExpressionReportFilter.TryGetValue(fullName, out var idFilterInfos))
@@ -187,7 +187,8 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
         {
             { "Terraria.Main", [GetIdFilterInfo("townNPCCanSpawn", nameof(IDs.NPCID))] },
             { "Terraria.NPC", [
-                GetIdFilterInfo("buffImmune", nameof(IDs.BuffID))
+                GetIdFilterInfo("buffImmune", nameof(IDs.BuffID)),
+                GetIdFilterInfo("npcsFoundForCheckActive", nameof(IDs.NPCID))
             ] },
             { "Terraria.Player", [
                 GetIdFilterInfo("buffImmune", nameof(IDs.BuffID))
@@ -210,6 +211,9 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
                 GetMethodFilterInfo("MechSpawn", nameof(IDs.NPCID), 2),
                 GetMethodFilterInfo("NewNPC", nameof(IDs.NPCID), 3..),
                 GetMethodFilterInfo("SetDefaults", nameof(IDs.NPCID), 0..),
+                GetMethodFilterInfo("AddBuff", nameof(IDs.BuffID), 0..),
+                GetMethodFilterInfo("SetEventFlagCleared", nameof(IDs.GameEventClearedID), 1),
+                GetMethodFilterInfo("UnlockOrExchangePet", nameof(IDs.NPCID), 1, 4),
             ] },
             { "Terraria.Item", [
                 GetMethodFilterInfo("NewItem", nameof(IDs.ItemID), 3, 9),
@@ -232,27 +236,22 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
             ] },
             { "Terraria.Player", [
                 GetMethodFilterInfo("IsTileTypeInInteractionRange", nameof(IDs.TileID), 0..),
-                GetMethodFilterInfo("isNearNPC", nameof(IDs.NPCID), 0),
-                GetMethodFilterInfo("AddBuff", nameof(IDs.BuffID), 0)
+                GetMethodFilterInfo("isNearNPC", nameof(IDs.NPCID), 0..),
+                GetMethodFilterInfo("AddBuff", nameof(IDs.BuffID), 0..),
+                GetMethodFilterInfo("IsTileTypeInInteractionRange", nameof(IDs.TileID), 0..),
+            ] },
+            { "Terraria.WorldGen", [
+                GetMethodFilterInfo("PlaceChest", nameof(IDs.TileID), 2..)
             ] }
         }.ToFrozenDictionary(StringComparer.Ordinal);
 
-        IDsDict = new IDsDictBuilder()
-            .Add(nameof(IDs.NPCID))
-            .Add(nameof(IDs.TileID))
-            .Add(nameof(IDs.WallID))
-            .Add(nameof(IDs.MessageID))
-            .Add(nameof(IDs.InvasionID))
-            .Add(nameof(IDs.ProjectileID))
-            .Add(nameof(IDs.PlayerDifficultyID))
-            .Add(nameof(IDs.SoundID))
-            .Add(nameof(IDs.BuffID))
-            .Build();
+        IDsDict = IDs.AllID.ToFrozenDictionary();
     }
     private static IdFilterInfo GetIdFilterInfo(string memberName, string idName) => new(memberName, IDs.GetInt32ID(idName), AddType(idName), idName);
     private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex, int argumentCount) => new(methodName, checkIndex, argumentCount, IDs.GetInt32ID(idName), AddType(idName), idName);
     private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex) => new(methodName, checkIndex, checkIndex + 1, IDs.GetInt32ID(idName), AddType(idName), idName);
     private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, Range range) => new(methodName, range.Start.Value, -1, IDs.GetInt32ID(idName), AddType(idName), idName);
+
     private static ImmutableDictionary<string, string?> AddType(string type)
     {
         const string key = "type";
@@ -260,20 +259,6 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
         builder[key] = type;
         return builder.ToImmutable();
     }
-}
-struct IDsDictBuilder
-{
-    private Dictionary<string, FrozenDictionary<int, string>> _dict;
-    public IDsDictBuilder()
-    {
-        _dict = new();
-    }
-    public IDsDictBuilder Add(string idName)
-    {
-        _dict.Add(idName, IDs.GetInt32ID(idName));
-        return this;
-    }
-    public FrozenDictionary<string, FrozenDictionary<int, string>> Build() => _dict.ToFrozenDictionary(StringComparer.Ordinal);
 }
 internal sealed class IdFilterInfo(string memberName, FrozenDictionary<int, string> idToNameDict, ImmutableDictionary<string, string?> properties, string idName)
 {

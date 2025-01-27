@@ -102,6 +102,7 @@ public partial class GameContentModify : CommonPlugin
         //{ DetourNames.MessageBuffer_GetData, Utils.GetDetour(ReplaceMessageBuffer.GetData) },
         { DetourNames.Liquid_DelWater, Utils.GetDetour(ReplaceLiquid.DelWater) },
         //{ DetourNames.Main_UpdateTime_SpawnTownNPCs, Utils.GetDetour(ReplaceMain.UpdateTime_SpawnTownNPCs) },
+        { DetourNames.NetMessage_orig_SendData, Utils.GetDetour(ReplaceNetMessage.orig_SendData) },
         { DetourNames.NPC_CountKillForBannersAndDropThem, Utils.GetDetour(ReplaceNPC.CountKillForBannersAndDropThem) },
         { DetourNames.NPC_MechSpawn, Utils.GetDetour(ReplaceNPC.MechSpawn) },
         { DetourNames.NPC_SpawnNPC, Utils.GetDetour(ReplaceNPC.SpawnNPC) },
@@ -128,10 +129,6 @@ public partial class GameContentModify : CommonPlugin
     });
     static GameContentModify()
     {
-        if (BitConverter.IsLittleEndian && Main.versionNumber == "v1.4.4.9") 
-        {
-            Detours.Add(Utils.GetDetour(ReplaceNetMessage.orig_SendData));
-        }
         RegisterDetours(typeof(ReplaceMain), typeof(ReplaceMessageBuffer), typeof(ReplaceItem), typeof(ReplaceNPC), typeof(ReplaceProjectile), typeof(ReplaceWiring), typeof(ReplaceWorldGen), typeof(GameContent.ReplaceTeleportPylonsSystem), typeof(ReplacePlayer));
     }
     public GameContentModify(Main game) : base(game)
@@ -227,12 +224,22 @@ public partial class GameContentModify : CommonPlugin
         }
         orig(countdownTime);
     }
+    [AutoHook]
+    public static void ChatHelper_BroadcastChatMessageAs(On.Terraria.Chat.ChatHelper.orig_BroadcastChatMessageAs orig, byte messageAuthor, Terraria.Localization.NetworkText text, Color color, int excludedPlayer)
+    {
+        if (text._mode == Terraria.Localization.NetworkText.Mode.LocalizationKey && MainConfig.Instance.Extension.NotSendNetworkTextKeys.Contains(text._text))
+        {
+            return;
+        }
+        orig(messageAuthor, text, color, excludedPlayer);
+    }
     private static void OnTShockReload(ReloadEventArgs e)
     {
         LoadConfig(e.Player);
         e.Player.SendSuccessMessage("[VBY.GameContentModify]重载完成");
         OnPostReload(e);
     }
+
     private static void OnPostReload(ReloadEventArgs e) => PostReload?.Invoke(e, MainConfig.Instance);
     //private void OnGamePostInitialize(EventArgs e) => MainConfig.Instance.LoadNotSendPacketID();
     private static void OnGamePostInitialize(EventArgs e)
@@ -494,6 +501,7 @@ public partial class GameContentModify : CommonPlugin
         WorldInfo.StaticGrowLifeFruitRequireProgressIDs = ids.ToArray();
         Utils.HandleNamedDetour(!Utils.MembersValueAllEqualDefault(MainConfig.Instance.Mech, nameof(MechInfo.NPCSpawnLimitOfRange200), nameof(MechInfo.NPCSpawnLimitOfRange600), nameof(MechInfo.NPCSpawnLimitOfWorld)), DetourNames.NPC_MechSpawn);
         Utils.HandleNamedDetour(!Utils.MembersValueAllEqualDefault(MainConfig.Instance.Mech, nameof(MechInfo.ItemSpawnLimitUseStack), nameof(MechInfo.ItemSpawnLimitOfRange300), nameof(MechInfo.ItemSpawnLimitOfRange800), nameof(MechInfo.ItemSpawnLimitOfWorld)), DetourNames.Item_MechSpawn);
+        Utils.HandleNamedDetour(BitConverter.IsLittleEndian && Main.versionNumber == "v1.4.4.9" && MainConfig.Instance.NetMessage.EnableSendMessageOptimization, DetourNames.NetMessage_orig_SendData);
 
         ChestSpawnConfig.Load(player);
         ItemTrasnfromConfig.Load(player);

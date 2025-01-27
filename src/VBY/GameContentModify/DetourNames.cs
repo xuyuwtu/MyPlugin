@@ -9,6 +9,7 @@ public static class DetourNames
     public const string Main_UpdateTime_SpawnTownNPCs = "Terraria.Main.UpdateTime_SpawnTownNPCs";
     public const string MessageBuffer_GetData = "Terraria.MessageBuffer.GetData";
     public const string Liquid_DelWater = "Terraria.Liquid.DelWater";
+    public const string NetMessage_orig_SendData = $"Terraria.NetMessage.{nameof(NetMessage.orig_SendData)}";
     public const string NPC_CountKillForBannersAndDropThem = $"Terraria.NPC.{nameof(NPC.CountKillForBannersAndDropThem)}";
     public const string NPC_MechSpawn = "Terraria.NPC.MechSpawn";
     public const string NPC_SpawnNPC = "Terraria.NPC.SpawnNPC";

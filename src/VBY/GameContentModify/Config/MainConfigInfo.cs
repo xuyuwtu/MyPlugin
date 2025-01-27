@@ -765,6 +765,8 @@ public sealed partial class NetMessageInfo
     //private static bool _HookedMessageBufferGetData = false;
     //private static void CheckMessageBufferGetDataHook() 
     //    => Utils.HandleNamedDetour(ref _HookedMessageBufferGetData, _StaticSyncAllNPC || _StaticSyncAllItem || _StaticSyncAllProjectile, DetourNames.MessageBuffer_GetData);
+    [MemberData("启用发包优化")]
+    public bool EnableSendMessageOptimization = false;
 }
 [Description("扩展")]
 public sealed partial class ExtensionInfo
@@ -810,6 +812,10 @@ public sealed partial class ExtensionInfo
             }
         }
     }
+
+    [Description("不发送的网络文本Key")]
+    [JsonProperty("不发送的网络文本Key")]
+    public string[] NotSendNetworkTextKeys = Array.Empty<string>();
 
     [Description("在每天开始的时候生成旅商: {0}")]
     [DefaultValue(false)]

@@ -24,7 +24,7 @@ namespace VBY.GameContentModify;
 public static class ReplaceMessageBuffer
 {
     [DetourMethod]
-    public static void GetData(MessageBuffer self, int start, int length, out int messageType)
+    public static void GetData(On.Terraria.MessageBuffer.orig_GetData orig, MessageBuffer self, int start, int length, out int messageType)
     {
         if (self.whoAmI < 256)
         {

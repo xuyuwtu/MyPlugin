@@ -871,14 +871,14 @@ public sealed partial class ExtensionInfo
         if (StaticIgnoreLavaNPCs.Contains(npc.netID))
         {
             npc.lavaImmune = true;
-            Utils.ArgumentWriteLine(npc.type);
-            Utils.ArgumentWriteLine(npc.lavaImmune);
+            //Utils.ArgumentWriteLine(npc.type);
+            //Utils.ArgumentWriteLine(npc.lavaImmune);
         }
         if (StaticIgnoreProjectileNPCs.Contains(npc.netID))
         {
             npc.dontTakeDamageFromHostiles = true;
-            Utils.ArgumentWriteLine(npc.type);
-            Utils.ArgumentWriteLine(npc.dontTakeDamageFromHostiles);
+            //Utils.ArgumentWriteLine(npc.type);
+            //Utils.ArgumentWriteLine(npc.dontTakeDamageFromHostiles);
         }
         return index;
     }

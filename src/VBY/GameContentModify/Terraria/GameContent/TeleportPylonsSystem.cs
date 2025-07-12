@@ -12,7 +12,7 @@ namespace VBY.GameContentModify.GameContent;
 public static class ReplaceTeleportPylonsSystem
 {
     [DetourMethod]
-    public static void HandleTeleportRequest(TeleportPylonsSystem self, TeleportPylonInfo info, int playerIndex)
+    public static void HandleTeleportRequest(On.Terraria.GameContent.TeleportPylonsSystem.orig_HandleTeleportRequest orig, TeleportPylonsSystem self, TeleportPylonInfo info, int playerIndex)
     {
         Player player = Main.player[playerIndex];
         string key = "";

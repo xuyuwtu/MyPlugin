@@ -94,29 +94,29 @@ public partial class GameContentModify : CommonPlugin
         }
     });
 #pragma warning restore format
-    private static readonly List<Detour> Detours = new();
-    internal static readonly ReadOnlyDictionary<string, Detour> NamedDetours = new(new Dictionary<string, Detour>()
+    private static readonly List<Hook> Hooks = new();
+    internal static readonly ReadOnlyDictionary<string, Hook> NamedHooks = new(new Dictionary<string, Hook>()
     {
-        { DetourNames.Item_CheckLavaDeath, Utils.GetDetour(ReplaceItem.CheckLavaDeath) },
-        { DetourNames.Item_MechSpawn, Utils.GetDetour(ReplaceItem.MechSpawn) },
+        { DetourNames.Item_CheckLavaDeath, Utils.GetHook(ReplaceItem.CheckLavaDeath) },
+        { DetourNames.Item_MechSpawn, Utils.GetHook(ReplaceItem.MechSpawn) },
         //{ DetourNames.MessageBuffer_GetData, Utils.GetDetour(ReplaceMessageBuffer.GetData) },
-        { DetourNames.Liquid_DelWater, Utils.GetDetour(ReplaceLiquid.DelWater) },
+        { DetourNames.Liquid_DelWater, Utils.GetHook(ReplaceLiquid.DelWater) },
         //{ DetourNames.Main_UpdateTime_SpawnTownNPCs, Utils.GetDetour(ReplaceMain.UpdateTime_SpawnTownNPCs) },
-        { DetourNames.NetMessage_orig_SendData, Utils.GetDetour(ReplaceNetMessage.orig_SendData) },
-        { DetourNames.NPC_CountKillForBannersAndDropThem, Utils.GetDetour(ReplaceNPC.CountKillForBannersAndDropThem) },
-        { DetourNames.NPC_MechSpawn, Utils.GetDetour(ReplaceNPC.MechSpawn) },
-        { DetourNames.NPC_SpawnNPC, Utils.GetDetour(ReplaceNPC.SpawnNPC) },
-        { DetourNames.NPC_TransformElderSlime, Utils.GetDetour(ReplaceNPC.TransformElderSlime) },
-        { DetourNames.ObjectData_TileObjectData_GetTileData, Utils.GetParamDetour(ObjectData.ReplaceTileObjectData.GetTileData) },
-        { DetourNames.Player_Shellphone_Spawn, Utils.GetDetour(ReplacePlayer.Shellphone_Spawn) },
+        { DetourNames.NetMessage_orig_SendData, Utils.GetHook(ReplaceNetMessage.orig_SendData) },
+        { DetourNames.NPC_CountKillForBannersAndDropThem, Utils.GetHook(ReplaceNPC.CountKillForBannersAndDropThem) },
+        { DetourNames.NPC_MechSpawn, Utils.GetHook(ReplaceNPC.MechSpawn) },
+        { DetourNames.NPC_SpawnNPC, Utils.GetHook(ReplaceNPC.SpawnNPC) },
+        { DetourNames.NPC_TransformElderSlime, Utils.GetHook(ReplaceNPC.TransformElderSlime) },
+        { DetourNames.ObjectData_TileObjectData_GetTileData, Utils.GetParamHook(ObjectData.ReplaceTileObjectData.GetTileData) },
+        { DetourNames.Player_Shellphone_Spawn, Utils.GetHook(ReplacePlayer.Shellphone_Spawn) },
         //{ DetourNames.Wiring_HitWireSingle, Utils.GetDetour(ReplaceWiring.HitWireSingle) },
-        { DetourNames.WorldGen_ShakeTree, Utils.GetDetour(ReplaceWorldGen.ShakeTree) },
-        { DetourNames.WorldGen_GrowAlch, Utils.GetDetour(ReplaceWorldGen.GrowAlch) },
-        { DetourNames.WorldGen_SpawnThingsFromPot, Utils.GetDetour(ReplaceWorldGen.SpawnThingsFromPot) },
-        { DetourNames.WorldGen_ScoreRoom, Utils.GetDetour(ReplaceWorldGen.ScoreRoom) },
-        { DetourNames.WorldGen_IsHarvestableHerbWithSeed, Utils.GetDetour(ReplaceWorldGen.IsHarvestableHerbWithSeed) },
-        { DetourNames.WorldGen_UpdateWorld_OvergroundTile, Utils.GetDetour(ReplaceWorldGen.UpdateWorld_OvergroundTile) },
-        { DetourNames.WorldGen_CheckJunglePlant, Utils.GetDetour(ReplaceWorldGen.CheckJunglePlant) },
+        { DetourNames.WorldGen_ShakeTree, Utils.GetHook(ReplaceWorldGen.ShakeTree) },
+        { DetourNames.WorldGen_GrowAlch, Utils.GetHook(ReplaceWorldGen.GrowAlch) },
+        { DetourNames.WorldGen_SpawnThingsFromPot, Utils.GetHook(ReplaceWorldGen.SpawnThingsFromPot) },
+        { DetourNames.WorldGen_ScoreRoom, Utils.GetHook(ReplaceWorldGen.ScoreRoom) },
+        { DetourNames.WorldGen_IsHarvestableHerbWithSeed, Utils.GetHook(ReplaceWorldGen.IsHarvestableHerbWithSeed) },
+        { DetourNames.WorldGen_UpdateWorld_OvergroundTile, Utils.GetHook(ReplaceWorldGen.UpdateWorld_OvergroundTile) },
+        { DetourNames.WorldGen_CheckJunglePlant, Utils.GetHook(ReplaceWorldGen.CheckJunglePlant) },
     });
     internal static readonly ReadOnlyDictionary<string, ActionHook> NamedActionHooks = new(new Dictionary<string, ActionHook>()
     {
@@ -135,8 +135,8 @@ public partial class GameContentModify : CommonPlugin
     {
         AddCommands.Add(new Command("gcm.ctl", Cmd, "gcm"));
         AttachHooks.Add(new ActionHook(static () => GeneralHooks.ReloadEvent += OnTShockReload));
-        Loaders.Add(Detours.GetLoader(static x => x.Apply(), static x => x.Dispose(), static () => Main.versionNumber == "v1.4.4.9"));
-        Loaders.Add(NamedDetours.GetLoader(static x => x.Value.Apply(), static x => x.Value.Dispose(), null, false, true));
+        Loaders.Add(Hooks.GetLoader(static x => x.Apply(), static x => x.Dispose(), static () => Main.versionNumber == "v1.4.4.9"));
+        Loaders.Add(NamedHooks.GetLoader(static x => x.Value.Apply(), static x => x.Value.Dispose(), null, false, true));
         Loaders.Add(NamedActionHooks.GetLoader(static x => x.Value.Register(), static x => x.Value.Unregister(), null, false, true));
         PreStartDay += config =>
         {
@@ -172,11 +172,11 @@ public partial class GameContentModify : CommonPlugin
                 }
                 if (attr.UseParam)
                 {
-                    Detours.Add(Utils.GetParamDetour(replaceType, method));
+                    Hooks.Add(Utils.GetParamHook(replaceType, method));
                 }
                 else
                 {
-                    Detours.Add(Utils.GetNameDetour(replaceType, method));
+                    Hooks.Add(Utils.GetNameHook(replaceType, method));
                 }
             }
         }
@@ -499,9 +499,9 @@ public partial class GameContentModify : CommonPlugin
             }
         }
         WorldInfo.StaticGrowLifeFruitRequireProgressIDs = ids.ToArray();
-        Utils.HandleNamedDetour(!Utils.MembersValueAllEqualDefault(MainConfig.Instance.Mech, nameof(MechInfo.NPCSpawnLimitOfRange200), nameof(MechInfo.NPCSpawnLimitOfRange600), nameof(MechInfo.NPCSpawnLimitOfWorld)), DetourNames.NPC_MechSpawn);
-        Utils.HandleNamedDetour(!Utils.MembersValueAllEqualDefault(MainConfig.Instance.Mech, nameof(MechInfo.ItemSpawnLimitUseStack), nameof(MechInfo.ItemSpawnLimitOfRange300), nameof(MechInfo.ItemSpawnLimitOfRange800), nameof(MechInfo.ItemSpawnLimitOfWorld)), DetourNames.Item_MechSpawn);
-        Utils.HandleNamedDetour(BitConverter.IsLittleEndian && Main.versionNumber == "v1.4.4.9" && MainConfig.Instance.NetMessage.EnableSendMessageOptimization, DetourNames.NetMessage_orig_SendData);
+        Utils.HandleNamedHook(!Utils.MembersValueAllEqualDefault(MainConfig.Instance.Mech, nameof(MechInfo.NPCSpawnLimitOfRange200), nameof(MechInfo.NPCSpawnLimitOfRange600), nameof(MechInfo.NPCSpawnLimitOfWorld)), DetourNames.NPC_MechSpawn);
+        Utils.HandleNamedHook(!Utils.MembersValueAllEqualDefault(MainConfig.Instance.Mech, nameof(MechInfo.ItemSpawnLimitUseStack), nameof(MechInfo.ItemSpawnLimitOfRange300), nameof(MechInfo.ItemSpawnLimitOfRange800), nameof(MechInfo.ItemSpawnLimitOfWorld)), DetourNames.Item_MechSpawn);
+        Utils.HandleNamedHook(BitConverter.IsLittleEndian && Main.versionNumber == "v1.4.4.9" && MainConfig.Instance.NetMessage.EnableSendMessageOptimization, DetourNames.NetMessage_orig_SendData);
 
         ChestSpawnConfig.Load(player);
         ItemTrasnfromConfig.Load(player);

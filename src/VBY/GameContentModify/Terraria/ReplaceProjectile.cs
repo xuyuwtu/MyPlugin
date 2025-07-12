@@ -11,7 +11,7 @@ namespace VBY.GameContentModify;
 public static class ReplaceProjectile
 {
     [DetourMethod]
-    public static bool GasTrapCheck(int x, int y, Player user)
+    public static bool GasTrapCheck(On.Terraria.Projectile.orig_GasTrapCheck orig, int x, int y, Player user)
     {
         int chestIndex = Chest.FindChest(x, y);
         if (chestIndex < 0)

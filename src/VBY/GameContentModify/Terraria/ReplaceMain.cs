@@ -74,7 +74,7 @@ public static class ReplaceMain
         princessCheckRanges[2] = new Range(princessCheckRanges[1].Start.Value + 1, Array.IndexOf(TownNPCIDs, NPCID.TownCat, princessCheckRanges[1].Start.Value + 1));
     }
     [DetourMethod]
-    public static void UpdateTime()
+    public static void UpdateTime(On.Terraria.Main.orig_UpdateTime orig)
     {
         if (LanternNight.LanternsUp)
         {
@@ -370,7 +370,7 @@ public static class ReplaceMain
         }
     }
     [DetourMethod]
-    public static void UpdateTime_StartDay(ref bool stopEvents)
+    public static void UpdateTime_StartDay(On.Terraria.Main.orig_UpdateTime_StartDay orig, ref bool stopEvents)
     {
         OnPreStartDay();
         WorldGen.ResetTreeShakes();
@@ -473,7 +473,7 @@ public static class ReplaceMain
         }
     }
     [DetourMethod]
-    public static void UpdateTime_StartNight(ref bool stopEvents)
+    public static void UpdateTime_StartNight(On.Terraria.Main.orig_UpdateTime_StartNight orig, ref bool stopEvents)
     {
         OnPreStartNight();
         if (Main.fastForwardTimeToDusk)
@@ -695,7 +695,7 @@ public static class ReplaceMain
         NetMessage.SendData(MessageID.WorldData);
     }
     [DetourMethod]
-    public static void UpdateTime_SpawnTownNPCs()
+    public static void UpdateTime_SpawnTownNPCs(On.Terraria.Main.orig_UpdateTime_SpawnTownNPCs orig)
     {
         if (SpawnInfo.TownNPCInfo.StaticDisableSpawn)
         {
@@ -1090,7 +1090,7 @@ public static class ReplaceMain
         WorldGen.prioritizedTownNPCType = prioritiztownNPCType;
     }
     [DetourMethod]
-    public static void Moondialing()
+    public static void Moondialing(On.Terraria.Main.orig_Moondialing orig)
     {
         if (Main.moondialCooldown == 0)
         {
@@ -1100,7 +1100,7 @@ public static class ReplaceMain
         }
     }
     [DetourMethod]
-    public static void Sundialing()
+    public static void Sundialing(On.Terraria.Main.orig_Sundialing orig)
     {
         if (Main.sundialCooldown == 0)
         {

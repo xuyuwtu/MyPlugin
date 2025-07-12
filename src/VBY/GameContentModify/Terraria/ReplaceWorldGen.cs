@@ -429,7 +429,7 @@ public static class ReplaceWorldGen
         styles.Add(dict);
     }
     [DetourMethod]
-    public static void UpdateWorld()
+    public static void UpdateWorld(On.Terraria.WorldGen.orig_UpdateWorld orig)
     {
         if (WorldGen.gen)
         {
@@ -694,7 +694,7 @@ public static class ReplaceWorldGen
         }
     }
     [DetourMethod]
-    public static void hardUpdateWorld(int i, int j) 
+    public static void hardUpdateWorld(On.Terraria.WorldGen.orig_hardUpdateWorld orig, int i, int j) 
     {
         if (!(WorldInfo.StaticEnableHardModeUpdateWhenNotHardMode || Main.hardMode) || Main.tile[i, j].inActive())
         {
@@ -1630,7 +1630,7 @@ public static class ReplaceWorldGen
         }
     }
     [DetourMethod]
-    public static void UpdateWorld_GrassGrowth(int i, int j, int minI, int maxI, int minJ, int maxJ, bool underground)
+    public static void UpdateWorld_GrassGrowth(On.Terraria.WorldGen.orig_UpdateWorld_GrassGrowth orig, int i, int j, int minI, int maxI, int minJ, int maxJ, bool underground)
     {
         if (!WorldGen.InWorld(i, j, 10))
         {
@@ -2206,7 +2206,7 @@ public static class ReplaceWorldGen
         }
     }
     [DetourMethod]
-    public static void CheckOrb(int i, int j, int type)
+    public static void CheckOrb(On.Terraria.WorldGen.orig_CheckOrb orig, int i, int j, int type)
     {
         if (Main.tile[i, j] == null)
         {
@@ -2329,7 +2329,7 @@ public static class ReplaceWorldGen
         WorldGen.destroyObject = false;
     }
     [DetourMethod]
-    public static void Check3x2(int i, int j, int type)
+    public static void Check3x2(On.Terraria.WorldGen.orig_Check3x2 orig, int i, int j, int type)
     {
         if (WorldGen.destroyObject)
         {
@@ -3932,7 +3932,7 @@ public static class ReplaceWorldGen
     }
     public static bool IsHarvestableHerbWithSeed(int type, int style) => type == TileID.BloomingHerbs;
     [DetourMethod]
-    public static bool PlaceTile(int i, int j, int type, bool mute, bool forced, int plr, int style)
+    public static bool PlaceTile(On.Terraria.WorldGen.orig_PlaceTile orig, int i, int j, int type, bool mute, bool forced, int plr, int style)
     {
         if (WorldGen.gen && Main.tile[i, j].active() && Main.tile[i, j].type == TileID.FallenLog)
         {
@@ -4834,7 +4834,7 @@ public static class ReplaceWorldGen
         return result;
     }
     [DetourMethod]
-    public static void Check3x1(int i, int j, int type)
+    public static void Check3x1(On.Terraria.WorldGen.orig_Check3x1 orig, int i, int j, int type)
     {
         if (WorldGen.destroyObject)
         {
@@ -4896,7 +4896,7 @@ public static class ReplaceWorldGen
         }
     }
     [DetourMethod]
-    public static bool AttemptToGrowTreeFromSapling(int x, int y, bool underground)
+    public static bool AttemptToGrowTreeFromSapling(On.Terraria.WorldGen.orig_AttemptToGrowTreeFromSapling orig, int x, int y, bool underground)
     {
         if (Main.netMode == 1)
         {
@@ -5117,7 +5117,7 @@ public static class ReplaceWorldGen
     }
     private static readonly Stack<Point> CheckRoomStack = new(1024);
     [DetourMethod]
-    public static void CheckRoom(int checkX, int checkY)
+    public static void CheckRoom(On.Terraria.WorldGen.orig_CheckRoom orig, int checkX, int checkY)
     {
         var stack = CheckRoomStack;
         stack.Clear();
@@ -5248,7 +5248,7 @@ public static class ReplaceWorldGen
         }
     }
     [DetourMethod]
-    public static void KillTile_GetItemDrops(int x, int y, ITile tileCache, out int dropItem, out int dropItemStack, out int secondaryItem, out int secondaryItemStack, bool includeLargeObjectDrops)
+    public static void KillTile_GetItemDrops(On.Terraria.WorldGen.orig_KillTile_GetItemDrops orig, int x, int y, ITile tileCache, out int dropItem, out int dropItemStack, out int secondaryItem, out int secondaryItemStack, bool includeLargeObjectDrops)
     {
         dropItem = 0;
         dropItemStack = 1;

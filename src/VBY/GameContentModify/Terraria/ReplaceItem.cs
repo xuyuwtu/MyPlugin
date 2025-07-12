@@ -14,7 +14,7 @@ namespace VBY.GameContentModify;
 public static class ReplaceItem
 {
     [DetourMethod]
-    public static bool CanShimmer(Item self)
+    public static bool CanShimmer(On.Terraria.Item.orig_CanShimmer orig, Item self)
     {
         var func = ShimmerItemReplaceInfo.CanShimmerFuncs[self.type];
         if (func is not null)
@@ -52,7 +52,7 @@ public static class ReplaceItem
         return true;
     }
     [DetourMethod]
-    public static void GetShimmered(Item self)
+    public static void GetShimmered(On.Terraria.Item.orig_GetShimmered orig, Item self)
     {
         int shimmerEquivalentType = self.GetShimmerEquivalentType();
         int decraftingRecipeIndex = MainConfigInfo.StaticDisableShimmerDecrafte ? -1 : Terraria.GameContent.ShimmerTransforms.GetDecraftingRecipeIndex(shimmerEquivalentType);

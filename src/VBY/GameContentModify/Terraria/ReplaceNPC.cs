@@ -19,7 +19,7 @@ namespace VBY.GameContentModify;
 public static class ReplaceNPC
 {
     [DetourMethod]
-    public static bool BigMimicSummonCheck(int x, int y, Player user)
+    public static bool BigMimicSummonCheck(On.Terraria.NPC.orig_BigMimicSummonCheck orig, int x, int y, Player user)
     {
         if (!Main.hardMode)
         {
@@ -4275,7 +4275,7 @@ public static class ReplaceNPC
         });
     }
     [DetourMethod]
-    public static void UpdateNPC(NPC npc, int i)
+    public static void UpdateNPC(On.Terraria.NPC.orig_UpdateNPC orig, NPC npc, int i)
     {
         npc.whoAmI = i;
         if (!npc.active)
@@ -4436,7 +4436,7 @@ public static class ReplaceNPC
         npc.justHit = false;
     }
     [DetourMethod]
-    public static void HitEffect(NPC self, int hitDirection, double dmg)
+    public static void HitEffect(On.Terraria.NPC.orig_HitEffect orig, NPC self, int hitDirection, double dmg)
     {
         if (!self.active)
         {
@@ -4736,7 +4736,7 @@ public static class ReplaceNPC
         }
     }
     [DetourMethod]
-    public static void DoDeathEvents_AdvanceSlimeRain(NPC self, Player closestPlayer)
+    public static void DoDeathEvents_AdvanceSlimeRain(On.Terraria.NPC.orig_DoDeathEvents_AdvanceSlimeRain orig, NPC self, Player closestPlayer)
     {
         if (Main.slimeRain && Main.slimeRainNPC[self.type] && !NPC.AnyNPCs(NPCID.KingSlime))
         {
@@ -4755,7 +4755,7 @@ public static class ReplaceNPC
         }
     }
     [DetourMethod]
-    public static void DoDeathEvents(NPC self, Player closestPlayer)
+    public static void DoDeathEvents(On.Terraria.NPC.orig_DoDeathEvents orig, NPC self, Player closestPlayer)
     {
         var needSend = false;
         self.DoDeathEvents_AdvanceSlimeRain(closestPlayer);
@@ -5066,7 +5066,7 @@ public static class ReplaceNPC
         }
     }
     [DetourMethod]
-    public static void checkDead(NPC self)
+    public static void checkDead(On.Terraria.NPC.orig_checkDead orig, NPC self)
     {
         if (!self.active || (self.realLife >= 0 && self.realLife != self.whoAmI) || self.life > 0)
         {
@@ -5412,7 +5412,7 @@ public static class ReplaceNPC
         }
     }
     [DetourMethod]
-    public static bool SpawnMechQueen(int onWhichPlayer)
+    public static bool SpawnMechQueen(On.Terraria.NPC.orig_SpawnMechQueen orig, int onWhichPlayer)
     {
         if (NPC.AnyNPCs(NPCID.SkeletronPrime) || NPC.AnyNPCs(NPCID.TheDestroyer) || NPC.AnyNPCs(NPCID.Retinazer) || NPC.AnyNPCs(NPCID.Spazmatism))
         {

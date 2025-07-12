@@ -16,7 +16,7 @@ namespace VBY.GameContentModify;
 public static class ReplaceWiring
 {
     [DetourMethod]
-    public static void HitWireSingle(int i, int j)
+    public static void HitWireSingle(On.Terraria.Wiring.orig_HitWireSingle orig, int i, int j)
     {
         ITile tile = Main.tile[i, j];
         bool? forcedStateWhereTrueIsOn = null;

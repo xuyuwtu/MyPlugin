@@ -5402,13 +5402,16 @@ public static class ReplaceNPC
                 networkText = NetworkText.FromKey("Game.EnemiesDefeatedByAnnouncement", Main.player[num4].name, NPC.killCount[num], NetworkText.FromKey(Lang.GetNPCName(num3).Key));
             }
             ChatHelper.BroadcastChatMessage(networkText, new Color(250, 250, 0));
-            //int num5 = Item.BannerToItem(num);
-            //Vector2 vector = self.position;
-            //if (num4 >= 0 && num4 < 255)
-            //{
-            //    vector = Main.player[num4].position;
-            //}
-            //Item.NewItem(self.GetItemSource_Loot(), (int)vector.X, (int)vector.Y, self.width, self.height, num5);
+            if (!MainConfigInfo.StaticNPCNotDropBanner)
+            {
+                int num5 = Item.BannerToItem(num);
+                Vector2 vector = self.position;
+                if (num4 >= 0 && num4 < 255)
+                {
+                    vector = Main.player[num4].position;
+                }
+                Item.NewItem(self.GetItemSource_Loot(), (int)vector.X, (int)vector.Y, self.width, self.height, num5);
+            }
         }
     }
     [DetourMethod]

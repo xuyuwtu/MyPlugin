@@ -39,33 +39,33 @@ public class MainPlugin : TerrariaPlugin
     public static void ScaleStats_ApplyMultiplayerStats(NPC npc, int numPlayers, float balance, float boost, float bossAdjustment)
     {
         int num = numPlayers - 1;
-        if (npc.type == 5)
+        if (npc.type == NPCID.ServantofCthulhu)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.75f * bossAdjustment);
         }
-        if (npc.type == 4)
+        if (npc.type == NPCID.EyeofCthulhu)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.65 * (double)balance * (double)bossAdjustment);
         }
         if (npc.type >= 13 && npc.type <= 15)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.7 * (double)balance * (double)bossAdjustment);
-            if (npc.type == 13)
+            if (npc.type == NPCID.EaterofWorldsHead)
             {
                 npc.damage = (int)(npc.damage * 1.1);
             }
-            if (npc.type == 14)
+            if (npc.type == NPCID.EaterofWorldsBody)
             {
                 npc.damage = (int)(npc.damage * 0.8);
             }
-            if (npc.type == 15)
+            if (npc.type == NPCID.EaterofWorldsTail)
             {
                 npc.damage = (int)(npc.damage * 0.8);
             }
             npc.scale *= 1.2f;
             npc.defense += 2;
         }
-        if (npc.type == 266 || npc.type == 267)
+        if (npc.type == NPCID.BrainofCthulhu || npc.type == NPCID.Creeper)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.85 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 0.9);
@@ -80,51 +80,51 @@ public class MainPlugin : TerrariaPlugin
                 npc.knockBackResist *= 0.8f;
             }
         }
-        if (npc.type == 50)
+        if (npc.type == NPCID.KingSlime)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.7 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 0.8);
         }
-        if (npc.type == 471)
+        if (npc.type == NPCID.GoblinSummoner)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.85 * (double)(balance * 2f + 1f) / 3.0);
         }
-        if (npc.type == 472)
+        if (npc.type == NPCID.ShadowFlameApparition)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.85 * (double)(balance + 1f) / 2.0);
             npc.damage = (int)(npc.damage * 0.8);
         }
-        if (npc.type == 222)
+        if (npc.type == NPCID.QueenBee)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.7 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 0.9);
         }
-        if (npc.type == 210 || npc.type == 211)
+        if (npc.type == NPCID.Bee || npc.type == NPCID.BeeSmall)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.75);
         }
-        if (npc.type == 35)
+        if (npc.type == NPCID.SkeletronHead)
         {
             npc.lifeMax = (int)(npc.lifeMax * balance * bossAdjustment);
             npc.damage = (int)(npc.damage * 1.1);
         }
-        else if (npc.type == 36)
+        else if (npc.type == NPCID.SkeletronHand)
         {
             npc.lifeMax = (int)(npc.lifeMax * 1.3 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 1.1);
         }
-        if (npc.type == 668)
+        if (npc.type == NPCID.Deerclops)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.85 * (double)balance * (double)bossAdjustment);
             //npc.damage = npc.damage;
         }
-        if (npc.type == 113 || npc.type == 114)
+        if (npc.type == NPCID.WallofFlesh || npc.type == NPCID.WallofFleshEye)
         {
             npc.defense += 6;
             npc.lifeMax = (int)(npc.lifeMax * 0.7 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 1.5);
         }
-        else if (npc.type == 115)
+        else if (npc.type == NPCID.TheHungry)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.7 * (double)balance);
             //if (numPlayers > 4)
@@ -137,7 +137,7 @@ public class MainPlugin : TerrariaPlugin
             }
             npc.defense += 6;
         }
-        else if (npc.type == 116)
+        else if (npc.type == NPCID.TheHungryII)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.7 * (double)balance);
             //if (numPlayers > 4)
@@ -149,11 +149,11 @@ public class MainPlugin : TerrariaPlugin
                 npc.knockBackResist *= 1f - boost;
             }
         }
-        else if (npc.type == 117 || npc.type == 118 || npc.type == 119)
+        else if (npc.type == NPCID.LeechHead || npc.type == NPCID.LeechBody || npc.type == NPCID.LeechTail)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.8);
         }
-        if (npc.type == 657)
+        if (npc.type == NPCID.QueenSlimeBoss)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.8f * balance * bossAdjustment);
         }
@@ -164,21 +164,21 @@ public class MainPlugin : TerrariaPlugin
         if (npc.type >= 134 && npc.type <= 136)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.75 * (double)balance * (double)bossAdjustment);
-            if (npc.type == 134)
+            if (npc.type == NPCID.TheDestroyer)
             {
                 npc.damage *= 2;
             }
-            if (npc.type == 135)
+            if (npc.type == NPCID.TheDestroyerBody)
             {
                 npc.damage = (int)(npc.damage * 0.85);
             }
-            if (npc.type == 136)
+            if (npc.type == NPCID.TheDestroyerTail)
             {
                 npc.damage = (int)(npc.damage * 0.85);
             }
             npc.scale *= 1.05f;
         }
-        else if (npc.type == 139)
+        else if (npc.type == NPCID.Probe)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.75 * (double)(balance * 2f + 1f) / 3.0);
             npc.damage = (int)(npc.damage * 0.8);
@@ -194,17 +194,17 @@ public class MainPlugin : TerrariaPlugin
             npc.lifeMax = (int)(npc.lifeMax * 0.75 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 0.85);
         }
-        if (npc.type == 262)
+        if (npc.type == NPCID.Plantera)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.7 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 1.15);
         }
-        else if (npc.type == 264)
+        else if (npc.type == NPCID.PlanterasTentacle)
         {
             npc.lifeMax = (int)(npc.lifeMax * balance * bossAdjustment);
             npc.damage = (int)(npc.damage * 1.15);
         }
-        if (npc.type == 636)
+        if (npc.type == NPCID.HallowBoss)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.7 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 1.15);
@@ -214,33 +214,33 @@ public class MainPlugin : TerrariaPlugin
             npc.lifeMax = (int)(npc.lifeMax * 0.75 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 0.8);
         }
-        if (npc.type == 370)
+        if (npc.type == NPCID.DukeFishron)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.65 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 0.7);
         }
-        else if (npc.type == 371 || npc.type == 372 || npc.type == 373)
+        else if (npc.type == NPCID.DetonatingBubble || npc.type == NPCID.Sharkron || npc.type == NPCID.Sharkron2)
         {
-            if (npc.type != 371)
+            if (npc.type != NPCID.DetonatingBubble)
             {
                 npc.lifeMax = (int)(npc.lifeMax * 0.75);
             }
             npc.damage = (int)(npc.damage * 0.75);
         }
-        if (npc.type == 439 || npc.type == 440 || (npc.type >= 454 && npc.type <= 459) || npc.type == 522 || npc.type == 523)
+        if (npc.type == NPCID.CultistBoss || npc.type == NPCID.CultistBossClone || (npc.type >= 454 && npc.type <= 459) || npc.type == NPCID.AncientLight || npc.type == NPCID.AncientDoom)
         {
-            if (npc.type != 522)
+            if (npc.type != NPCID.AncientLight)
             {
                 npc.lifeMax = (int)(npc.lifeMax * 0.75f * balance * bossAdjustment);
             }
             npc.damage = (int)(npc.damage * 0.75);
         }
-        if (npc.type == 397 || npc.type == 396 || npc.type == 398)
+        if (npc.type == NPCID.MoonLordHand || npc.type == NPCID.MoonLordHead || npc.type == NPCID.MoonLordCore)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.75 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 0.75);
         }
-        if (npc.type == 551)
+        if (npc.type == NPCID.DD2Betsy)
         {
             npc.lifeMax = (int)(npc.lifeMax * 0.75 * (double)balance * (double)bossAdjustment);
             npc.damage = (int)(npc.damage * 0.65);
@@ -254,66 +254,66 @@ public class MainPlugin : TerrariaPlugin
         float num5 = 1f + num * 0.2f;
         switch (npc.type)
         {
-            case 305:
-            case 306:
-            case 307:
-            case 308:
-            case 309:
-            case 310:
-            case 311:
-            case 312:
-            case 313:
-            case 314:
-            case 326:
-            case 329:
-            case 330:
+            case NPCID.Scarecrow1:
+            case NPCID.Scarecrow2:
+            case NPCID.Scarecrow3:
+            case NPCID.Scarecrow4:
+            case NPCID.Scarecrow5:
+            case NPCID.Scarecrow6:
+            case NPCID.Scarecrow7:
+            case NPCID.Scarecrow8:
+            case NPCID.Scarecrow9:
+            case NPCID.Scarecrow10:
+            case NPCID.Splinterling:
+            case NPCID.Hellhound:
+            case NPCID.Poltergeist:
                 npc.lifeMax = (int)(npc.lifeMax * 0.75 * (double)num5);
                 npc.damage = (int)(npc.damage * 0.75);
                 break;
-            case 315:
-            case 325:
-            case 327:
+            case NPCID.HeadlessHorseman:
+            case NPCID.MourningWood:
+            case NPCID.Pumpking:
                 npc.lifeMax = (int)(npc.lifeMax * 0.65 * (double)bossAdjustment);
                 npc.damage = (int)(npc.damage * 0.75);
                 break;
         }
         switch (npc.type)
         {
-            case 338:
-            case 339:
-            case 340:
-            case 341:
-            case 342:
-            case 343:
-            case 347:
-            case 348:
-            case 349:
-            case 350:
-            case 351:
-            case 352:
+            case NPCID.ZombieElf:
+            case NPCID.ZombieElfBeard:
+            case NPCID.ZombieElfGirl:
+            case NPCID.PresentMimic:
+            case NPCID.GingerbreadMan:
+            case NPCID.Yeti:
+            case NPCID.ElfCopter:
+            case NPCID.Nutcracker:
+            case NPCID.NutcrackerSpinning:
+            case NPCID.ElfArcher:
+            case NPCID.Krampus:
+            case NPCID.Flocko:
                 npc.lifeMax = (int)(npc.lifeMax * 0.75 * (double)num5);
                 npc.damage = (int)(npc.damage * 0.75);
                 break;
-            case 344:
-            case 345:
-            case 346:
+            case NPCID.Everscream:
+            case NPCID.IceQueen:
+            case NPCID.SantaNK1:
                 npc.lifeMax = (int)(npc.lifeMax * 0.65 * (double)bossAdjustment);
                 npc.damage = (int)(npc.damage * 0.75);
                 break;
         }
         if (Main.getGoodWorld)
         {
-            if (npc.type == 6 && NPC.AnyNPCs(13))
+            if (npc.type == NPCID.EaterofSouls && NPC.AnyNPCs(NPCID.EaterofWorldsHead))
             {
                 npc.lifeMax = (int)(npc.lifeMax * 1.5 * (double)bossAdjustment);
                 npc.defense += 2;
             }
-            if (npc.type == 32 && NPC.AnyNPCs(35))
+            if (npc.type == NPCID.DarkCaster && NPC.AnyNPCs(NPCID.SkeletronHead))
             {
                 npc.lifeMax = (int)(npc.lifeMax * 1.5 * (double)bossAdjustment);
                 npc.defense += 6;
             }
-            if (npc.type == 24 && NPC.AnyNPCs(113))
+            if (npc.type == NPCID.FireImp && NPC.AnyNPCs(NPCID.WallofFlesh))
             {
                 npc.lifeMax = (int)(npc.lifeMax * 1.5 * (double)bossAdjustment);
                 npc.defense += 10;

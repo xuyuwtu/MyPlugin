@@ -517,9 +517,9 @@ public static class ReplaceMain
                 //if (MainConfig.Instance.Spawn.EyeSpawnLifeAndDefenseCheck)
                 if (SpawnInfo.EyeOfCthulhuInfo.StaticLifeAndDefenseCheck)
                 {
-                    for (int i = 0; i < 255; i++)
+                    for (int i = 0; i < Main.maxPlayers; i++)
                     {
-                        if (Main.player[i].active && Main.player[i].statLifeMax >= 200 && Main.player[i].statDefense > 10)
+                        if (Main.player[i] is { active: true, statLifeMax: >= 200, statDefense: > 10 })
                         {
                             flag = true;
                             break;
@@ -537,7 +537,7 @@ public static class ReplaceMain
                     //if (MainConfig.Instance.Spawn.EyeSpawnTownNPCCountCheck)
                     if (SpawnInfo.EyeOfCthulhuInfo.StaticTownNPCCountCheck)
                     {
-                        for (int j = 0; j < 200; j++)
+                        for (int j = 0; j < Main.maxNPCs; j++)
                         {
                             if (Main.npc[j].active && Main.npc[j].townNPC)
                             {
@@ -563,7 +563,7 @@ public static class ReplaceMain
                 //if (MainConfig.Instance.Spawn.MechBossSpawnHaveBossInWorldCheck)
                 if (SpawnInfo.MechBossInfo.StaticSpawnHaveBossInWorldCheck)
                 {
-                    for (int k = 0; k < 200; k++)
+                    for (int k = 0; k < Main.maxNPCs; k++)
                     {
                         if (Main.npc[k].active && Main.npc[k].boss)
                         {

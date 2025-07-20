@@ -21,21 +21,28 @@ public abstract class SubCmdBase
         Names = names.Length == 0 ? new[] { cmdName.ToLower() } : names;
         Description = description;
     }
-    internal static bool AllowCheck(TSPlayer player, bool noAllow, string error)
+    internal virtual bool CanRun(TSPlayer player)
     {
-        if (noAllow)
+        do
         {
-            player.SendErrorMessage(error);
+            if (AllowInfo.NeedLoggedIn && !player.IsLoggedIn)
+            {
+                player.SendErrorMessage($"[{FullCmdName}]请登陆使用此命令");
+                break;
+            }
+            if (!AllowInfo.AllowServer && !player.RealPlayer)
+            {
+                player.SendErrorMessage($"[{FullCmdName}]服务器不允许执行此命令");
+                break;
+            }
+            if (!(string.IsNullOrEmpty(AllowInfo.Permission) || player.HasPermission(AllowInfo.Permission)))
+            {
+                player.SendErrorMessage($"[{FullCmdName}]权限不足");
+                break;
+            }
             return true;
-        }
+        } while (false);
         return false;
-    }
-    internal virtual bool NotCanRun(TSPlayer player)
-    {
-        return
-            AllowCheck(player, AllowInfo.NeedLoggedIn && !player.IsLoggedIn, $"[{FullCmdName}]请登陆使用此命令") ||
-            AllowCheck(player, !AllowInfo.AllowServer && !player.RealPlayer, $"[{FullCmdName}]服务器不允许执行此命令") ||
-            AllowCheck(player, !(string.IsNullOrEmpty(AllowInfo.Permission) || player.HasPermission(AllowInfo.Permission)), $"[{FullCmdName}]权限不足");
     }
     public abstract void Run(CommandArgs args);
     public virtual void SetAllow(JToken? token)

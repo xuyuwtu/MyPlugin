@@ -35,11 +35,20 @@ public class SubCmdRun : SubCmdBase
         else
         {
             args.Player.SendInfoMessage($"参数不足,最少需要{MinArgsCount - CmdIndex}个参数");
-            bool flag1 = !string.IsNullOrEmpty(ArgsHelpText);
-            if (flag1) args.Player.SendInfoMessage($"/{string.Join(' ', args.Message[..args.Message.IndexOf(' ')], string.Join(' ', args.Parameters.GetRange(0, CmdIndex)))} {ArgsHelpText}");
-            bool flag2 = !string.IsNullOrEmpty(HelpText);
-            if (flag2) args.Player.SendInfoMessage(HelpText);
-            if (!(flag1 || flag2)) args.Player.SendErrorMessage("此命令没有帮助文本!");
+            bool hasArgsHelpText = !string.IsNullOrEmpty(ArgsHelpText);
+            if (hasArgsHelpText)
+            {
+                args.Player.SendInfoMessage($"/{string.Join(' ', args.Message[..args.Message.IndexOf(' ')], string.Join(' ', args.Parameters.GetRange(0, CmdIndex)))} {ArgsHelpText}");
+            }
+            bool hasHelpText = !string.IsNullOrEmpty(HelpText);
+            if (hasHelpText)
+            {
+                args.Player.SendInfoMessage(HelpText);
+            }
+            if (!(hasArgsHelpText || hasHelpText))
+            {
+                args.Player.SendErrorMessage("此命令没有帮助文本!");
+            }
         }
     }
 }

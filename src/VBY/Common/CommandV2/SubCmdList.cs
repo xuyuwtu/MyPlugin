@@ -9,7 +9,7 @@ namespace VBY.Common.CommandV2;
 public class SubCmdList : SubCmdBase, IEnumerable<SubCmdBase>
 {
     public List<SubCmdBase> SubCmds = new();
-    public string DefaultCmd = "";
+    public string? DefaultCmd;
     public SubCmdList(string cmdName, string description, params string[] names) : base(cmdName, description, names) { }
     public SubCmdBase this[string name]
     {
@@ -56,13 +56,17 @@ public class SubCmdList : SubCmdBase, IEnumerable<SubCmdBase>
             bool have = false;
             foreach (var cmd in SubCmds)
             {
-                if (cmd.Enabled)
+                if (!cmd.Enabled)
                 {
-                    args.Player.SendInfoMessage($"{cmd.Names[0]} {cmd.Description}");
-                    have = true;
+                    continue;
                 }
+                args.Player.SendInfoMessage($"{cmd.Names[0]} {cmd.Description}");
+                have = true;
             }
-            if (!have) args.Player.SendInfoMessage($"好像没有可用子命令,问问服主是不是配错了");
+            if (!have)
+            {
+                args.Player.SendInfoMessage($"好像没有可用子命令,问问服主是不是配错了");
+            }
         }
         else
         {
@@ -70,16 +74,25 @@ public class SubCmdList : SubCmdBase, IEnumerable<SubCmdBase>
             bool found = false;
             foreach (var cmd in SubCmds)
             {
-                if (cmd.Enabled && cmd.Names.Contains(findText))
+                if (!cmd.Enabled)
+                {
+                    continue;
+                }
+                if (cmd.Names.Contains(findText, StringComparer.OrdinalIgnoreCase))
                 {
                     found = true;
-                    if (cmd.NotCanRun(args.Player))
+                    if (!cmd.CanRun(args.Player))
+                    {
                         break;
+                    }
                     cmd.Run(args);
                     break;
                 }
             }
-            if (!found) args.Player.SendInfoMessage($"未知参数 {findText}");
+            if (!found)
+            {
+                args.Player.SendInfoMessage($"未知参数 {findText}");
+            }
         }
     }
     public void Add(SubCmdBase addNode)
@@ -92,9 +105,9 @@ public class SubCmdList : SubCmdBase, IEnumerable<SubCmdBase>
         SubCmds.Add(addNode);
     }
     public void Add(SubCmdD subCmd) => Add(new SubCmdRun(subCmd));
-    public void Adds(int nameCount,params SubCmdD[] subCmds)
+    public void Adds(int nameCount, params SubCmdD[] subCmds)
     {
-        foreach(var subcmd in subCmds)
+        foreach (var subcmd in subCmds)
         {
             Add(new SubCmdRun(subcmd, nameCount));
         }

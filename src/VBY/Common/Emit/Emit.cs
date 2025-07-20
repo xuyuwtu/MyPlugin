@@ -9,6 +9,9 @@ public class EmitHelper
     {
         switch (i4)
         {
+            case -1:
+                il.Emit(OpCodes.Ldc_I4_M1);
+                break;
             case 0:
                 il.Emit(OpCodes.Ldc_I4_0);
                 break;
@@ -47,10 +50,10 @@ public class EmitHelper
 }
 public static class Extensions
 {
-    public static DynamicMethod CreateInstanceMethod(this Type type,string name,Type? returnType = null, Type[]? parameterTypes = null)
+    public static DynamicMethod CreateInstanceMethod(this Type type, string name, Type? returnType = null, Type[]? parameterTypes = null)
     {
         Type[] types;
-        if(parameterTypes is null)
+        if (parameterTypes is null)
         {
             types = new Type[] { type };
         }

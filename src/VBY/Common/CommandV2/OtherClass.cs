@@ -24,10 +24,15 @@ public class SetAllowInfo
 }
 public class AllowInfo
 {
-    public bool NeedLoggedIn = false;
-    public bool AllowServer = true;
-    public string Permission = "";
-    public AllowInfo() { }
+    public bool NeedLoggedIn;
+    public bool AllowServer;
+    public string Permission;
+    public AllowInfo()
+    {
+        NeedLoggedIn = false;
+        AllowServer = true;
+        Permission = "";
+    }
     public AllowInfo(bool needLoggedIn = false, bool allowServer = true, string permission = "")
     {
         NeedLoggedIn = needLoggedIn;

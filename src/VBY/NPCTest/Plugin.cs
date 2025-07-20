@@ -6,14 +6,14 @@ using VBY.NPCAI;
 
 namespace VBY.NPCTest;
 [ApiVersion(2, 1)]
-public class MainPlugin : TerrariaPlugin
+public class Plugin : TerrariaPlugin
 {
     public override string Name => "VBY.NPCTest";
     public override string Author => "yu";
     public override Version Version => new(1, 0, 0, 1);
     private readonly MethodInfo[] methods = typeof(NPCAIs).GetMethods(BindingFlags.Static | BindingFlags.Public);
     private readonly MonoMod.RuntimeDetour.Detour ScaleStats_ApplyMultiplayerStatsDetour = new(typeof(NPC).GetMethod(nameof(NPC.ScaleStats_ApplyMultiplayerStats)), typeof(MainPlugin).GetMethod(nameof(ScaleStats_ApplyMultiplayerStats)), new() { ManualApply = true });
-    public MainPlugin(Main game) : base(game)
+    public Plugin(Main game) : base(game)
     {
     }
 

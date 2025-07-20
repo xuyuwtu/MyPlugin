@@ -7,14 +7,14 @@ using System.Runtime.CompilerServices;
 namespace VBY.NPCAI;
 
 [ApiVersion(2, 1)]
-public class NPCAIPlugin : TerrariaPlugin
+public class Plugin : TerrariaPlugin
 {
-    public override string Name => "NPCAI Base";
+    public override string Name => "VBY.NPCAI Base";
     public override string Author => "yu";
     private static readonly Detour AIDetour = new(typeof(NPC).GetMethod("AI"), typeof(AIs).GetMethod("AI"), new() { ManualApply = true });
     public static bool HasNewProjectileInfoArray { get; private set; } = false;
     private static Action<int, NewProjectileInfo>? SetInfoAction;
-    public NPCAIPlugin(Main game) : base(game) 
+    public Plugin(Main game) : base(game) 
     {
     }
     public override void Initialize()

@@ -6,13 +6,13 @@ using VBY.ProjectileAI;
 
 namespace VBY.ProjectileTest;
 [ApiVersion(2, 1)]
-public class MainPlugin : TerrariaPlugin
+public class Plugin : TerrariaPlugin
 {
     public override string Name => "VBY.ProjectileTest";
     public override string Author => "yu";
     public override Version Version => new(1, 0, 0, 0);
     private MethodInfo[] methods = typeof(ProjectileAIs).GetMethods(BindingFlags.Static | BindingFlags.Public);
-    public MainPlugin(Main game) : base(game)
+    public Plugin(Main game) : base(game)
     {
     }
 

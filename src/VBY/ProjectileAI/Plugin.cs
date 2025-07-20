@@ -5,13 +5,13 @@ using MonoMod.RuntimeDetour;
 namespace VBY.ProjectileAI;
 
 [ApiVersion(2, 1)]
-public class ProjectileAIPlugin : TerrariaPlugin
+public class Plugin : TerrariaPlugin
 {
-    public override string Name => "ProjectileAIPlugin Base";
+    public override string Name => "VBY.ProjectileAIPlugin Base";
     public override string Author => "yu";
     private static readonly Detour AIDetour = new(typeof(Projectile).GetMethod("AI"), typeof(AIs).GetMethod("AI"), new() { ManualApply = true });
     public static NewProjectileInfo[] NewProjectileInfos = new NewProjectileInfo[Main.maxProjectiles + 1];
-    public ProjectileAIPlugin(Main game) : base(game)
+    public Plugin(Main game) : base(game)
     {
     }
     public override void Initialize()

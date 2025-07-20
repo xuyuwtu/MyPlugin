@@ -12,7 +12,7 @@ public static partial class ProjectileAIs
         {
             if (self.ai[2] == -1)
             {
-                ref var info = ref ProjectileAIPlugin.NewProjectileInfos[self.whoAmI];
+                ref var info = ref ProjectileAI.Plugin.NewProjectileInfos[self.whoAmI];
                 Projectile.NewProjectile(self.GetProjectileSource_FromThis(), self.Center, new Vector2(info.SpeedX, info.SpeedY), info.Type, info.Damage, info.KnockBack, -1, info.AI0, info.AI1, info.AI2);
             }
             self.Kill();

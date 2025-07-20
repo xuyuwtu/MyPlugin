@@ -63,6 +63,14 @@ public sealed class CodeAnalyzer : DiagnosticAnalyzer
                 context.ReportDiagnostic(Diagnostic.Create(Rule, node.GetLocation(), "Terraria.Gore.NewGore()"));
             }
         }
+        else if ("Terraria.Lighting".OrdinalEquals(fullName))
+        {
+            var methodName = memberAccess.Name.Identifier.ValueText;
+            if (methodName is "AddLight")
+            {
+                context.ReportDiagnostic(Diagnostic.Create(Rule, node.GetLocation(), "Terraria.Lighting.AddLight()"));
+            }
+        }
     }
 }
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(CodeAnalyzerCodeFixProvider)), Shared]

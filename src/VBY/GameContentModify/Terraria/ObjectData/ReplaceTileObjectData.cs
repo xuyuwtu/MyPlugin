@@ -6,7 +6,7 @@ namespace VBY.GameContentModify.ObjectData;
 [ReplaceType(typeof(TileObjectData))]
 public  static class ReplaceTileObjectData
 {
-    public static TileObjectData? GetTileData(ITile? getTile)
+    public static TileObjectData? GetTileData(On.Terraria.ObjectData.TileObjectData.orig_GetTileData_ITile orig, ITile? getTile)
     {
         if (getTile == null || !getTile.active())
         {

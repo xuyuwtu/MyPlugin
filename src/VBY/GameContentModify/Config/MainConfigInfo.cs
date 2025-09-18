@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 
 using VBY.Common.Config;
 using VBY.GameContentModify.ID;
+using IDAnalyzer;
 
 namespace VBY.GameContentModify.Config;
 
@@ -656,23 +657,23 @@ public sealed class OrbInfo
     {
         new ItemInfo[]
         {
-            new(800), new(97, 100)
+            new(ItemID.TheUndertaker), new(ItemID.MusketBall, 100)
         },
         new ItemInfo[]
         {
-            new(1256)
+            new(ItemID.CrimsonRod)
         },
         new ItemInfo[]
         {
-            new(802)
+            new(ItemID.TheRottedFork)
         },
         new ItemInfo[]
         {
-            new(3062)
+            new(ItemID.CrimsonHeart)
         },
         new ItemInfo[]
         {
-            new(1290)
+            new(ItemID.PanicNecklace)
         }
     }; 
     [Description("暗影珠掉落物品")]
@@ -681,23 +682,23 @@ public sealed class OrbInfo
     {
         new ItemInfo[]
         {
-            new(96), new(97, 100)
+            new(ItemID.MusketBall), new(ItemID.Musket, 100)
         },
         new ItemInfo[]
         {
-            new(64)
+            new(ItemID.Vilethorn)
         },
         new ItemInfo[]
         {
-            new(162)
+            new(ItemID.BallOHurt)
         },
         new ItemInfo[]
         {
-            new(115)
+            new(ItemID.ShadowOrb)
         },
         new ItemInfo[]
         {
-            new(111)
+            new(ItemID.BandofStarpower)
         }
     };
 }
@@ -1161,7 +1162,7 @@ public class ItemInfo
     public int stack = 1;
     public int prefix = -1;
     public ItemInfo() { }
-    public ItemInfo(int type, int stack = 1, int prefix = -1)
+    public ItemInfo([IDType(nameof(ItemID))] int type, int stack = 1, int prefix = -1)
     {
         this.type = type;
         this.stack = stack;

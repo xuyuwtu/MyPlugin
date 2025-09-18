@@ -5,3 +5,4 @@
 		CallerArgumentExpressionAttribute
 		CompilerFeatureRequiredAttribute
 		IsExternalInit
+MaybeNullWhenAttribute

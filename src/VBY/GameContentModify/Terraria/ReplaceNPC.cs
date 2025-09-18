@@ -1,16 +1,20 @@
-﻿using Microsoft.Xna.Framework;
+﻿using IDAnalyzer;
+
+using Microsoft.Xna.Framework;
 
 using OTAPI;
+
 using Terraria;
 using Terraria.Chat;
-using Terraria.ID;
 using Terraria.GameContent.Achievements;
 using Terraria.GameContent.Creative;
-using Terraria.GameContent.Events;
 using Terraria.GameContent.Drawing;
+using Terraria.GameContent.Events;
+using Terraria.ID;
 using Terraria.Localization;
 
 using VBY.GameContentModify.Config;
+
 using static VBY.GameContentModify.GameContentModify;
 
 namespace VBY.GameContentModify;
@@ -1170,31 +1174,31 @@ public static class ReplaceNPC
                 }
                 if (flag6 && Main.invasionType == InvasionID.MartianMadness)
                 {
-                    newNPC = spawnPoint.NewNPC(388);
+                    newNPC = spawnPoint.NewNPC(NPCID.MartianDrone);
                 }
                 else if (flag28 && Main.hardMode && NPC.downedGolemBoss && ((!NPC.downedMartians && Main.rand.Next(maxValue2) == 0) || Main.rand.Next(maxValue3) == 0) && !NPC.AnyNPCs(NPCID.MartianProbe))
                 {
-                    spawnPoint.NewNPC(399);
+                    spawnPoint.NewNPC(NPCID.MartianProbe);
                 }
                 else if (flag28 && Main.hardMode && NPC.downedGolemBoss && ((!NPC.downedMartians && Main.rand.Next(maxValue2) == 0) || Main.rand.Next(maxValue3) == 0) && !NPC.AnyNPCs(NPCID.MartianProbe) && (player.inventory[player.selectedItem].type == ItemID.WaterCandle || player.ZoneWaterCandle))
                 {
-                    spawnPoint.NewNPC(399);
+                    spawnPoint.NewNPC(NPCID.MartianProbe);
                 }
                 else if (Main.hardMode && !NPC.AnyNPCs(NPCID.WyvernHead) && !flag5 && Main.rand.Next(10) == 0)
                 {
-                    spawnPoint.NewNPC(87, 1);
+                    spawnPoint.NewNPC(NPCID.WyvernHead, 1);
                 }
                 else if (Main.hardMode && !NPC.AnyNPCs(NPCID.WyvernHead) && !flag5 && Main.rand.Next(10) == 0 && (player.inventory[player.selectedItem].type == ItemID.WaterCandle || player.ZoneWaterCandle))
                 {
-                    spawnPoint.NewNPC(87, 1);
+                    spawnPoint.NewNPC(NPCID.WyvernHead, 1);
                 }
                 else if (!NPC.unlockedSlimePurpleSpawn && player.RollLuck(25) == 0 && !NPC.AnyNPCs(NPCID.BoundTownSlimePurple))
                 {
-                    spawnPoint.NewNPC(686);
+                    spawnPoint.NewNPC(NPCID.BoundTownSlimePurple);
                 }
                 else
                 {
-                    spawnPoint.NewNPC(48);
+                    spawnPoint.NewNPC(NPCID.Harpy);
                 }
             }
             else if (flag6)
@@ -1203,42 +1207,42 @@ public static class ReplaceNPC
                 {
                     if (Main.hardMode && !NPC.AnyNPCs(NPCID.GoblinSummoner) && Main.rand.Next(30) == 0)
                     {
-                        spawnPoint.NewNPC(471);
+                        spawnPoint.NewNPC(NPCID.GoblinSummoner);
                     }
                     else if (Main.rand.Next(9) == 0)
                     {
-                        spawnPoint.NewNPC(29);
+                        spawnPoint.NewNPC(NPCID.GoblinSorcerer);
                     }
                     else if (Main.rand.Next(5) == 0)
                     {
-                        spawnPoint.NewNPC(26);
+                        spawnPoint.NewNPC(NPCID.GoblinPeon);
                     }
                     else if (Main.rand.Next(3) == 0)
                     {
-                        spawnPoint.NewNPC(111);
+                        spawnPoint.NewNPC(NPCID.GoblinArcher);
                     }
                     else if (Main.rand.Next(3) == 0)
                     {
-                        spawnPoint.NewNPC(27);
+                        spawnPoint.NewNPC(NPCID.GoblinThief);
                     }
                     else
                     {
-                        spawnPoint.NewNPC(28);
+                        spawnPoint.NewNPC(NPCID.GoblinWarrior);
                     }
                 }
                 else if (Main.invasionType == InvasionID.SnowLegion)
                 {
                     if (Main.rand.Next(7) == 0)
                     {
-                        spawnPoint.NewNPC(145);
+                        spawnPoint.NewNPC(NPCID.SnowBalla);
                     }
                     else if (Main.rand.Next(3) == 0)
                     {
-                        spawnPoint.NewNPC(143);
+                        spawnPoint.NewNPC(NPCID.SnowmanGangsta);
                     }
                     else
                     {
-                        spawnPoint.NewNPC(144);
+                        spawnPoint.NewNPC(NPCID.MisterStabby);
                     }
                 }
                 else if (Main.invasionType == InvasionID.PirateInvasion)
@@ -1249,27 +1253,27 @@ public static class ReplaceNPC
                     }
                     else if (Main.rand.Next(30) == 0 && !NPC.AnyNPCs(NPCID.PirateCaptain))
                     {
-                        spawnPoint.NewNPC(216);
+                        spawnPoint.NewNPC(NPCID.PirateCaptain);
                     }
                     else if (Main.rand.Next(11) == 0)
                     {
-                        spawnPoint.NewNPC(215);
+                        spawnPoint.NewNPC(NPCID.PirateCrossbower);
                     }
                     else if (Main.rand.Next(9) == 0)
                     {
-                        spawnPoint.NewNPC(252);
+                        spawnPoint.NewNPC(NPCID.Parrot);
                     }
                     else if (Main.rand.Next(7) == 0)
                     {
-                        spawnPoint.NewNPC(214);
+                        spawnPoint.NewNPC(NPCID.PirateDeadeye);
                     }
                     else if (Main.rand.Next(3) == 0)
                     {
-                        spawnPoint.NewNPC(213);
+                        spawnPoint.NewNPC(NPCID.PirateCorsair);
                     }
                     else
                     {
-                        spawnPoint.NewNPC(212);
+                        spawnPoint.NewNPC(NPCID.PirateDeckhand);
                     }
                 }
                 else if (Main.invasionType == InvasionID.MartianMadness)
@@ -1344,11 +1348,11 @@ public static class ReplaceNPC
                 {
                     if (player.RollLuck(NPC.goldCritterChance) == 0)
                     {
-                        spawnPoint.NewNPC(592);
+                        spawnPoint.NewNPC(NPCID.GoldGoldfish);
                     }
                     else
                     {
-                        spawnPoint.NewNPC(55);
+                        spawnPoint.NewNPC(NPCID.Goldfish);
                     }
                 }
                 else if (tileY > Main.worldSurface)
@@ -1357,50 +1361,50 @@ public static class ReplaceNPC
                     {
                         if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(447);
+                            spawnPoint.NewNPC(NPCID.GoldMouse);
                         }
                         else
                         {
-                            newNPC = spawnPoint.NewNPC(300);
+                            newNPC = spawnPoint.NewNPC(NPCID.Mouse);
                         }
                     }
                     else if (Main.rand.Next(2) == 0)
                     {
-                        newNPC = spawnPoint.NewNPC(359);
+                        newNPC = spawnPoint.NewNPC(NPCID.Snail);
                     }
                     else if (player.RollLuck(NPC.goldCritterChance) == 0)
                     {
-                        spawnPoint.NewNPC(448);
+                        spawnPoint.NewNPC(NPCID.GoldWorm);
                     }
                     else if (Main.rand.Next(3) != 0)
                     {
-                        spawnPoint.NewNPC(357);
+                        spawnPoint.NewNPC(NPCID.Worm);
                     }
                 }
                 else if (player.RollLuck(2) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(624);
+                    newNPC = spawnPoint.NewNPC(NPCID.Gnome);
                     Main.npc[newNPC].timeLeft *= 10;
                 }
                 else if (player.RollLuck(NPC.goldCritterChance) == 0)
                 {
-                    spawnPoint.NewNPC(443);
+                    spawnPoint.NewNPC(NPCID.GoldBunny);
                 }
                 else if (player.RollLuck(NPC.goldCritterChance) == 0)
                 {
-                    spawnPoint.NewNPC(539);
+                    spawnPoint.NewNPC(NPCID.SquirrelGold);
                 }
                 else if (Main.halloween && Main.rand.Next(3) != 0)
                 {
-                    spawnPoint.NewNPC(303);
+                    spawnPoint.NewNPC(NPCID.BunnySlimed);
                 }
                 else if (Main.xMas && Main.rand.Next(3) != 0)
                 {
-                    spawnPoint.NewNPC(337);
+                    spawnPoint.NewNPC(NPCID.BunnyXmas);
                 }
                 else if (BirthdayParty.PartyIsUp && Main.rand.Next(3) != 0)
                 {
-                    spawnPoint.NewNPC(540);
+                    spawnPoint.NewNPC(NPCID.PartyBunny);
                 }
                 else if (Main.rand.Next(3) == 0)
                 {
@@ -1408,12 +1412,12 @@ public static class ReplaceNPC
                 }
                 else
                 {
-                    spawnPoint.NewNPC(46);
+                    spawnPoint.NewNPC(NPCID.Bunny);
                 }
             }
             else if (!NPC.savedBartender && DD2Event.ReadyToFindBartender && !NPC.AnyNPCs(NPCID.BartenderUnconscious) && Main.rand.Next(80) == 0 && !flag7)
             {
-                spawnPoint.NewNPC(579);
+                spawnPoint.NewNPC(NPCID.BartenderUnconscious);
             }
             else if (Main.tile[tileX, tileY].wall == WallID.SpiderUnsafe || flag11)
             {
@@ -1424,15 +1428,15 @@ public static class ReplaceNPC
                 }
                 if (Main.tile[tileX, tileY].wall == WallID.SpiderUnsafe && Main.rand.Next(8) == 0 && !flag7 && flag30 && !NPC.savedStylist && !NPC.AnyNPCs(NPCID.WebbedStylist))
                 {
-                    spawnPoint.NewNPC(354);
+                    spawnPoint.NewNPC(NPCID.WebbedStylist);
                 }
                 else if (Main.hardMode && Main.rand.Next(10) != 0)
                 {
-                    spawnPoint.NewNPC(163);
+                    spawnPoint.NewNPC(NPCID.BlackRecluse);
                 }
                 else
                 {
-                    spawnPoint.NewNPC(164);
+                    spawnPoint.NewNPC(NPCID.WallCreeper);
                 }
             }
             else if ((NPC.SpawnTileOrAboveHasAnyWallInSet(tileX, tileY, WallID.Sets.AllowsUndergroundDesertEnemiesToSpawn) || flag13) && WorldGen.checkUnderground(tileX, tileY))
@@ -1448,15 +1452,15 @@ public static class ReplaceNPC
                 }
                 if (Main.rand.Next(20) == 0 && !flag7 && !NPC.savedGolfer && !NPC.AnyNPCs(NPCID.GolferRescue))
                 {
-                    spawnPoint.NewNPC(589);
+                    spawnPoint.NewNPC(NPCID.GolferRescue);
                 }
                 else if (Main.hardMode && Main.rand.Next((int)(45f * num56)) == 0 && !flag5 && tileY > Main.worldSurface + 100.0)
                 {
-                    spawnPoint.NewNPC(510);
+                    spawnPoint.NewNPC(NPCID.DuneSplicerHead);
                 }
                 else if (Main.rand.Next((int)(45f * num56)) == 0 && !flag5 && tileY > Main.worldSurface + 100.0 && NPC.CountNPCS(NPCID.TombCrawlerHead) == 0)
                 {
-                    spawnPoint.NewNPC(513);
+                    spawnPoint.NewNPC(NPCID.TombCrawlerHead);
                 }
                 else if (Main.hardMode && Main.rand.Next(5) != 0)
                 {
@@ -1520,15 +1524,15 @@ public static class ReplaceNPC
             }
             else if (Main.hardMode && flag7 && player.ZoneJungle && Main.rand.Next(3) != 0)
             {
-                spawnPoint.NewNPC(157);
+                spawnPoint.NewNPC(NPCID.Arapaima);
             }
             else if (Main.hardMode && flag7 && player.ZoneCrimson && Main.rand.Next(3) != 0)
             {
-                spawnPoint.NewNPC(242);
+                spawnPoint.NewNPC(NPCID.BloodJelly);
             }
             else if (Main.hardMode && flag7 && player.ZoneCrimson && Main.rand.Next(3) != 0)
             {
-                spawnPoint.NewNPC(241);
+                spawnPoint.NewNPC(NPCID.BloodFeeder);
             }
             else if ((!flag12 || (!NPC.savedAngler && !NPC.AnyNPCs(NPCID.SleepingAngler))) && flag7 && flag22)
             {
@@ -1619,29 +1623,29 @@ public static class ReplaceNPC
                     }
                     else if (Main.rand.Next(40) == 0)
                     {
-                        spawnPoint.NewNPC(220);
+                        spawnPoint.NewNPC(NPCID.SeaSnail);
                     }
                     else if (Main.rand.Next(18) == 0)
                     {
-                        spawnPoint.NewNPC(221);
+                        spawnPoint.NewNPC(NPCID.Squid);
                     }
                     else if (Main.rand.Next(8) == 0)
                     {
-                        spawnPoint.NewNPC(65);
+                        spawnPoint.NewNPC(NPCID.Shark);
                     }
                     else if (Main.rand.Next(3) == 0)
                     {
-                        spawnPoint.NewNPC(67);
+                        spawnPoint.NewNPC(NPCID.Crab);
                     }
                     else
                     {
-                        spawnPoint.NewNPC(64);
+                        spawnPoint.NewNPC(NPCID.PinkJellyfish);
                     }
                 }
             }
             else if (!flag7 && !NPC.savedAngler && !NPC.AnyNPCs(NPCID.SleepingAngler) && (tileX < WorldGen.beachDistance || tileX > Main.maxTilesX - WorldGen.beachDistance) && Main.tileSand[num45] && (tileY < Main.worldSurface || Main.remixWorld))
             {
-                spawnPoint.NewNPC(376);
+                spawnPoint.NewNPC(NPCID.SleepingAngler);
             }
             else if (!flag12 && flag7 && ((flag21 && Main.rand.Next(2) == 0) || num45 == 60))
             {
@@ -1691,11 +1695,11 @@ public static class ReplaceNPC
                 {
                     if (Main.hardMode && Main.rand.Next(3) > 0)
                     {
-                        spawnPoint.NewNPC(102);
+                        spawnPoint.NewNPC(NPCID.AnglerFish);
                     }
                     else
                     {
-                        spawnPoint.NewNPC(58);
+                        spawnPoint.NewNPC(NPCID.Piranha);
                     }
                 }
             }
@@ -1703,22 +1707,22 @@ public static class ReplaceNPC
             {
                 if (Main.hardMode && Main.rand.Next(3) > 0)
                 {
-                    spawnPoint.NewNPC(103);
+                    spawnPoint.NewNPC(NPCID.GreenJellyfish);
                 }
                 else
                 {
-                    spawnPoint.NewNPC(63);
+                    spawnPoint.NewNPC(NPCID.BlueJellyfish);
                 }
             }
             else if (flag7 && Main.rand.Next(4) == 0 && ((tileX > WorldGen.oceanDistance && tileX < Main.maxTilesX - WorldGen.oceanDistance) || tileY > Main.worldSurface + 50.0))
             {
                 if (player.ZoneCorrupt)
                 {
-                    spawnPoint.NewNPC(57);
+                    spawnPoint.NewNPC(NPCID.CorruptGoldfish);
                 }
                 else if (player.ZoneCrimson)
                 {
-                    spawnPoint.NewNPC(465);
+                    spawnPoint.NewNPC(NPCID.CrimsonGoldfish);
                 }
                 else if (tileY < Main.worldSurface && tileY > 50 && Main.rand.Next(3) != 0 && Main.dayTime)
                 {
@@ -1774,38 +1778,38 @@ public static class ReplaceNPC
                     }
                     else if (player.RollLuck(NPC.goldCritterChance) == 0)
                     {
-                        spawnPoint.NewNPC(592);
+                        spawnPoint.NewNPC(NPCID.GoldGoldfish);
                     }
                     else
                     {
-                        spawnPoint.NewNPC(55);
+                        spawnPoint.NewNPC(NPCID.Goldfish);
                     }
                 }
                 else if (num3 == 53 && tileX > WorldGen.beachDistance && tileX < Main.maxTilesX - WorldGen.beachDistance)
                 {
-                    spawnPoint.NewNPC(607);
+                    spawnPoint.NewNPC(NPCID.Pupfish);
                 }
                 else if (player.RollLuck(NPC.goldCritterChance) == 0)
                 {
-                    spawnPoint.NewNPC(592);
+                    spawnPoint.NewNPC(NPCID.GoldGoldfish);
                 }
                 else
                 {
-                    spawnPoint.NewNPC(55);
+                    spawnPoint.NewNPC(NPCID.Goldfish);
                 }
             }
             else if (NPC.downedGoblins && player.RollLuck(20) == 0 && !flag7 && flag21 && tileY < Main.maxTilesY - 210 && !NPC.savedGoblin && !NPC.AnyNPCs(NPCID.BoundGoblin))
             {
-                spawnPoint.NewNPC(105);
+                spawnPoint.NewNPC(NPCID.BoundGoblin);
             }
             else if (Main.hardMode && player.RollLuck(20) == 0 && !flag7 && flag21 && tileY < Main.maxTilesY - 210 && !NPC.savedWizard && !NPC.AnyNPCs(NPCID.BoundWizard))
             {
-                spawnPoint.NewNPC(106);
+                spawnPoint.NewNPC(NPCID.BoundWizard);
             }
             //else if (NPC.downedBoss3 && player.RollLuck(20) == 0 && !flag7 && flag21 && num2 < Main.maxTilesY - 210 && !NPC.unlockedSlimeOldSpawn && !NPC.AnyNPCs(685))
             else if (NPC.downedBoss3 && player.RollLuck(20) == 0 && !flag7 && flag21 && tileY < Main.maxTilesY - 210 && !NPC.AnyNPCs(NPCID.BoundTownSlimeOld))
             {
-                spawnPoint.NewNPC(685);
+                spawnPoint.NewNPC(NPCID.BoundTownSlimeOld);
             }
             else if (flag12)
             {
@@ -1880,7 +1884,7 @@ public static class ReplaceNPC
                     }
                     else
                     {
-                        spawnPoint.NewNPC(602);
+                        spawnPoint.NewNPC(NPCID.Seagull);
                     }
                 }
                 else if ((num45 == 2 || num45 == 477 || num45 == 53) && !tooWindyForButterflies && Main.raining && Main.dayTime && Main.rand.Next(2) == 0 && (tileY <= Main.worldSurface || Main.remixWorld) && NPC.FindCattailTop(tileX, tileY, out cattailX, out cattailY))
@@ -1979,28 +1983,28 @@ public static class ReplaceNPC
                         }
                         else if (num3 == 53 && tileX > WorldGen.beachDistance && tileX < Main.maxTilesX - WorldGen.beachDistance)
                         {
-                            spawnPoint.NewNPC(607);
+                            spawnPoint.NewNPC(NPCID.Pupfish);
                         }
                         else if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(592);
+                            spawnPoint.NewNPC(NPCID.GoldGoldfish);
                         }
                         else
                         {
-                            spawnPoint.NewNPC(55);
+                            spawnPoint.NewNPC(NPCID.Goldfish);
                         }
                     }
                     else if (num3 == 53 && tileX > WorldGen.beachDistance && tileX < Main.maxTilesX - WorldGen.beachDistance)
                     {
-                        spawnPoint.NewNPC(607);
+                        spawnPoint.NewNPC(NPCID.Pupfish);
                     }
                     else if (player.RollLuck(NPC.goldCritterChance) == 0)
                     {
-                        spawnPoint.NewNPC(592);
+                        spawnPoint.NewNPC(NPCID.GoldGoldfish);
                     }
                     else
                     {
-                        spawnPoint.NewNPC(55);
+                        spawnPoint.NewNPC(NPCID.Goldfish);
                     }
                 }
                 else if (num45 == 147 || num45 == 161)
@@ -2014,19 +2018,19 @@ public static class ReplaceNPC
                         switch (Main.rand.Next(5))
                         {
                             case 0:
-                                spawnPoint.NewNPC(671);
+                                spawnPoint.NewNPC(NPCID.ScarletMacaw);
                                 break;
                             case 1:
-                                spawnPoint.NewNPC(672);
+                                spawnPoint.NewNPC(NPCID.BlueMacaw);
                                 break;
                             case 2:
-                                spawnPoint.NewNPC(673);
+                                spawnPoint.NewNPC(NPCID.Toucan);
                                 break;
                             case 3:
-                                spawnPoint.NewNPC(674);
+                                spawnPoint.NewNPC(NPCID.YellowCockatiel);
                                 break;
                             default:
-                                spawnPoint.NewNPC(675);
+                                spawnPoint.NewNPC(NPCID.GrayCockatiel);
                                 break;
                         }
                     }
@@ -2058,24 +2062,24 @@ public static class ReplaceNPC
                         }
                         else if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(448);
+                            spawnPoint.NewNPC(NPCID.GoldWorm);
                         }
                         else if (Main.rand.Next(3) != 0)
                         {
-                            spawnPoint.NewNPC(357);
+                            spawnPoint.NewNPC(NPCID.Worm);
                         }
                         else if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(593);
+                            spawnPoint.NewNPC(NPCID.GoldGoldfishWalker);
                         }
                         else
                         {
-                            spawnPoint.NewNPC(230);
+                            spawnPoint.NewNPC(NPCID.GoldfishWalker);
                         }
                     }
                     else if (!Main.dayTime && Main.numClouds <= 55 && Main.cloudBGActive == 0f && Star.starfallBoost > 3f && flag33 && player.RollLuck(2) == 0)
                     {
-                        spawnPoint.NewNPC(484);
+                        spawnPoint.NewNPC(NPCID.EnchantedNightcrawler);
                     }
                     else if (!tooWindyForButterflies && !Main.dayTime && Main.rand.Next(NPC.fireFlyFriendly) == 0 && flag33)
                     {
@@ -2104,34 +2108,34 @@ public static class ReplaceNPC
                     }
                     else if (Main.cloudAlpha == 0f && !Main.dayTime && Main.rand.Next(5) == 0 && flag33)
                     {
-                        spawnPoint.NewNPC(611);
+                        spawnPoint.NewNPC(NPCID.Owl);
                     }
                     else if (Main.dayTime && Main.time < 18000.0 && Main.rand.Next(3) != 0 && flag33)
                     {
                         int num86 = Main.rand.Next(4);
                         if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(442);
+                            spawnPoint.NewNPC(NPCID.GoldBird);
                         }
                         else
                         {
                             switch (num86)
                             {
                                 case 0:
-                                    spawnPoint.NewNPC(297);
+                                    spawnPoint.NewNPC(NPCID.BirdBlue);
                                     break;
                                 case 1:
-                                    spawnPoint.NewNPC(298);
+                                    spawnPoint.NewNPC(NPCID.BirdRed);
                                     break;
                                 default:
-                                    spawnPoint.NewNPC(74);
+                                    spawnPoint.NewNPC(NPCID.Bird);
                                     break;
                             }
                         }
                     }
                     else if (!tooWindyForButterflies && !Main.raining && Main.dayTime && Main.rand.Next(NPC.stinkBugChance) == 0 && flag33)
                     {
-                        spawnPoint.NewNPC(669);
+                        spawnPoint.NewNPC(NPCID.Stinkbug);
                         if (Main.rand.Next(4) == 0)
                         {
                             NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX - 16, spawnY, NPCID.Stinkbug);
@@ -2145,11 +2149,11 @@ public static class ReplaceNPC
                     {
                         if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(444);
+                            spawnPoint.NewNPC(NPCID.GoldButterfly);
                         }
                         else
                         {
-                            spawnPoint.NewNPC(356);
+                            spawnPoint.NewNPC(NPCID.Butterfly);
                         }
                         if (Main.rand.Next(4) == 0)
                         {
@@ -2164,27 +2168,27 @@ public static class ReplaceNPC
                     {
                         if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(605);
+                            spawnPoint.NewNPC(NPCID.GoldLadyBug);
                         }
                         else
                         {
-                            spawnPoint.NewNPC(604);
+                            spawnPoint.NewNPC(NPCID.LadyBug);
                         }
                         if (Main.rand.Next(3) != 0)
                         {
-                            spawnPoint.NewNPC(604);
+                            spawnPoint.NewNPC(NPCID.LadyBug);
                         }
                         if (Main.rand.Next(2) == 0)
                         {
-                            spawnPoint.NewNPC(604);
+                            spawnPoint.NewNPC(NPCID.LadyBug);
                         }
                         if (Main.rand.Next(3) == 0)
                         {
-                            spawnPoint.NewNPC(604);
+                            spawnPoint.NewNPC(NPCID.LadyBug);
                         }
                         if (Main.rand.Next(4) == 0)
                         {
-                            spawnPoint.NewNPC(604);
+                            spawnPoint.NewNPC(NPCID.LadyBug);
                         }
                     }
                     else if (Main.rand.Next(2) == 0 && flag33)
@@ -2192,20 +2196,20 @@ public static class ReplaceNPC
                         int num87 = Main.rand.Next(4);
                         if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(442);
+                            spawnPoint.NewNPC(NPCID.GoldBird);
                         }
                         else
                         {
                             switch (num87)
                             {
                                 case 0:
-                                    spawnPoint.NewNPC(297);
+                                    spawnPoint.NewNPC(NPCID.BirdBlue);
                                     break;
                                 case 1:
-                                    spawnPoint.NewNPC(298);
+                                    spawnPoint.NewNPC(NPCID.BirdRed);
                                     break;
                                 default:
-                                    spawnPoint.NewNPC(74);
+                                    spawnPoint.NewNPC(NPCID.Bird);
                                     break;
                             }
                         }
@@ -2230,23 +2234,23 @@ public static class ReplaceNPC
                     }
                     else if (player.RollLuck(NPC.goldCritterChance) == 0)
                     {
-                        spawnPoint.NewNPC(443);
+                        spawnPoint.NewNPC(NPCID.GoldBunny);
                     }
                     else if (player.RollLuck(NPC.goldCritterChance) == 0 && flag33)
                     {
-                        spawnPoint.NewNPC(539);
+                        spawnPoint.NewNPC(NPCID.SquirrelGold);
                     }
                     else if (Main.halloween && Main.rand.Next(3) != 0)
                     {
-                        spawnPoint.NewNPC(303);
+                        spawnPoint.NewNPC(NPCID.BunnySlimed);
                     }
                     else if (Main.xMas && Main.rand.Next(3) != 0)
                     {
-                        spawnPoint.NewNPC(337);
+                        spawnPoint.NewNPC(NPCID.BunnyXmas);
                     }
                     else if (BirthdayParty.PartyIsUp && Main.rand.Next(3) != 0)
                     {
-                        spawnPoint.NewNPC(540);
+                        spawnPoint.NewNPC(NPCID.PartyBunny);
                     }
                     else if (Main.rand.Next(3) == 0)
                     {
@@ -2289,7 +2293,7 @@ public static class ReplaceNPC
                             }
                             else
                             {
-                                spawnPoint.NewNPC(46);
+                                spawnPoint.NewNPC(NPCID.Bunny);
                             }
                         }
                     }
@@ -2302,7 +2306,7 @@ public static class ReplaceNPC
                     }
                     else
                     {
-                        spawnPoint.NewNPC(46);
+                        spawnPoint.NewNPC(NPCID.Bunny);
                     }
                 }
             }
@@ -2330,35 +2334,35 @@ public static class ReplaceNPC
                 }
                 if (flag34)
                 {
-                    newNPC = spawnPoint.NewNPC(68);
+                    newNPC = spawnPoint.NewNPC(NPCID.DungeonGuardian);
                 }
                 else if (NPC.downedBoss3 && !NPC.savedMech && Main.rand.Next(5) == 0 && !flag7 && !NPC.AnyNPCs(NPCID.BoundMechanic) && tileY > (Main.worldSurface * 4.0 + Main.rockLayer) / 5.0)
                 {
-                    spawnPoint.NewNPC(123);
+                    spawnPoint.NewNPC(NPCID.BoundMechanic);
                 }
                 else if (flag14 && Main.rand.Next(30) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(287);
+                    newNPC = spawnPoint.NewNPC(NPCID.BoneLee);
                 }
                 else if (flag14 && num88 == 0 && Main.rand.Next(15) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(293);
+                    newNPC = spawnPoint.NewNPC(NPCID.SkeletonCommando);
                 }
                 else if (flag14 && num88 == 1 && Main.rand.Next(15) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(291);
+                    newNPC = spawnPoint.NewNPC(NPCID.SkeletonSniper);
                 }
                 else if (flag14 && num88 == 2 && Main.rand.Next(15) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(292);
+                    newNPC = spawnPoint.NewNPC(NPCID.TacticalSkeleton);
                 }
                 else if (flag14 && !NPC.AnyNPCs(NPCID.Paladin) && num88 == 0 && Main.rand.Next(35) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(290);
+                    newNPC = spawnPoint.NewNPC(NPCID.Paladin);
                 }
                 else if (flag14 && (num88 == 1 || num88 == 2) && Main.rand.Next(30) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(289);
+                    newNPC = spawnPoint.NewNPC(NPCID.GiantCursedSkull);
                 }
                 else if (flag14 && Main.rand.Next(20) == 0)
                 {
@@ -2392,39 +2396,39 @@ public static class ReplaceNPC
                 }
                 else if (player.RollLuck(35) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(71);
+                    newNPC = spawnPoint.NewNPC(NPCID.DungeonSlime);
                 }
                 else if (num88 == 1 && Main.rand.Next(3) == 0 && !NPC.NearSpikeBall(tileX, tileY))
                 {
-                    newNPC = spawnPoint.NewNPC(70);
+                    newNPC = spawnPoint.NewNPC(NPCID.SpikeBall);
                 }
                 else if (num88 == 2 && Main.rand.Next(5) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(72);
+                    newNPC = spawnPoint.NewNPC(NPCID.BlazingWheel);
                 }
                 else if (num88 == 0 && Main.rand.Next(7) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(34);
+                    newNPC = spawnPoint.NewNPC(NPCID.CursedSkull);
                 }
                 else if (Main.rand.Next(7) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(32);
+                    newNPC = spawnPoint.NewNPC(NPCID.DarkCaster);
                 }
                 else
                 {
                     switch (Main.rand.Next(5))
                     {
                         case 0:
-                            newNPC = spawnPoint.NewNPC(294);
+                            newNPC = spawnPoint.NewNPC(NPCID.AngryBonesBig);
                             break;
                         case 1:
-                            newNPC = spawnPoint.NewNPC(295);
+                            newNPC = spawnPoint.NewNPC(NPCID.AngryBonesBigMuscle);
                             break;
                         case 2:
-                            newNPC = spawnPoint.NewNPC(296);
+                            newNPC = spawnPoint.NewNPC(NPCID.AngryBonesBigHelmet);
                             break;
                         default:
-                            newNPC = spawnPoint.NewNPC(31);
+                            newNPC = spawnPoint.NewNPC(NPCID.AngryBones);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.BigBoned);
@@ -2439,7 +2443,7 @@ public static class ReplaceNPC
             }
             else if (player.ZoneMeteor)
             {
-                newNPC = spawnPoint.NewNPC(23);
+                newNPC = spawnPoint.NewNPC(NPCID.MeteorHead);
             }
             else if (DD2Event.Ongoing && player.ZoneOldOneArmy)
             {
@@ -2450,7 +2454,7 @@ public static class ReplaceNPC
                 int num91 = NPC.waveNumber;
                 if (Main.rand.Next(30) == 0 && NPC.CountNPCS(NPCID.PresentMimic) < 4)
                 {
-                    newNPC = spawnPoint.NewNPC(341);
+                    newNPC = spawnPoint.NewNPC(NPCID.PresentMimic);
                 }
                 else if (num91 >= 20)
                 {
@@ -2459,31 +2463,31 @@ public static class ReplaceNPC
                     {
                         newNPC = num92 switch
                         {
-                            0 => spawnPoint.NewNPC(345),
-                            1 => spawnPoint.NewNPC(346),
-                            _ => spawnPoint.NewNPC(344),
+                            0 => spawnPoint.NewNPC(NPCID.IceQueen),
+                            1 => spawnPoint.NewNPC(NPCID.SantaNK1),
+                            _ => spawnPoint.NewNPC(NPCID.Everscream),
                         };
                     }
                 }
                 else if (num91 >= 19)
                 {
-                    newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.IceQueen) < 4) ? spawnPoint.NewNPC(345) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.SantaNK1) < 5) ? spawnPoint.NewNPC(346) : ((Main.rand.Next(10) != 0 || NPC.CountNPCS(NPCID.Everscream) >= 7) ? spawnPoint.NewNPC(343) : spawnPoint.NewNPC(344))));
+                    newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.IceQueen) < 4) ? spawnPoint.NewNPC(NPCID.IceQueen) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.SantaNK1) < 5) ? spawnPoint.NewNPC(NPCID.SantaNK1) : ((Main.rand.Next(10) != 0 || NPC.CountNPCS(NPCID.Everscream) >= 7) ? spawnPoint.NewNPC(NPCID.Yeti) : spawnPoint.NewNPC(NPCID.Everscream))));
                 }
                 else if (num91 >= 18)
                 {
-                    newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.IceQueen) < 3) ? spawnPoint.NewNPC(345) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.SantaNK1) < 4) ? spawnPoint.NewNPC(346) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 6) ? spawnPoint.NewNPC(344) : ((Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(348) : ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(343) : spawnPoint.NewNPC(351))))));
+                    newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.IceQueen) < 3) ? spawnPoint.NewNPC(NPCID.IceQueen) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.SantaNK1) < 4) ? spawnPoint.NewNPC(NPCID.SantaNK1) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 6) ? spawnPoint.NewNPC(NPCID.Everscream) : ((Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(NPCID.Nutcracker) : ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.Yeti) : spawnPoint.NewNPC(NPCID.Krampus))))));
                 }
                 else if (num91 >= 17)
                 {
-                    newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.IceQueen) < 2) ? spawnPoint.NewNPC(345) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.SantaNK1) < 3) ? spawnPoint.NewNPC(346) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 5) ? spawnPoint.NewNPC(344) : ((Main.rand.Next(4) == 0) ? spawnPoint.NewNPC(347) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(343) : spawnPoint.NewNPC(351))))));
+                    newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.IceQueen) < 2) ? spawnPoint.NewNPC(NPCID.IceQueen) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.SantaNK1) < 3) ? spawnPoint.NewNPC(NPCID.SantaNK1) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 5) ? spawnPoint.NewNPC(NPCID.Everscream) : ((Main.rand.Next(4) == 0) ? spawnPoint.NewNPC(NPCID.ElfCopter) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(NPCID.Yeti) : spawnPoint.NewNPC(NPCID.Krampus))))));
                 }
                 else if (num91 >= 16)
                 {
-                    newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.IceQueen) < 2) ? spawnPoint.NewNPC(345) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.SantaNK1) < 2) ? spawnPoint.NewNPC(346) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 4) ? spawnPoint.NewNPC(344) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(343) : spawnPoint.NewNPC(352)))));
+                    newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.IceQueen) < 2) ? spawnPoint.NewNPC(NPCID.IceQueen) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.SantaNK1) < 2) ? spawnPoint.NewNPC(NPCID.SantaNK1) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 4) ? spawnPoint.NewNPC(NPCID.Everscream) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(NPCID.Yeti) : spawnPoint.NewNPC(NPCID.Flocko)))));
                 }
                 else if (num91 >= 15)
                 {
-                    newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.IceQueen)) ? spawnPoint.NewNPC(345) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.SantaNK1) < 2) ? spawnPoint.NewNPC(346) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 3) ? spawnPoint.NewNPC(344) : ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(343) : spawnPoint.NewNPC(347)))));
+                    newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.IceQueen)) ? spawnPoint.NewNPC(NPCID.IceQueen) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.SantaNK1) < 2) ? spawnPoint.NewNPC(NPCID.SantaNK1) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 3) ? spawnPoint.NewNPC(NPCID.Everscream) : ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.Yeti) : spawnPoint.NewNPC(NPCID.ElfCopter)))));
                 }
                 else
                 {
@@ -2492,59 +2496,59 @@ public static class ReplaceNPC
                         case 14:
                             if (Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.IceQueen))
                             {
-                                newNPC = spawnPoint.NewNPC(345);
+                                newNPC = spawnPoint.NewNPC(NPCID.IceQueen);
                             }
                             else if (Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1))
                             {
-                                newNPC = spawnPoint.NewNPC(346);
+                                newNPC = spawnPoint.NewNPC(NPCID.SantaNK1);
                             }
                             else if (Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Everscream))
                             {
-                                newNPC = spawnPoint.NewNPC(344);
+                                newNPC = spawnPoint.NewNPC(NPCID.Everscream);
                             }
                             else if (Main.rand.Next(3) == 0)
                             {
-                                newNPC = spawnPoint.NewNPC(343);
+                                newNPC = spawnPoint.NewNPC(NPCID.Yeti);
                             }
                             break;
                         case 13:
-                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.IceQueen)) ? spawnPoint.NewNPC(345) : ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1)) ? spawnPoint.NewNPC(346) : ((Main.rand.Next(3) != 0) ? ((Main.rand.Next(6) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(347) : spawnPoint.NewNPC(342)) : spawnPoint.NewNPC(343)) : spawnPoint.NewNPC(352))));
+                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.IceQueen)) ? spawnPoint.NewNPC(NPCID.IceQueen) : ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1)) ? spawnPoint.NewNPC(NPCID.SantaNK1) : ((Main.rand.Next(3) != 0) ? ((Main.rand.Next(6) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.ElfCopter) : spawnPoint.NewNPC(NPCID.GingerbreadMan)) : spawnPoint.NewNPC(NPCID.Yeti)) : spawnPoint.NewNPC(NPCID.Flocko))));
                             break;
                         case 12:
-                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.IceQueen)) ? spawnPoint.NewNPC(345) : ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Everscream)) ? spawnPoint.NewNPC(344) : ((Main.rand.Next(8) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(342)) : spawnPoint.NewNPC(343))));
+                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.IceQueen)) ? spawnPoint.NewNPC(NPCID.IceQueen) : ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Everscream)) ? spawnPoint.NewNPC(NPCID.Everscream) : ((Main.rand.Next(8) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(NPCID.GingerbreadMan)) : spawnPoint.NewNPC(NPCID.Yeti))));
                             break;
                         case 11:
-                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.IceQueen)) ? spawnPoint.NewNPC(345) : ((Main.rand.Next(6) != 0) ? ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(342)) : spawnPoint.NewNPC(352)));
+                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.IceQueen)) ? spawnPoint.NewNPC(NPCID.IceQueen) : ((Main.rand.Next(6) != 0) ? ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(NPCID.GingerbreadMan)) : spawnPoint.NewNPC(NPCID.Flocko)));
                             break;
                         case 10:
-                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1)) ? spawnPoint.NewNPC(346) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 2) ? spawnPoint.NewNPC(344) : ((Main.rand.Next(6) != 0) ? ((Main.rand.Next(3) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(347)) : spawnPoint.NewNPC(348)) : spawnPoint.NewNPC(351))));
+                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1)) ? spawnPoint.NewNPC(NPCID.SantaNK1) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 2) ? spawnPoint.NewNPC(NPCID.Everscream) : ((Main.rand.Next(6) != 0) ? ((Main.rand.Next(3) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(NPCID.ElfCopter)) : spawnPoint.NewNPC(NPCID.Nutcracker)) : spawnPoint.NewNPC(NPCID.Krampus))));
                             break;
                         case 9:
-                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1)) ? spawnPoint.NewNPC(346) : ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Everscream)) ? spawnPoint.NewNPC(344) : ((Main.rand.Next(2) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(342) : spawnPoint.NewNPC(347)) : spawnPoint.NewNPC(348))));
+                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1)) ? spawnPoint.NewNPC(NPCID.SantaNK1) : ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Everscream)) ? spawnPoint.NewNPC(NPCID.Everscream) : ((Main.rand.Next(2) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.GingerbreadMan) : spawnPoint.NewNPC(NPCID.ElfCopter)) : spawnPoint.NewNPC(NPCID.Nutcracker))));
                             break;
                         case 8:
-                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1)) ? spawnPoint.NewNPC(346) : ((Main.rand.Next(8) != 0) ? ((Main.rand.Next(3) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(350) : spawnPoint.NewNPC(347)) : spawnPoint.NewNPC(348)) : spawnPoint.NewNPC(351)));
+                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1)) ? spawnPoint.NewNPC(NPCID.SantaNK1) : ((Main.rand.Next(8) != 0) ? ((Main.rand.Next(3) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.ElfArcher) : spawnPoint.NewNPC(NPCID.ElfCopter)) : spawnPoint.NewNPC(NPCID.Nutcracker)) : spawnPoint.NewNPC(NPCID.Krampus)));
                             break;
                         case 7:
-                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1)) ? spawnPoint.NewNPC(346) : ((Main.rand.Next(3) != 0) ? ((Main.rand.Next(4) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(350)) : spawnPoint.NewNPC(342)));
+                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.SantaNK1)) ? spawnPoint.NewNPC(NPCID.SantaNK1) : ((Main.rand.Next(3) != 0) ? ((Main.rand.Next(4) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(NPCID.ElfArcher)) : spawnPoint.NewNPC(NPCID.GingerbreadMan)));
                             break;
                         case 6:
-                            newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 2) ? spawnPoint.NewNPC(344) : ((Main.rand.Next(4) != 0) ? ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(350) : spawnPoint.NewNPC(348)) : spawnPoint.NewNPC(347)));
+                            newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Everscream) < 2) ? spawnPoint.NewNPC(NPCID.Everscream) : ((Main.rand.Next(4) != 0) ? ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(NPCID.ElfArcher) : spawnPoint.NewNPC(NPCID.Nutcracker)) : spawnPoint.NewNPC(NPCID.ElfCopter)));
                             break;
                         case 5:
-                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Everscream)) ? spawnPoint.NewNPC(344) : ((Main.rand.Next(4) != 0) ? ((Main.rand.Next(8) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(348)) : spawnPoint.NewNPC(350)));
+                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Everscream)) ? spawnPoint.NewNPC(NPCID.Everscream) : ((Main.rand.Next(4) != 0) ? ((Main.rand.Next(8) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(NPCID.Nutcracker)) : spawnPoint.NewNPC(NPCID.ElfArcher)));
                             break;
                         case 4:
-                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Everscream)) ? spawnPoint.NewNPC(344) : ((Main.rand.Next(4) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(342)) : spawnPoint.NewNPC(350)));
+                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Everscream)) ? spawnPoint.NewNPC(NPCID.Everscream) : ((Main.rand.Next(4) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(NPCID.GingerbreadMan)) : spawnPoint.NewNPC(NPCID.ElfArcher)));
                             break;
                         case 3:
-                            newNPC = ((Main.rand.Next(8) != 0) ? ((Main.rand.Next(4) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(342)) : spawnPoint.NewNPC(350)) : spawnPoint.NewNPC(348));
+                            newNPC = ((Main.rand.Next(8) != 0) ? ((Main.rand.Next(4) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(NPCID.GingerbreadMan)) : spawnPoint.NewNPC(NPCID.ElfArcher)) : spawnPoint.NewNPC(NPCID.Nutcracker));
                             break;
                         case 2:
-                            newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(350));
+                            newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(NPCID.ElfArcher));
                             break;
                         default:
-                            newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(342));
+                            newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(338, 341)) : spawnPoint.NewNPC(NPCID.GingerbreadMan));
                             break;
                     }
                 }
@@ -2558,15 +2562,15 @@ public static class ReplaceNPC
                     {
                         if (Main.rand.Next(2) == 0 && NPC.CountNPCS(NPCID.Pumpking) < 2)
                         {
-                            newNPC = spawnPoint.NewNPC(327);
+                            newNPC = spawnPoint.NewNPC(NPCID.Pumpking);
                         }
                         else if (Main.rand.Next(3) != 0 && NPC.CountNPCS(NPCID.MourningWood) < 2)
                         {
-                            newNPC = spawnPoint.NewNPC(325);
+                            newNPC = spawnPoint.NewNPC(NPCID.MourningWood);
                         }
                         else if (NPC.CountNPCS(NPCID.HeadlessHorseman) < 3)
                         {
-                            newNPC = spawnPoint.NewNPC(315);
+                            newNPC = spawnPoint.NewNPC(NPCID.HeadlessHorseman);
                         }
                     }
                 }
@@ -2577,83 +2581,83 @@ public static class ReplaceNPC
                         case 19:
                             if (Main.rand.Next(5) == 0 && NPC.CountNPCS(NPCID.Pumpking) < 2)
                             {
-                                newNPC = spawnPoint.NewNPC(327);
+                                newNPC = spawnPoint.NewNPC(NPCID.Pumpking);
                             }
                             else if (Main.rand.Next(5) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2)
                             {
-                                newNPC = spawnPoint.NewNPC(325);
+                                newNPC = spawnPoint.NewNPC(NPCID.MourningWood);
                             }
                             else if (!(num5 >= num4 * num6) && NPC.CountNPCS(NPCID.HeadlessHorseman) < 5)
                             {
-                                newNPC = spawnPoint.NewNPC(315);
+                                newNPC = spawnPoint.NewNPC(NPCID.HeadlessHorseman);
                             }
                             break;
                         case 18:
                             if (Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.Pumpking) < 2)
                             {
-                                newNPC = spawnPoint.NewNPC(327);
+                                newNPC = spawnPoint.NewNPC(NPCID.Pumpking);
                             }
-                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(325) : ((Main.rand.Next(7) != 0 || NPC.CountNPCS(NPCID.HeadlessHorseman) >= 3) ? spawnPoint.NewNPC(330) : spawnPoint.NewNPC(315)));
+                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(NPCID.MourningWood) : ((Main.rand.Next(7) != 0 || NPC.CountNPCS(NPCID.HeadlessHorseman) >= 3) ? spawnPoint.NewNPC(NPCID.Poltergeist) : spawnPoint.NewNPC(NPCID.HeadlessHorseman)));
                             break;
                         case 17:
                             if (Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.Pumpking) < 2)
                             {
-                                newNPC = spawnPoint.NewNPC(327);
+                                newNPC = spawnPoint.NewNPC(NPCID.Pumpking);
                             }
-                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(325) : ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.HeadlessHorseman) < 2) ? spawnPoint.NewNPC(315) : ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(329) : spawnPoint.NewNPC(330))));
+                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(NPCID.MourningWood) : ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.HeadlessHorseman) < 2) ? spawnPoint.NewNPC(NPCID.HeadlessHorseman) : ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.Hellhound) : spawnPoint.NewNPC(NPCID.Poltergeist))));
                             break;
                         case 16:
-                            newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Pumpking) < 2) ? spawnPoint.NewNPC(327) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.HeadlessHorseman) < 2) ? spawnPoint.NewNPC(315) : ((Main.rand.Next(6) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(326) : spawnPoint.NewNPC(329)) : spawnPoint.NewNPC(330))));
+                            newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.Pumpking) < 2) ? spawnPoint.NewNPC(NPCID.Pumpking) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.HeadlessHorseman) < 2) ? spawnPoint.NewNPC(NPCID.HeadlessHorseman) : ((Main.rand.Next(6) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.Splinterling) : spawnPoint.NewNPC(NPCID.Hellhound)) : spawnPoint.NewNPC(NPCID.Poltergeist))));
                             break;
                         case 15:
                             if (Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Pumpking))
                             {
-                                newNPC = spawnPoint.NewNPC(327);
+                                newNPC = spawnPoint.NewNPC(NPCID.Pumpking);
                             }
-                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(325) : ((Main.rand.Next(5) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(326)) : spawnPoint.NewNPC(330)));
+                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(NPCID.MourningWood) : ((Main.rand.Next(5) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(NPCID.Splinterling)) : spawnPoint.NewNPC(NPCID.Poltergeist)));
                             break;
                         case 14:
                             if (Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Pumpking))
                             {
-                                newNPC = spawnPoint.NewNPC(327);
+                                newNPC = spawnPoint.NewNPC(NPCID.Pumpking);
                             }
-                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(325) : ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.HeadlessHorseman)) ? spawnPoint.NewNPC(315) : ((Main.rand.Next(10) != 0) ? ((Main.rand.Next(7) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(326)) : spawnPoint.NewNPC(329)) : spawnPoint.NewNPC(330))));
+                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(NPCID.MourningWood) : ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.HeadlessHorseman)) ? spawnPoint.NewNPC(NPCID.HeadlessHorseman) : ((Main.rand.Next(10) != 0) ? ((Main.rand.Next(7) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(NPCID.Splinterling)) : spawnPoint.NewNPC(NPCID.Hellhound)) : spawnPoint.NewNPC(NPCID.Poltergeist))));
                             break;
                         case 13:
-                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(325) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.HeadlessHorseman) < 2) ? spawnPoint.NewNPC(315) : ((Main.rand.Next(6) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(326) : spawnPoint.NewNPC(329)) : spawnPoint.NewNPC(330))));
+                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(NPCID.MourningWood) : ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.HeadlessHorseman) < 2) ? spawnPoint.NewNPC(NPCID.HeadlessHorseman) : ((Main.rand.Next(6) != 0) ? ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.Splinterling) : spawnPoint.NewNPC(NPCID.Hellhound)) : spawnPoint.NewNPC(NPCID.Poltergeist))));
                             break;
                         case 12:
-                            newNPC = ((Main.rand.Next(5) != 0 || NPC.AnyNPCs(NPCID.Pumpking)) ? spawnPoint.NewNPC(330) : spawnPoint.NewNPC(327));
+                            newNPC = ((Main.rand.Next(5) != 0 || NPC.AnyNPCs(NPCID.Pumpking)) ? spawnPoint.NewNPC(NPCID.Poltergeist) : spawnPoint.NewNPC(NPCID.Pumpking));
                             break;
                         case 11:
-                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(325) : ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(326) : spawnPoint.NewNPC(330)));
+                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(NPCID.MourningWood) : ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.Splinterling) : spawnPoint.NewNPC(NPCID.Poltergeist)));
                             break;
                         case 10:
-                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Pumpking)) ? spawnPoint.NewNPC(327) : ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(329)));
+                            newNPC = ((Main.rand.Next(10) == 0 && !NPC.AnyNPCs(NPCID.Pumpking)) ? spawnPoint.NewNPC(NPCID.Pumpking) : ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(NPCID.Hellhound)));
                             break;
                         case 9:
-                            newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(325) : ((Main.rand.Next(8) != 0) ? ((Main.rand.Next(5) != 0) ? ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(326)) : spawnPoint.NewNPC(329)) : spawnPoint.NewNPC(330)));
+                            newNPC = ((Main.rand.Next(10) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(NPCID.MourningWood) : ((Main.rand.Next(8) != 0) ? ((Main.rand.Next(5) != 0) ? ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(NPCID.Splinterling)) : spawnPoint.NewNPC(NPCID.Hellhound)) : spawnPoint.NewNPC(NPCID.Poltergeist)));
                             break;
                         case 8:
-                            newNPC = ((Main.rand.Next(8) == 0 && NPC.CountNPCS(NPCID.HeadlessHorseman) < 2) ? spawnPoint.NewNPC(315) : ((Main.rand.Next(4) != 0) ? spawnPoint.NewNPC(329) : spawnPoint.NewNPC(330)));
+                            newNPC = ((Main.rand.Next(8) == 0 && NPC.CountNPCS(NPCID.HeadlessHorseman) < 2) ? spawnPoint.NewNPC(NPCID.HeadlessHorseman) : ((Main.rand.Next(4) != 0) ? spawnPoint.NewNPC(NPCID.Hellhound) : spawnPoint.NewNPC(NPCID.Poltergeist)));
                             break;
                         case 7:
-                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(325) : ((Main.rand.Next(4) != 0) ? spawnPoint.NewNPC(329) : spawnPoint.NewNPC(330)));
+                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(NPCID.MourningWood) : ((Main.rand.Next(4) != 0) ? spawnPoint.NewNPC(NPCID.Hellhound) : spawnPoint.NewNPC(NPCID.Poltergeist)));
                             break;
                         case 6:
-                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(325) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(326)));
+                            newNPC = ((Main.rand.Next(7) == 0 && NPC.CountNPCS(NPCID.MourningWood) < 2) ? spawnPoint.NewNPC(NPCID.MourningWood) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(NPCID.Splinterling)));
                             break;
                         case 5:
-                            newNPC = ((Main.rand.Next(10) != 0 || NPC.AnyNPCs(NPCID.HeadlessHorseman)) ? spawnPoint.NewNPC(329) : spawnPoint.NewNPC(315));
+                            newNPC = ((Main.rand.Next(10) != 0 || NPC.AnyNPCs(NPCID.HeadlessHorseman)) ? spawnPoint.NewNPC(NPCID.Hellhound) : spawnPoint.NewNPC(NPCID.HeadlessHorseman));
                             break;
                         case 4:
-                            newNPC = ((Main.rand.Next(8) == 0 && !NPC.AnyNPCs(NPCID.MourningWood)) ? spawnPoint.NewNPC(330) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(326)));
+                            newNPC = ((Main.rand.Next(8) == 0 && !NPC.AnyNPCs(NPCID.MourningWood)) ? spawnPoint.NewNPC(NPCID.Poltergeist) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(NPCID.Splinterling)));
                             break;
                         case 3:
-                            newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(326) : spawnPoint.NewNPC(329));
+                            newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.Splinterling) : spawnPoint.NewNPC(NPCID.Hellhound));
                             break;
                         case 2:
-                            newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(326));
+                            newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(Main.rand.Next(305, 315)) : spawnPoint.NewNPC(NPCID.Splinterling));
                             break;
                         default:
                             newNPC = spawnPoint.NewNPC(Main.rand.Next(305, 315));
@@ -2669,32 +2673,32 @@ public static class ReplaceNPC
                     flag35 = true;
                 }
                 newNPC = ((NPC.downedPlantBoss && Main.rand.Next(80) == 0 && !NPC.AnyNPCs(NPCID.Mothron))
-                    ? spawnPoint.NewNPC(477)
+                    ? spawnPoint.NewNPC(NPCID.Mothron)
                     : ((Main.rand.Next(50) == 0 && !NPC.AnyNPCs(NPCID.Eyezor))
-                    ? spawnPoint.NewNPC(251)
+                    ? spawnPoint.NewNPC(NPCID.Eyezor)
                     : ((NPC.downedPlantBoss && Main.rand.Next(5) == 0 && !NPC.AnyNPCs(NPCID.Psycho))
                     ? spawnPoint.NewNPC(NPCID.Psycho)
                     : ((NPC.downedPlantBoss && Main.rand.Next(20) == 0 && !NPC.AnyNPCs(NPCID.Nailhead))
-                    ? spawnPoint.NewNPC(463)
+                    ? spawnPoint.NewNPC(NPCID.Nailhead)
                     : ((NPC.downedPlantBoss && Main.rand.Next(20) == 0 && NPC.CountNPCS(NPCID.DeadlySphere) < 2)
-                    ? spawnPoint.NewNPC(467)
+                    ? spawnPoint.NewNPC(NPCID.DeadlySphere)
                     : ((Main.rand.Next(15) == 0)
-                    ? spawnPoint.NewNPC(159)
+                    ? spawnPoint.NewNPC(NPCID.Vampire)
                     : ((flag35 && Main.rand.Next(13) == 0)
-                    ? spawnPoint.NewNPC(253)
+                    ? spawnPoint.NewNPC(NPCID.Reaper)
                     : ((Main.rand.Next(8) == 0)
-                    ? spawnPoint.NewNPC(469)
+                    ? spawnPoint.NewNPC(NPCID.ThePossessed)
                     : ((NPC.downedPlantBoss && Main.rand.Next(7) == 0)
-                    ? spawnPoint.NewNPC(468)
+                    ? spawnPoint.NewNPC(NPCID.DrManFly)
                     : ((NPC.downedPlantBoss && Main.rand.Next(5) == 0)
-                    ? spawnPoint.NewNPC(460)
+                    ? spawnPoint.NewNPC(NPCID.Butcher)
                     : ((Main.rand.Next(4) == 0)
-                    ? spawnPoint.NewNPC(162)
+                    ? spawnPoint.NewNPC(NPCID.Frankenstein)
                     : ((Main.rand.Next(3) == 0)
-                    ? spawnPoint.NewNPC(461)
+                    ? spawnPoint.NewNPC(NPCID.CreatureFromTheDeep)
                     : ((Main.rand.Next(2) != 0)
-                    ? spawnPoint.NewNPC(166)
-                    : spawnPoint.NewNPC(462))))))))))))));
+                    ? spawnPoint.NewNPC(NPCID.SwampThing)
+                    : spawnPoint.NewNPC(NPCID.Fritz))))))))))))));
             }
             else if (NPC.SpawnNPC_CheckToSpawnUndergroundFairy(tileX, tileY, k))
             {
@@ -2710,29 +2714,29 @@ public static class ReplaceNPC
             }
             else if (!Main.remixWorld && !flag7 && (!Main.dayTime || Main.tile[tileX, tileY].wall > 0) && Main.tile[num8, num9].wall == WallID.LivingWoodUnsafe && !Main.eclipse && !Main.bloodMoon && player.RollLuck(30) == 0 && NPC.CountNPCS(NPCID.Gnome) <= Main.rand.Next(3))
             {
-                newNPC = spawnPoint.NewNPC(624);
+                newNPC = spawnPoint.NewNPC(NPCID.Gnome);
             }
             else if (!player.ZoneCorrupt && !player.ZoneCrimson && !flag7 && !Main.eclipse && !Main.bloodMoon && player.RollLuck(range) == 0 && ((!Main.remixWorld && tileY >= Main.worldSurface * 0.800000011920929 && tileY < Main.worldSurface * 1.100000023841858) || (Main.remixWorld && tileY > Main.rockLayer && tileY < Main.maxTilesY - 350)) && NPC.CountNPCS(NPCID.Gnome) <= Main.rand.Next(3) && (!Main.dayTime || Main.tile[tileX, tileY].wall > 0) && (Main.tile[tileX, tileY].wall == WallID.GrassUnsafe || Main.tile[tileX, tileY].wall == WallID.DirtUnsafe || Main.tile[tileX, tileY].wall == WallID.DirtUnsafe1 || Main.tile[tileX, tileY].wall == WallID.DirtUnsafe2 || Main.tile[tileX, tileY].wall == WallID.DirtUnsafe3 || Main.tile[tileX, tileY].wall == WallID.DirtUnsafe4))
             {
-                newNPC = spawnPoint.NewNPC(624);
+                newNPC = spawnPoint.NewNPC(NPCID.Gnome);
             }
             else if (Main.hardMode && num3 == 70 && flag7)
             {
-                newNPC = spawnPoint.NewNPC(256);
+                newNPC = spawnPoint.NewNPC(NPCID.FungoFish);
             }
             else if (num3 == 70 && tileY <= Main.worldSurface && Main.rand.Next(3) != 0)
             {
                 if ((!Main.hardMode && Main.rand.Next(6) == 0) || Main.rand.Next(12) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(360);
+                    newNPC = spawnPoint.NewNPC(NPCID.GlowingSnail);
                 }
                 else if (Main.rand.Next(3) != 0)
                 {
-                    newNPC = ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(255) : spawnPoint.NewNPC(254));
+                    newNPC = ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(NPCID.ZombieMushroomHat) : spawnPoint.NewNPC(NPCID.ZombieMushroom));
                 }
                 else if (Main.rand.Next(4) != 0)
                 {
-                    newNPC = ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(258) : spawnPoint.NewNPC(257));
+                    newNPC = ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(NPCID.MushiLadybug) : spawnPoint.NewNPC(NPCID.AnomuraFungus));
                 }
                 else
                 {
@@ -2767,61 +2771,61 @@ public static class ReplaceNPC
             }
             else if (player.ZoneCorrupt && Main.rand.Next(maxValue) == 0 && !flag5)
             {
-                newNPC = ((!Main.hardMode || Main.rand.Next(4) == 0) ? spawnPoint.NewNPC(7, 1) : spawnPoint.NewNPC(98, 1));
+                newNPC = ((!Main.hardMode || Main.rand.Next(4) == 0) ? spawnPoint.NewNPC(NPCID.DevourerHead, 1) : spawnPoint.NewNPC(NPCID.SeekerHead, 1));
             }
             else if (Main.remixWorld && !Main.hardMode && tileY > Main.worldSurface && player.RollLuck(100) == 0)
             {
-                newNPC = ((!player.ZoneSnow) ? spawnPoint.NewNPC(85) : spawnPoint.NewNPC(629));
+                newNPC = ((!player.ZoneSnow) ? spawnPoint.NewNPC(NPCID.Mimic) : spawnPoint.NewNPC(NPCID.IceMimic));
             }
             else if (Main.hardMode && tileY > Main.worldSurface && player.RollLuck(Main.tenthAnniversaryWorld ? 25 : 75) == 0)
             {
-                newNPC = ((Main.rand.Next(2) == 0 && player.ZoneCorrupt && !NPC.AnyNPCs(NPCID.BigMimicCorruption)) ? spawnPoint.NewNPC(473) : ((Main.rand.Next(2) == 0 && player.ZoneCrimson && !NPC.AnyNPCs(NPCID.BigMimicCrimson)) ? spawnPoint.NewNPC(474) : ((Main.rand.Next(2) == 0 && player.ZoneHallow && !NPC.AnyNPCs(NPCID.BigMimicHallow)) ? spawnPoint.NewNPC(475) : ((Main.tenthAnniversaryWorld && Main.rand.Next(2) == 0 && player.ZoneJungle && !NPC.AnyNPCs(NPCID.BigMimicJungle)) ? spawnPoint.NewNPC(476) : ((!player.ZoneSnow) ? spawnPoint.NewNPC(85) : spawnPoint.NewNPC(629))))));
+                newNPC = ((Main.rand.Next(2) == 0 && player.ZoneCorrupt && !NPC.AnyNPCs(NPCID.BigMimicCorruption)) ? spawnPoint.NewNPC(NPCID.BigMimicCorruption) : ((Main.rand.Next(2) == 0 && player.ZoneCrimson && !NPC.AnyNPCs(NPCID.BigMimicCrimson)) ? spawnPoint.NewNPC(NPCID.BigMimicCrimson) : ((Main.rand.Next(2) == 0 && player.ZoneHallow && !NPC.AnyNPCs(NPCID.BigMimicHallow)) ? spawnPoint.NewNPC(NPCID.BigMimicHallow) : ((Main.tenthAnniversaryWorld && Main.rand.Next(2) == 0 && player.ZoneJungle && !NPC.AnyNPCs(NPCID.BigMimicJungle)) ? spawnPoint.NewNPC(NPCID.BigMimicJungle) : ((!player.ZoneSnow) ? spawnPoint.NewNPC(NPCID.Mimic) : spawnPoint.NewNPC(NPCID.IceMimic))))));
             }
             else if (Main.hardMode && Main.tile[tileX, tileY].wall == WallID.DirtUnsafe && Main.rand.Next(20) == 0)
             {
-                newNPC = spawnPoint.NewNPC(85);
+                newNPC = spawnPoint.NewNPC(NPCID.Mimic);
             }
             else if (Main.hardMode && tileY <= Main.worldSurface && !Main.dayTime && (Main.rand.Next(20) == 0 || (Main.rand.Next(5) == 0 && Main.moonPhase == 4)))
             {
-                newNPC = spawnPoint.NewNPC(82);
+                newNPC = spawnPoint.NewNPC(NPCID.Wraith);
             }
             else if (Main.hardMode && Main.halloween && tileY <= Main.worldSurface && !Main.dayTime && Main.rand.Next(10) == 0)
             {
-                newNPC = spawnPoint.NewNPC(304);
+                newNPC = spawnPoint.NewNPC(NPCID.HoppinJack);
             }
             else if (num45 == 60 && player.RollLuck(500) == 0 && !Main.dayTime)
             {
-                newNPC = spawnPoint.NewNPC(52);
+                newNPC = spawnPoint.NewNPC(NPCID.DoctorBones);
             }
             else if (num45 == 60 && tileY > Main.worldSurface && Main.rand.Next(60) == 0)
             {
-                newNPC = spawnPoint.NewNPC(219);
+                newNPC = spawnPoint.NewNPC(NPCID.LacBeetle);
             }
             else if (tileY > Main.worldSurface && tileY < Main.maxTilesY - 210 && !player.ZoneSnow && !player.ZoneCrimson && !player.ZoneCorrupt && !player.ZoneJungle && !player.ZoneHallow && Main.rand.Next(8) == 0)
             {
                 if (player.RollLuck(NPC.goldCritterChance) == 0)
                 {
-                    spawnPoint.NewNPC(448);
+                    spawnPoint.NewNPC(NPCID.GoldWorm);
                 }
                 else
                 {
-                    newNPC = spawnPoint.NewNPC(357);
+                    newNPC = spawnPoint.NewNPC(NPCID.Worm);
                 }
             }
             else if (tileY > Main.worldSurface && tileY < Main.maxTilesY - 210 && !player.ZoneSnow && !player.ZoneCrimson && !player.ZoneCorrupt && !player.ZoneJungle && !player.ZoneHallow && Main.rand.Next(13) == 0)
             {
                 if (player.RollLuck(NPC.goldCritterChance) == 0)
                 {
-                    spawnPoint.NewNPC(447);
+                    spawnPoint.NewNPC(NPCID.GoldMouse);
                 }
                 else
                 {
-                    newNPC = spawnPoint.NewNPC(300);
+                    newNPC = spawnPoint.NewNPC(NPCID.Mouse);
                 }
             }
             else if (tileY > Main.worldSurface && tileY < (Main.rockLayer + Main.maxTilesY) / 2.0 && !player.ZoneSnow && !player.ZoneCrimson && !player.ZoneCorrupt && !player.ZoneHallow && Main.rand.Next(13) == 0)
             {
-                newNPC = spawnPoint.NewNPC(359);
+                newNPC = spawnPoint.NewNPC(NPCID.Snail);
             }
             else if (flag20 && player.ZoneJungle && !player.ZoneCrimson && !player.ZoneCorrupt && Main.rand.Next(7) == 0)
             {
@@ -2838,7 +2842,7 @@ public static class ReplaceNPC
             {
                 if (Main.hardMode && Main.rand.Next(4) != 0)
                 {
-                    newNPC = spawnPoint.NewNPC(176);
+                    newNPC = spawnPoint.NewNPC(NPCID.MossHornet);
                     if (Main.rand.Next(10) == 0)
                     {
                         Main.npc[newNPC].SetDefaults(NPCID.TinyMossHornet);
@@ -2861,7 +2865,7 @@ public static class ReplaceNPC
                     switch (Main.rand.Next(8))
                     {
                         case 0:
-                            newNPC = spawnPoint.NewNPC(231);
+                            newNPC = spawnPoint.NewNPC(NPCID.HornetFatty);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleHornetFatty);
@@ -2872,7 +2876,7 @@ public static class ReplaceNPC
                             }
                             break;
                         case 1:
-                            newNPC = spawnPoint.NewNPC(232);
+                            newNPC = spawnPoint.NewNPC(NPCID.HornetHoney);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleHornetHoney);
@@ -2883,7 +2887,7 @@ public static class ReplaceNPC
                             }
                             break;
                         case 2:
-                            newNPC = spawnPoint.NewNPC(233);
+                            newNPC = spawnPoint.NewNPC(NPCID.HornetLeafy);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleHornetLeafy);
@@ -2894,7 +2898,7 @@ public static class ReplaceNPC
                             }
                             break;
                         case 3:
-                            newNPC = spawnPoint.NewNPC(234);
+                            newNPC = spawnPoint.NewNPC(NPCID.HornetSpikey);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleHornetSpikey);
@@ -2905,7 +2909,7 @@ public static class ReplaceNPC
                             }
                             break;
                         case 4:
-                            newNPC = spawnPoint.NewNPC(235);
+                            newNPC = spawnPoint.NewNPC(NPCID.HornetStingy);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleHornetStingy);
@@ -2916,7 +2920,7 @@ public static class ReplaceNPC
                             }
                             break;
                         default:
-                            newNPC = spawnPoint.NewNPC(42);
+                            newNPC = spawnPoint.NewNPC(NPCID.Hornet);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleStinger);
@@ -2933,23 +2937,23 @@ public static class ReplaceNPC
             {
                 if (flag20 && !Main.dayTime && Main.rand.Next(3) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(152);
+                    newNPC = spawnPoint.NewNPC(NPCID.GiantFlyingFox);
                 }
                 else if (flag20 && Main.dayTime && Main.rand.Next(4) != 0)
                 {
-                    newNPC = spawnPoint.NewNPC(177);
+                    newNPC = spawnPoint.NewNPC(NPCID.Derpling);
                 }
                 else if (tileY > Main.worldSurface && Main.rand.Next(100) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(205);
+                    newNPC = spawnPoint.NewNPC(NPCID.Moth);
                 }
                 else if (tileY > Main.worldSurface && Main.rand.Next(5) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(236);
+                    newNPC = spawnPoint.NewNPC(NPCID.JungleCreeper);
                 }
                 else if (tileY > Main.worldSurface && Main.rand.Next(4) != 0)
                 {
-                    newNPC = spawnPoint.NewNPC(176);
+                    newNPC = spawnPoint.NewNPC(NPCID.MossHornet);
                     if (Main.rand.Next(10) == 0)
                     {
                         Main.npc[newNPC].SetDefaults(NPCID.TinyMossHornet);
@@ -2969,26 +2973,26 @@ public static class ReplaceNPC
                 }
                 else if (Main.rand.Next(3) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(175);
+                    newNPC = spawnPoint.NewNPC(NPCID.AngryTrapper);
                     Main.npc[newNPC].ai[0] = tileX;
                     Main.npc[newNPC].ai[1] = tileY;
                     Main.npc[newNPC].netUpdate = true;
                 }
                 else
                 {
-                    newNPC = spawnPoint.NewNPC(153);
+                    newNPC = spawnPoint.NewNPC(NPCID.GiantTortoise);
                 }
             }
             else if (((num45 == 226 || num45 == 232) && flag4) || (Main.remixWorld && flag4))
             {
-                newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(198) : spawnPoint.NewNPC(226));
+                newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.Lihzahrd) : spawnPoint.NewNPC(NPCID.FlyingSnake));
             }
             else if (num46 == 86 && Main.rand.Next(8) != 0)
             {
                 switch (Main.rand.Next(8))
                 {
                     case 0:
-                        newNPC = spawnPoint.NewNPC(231);
+                        newNPC = spawnPoint.NewNPC(NPCID.HornetFatty);
                         if (Main.rand.Next(4) == 0)
                         {
                             Main.npc[newNPC].SetDefaults(NPCID.LittleHornetFatty);
@@ -2999,7 +3003,7 @@ public static class ReplaceNPC
                         }
                         break;
                     case 1:
-                        newNPC = spawnPoint.NewNPC(232);
+                        newNPC = spawnPoint.NewNPC(NPCID.HornetHoney);
                         if (Main.rand.Next(4) == 0)
                         {
                             Main.npc[newNPC].SetDefaults(NPCID.LittleHornetHoney);
@@ -3010,7 +3014,7 @@ public static class ReplaceNPC
                         }
                         break;
                     case 2:
-                        newNPC = spawnPoint.NewNPC(233);
+                        newNPC = spawnPoint.NewNPC(NPCID.HornetLeafy);
                         if (Main.rand.Next(4) == 0)
                         {
                             Main.npc[newNPC].SetDefaults(NPCID.LittleHornetLeafy);
@@ -3021,7 +3025,7 @@ public static class ReplaceNPC
                         }
                         break;
                     case 3:
-                        newNPC = spawnPoint.NewNPC(234);
+                        newNPC = spawnPoint.NewNPC(NPCID.HornetSpikey);
                         if (Main.rand.Next(4) == 0)
                         {
                             Main.npc[newNPC].SetDefaults(NPCID.LittleHornetSpikey);
@@ -3032,7 +3036,7 @@ public static class ReplaceNPC
                         }
                         break;
                     case 4:
-                        newNPC = spawnPoint.NewNPC(235);
+                        newNPC = spawnPoint.NewNPC(NPCID.HornetStingy);
                         if (Main.rand.Next(4) == 0)
                         {
                             Main.npc[newNPC].SetDefaults(NPCID.LittleHornetStingy);
@@ -3043,7 +3047,7 @@ public static class ReplaceNPC
                         }
                         break;
                     default:
-                        newNPC = spawnPoint.NewNPC(42);
+                        newNPC = spawnPoint.NewNPC(NPCID.Hornet);
                         if (Main.rand.Next(4) == 0)
                         {
                             Main.npc[newNPC].SetDefaults(NPCID.LittleStinger);
@@ -3059,11 +3063,11 @@ public static class ReplaceNPC
             {
                 if (Main.rand.Next(4) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(204);
+                    newNPC = spawnPoint.NewNPC(NPCID.SpikedJungleSlime);
                 }
                 else if (Main.rand.Next(4) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(43);
+                    newNPC = spawnPoint.NewNPC(NPCID.ManEater);
                     Main.npc[newNPC].ai[0] = tileX;
                     Main.npc[newNPC].ai[1] = tileY;
                     Main.npc[newNPC].netUpdate = true;
@@ -3073,7 +3077,7 @@ public static class ReplaceNPC
                     switch (Main.rand.Next(8))
                     {
                         case 0:
-                            newNPC = spawnPoint.NewNPC(231);
+                            newNPC = spawnPoint.NewNPC(NPCID.HornetFatty);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleHornetFatty);
@@ -3084,7 +3088,7 @@ public static class ReplaceNPC
                             }
                             break;
                         case 1:
-                            newNPC = spawnPoint.NewNPC(232);
+                            newNPC = spawnPoint.NewNPC(NPCID.HornetHoney);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleHornetHoney);
@@ -3095,7 +3099,7 @@ public static class ReplaceNPC
                             }
                             break;
                         case 2:
-                            newNPC = spawnPoint.NewNPC(233);
+                            newNPC = spawnPoint.NewNPC(NPCID.HornetLeafy);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleHornetLeafy);
@@ -3106,7 +3110,7 @@ public static class ReplaceNPC
                             }
                             break;
                         case 3:
-                            newNPC = spawnPoint.NewNPC(234);
+                            newNPC = spawnPoint.NewNPC(NPCID.HornetSpikey);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleHornetSpikey);
@@ -3117,7 +3121,7 @@ public static class ReplaceNPC
                             }
                             break;
                         case 4:
-                            newNPC = spawnPoint.NewNPC(235);
+                            newNPC = spawnPoint.NewNPC(NPCID.HornetStingy);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleHornetStingy);
@@ -3128,7 +3132,7 @@ public static class ReplaceNPC
                             }
                             break;
                         default:
-                            newNPC = spawnPoint.NewNPC(42);
+                            newNPC = spawnPoint.NewNPC(NPCID.Hornet);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.LittleStinger);
@@ -3143,11 +3147,11 @@ public static class ReplaceNPC
             }
             else if (num45 == 60 && Main.rand.Next(4) == 0)
             {
-                newNPC = spawnPoint.NewNPC(51);
+                newNPC = spawnPoint.NewNPC(NPCID.JungleBat);
             }
             else if (num45 == 60 && Main.rand.Next(8) == 0)
             {
-                newNPC = spawnPoint.NewNPC(56);
+                newNPC = spawnPoint.NewNPC(NPCID.Snatcher);
                 Main.npc[newNPC].ai[0] = tileX;
                 Main.npc[newNPC].ai[1] = tileY;
                 Main.npc[newNPC].netUpdate = true;
@@ -3156,11 +3160,11 @@ public static class ReplaceNPC
             {
                 if (!NPC.downedBoss1 && !Main.hardMode)
                 {
-                    newNPC = ((Main.rand.Next(2) == 0) ? spawnPoint.NewNPC(546) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(69) : spawnPoint.NewNPC(61)));
+                    newNPC = ((Main.rand.Next(2) == 0) ? spawnPoint.NewNPC(NPCID.Tumbleweed) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(NPCID.Antlion) : spawnPoint.NewNPC(NPCID.Vulture)));
                 }
                 else if (Main.hardMode && Main.rand.Next(20) == 0 && !NPC.AnyNPCs(NPCID.SandElemental))
                 {
-                    newNPC = spawnPoint.NewNPC(541);
+                    newNPC = spawnPoint.NewNPC(NPCID.SandElemental);
                 }
                 else if (Main.hardMode && !flag5 && Main.rand.Next(3) == 0 && NPC.CountNPCS(NPCID.DuneSplicerHead) < 4)
                 {
@@ -3168,7 +3172,7 @@ public static class ReplaceNPC
                 }
                 else if (!Main.hardMode || flag5 || Main.rand.Next(2) != 0)
                 {
-                    newNPC = ((Main.hardMode && num45 == 53 && Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(78) : ((Main.hardMode && num45 == 112 && Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(79) : ((Main.hardMode && num45 == 234 && Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(630) : ((Main.hardMode && num45 == 116 && Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(80) : ((Main.rand.Next(2) == 0) ? spawnPoint.NewNPC(546) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(581) : spawnPoint.NewNPC(580)))))));
+                    newNPC = ((Main.hardMode && num45 == 53 && Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(NPCID.Mummy) : ((Main.hardMode && num45 == 112 && Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(NPCID.DarkMummy) : ((Main.hardMode && num45 == 234 && Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(NPCID.BloodMummy) : ((Main.hardMode && num45 == 116 && Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(NPCID.LightMummy) : ((Main.rand.Next(2) == 0) ? spawnPoint.NewNPC(NPCID.Tumbleweed) : ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(NPCID.FlyingAntlion) : spawnPoint.NewNPC(NPCID.WalkingAntlion)))))));
                 }
                 else
                 {
@@ -3190,38 +3194,38 @@ public static class ReplaceNPC
             }
             else if (Main.hardMode && num45 == 53 && Main.rand.Next(3) == 0)
             {
-                newNPC = spawnPoint.NewNPC(78);
+                newNPC = spawnPoint.NewNPC(NPCID.Mummy);
             }
             else if (Main.hardMode && num45 == 112 && Main.rand.Next(2) == 0)
             {
-                newNPC = spawnPoint.NewNPC(79);
+                newNPC = spawnPoint.NewNPC(NPCID.DarkMummy);
             }
             else if (Main.hardMode && num45 == 234 && Main.rand.Next(2) == 0)
             {
-                newNPC = spawnPoint.NewNPC(630);
+                newNPC = spawnPoint.NewNPC(NPCID.BloodMummy);
             }
             else if (Main.hardMode && num45 == 116 && Main.rand.Next(2) == 0)
             {
-                newNPC = spawnPoint.NewNPC(80);
+                newNPC = spawnPoint.NewNPC(NPCID.LightMummy);
             }
             else if (Main.hardMode && !flag7 && flag17 && (num45 == 116 || num45 == 117 || num45 == 109 || num45 == 164))
             {
                 if (NPC.downedPlantBoss && (Main.remixWorld || (!Main.dayTime && Main.time < 16200.0)) && flag20 && player.RollLuck(10) == 0 && !NPC.AnyNPCs(NPCID.EmpressButterfly))
                 {
-                    newNPC = spawnPoint.NewNPC(661);
+                    newNPC = spawnPoint.NewNPC(NPCID.EmpressButterfly);
                 }
                 else if (!flag24 || NPC.AnyNPCs(NPCID.RainbowSlime) || Main.rand.Next(12) != 0)
                 {
-                    newNPC = ((!Main.dayTime && Main.rand.Next(2) == 0) ? spawnPoint.NewNPC(122) : ((Main.rand.Next(10) != 0 && (!player.ZoneWaterCandle || Main.rand.Next(10) != 0)) ? spawnPoint.NewNPC(75) : spawnPoint.NewNPC(86)));
+                    newNPC = ((!Main.dayTime && Main.rand.Next(2) == 0) ? spawnPoint.NewNPC(NPCID.Gastropod) : ((Main.rand.Next(10) != 0 && (!player.ZoneWaterCandle || Main.rand.Next(10) != 0)) ? spawnPoint.NewNPC(NPCID.Pixie) : spawnPoint.NewNPC(NPCID.Unicorn)));
                 }
                 else
                 {
-                    spawnPoint.NewNPC(244);
+                    spawnPoint.NewNPC(NPCID.RainbowSlime);
                 }
             }
             else if (!flag5 && Main.hardMode && Main.rand.Next(50) == 0 && !flag7 && flag21 && (num45 == 116 || num45 == 117 || num45 == 109 || num45 == 164))
             {
-                newNPC = spawnPoint.NewNPC(84);
+                newNPC = spawnPoint.NewNPC(NPCID.EnchantedSword);
             }
             else if ((num45 == 204 && player.ZoneCrimson) || num45 == 199 || num45 == 200 || num45 == 203 || num45 == 234 || num45 == 662)
             {
@@ -3232,19 +3236,19 @@ public static class ReplaceNPC
                 }
                 if (Main.hardMode && flag36 && Main.rand.Next(40) == 0 && !flag5)
                 {
-                    newNPC = spawnPoint.NewNPC(179);
+                    newNPC = spawnPoint.NewNPC(NPCID.CrimsonAxe);
                 }
                 else if (Main.hardMode && flag36 && Main.rand.Next(5) == 0 && !flag5)
                 {
-                    newNPC = spawnPoint.NewNPC(182);
+                    newNPC = spawnPoint.NewNPC(NPCID.FloatyGross);
                 }
                 else if (Main.hardMode && flag36 && Main.rand.Next(2) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(268);
+                    newNPC = spawnPoint.NewNPC(NPCID.IchorSticker);
                 }
                 else if (Main.hardMode && Main.rand.Next(3) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(183);
+                    newNPC = spawnPoint.NewNPC(NPCID.Crimslime);
                     if (Main.rand.Next(3) == 0)
                     {
                         Main.npc[newNPC].SetDefaults(NPCID.LittleCrimslime);
@@ -3256,19 +3260,19 @@ public static class ReplaceNPC
                 }
                 else if (Main.hardMode && (Main.rand.Next(2) == 0 || (tileY > Main.worldSurface && !Main.remixWorld)))
                 {
-                    newNPC = spawnPoint.NewNPC(174);
+                    newNPC = spawnPoint.NewNPC(NPCID.Herpling);
                 }
                 else if ((Main.tile[tileX, tileY].wall > 0 && Main.rand.Next(4) != 0) || Main.rand.Next(8) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(239);
+                    newNPC = spawnPoint.NewNPC(NPCID.BloodCrawler);
                 }
                 else if (Main.rand.Next(2) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(181);
+                    newNPC = spawnPoint.NewNPC(NPCID.FaceMonster);
                 }
                 else
                 {
-                    newNPC = spawnPoint.NewNPC(173);
+                    newNPC = spawnPoint.NewNPC(NPCID.Crimera);
                     if (Main.rand.Next(3) == 0)
                     {
                         Main.npc[newNPC].SetDefaults(NPCID.LittleCrimera);
@@ -3288,26 +3292,26 @@ public static class ReplaceNPC
                 }
                 if (Main.hardMode && flag37 && Main.rand.Next(40) == 0 && !flag5)
                 {
-                    newNPC = spawnPoint.NewNPC(83);
+                    newNPC = spawnPoint.NewNPC(NPCID.CursedHammer);
                 }
                 else if (Main.hardMode && flag37 && Main.rand.Next(3) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(101);
+                    newNPC = spawnPoint.NewNPC(NPCID.Clinger);
                     Main.npc[newNPC].ai[0] = tileX;
                     Main.npc[newNPC].ai[1] = tileY;
                     Main.npc[newNPC].netUpdate = true;
                 }
                 else if (Main.hardMode && Main.rand.Next(3) == 0)
                 {
-                    newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(81) : spawnPoint.NewNPC(121));
+                    newNPC = ((Main.rand.Next(3) != 0) ? spawnPoint.NewNPC(NPCID.CorruptSlime) : spawnPoint.NewNPC(NPCID.Slimer));
                 }
                 else if (Main.hardMode && (Main.rand.Next(2) == 0 || flag37))
                 {
-                    newNPC = spawnPoint.NewNPC(94);
+                    newNPC = spawnPoint.NewNPC(NPCID.Corruptor);
                 }
                 else
                 {
-                    newNPC = spawnPoint.NewNPC(6);
+                    newNPC = spawnPoint.NewNPC(NPCID.EaterofSouls);
                     if (Main.rand.Next(3) == 0)
                     {
                         Main.npc[newNPC].SetDefaults(NPCID.LittleEater);
@@ -3329,24 +3333,24 @@ public static class ReplaceNPC
                 {
                     if (Main.rand.Next(2) == 0)
                     {
-                        spawnPoint.NewNPC(606);
+                        spawnPoint.NewNPC(NPCID.Maggot);
                     }
                     else
                     {
-                        spawnPoint.NewNPC(610);
+                        spawnPoint.NewNPC(NPCID.Rat);
                     }
                 }
                 else if (player.ZoneSnow && Main.hardMode && flag24 && !NPC.AnyNPCs(NPCID.IceGolem) && player.RollLuck(20) == 0)
                 {
-                    spawnPoint.NewNPC(243);
+                    spawnPoint.NewNPC(NPCID.IceGolem);
                 }
                 else if (!player.ZoneSnow && Main.hardMode && flag24 && NPC.CountNPCS(NPCID.AngryNimbus) < 2 && Main.rand.Next(10) == 0)
                 {
-                    spawnPoint.NewNPC(250);
+                    spawnPoint.NewNPC(NPCID.AngryNimbus);
                 }
                 else if (flag38 && Main.hardMode && NPC.downedGolemBoss && ((!NPC.downedMartians && Main.rand.Next(100) == 0) || Main.rand.Next(400) == 0) && !NPC.AnyNPCs(NPCID.MartianProbe))
                 {
-                    spawnPoint.NewNPC(399);
+                    spawnPoint.NewNPC(NPCID.MartianProbe);
                 }
                 else if (!player.ZoneGraveyard && Main.dayTime)
                 {
@@ -3357,16 +3361,16 @@ public static class ReplaceNPC
                         {
                             if (Main.rand.Next(2) == 0)
                             {
-                                spawnPoint.NewNPC(148);
+                                spawnPoint.NewNPC(NPCID.Penguin);
                             }
                             else
                             {
-                                spawnPoint.NewNPC(149);
+                                spawnPoint.NewNPC(NPCID.PenguinBlack);
                             }
                         }
                         else if (!tooWindyForButterflies && !Main.raining && Main.dayTime && Main.rand.Next(NPC.stinkBugChance) == 0 && flag20)
                         {
-                            spawnPoint.NewNPC(669);
+                            spawnPoint.NewNPC(NPCID.Stinkbug);
                             if (Main.rand.Next(4) == 0)
                             {
                                 NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), spawnX - 16, spawnY, NPCID.Stinkbug);
@@ -3380,11 +3384,11 @@ public static class ReplaceNPC
                         {
                             if (player.RollLuck(NPC.goldCritterChance) == 0)
                             {
-                                spawnPoint.NewNPC(444);
+                                spawnPoint.NewNPC(NPCID.GoldButterfly);
                             }
                             else
                             {
-                                spawnPoint.NewNPC(356);
+                                spawnPoint.NewNPC(NPCID.Butterfly);
                             }
                             if (Main.rand.Next(4) == 0)
                             {
@@ -3399,48 +3403,48 @@ public static class ReplaceNPC
                         {
                             if (player.RollLuck(NPC.goldCritterChance) == 0)
                             {
-                                spawnPoint.NewNPC(605);
+                                spawnPoint.NewNPC(NPCID.GoldLadyBug);
                             }
                             else
                             {
-                                spawnPoint.NewNPC(604);
+                                spawnPoint.NewNPC(NPCID.LadyBug);
                             }
                             if (Main.rand.Next(3) != 0)
                             {
-                                spawnPoint.NewNPC(604);
+                                spawnPoint.NewNPC(NPCID.LadyBug);
                             }
                             if (Main.rand.Next(2) == 0)
                             {
-                                spawnPoint.NewNPC(604);
+                                spawnPoint.NewNPC(NPCID.LadyBug);
                             }
                             if (Main.rand.Next(3) == 0)
                             {
-                                spawnPoint.NewNPC(604);
+                                spawnPoint.NewNPC(NPCID.LadyBug);
                             }
                             if (Main.rand.Next(4) == 0)
                             {
-                                spawnPoint.NewNPC(604);
+                                spawnPoint.NewNPC(NPCID.LadyBug);
                             }
                         }
                         else if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(443);
+                            spawnPoint.NewNPC(NPCID.GoldBunny);
                         }
                         else if (player.RollLuck(NPC.goldCritterChance) == 0 && tileY <= Main.worldSurface)
                         {
-                            spawnPoint.NewNPC(539);
+                            spawnPoint.NewNPC(NPCID.SquirrelGold);
                         }
                         else if (Main.halloween && Main.rand.Next(3) != 0)
                         {
-                            spawnPoint.NewNPC(303);
+                            spawnPoint.NewNPC(NPCID.BunnySlimed);
                         }
                         else if (Main.xMas && Main.rand.Next(3) != 0)
                         {
-                            spawnPoint.NewNPC(337);
+                            spawnPoint.NewNPC(NPCID.BunnyXmas);
                         }
                         else if (BirthdayParty.PartyIsUp && Main.rand.Next(3) != 0)
                         {
-                            spawnPoint.NewNPC(540);
+                            spawnPoint.NewNPC(NPCID.PartyBunny);
                         }
                         else if (Main.rand.Next(3) == 0 && tileY <= Main.worldSurface)
                         {
@@ -3448,7 +3452,7 @@ public static class ReplaceNPC
                         }
                         else
                         {
-                            spawnPoint.NewNPC(46);
+                            spawnPoint.NewNPC(NPCID.Bunny);
                         }
                     }
                     else if (!flag7 && tileX > WorldGen.beachDistance && tileX < Main.maxTilesX - WorldGen.beachDistance && Main.rand.Next(12) == 0 && num45 == 53)
@@ -3479,20 +3483,20 @@ public static class ReplaceNPC
                         int num97 = Main.rand.Next(4);
                         if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(442);
+                            spawnPoint.NewNPC(NPCID.GoldBird);
                         }
                         else
                         {
                             switch (num97)
                             {
                                 case 0:
-                                    spawnPoint.NewNPC(297);
+                                    spawnPoint.NewNPC(NPCID.BirdBlue);
                                     break;
                                 case 1:
-                                    spawnPoint.NewNPC(298);
+                                    spawnPoint.NewNPC(NPCID.BirdRed);
                                     break;
                                 default:
-                                    spawnPoint.NewNPC(74);
+                                    spawnPoint.NewNPC(NPCID.Bird);
                                     break;
                             }
                         }
@@ -3502,20 +3506,20 @@ public static class ReplaceNPC
                         int num98 = Main.rand.Next(4);
                         if (player.RollLuck(NPC.goldCritterChance) == 0)
                         {
-                            spawnPoint.NewNPC(442);
+                            spawnPoint.NewNPC(NPCID.GoldBird);
                         }
                         else
                         {
                             switch (num98)
                             {
                                 case 0:
-                                    spawnPoint.NewNPC(297);
+                                    spawnPoint.NewNPC(NPCID.BirdBlue);
                                     break;
                                 case 1:
-                                    spawnPoint.NewNPC(298);
+                                    spawnPoint.NewNPC(NPCID.BirdRed);
                                     break;
                                 default:
-                                    spawnPoint.NewNPC(74);
+                                    spawnPoint.NewNPC(NPCID.Bird);
                                     break;
                             }
                         }
@@ -3528,7 +3532,7 @@ public static class ReplaceNPC
                     {
                         if (!flag7 && Main.rand.Next(10) == 0)
                         {
-                            spawnPoint.NewNPC(602);
+                            spawnPoint.NewNPC(NPCID.Seagull);
                         }
                         else if (flag7)
                         {
@@ -3589,35 +3593,35 @@ public static class ReplaceNPC
                     }
                     else if (!flag7 && num45 == 53 && Main.rand.Next(5) == 0 && NPC.Spawning_SandstoneCheck(tileX, tileY) && !flag7)
                     {
-                        newNPC = spawnPoint.NewNPC(69);
+                        newNPC = spawnPoint.NewNPC(NPCID.Antlion);
                     }
                     else if (num45 == 53 && !flag7)
                     {
-                        newNPC = spawnPoint.NewNPC(61);
+                        newNPC = spawnPoint.NewNPC(NPCID.Vulture);
                     }
                     else if (!flag7 && (num96 > Main.maxTilesX / 3 || Main.remixWorld) && (Main.rand.Next(15) == 0 || (!NPC.downedGoblins && WorldGen.shadowOrbSmashed && Main.rand.Next(7) == 0)))
                     {
-                        newNPC = spawnPoint.NewNPC(73);
+                        newNPC = spawnPoint.NewNPC(NPCID.GoblinScout);
                     }
                     else if (Main.raining && Main.rand.Next(4) == 0)
                     {
-                        newNPC = spawnPoint.NewNPC(224);
+                        newNPC = spawnPoint.NewNPC(NPCID.FlyingFish);
                     }
                     else if (!flag7 && Main.raining && Main.rand.Next(2) == 0)
                     {
-                        newNPC = spawnPoint.NewNPC(225);
+                        newNPC = spawnPoint.NewNPC(NPCID.UmbrellaSlime);
                     }
                     else if (!flag7 && num46 == 0 && isItAHappyWindyDay && flag19 && Main.rand.Next(3) != 0)
                     {
-                        newNPC = spawnPoint.NewNPC(594);
+                        newNPC = spawnPoint.NewNPC(NPCID.WindyBalloon);
                     }
                     else if (!flag7 && num46 == 0 && (num3 == 2 || num3 == 477) && isItAHappyWindyDay && flag19 && Main.rand.Next(10) != 0)
                     {
-                        newNPC = spawnPoint.NewNPC(628);
+                        newNPC = spawnPoint.NewNPC(NPCID.Dandelion);
                     }
                     else if (!flag7)
                     {
-                        newNPC = spawnPoint.NewNPC(1);
+                        newNPC = spawnPoint.NewNPC(NPCID.BlueSlime);
                         switch (num45)
                         {
                             case 60:
@@ -3677,21 +3681,21 @@ public static class ReplaceNPC
                     }
                     else if ((Main.halloween || player.ZoneGraveyard) && Main.rand.Next(12) == 0)
                     {
-                        newNPC = spawnPoint.NewNPC(301);
+                        newNPC = spawnPoint.NewNPC(NPCID.Raven);
                     }
                     else if (player.ZoneGraveyard && Main.rand.Next(30) == 0)
                     {
-                        newNPC = spawnPoint.NewNPC(316);
+                        newNPC = spawnPoint.NewNPC(NPCID.Ghost);
                     }
                     else if (player.ZoneGraveyard && Main.hardMode && tileY <= Main.worldSurface && Main.rand.Next(10) == 0)
                     {
-                        newNPC = spawnPoint.NewNPC(304);
+                        newNPC = spawnPoint.NewNPC(NPCID.HoppinJack);
                     }
                     else if (Main.rand.Next(6) == 0 || (Main.moonPhase == 4 && Main.rand.Next(2) == 0))
                     {
                         if (Main.hardMode && Main.rand.Next(3) == 0)
                         {
-                            newNPC = spawnPoint.NewNPC(133);
+                            newNPC = spawnPoint.NewNPC(NPCID.WanderingEye);
                         }
                         else if (Main.halloween && Main.rand.Next(2) == 0)
                         {
@@ -3699,7 +3703,7 @@ public static class ReplaceNPC
                         }
                         else if (Main.rand.Next(2) == 0)
                         {
-                            newNPC = spawnPoint.NewNPC(2);
+                            newNPC = spawnPoint.NewNPC(NPCID.DemonEye);
                             if (Main.rand.Next(4) == 0)
                             {
                                 Main.npc[newNPC].SetDefaults(NPCID.DemonEye2);
@@ -3710,35 +3714,35 @@ public static class ReplaceNPC
                             switch (Main.rand.Next(5))
                             {
                                 case 0:
-                                    newNPC = spawnPoint.NewNPC(190);
+                                    newNPC = spawnPoint.NewNPC(NPCID.CataractEye);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         Main.npc[newNPC].SetDefaults(NPCID.CataractEye2);
                                     }
                                     break;
                                 case 1:
-                                    newNPC = spawnPoint.NewNPC(191);
+                                    newNPC = spawnPoint.NewNPC(NPCID.SleepyEye);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         Main.npc[newNPC].SetDefaults(NPCID.SleepyEye2);
                                     }
                                     break;
                                 case 2:
-                                    newNPC = spawnPoint.NewNPC(192);
+                                    newNPC = spawnPoint.NewNPC(NPCID.DialatedEye);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         Main.npc[newNPC].SetDefaults(NPCID.DialatedEye2);
                                     }
                                     break;
                                 case 3:
-                                    newNPC = spawnPoint.NewNPC(193);
+                                    newNPC = spawnPoint.NewNPC(NPCID.GreenEye);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         Main.npc[newNPC].SetDefaults(NPCID.GreenEye2);
                                     }
                                     break;
                                 case 4:
-                                    newNPC = spawnPoint.NewNPC(194);
+                                    newNPC = spawnPoint.NewNPC(NPCID.PurpleEye);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         Main.npc[newNPC].SetDefaults(NPCID.PurpleEye2);
@@ -3749,35 +3753,35 @@ public static class ReplaceNPC
                     }
                     else if (Main.hardMode && Main.rand.Next(50) == 0 && Main.bloodMoon && !NPC.AnyNPCs(NPCID.Clown))
                     {
-                        spawnPoint.NewNPC(109);
+                        spawnPoint.NewNPC(NPCID.Clown);
                     }
                     else if (Main.rand.Next(250) == 0 && (Main.bloodMoon || player.ZoneGraveyard))
                     {
-                        spawnPoint.NewNPC(53);
+                        spawnPoint.NewNPC(NPCID.TheGroom);
                     }
                     else if (Main.rand.Next(250) == 0 && (Main.bloodMoon || player.ZoneGraveyard))
                     {
-                        spawnPoint.NewNPC(536);
+                        spawnPoint.NewNPC(NPCID.TheBride);
                     }
                     else if (!Main.dayTime && Main.moonPhase == 0 && Main.hardMode && Main.rand.Next(3) != 0)
                     {
-                        newNPC = spawnPoint.NewNPC(104);
+                        newNPC = spawnPoint.NewNPC(NPCID.Werewolf);
                     }
                     else if (!Main.dayTime && Main.hardMode && Main.rand.Next(3) == 0)
                     {
-                        newNPC = spawnPoint.NewNPC(140);
+                        newNPC = spawnPoint.NewNPC(NPCID.PossessedArmor);
                     }
                     else if (Main.bloodMoon && Main.rand.Next(5) < 2)
                     {
-                        newNPC = ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(490) : spawnPoint.NewNPC(489));
+                        newNPC = ((Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(NPCID.Drippler) : spawnPoint.NewNPC(NPCID.BloodZombie));
                     }
                     else if (num3 == 147 || num3 == 161 || num3 == 163 || num3 == 164 || num3 == 162)
                     {
-                        newNPC = ((!player.ZoneGraveyard && Main.hardMode && Main.rand.Next(4) == 0) ? spawnPoint.NewNPC(169) : ((!player.ZoneGraveyard && Main.hardMode && Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(155) : ((!Main.expertMode || Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(161) : spawnPoint.NewNPC(431))));
+                        newNPC = ((!player.ZoneGraveyard && Main.hardMode && Main.rand.Next(4) == 0) ? spawnPoint.NewNPC(NPCID.IceElemental) : ((!player.ZoneGraveyard && Main.hardMode && Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(NPCID.Wolf) : ((!Main.expertMode || Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(NPCID.ZombieEskimo) : spawnPoint.NewNPC(NPCID.ArmedZombieEskimo))));
                     }
                     else if (Main.raining && Main.rand.Next(2) == 0)
                     {
-                        newNPC = spawnPoint.NewNPC(223);
+                        newNPC = spawnPoint.NewNPC(NPCID.ZombieRaincoat);
                         if (Main.rand.Next(3) == 0)
                         {
                             if (Main.rand.Next(2) == 0)
@@ -3806,11 +3810,11 @@ public static class ReplaceNPC
                         }
                         if (player.ZoneGraveyard && Main.rand.Next(maxValue4) == 0)
                         {
-                            newNPC = spawnPoint.NewNPC(632);
+                            newNPC = spawnPoint.NewNPC(NPCID.MaggotZombie);
                         }
                         else if (Main.rand.Next(num106) == 0)
                         {
-                            newNPC = ((!Main.expertMode || Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(590) : spawnPoint.NewNPC(591));
+                            newNPC = ((!Main.expertMode || Main.rand.Next(2) != 0) ? spawnPoint.NewNPC(NPCID.TorchZombie) : spawnPoint.NewNPC(NPCID.ArmedTorchZombie));
                         }
                         else if (Main.halloween && Main.rand.Next(2) == 0)
                         {
@@ -3822,34 +3826,34 @@ public static class ReplaceNPC
                         }
                         else if (num105 == 0 && Main.expertMode && Main.rand.Next(3) == 0)
                         {
-                            newNPC = spawnPoint.NewNPC(430);
+                            newNPC = spawnPoint.NewNPC(NPCID.ArmedZombie);
                         }
                         else if (num105 == 2 && Main.expertMode && Main.rand.Next(3) == 0)
                         {
-                            newNPC = spawnPoint.NewNPC(432);
+                            newNPC = spawnPoint.NewNPC(NPCID.ArmedZombiePincussion);
                         }
                         else if (num105 == 3 && Main.expertMode && Main.rand.Next(3) == 0)
                         {
-                            newNPC = spawnPoint.NewNPC(433);
+                            newNPC = spawnPoint.NewNPC(NPCID.ArmedZombieSlimed);
                         }
                         else if (num105 == 4 && Main.expertMode && Main.rand.Next(3) == 0)
                         {
-                            newNPC = spawnPoint.NewNPC(434);
+                            newNPC = spawnPoint.NewNPC(NPCID.ArmedZombieSwamp);
                         }
                         else if (num105 == 5 && Main.expertMode && Main.rand.Next(3) == 0)
                         {
-                            newNPC = spawnPoint.NewNPC(435);
+                            newNPC = spawnPoint.NewNPC(NPCID.ArmedZombieTwiggy);
                         }
                         else if (num105 == 6 && Main.expertMode && Main.rand.Next(3) == 0)
                         {
-                            newNPC = spawnPoint.NewNPC(436);
+                            newNPC = spawnPoint.NewNPC(NPCID.ArmedZombieCenx);
                         }
                         else
                         {
                             switch (num105)
                             {
                                 case 0:
-                                    newNPC = spawnPoint.NewNPC(3);
+                                    newNPC = spawnPoint.NewNPC(NPCID.Zombie);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         if (Main.rand.Next(2) == 0)
@@ -3863,7 +3867,7 @@ public static class ReplaceNPC
                                     }
                                     break;
                                 case 1:
-                                    newNPC = spawnPoint.NewNPC(132);
+                                    newNPC = spawnPoint.NewNPC(NPCID.BaldZombie);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         if (Main.rand.Next(2) == 0)
@@ -3877,7 +3881,7 @@ public static class ReplaceNPC
                                     }
                                     break;
                                 case 2:
-                                    newNPC = spawnPoint.NewNPC(186);
+                                    newNPC = spawnPoint.NewNPC(NPCID.PincushionZombie);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         if (Main.rand.Next(2) == 0)
@@ -3891,7 +3895,7 @@ public static class ReplaceNPC
                                     }
                                     break;
                                 case 3:
-                                    newNPC = spawnPoint.NewNPC(187);
+                                    newNPC = spawnPoint.NewNPC(NPCID.SlimedZombie);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         if (Main.rand.Next(2) == 0)
@@ -3905,7 +3909,7 @@ public static class ReplaceNPC
                                     }
                                     break;
                                 case 4:
-                                    newNPC = spawnPoint.NewNPC(188);
+                                    newNPC = spawnPoint.NewNPC(NPCID.SwampZombie);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         if (Main.rand.Next(2) == 0)
@@ -3919,7 +3923,7 @@ public static class ReplaceNPC
                                     }
                                     break;
                                 case 5:
-                                    newNPC = spawnPoint.NewNPC(189);
+                                    newNPC = spawnPoint.NewNPC(NPCID.TwiggyZombie);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         if (Main.rand.Next(2) == 0)
@@ -3933,7 +3937,7 @@ public static class ReplaceNPC
                                     }
                                     break;
                                 case 6:
-                                    newNPC = spawnPoint.NewNPC(200);
+                                    newNPC = spawnPoint.NewNPC(NPCID.FemaleZombie);
                                     if (Main.rand.Next(3) == 0)
                                     {
                                         if (Main.rand.Next(2) == 0)
@@ -3959,25 +3963,25 @@ public static class ReplaceNPC
             {
                 if (!flag5 && Main.rand.Next(50) == 0 && !player.ZoneSnow)
                 {
-                    newNPC = ((!Main.hardMode) ? spawnPoint.NewNPC(10, 1) : ((Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(10, 1) : spawnPoint.NewNPC(95, 1)));
+                    newNPC = ((!Main.hardMode) ? spawnPoint.NewNPC(NPCID.GiantWormHead, 1) : ((Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(NPCID.GiantWormHead, 1) : spawnPoint.NewNPC(NPCID.DiggerHead, 1)));
                 }
                 else if (Main.hardMode && Main.rand.Next(3) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(140);
+                    newNPC = spawnPoint.NewNPC(NPCID.PossessedArmor);
                 }
                 else if (Main.hardMode && Main.rand.Next(4) != 0)
                 {
-                    newNPC = spawnPoint.NewNPC(141);
+                    newNPC = spawnPoint.NewNPC(NPCID.ToxicSludge);
                 }
                 else if (Main.remixWorld)
                 {
                     if (num3 == 147 || num3 == 161 || num3 == 163 || num3 == 164 || num3 == 162 || player.ZoneSnow)
                     {
-                        newNPC = spawnPoint.NewNPC(147);
+                        newNPC = spawnPoint.NewNPC(NPCID.IceSlime);
                     }
                     else
                     {
-                        newNPC = spawnPoint.NewNPC(1);
+                        newNPC = spawnPoint.NewNPC(NPCID.BlueSlime);
                         if (Main.rand.Next(3) == 0)
                         {
                             Main.npc[newNPC].SetDefaults(NPCID.YellowSlime);
@@ -3990,11 +3994,11 @@ public static class ReplaceNPC
                 }
                 else if (num45 == 147 || num45 == 161 || player.ZoneSnow)
                 {
-                    newNPC = spawnPoint.NewNPC(147);
+                    newNPC = spawnPoint.NewNPC(NPCID.IceSlime);
                 }
                 else
                 {
-                    newNPC = spawnPoint.NewNPC(1);
+                    newNPC = spawnPoint.NewNPC(NPCID.BlueSlime);
                     if (Main.rand.Next(5) == 0)
                     {
                         Main.npc[newNPC].SetDefaults(NPCID.YellowSlime);
@@ -4011,63 +4015,63 @@ public static class ReplaceNPC
             }
             else if (tileY > Main.maxTilesY - 190)
             {
-                newNPC = ((Main.remixWorld && tileX > Main.maxTilesX * 0.38 + 50.0 && tileX < Main.maxTilesX * 0.62) ? spawnPoint.NewNPC(59) : ((Main.hardMode && !NPC.savedTaxCollector && Main.rand.Next(20) == 0 && !NPC.AnyNPCs(NPCID.DemonTaxCollector)) ? spawnPoint.NewNPC(534) : ((Main.rand.Next(8) == 0) ? NPC.SpawnNPC_SpawnLavaBaitCritters(tileX, tileY) : ((Main.rand.Next(40) == 0 && !NPC.AnyNPCs(NPCID.BoneSerpentHead)) ? spawnPoint.NewNPC(39, 1) : ((Main.rand.Next(14) == 0) ? spawnPoint.NewNPC(24) : ((Main.rand.Next(7) == 0) ? ((Main.rand.Next(10) == 0) ? spawnPoint.NewNPC(66) : ((!Main.hardMode || !NPC.downedMechBossAny || Main.rand.Next(5) == 0) ? spawnPoint.NewNPC(62) : spawnPoint.NewNPC(156))) : ((Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(59) : ((!Main.hardMode || !NPC.downedMechBossAny || Main.rand.Next(5) == 0) ? spawnPoint.NewNPC(60) : spawnPoint.NewNPC(151)))))))));
+                newNPC = ((Main.remixWorld && tileX > Main.maxTilesX * 0.38 + 50.0 && tileX < Main.maxTilesX * 0.62) ? spawnPoint.NewNPC(NPCID.LavaSlime) : ((Main.hardMode && !NPC.savedTaxCollector && Main.rand.Next(20) == 0 && !NPC.AnyNPCs(NPCID.DemonTaxCollector)) ? spawnPoint.NewNPC(NPCID.DemonTaxCollector) : ((Main.rand.Next(8) == 0) ? NPC.SpawnNPC_SpawnLavaBaitCritters(tileX, tileY) : ((Main.rand.Next(40) == 0 && !NPC.AnyNPCs(NPCID.BoneSerpentHead)) ? spawnPoint.NewNPC(NPCID.BoneSerpentHead, 1) : ((Main.rand.Next(14) == 0) ? spawnPoint.NewNPC(NPCID.FireImp) : ((Main.rand.Next(7) == 0) ? ((Main.rand.Next(10) == 0) ? spawnPoint.NewNPC(NPCID.VoodooDemon) : ((!Main.hardMode || !NPC.downedMechBossAny || Main.rand.Next(5) == 0) ? spawnPoint.NewNPC(NPCID.Demon) : spawnPoint.NewNPC(NPCID.RedDevil))) : ((Main.rand.Next(3) == 0) ? spawnPoint.NewNPC(NPCID.LavaSlime) : ((!Main.hardMode || !NPC.downedMechBossAny || Main.rand.Next(5) == 0) ? spawnPoint.NewNPC(NPCID.Hellbat) : spawnPoint.NewNPC(NPCID.Lavabat)))))))));
             }
             else if (NPC.SpawnNPC_CheckToSpawnRockGolem(tileX, tileY, k, num45))
             {
-                newNPC = spawnPoint.NewNPC(631);
+                newNPC = spawnPoint.NewNPC(NPCID.RockGolem);
             }
             else if (Main.rand.Next(60) == 0)
             {
-                newNPC = ((!player.ZoneSnow) ? spawnPoint.NewNPC(217) : spawnPoint.NewNPC(218));
+                newNPC = ((!player.ZoneSnow) ? spawnPoint.NewNPC(NPCID.CochinealBeetle) : spawnPoint.NewNPC(NPCID.CyanBeetle));
             }
             else if ((num45 == 116 || num45 == 117 || num45 == 164) && Main.hardMode && !flag5 && Main.rand.Next(8) == 0)
             {
-                newNPC = spawnPoint.NewNPC(120);
+                newNPC = spawnPoint.NewNPC(NPCID.ChaosElemental);
             }
             else if ((num3 == 147 || num3 == 161 || num3 == 162 || num3 == 163 || num3 == 164 || num3 == 200) && !flag5 && Main.hardMode && player.ZoneCorrupt && Main.rand.Next(30) == 0)
             {
-                newNPC = spawnPoint.NewNPC(170);
+                newNPC = spawnPoint.NewNPC(NPCID.PigronCorruption);
             }
             else if ((num3 == 147 || num3 == 161 || num3 == 162 || num3 == 163 || num3 == 164 || num3 == 200) && !flag5 && Main.hardMode && player.ZoneHallow && Main.rand.Next(30) == 0)
             {
-                newNPC = spawnPoint.NewNPC(171);
+                newNPC = spawnPoint.NewNPC(NPCID.PigronHallow);
             }
             else if ((num3 == 147 || num3 == 161 || num3 == 162 || num3 == 163 || num3 == 164 || num3 == 200) && !flag5 && Main.hardMode && player.ZoneCrimson && Main.rand.Next(30) == 0)
             {
-                newNPC = spawnPoint.NewNPC(180);
+                newNPC = spawnPoint.NewNPC(NPCID.PigronCrimson);
             }
             else if (Main.hardMode && player.ZoneSnow && Main.rand.Next(10) == 0)
             {
-                newNPC = spawnPoint.NewNPC(154);
+                newNPC = spawnPoint.NewNPC(NPCID.IceTortoise);
             }
             else if (!flag5 && Main.rand.Next(100) == 0 && !player.ZoneHallow)
             {
-                newNPC = (Main.hardMode ? spawnPoint.NewNPC(95, 1) : ((!player.ZoneSnow) ? spawnPoint.NewNPC(10, 1) : spawnPoint.NewNPC(185)));
+                newNPC = (Main.hardMode ? spawnPoint.NewNPC(NPCID.DiggerHead, 1) : ((!player.ZoneSnow) ? spawnPoint.NewNPC(NPCID.GiantWormHead, 1) : spawnPoint.NewNPC(NPCID.SnowFlinx)));
             }
             else if (player.ZoneSnow && Main.rand.Next(20) == 0)
             {
-                newNPC = spawnPoint.NewNPC(185);
+                newNPC = spawnPoint.NewNPC(NPCID.SnowFlinx);
             }
             else if ((!Main.hardMode && Main.rand.Next(10) == 0) || (Main.hardMode && Main.rand.Next(20) == 0))
             {
                 if (player.ZoneSnow)
                 {
-                    newNPC = spawnPoint.NewNPC(184);
+                    newNPC = spawnPoint.NewNPC(NPCID.SpikedIceSlime);
                 }
                 else if (Main.rand.Next(3) == 0)
                 {
-                    newNPC = spawnPoint.NewNPC(1);
+                    newNPC = spawnPoint.NewNPC(NPCID.BlueSlime);
                     Main.npc[newNPC].SetDefaults(NPCID.BlackSlime);
                 }
                 else
                 {
-                    newNPC = spawnPoint.NewNPC(16);
+                    newNPC = spawnPoint.NewNPC(NPCID.MotherSlime);
                 }
             }
             else if (!Main.hardMode && Main.rand.Next(4) == 0)
             {
-                newNPC = spawnPoint.NewNPC(1);
+                newNPC = spawnPoint.NewNPC(NPCID.BlueSlime);
                 if (player.ZoneJungle)
                 {
                     Main.npc[newNPC].SetDefaults(NPCID.JungleSlime);
@@ -4083,45 +4087,45 @@ public static class ReplaceNPC
             }
             else if (Main.rand.Next(2) != 0)
             {
-                newNPC = ((Main.hardMode && (player.ZoneHallow & (Main.rand.Next(2) == 0))) ? spawnPoint.NewNPC(138) : (player.ZoneJungle ? spawnPoint.NewNPC(51) : ((player.ZoneGlowshroom && (num3 == 70 || num3 == 190)) ? spawnPoint.NewNPC(634) : ((Main.hardMode && player.ZoneHallow) ? spawnPoint.NewNPC(137) : ((Main.hardMode && Main.rand.Next(6) > 0) ? ((Main.rand.Next(3) != 0 || (num3 != 147 && num3 != 161 && num3 != 162)) ? spawnPoint.NewNPC(93) : spawnPoint.NewNPC(150)) : ((num3 != 147 && num3 != 161 && num3 != 162) ? spawnPoint.NewNPC(49) : ((!Main.hardMode) ? spawnPoint.NewNPC(150) : spawnPoint.NewNPC(169))))))));
+                newNPC = ((Main.hardMode && (player.ZoneHallow & (Main.rand.Next(2) == 0))) ? spawnPoint.NewNPC(NPCID.IlluminantSlime) : (player.ZoneJungle ? spawnPoint.NewNPC(NPCID.JungleBat) : ((player.ZoneGlowshroom && (num3 == 70 || num3 == 190)) ? spawnPoint.NewNPC(NPCID.SporeBat) : ((Main.hardMode && player.ZoneHallow) ? spawnPoint.NewNPC(NPCID.IlluminantBat) : ((Main.hardMode && Main.rand.Next(6) > 0) ? ((Main.rand.Next(3) != 0 || (num3 != 147 && num3 != 161 && num3 != 162)) ? spawnPoint.NewNPC(NPCID.GiantBat) : spawnPoint.NewNPC(NPCID.IceBat)) : ((num3 != 147 && num3 != 161 && num3 != 162) ? spawnPoint.NewNPC(NPCID.CaveBat) : ((!Main.hardMode) ? spawnPoint.NewNPC(NPCID.IceBat) : spawnPoint.NewNPC(NPCID.IceElemental))))))));
             }
             else if (Main.rand.Next(35) == 0 && NPC.CountNPCS(NPCID.SkeletonMerchant) == 0)
             {
-                newNPC = spawnPoint.NewNPC(453);
+                newNPC = spawnPoint.NewNPC(NPCID.SkeletonMerchant);
             }
             else if (Main.rand.Next(80) == 0)
             {
-                newNPC = spawnPoint.NewNPC(195);
+                newNPC = spawnPoint.NewNPC(NPCID.LostGirl);
             }
             else if (Main.hardMode && (Main.remixWorld || tileY > (Main.rockLayer + Main.maxTilesY) / 2.0) && Main.rand.Next(200) == 0)
             {
-                newNPC = spawnPoint.NewNPC(172);
+                newNPC = spawnPoint.NewNPC(NPCID.RuneWizard);
             }
             else if ((Main.remixWorld || tileY > (Main.rockLayer + Main.maxTilesY) / 2.0) && (Main.rand.Next(200) == 0 || (Main.rand.Next(50) == 0 && (player.armor[1].type == ItemID.AmberRobe || (player.armor[1].type >= 1282 && player.armor[1].type <= 1287)) && player.armor[0].type != ItemID.WizardHat)))
             {
-                newNPC = spawnPoint.NewNPC(45);
+                newNPC = spawnPoint.NewNPC(NPCID.Tim);
             }
             else if (flag10 && Main.rand.Next(4) != 0)
             {
-                newNPC = ((Main.rand.Next(6) == 0 || NPC.AnyNPCs(NPCID.Medusa) || !Main.hardMode) ? spawnPoint.NewNPC(481) : spawnPoint.NewNPC(480));
+                newNPC = ((Main.rand.Next(6) == 0 || NPC.AnyNPCs(NPCID.Medusa) || !Main.hardMode) ? spawnPoint.NewNPC(NPCID.GreekSkeleton) : spawnPoint.NewNPC(NPCID.Medusa));
             }
             else if (flag9 && Main.rand.Next(5) != 0)
             {
-                newNPC = ((Main.rand.Next(6) == 0 || NPC.AnyNPCs(NPCID.GraniteFlyer)) ? spawnPoint.NewNPC(482) : spawnPoint.NewNPC(483));
+                newNPC = ((Main.rand.Next(6) == 0 || NPC.AnyNPCs(NPCID.GraniteFlyer)) ? spawnPoint.NewNPC(NPCID.GraniteGolem) : spawnPoint.NewNPC(NPCID.GraniteFlyer));
             }
             else if (Main.hardMode && Main.rand.Next(10) != 0)
             {
                 if (Main.rand.Next(2) != 0)
                 {
-                    newNPC = ((!player.ZoneSnow) ? spawnPoint.NewNPC(110) : spawnPoint.NewNPC(206));
+                    newNPC = ((!player.ZoneSnow) ? spawnPoint.NewNPC(NPCID.SkeletonArcher) : spawnPoint.NewNPC(NPCID.IcyMerman));
                 }
                 else if (player.ZoneSnow)
                 {
-                    newNPC = spawnPoint.NewNPC(197);
+                    newNPC = spawnPoint.NewNPC(NPCID.ArmoredViking);
                 }
                 else
                 {
-                    newNPC = spawnPoint.NewNPC(77);
+                    newNPC = spawnPoint.NewNPC(NPCID.ArmoredSkeleton);
                     if ((Main.remixWorld || tileY > (Main.rockLayer + Main.maxTilesY) / 2.0) && Main.rand.Next(5) == 0)
                     {
                         Main.npc[newNPC].SetDefaults(NPCID.HeavySkeleton);
@@ -4130,19 +4134,19 @@ public static class ReplaceNPC
             }
             else if (!flag5 && (Main.halloween || player.ZoneGraveyard) && Main.rand.Next(30) == 0)
             {
-                newNPC = spawnPoint.NewNPC(316);
+                newNPC = spawnPoint.NewNPC(NPCID.Ghost);
             }
             else if (Main.rand.Next(20) == 0)
             {
-                newNPC = spawnPoint.NewNPC(44);
+                newNPC = spawnPoint.NewNPC(NPCID.UndeadMiner);
             }
             else if (num3 == 147 || num3 == 161 || num3 == 162)
             {
-                newNPC = ((Main.rand.Next(15) != 0) ? spawnPoint.NewNPC(167) : spawnPoint.NewNPC(185));
+                newNPC = ((Main.rand.Next(15) != 0) ? spawnPoint.NewNPC(NPCID.UndeadViking) : spawnPoint.NewNPC(NPCID.SnowFlinx));
             }
             else if (player.ZoneSnow)
             {
-                newNPC = spawnPoint.NewNPC(185);
+                newNPC = spawnPoint.NewNPC(NPCID.SnowFlinx);
             }
             else if (Main.rand.Next(3) == 0)
             {
@@ -4150,7 +4154,7 @@ public static class ReplaceNPC
             }
             else if (player.ZoneGlowshroom && (num3 == 70 || num3 == 190))
             {
-                newNPC = spawnPoint.NewNPC(635);
+                newNPC = spawnPoint.NewNPC(NPCID.SporeSkeleton);
             }
             else if (Main.halloween && Main.rand.Next(2) == 0)
             {
@@ -4159,14 +4163,14 @@ public static class ReplaceNPC
             else if (Main.expertMode && Main.rand.Next(3) == 0)
             {
                 int num107 = Main.rand.Next(4);
-                newNPC = ((num107 == 0) ? spawnPoint.NewNPC(449) : ((num107 == 0) ? spawnPoint.NewNPC(450) : ((num107 != 0) ? spawnPoint.NewNPC(452) : spawnPoint.NewNPC(451))));
+                newNPC = ((num107 == 0) ? spawnPoint.NewNPC(NPCID.BoneThrowingSkeleton) : ((num107 == 0) ? spawnPoint.NewNPC(NPCID.BoneThrowingSkeleton2) : ((num107 != 0) ? spawnPoint.NewNPC(NPCID.BoneThrowingSkeleton4) : spawnPoint.NewNPC(NPCID.BoneThrowingSkeleton3))));
             }
             else
             {
                 switch (Main.rand.Next(4))
                 {
                     case 0:
-                        newNPC = spawnPoint.NewNPC(21);
+                        newNPC = spawnPoint.NewNPC(NPCID.Skeleton);
                         if (Main.rand.Next(3) == 0)
                         {
                             if (Main.rand.Next(2) == 0)
@@ -4180,7 +4184,7 @@ public static class ReplaceNPC
                         }
                         break;
                     case 1:
-                        newNPC = spawnPoint.NewNPC(201);
+                        newNPC = spawnPoint.NewNPC(NPCID.HeadacheSkeleton);
                         if (Main.rand.Next(3) == 0)
                         {
                             if (Main.rand.Next(2) == 0)
@@ -4194,7 +4198,7 @@ public static class ReplaceNPC
                         }
                         break;
                     case 2:
-                        newNPC = spawnPoint.NewNPC(202);
+                        newNPC = spawnPoint.NewNPC(NPCID.MisassembledSkeleton);
                         if (Main.rand.Next(3) == 0)
                         {
                             if (Main.rand.Next(2) == 0)
@@ -4208,7 +4212,7 @@ public static class ReplaceNPC
                         }
                         break;
                     case 3:
-                        newNPC = spawnPoint.NewNPC(203);
+                        newNPC = spawnPoint.NewNPC(NPCID.PantlessSkeleton);
                         if (Main.rand.Next(3) == 0)
                         {
                             if (Main.rand.Next(2) == 0)
@@ -5458,6 +5462,6 @@ public struct SpawnPoint
         SpawnX = spawnX;
         SpawnY = spawnY;
     }
-    public readonly int NewNPC(int Type) => NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), SpawnX, SpawnY, Type);
-    public readonly int NewNPC(int Type, int Start) => NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), SpawnX, SpawnY, Type, Start);
+    public readonly int NewNPC([IDType(nameof(NPCID))] int Type) => NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), SpawnX, SpawnY, Type);
+    public readonly int NewNPC([IDType(nameof(NPCID))] int Type, int Start) => NPC.NewNPC(NPC.GetSpawnSourceForNaturalSpawn(), SpawnX, SpawnY, Type, Start);
 }

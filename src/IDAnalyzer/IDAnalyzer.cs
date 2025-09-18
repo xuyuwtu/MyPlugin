@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Frozen;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Composition;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.CodeFixes;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -19,7 +8,7 @@ namespace IDAnalyzer;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class IDAnalyzer : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "TR0000";
+    public const string DiagnosticId = "IDA0000";
     internal static readonly LocalizableString Title = "Change magic numbers into appropriate ID values";
     internal static readonly LocalizableString MessageFormat = "The number {0} should be changed to {1} for readability";
     internal static readonly LocalizableString Description = "Changes magic numbers into appropriate ID values.";
@@ -39,9 +28,78 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(InvocationExpressionAction, SyntaxKind.InvocationExpression);
         context.RegisterSyntaxNodeAction(CaseSwitchLabelAction, SyntaxKind.CaseSwitchLabel);
         context.RegisterSyntaxNodeAction(ElementAccessExpressionAction, SyntaxKind.ElementAccessExpression);
-    }
 
-    private void ElementAccessExpressionAction(SyntaxNodeAnalysisContext context)
+        context.RegisterSyntaxNodeAction(MethodParameterAction, SyntaxKind.InvocationExpression, SyntaxKind.ObjectCreationExpression, SyntaxKind.ImplicitObjectCreationExpression);
+    }
+    private static void MethodParameterAction(SyntaxNodeAnalysisContext ctx)
+    {
+        IMethodSymbol? methodSymbol;
+        ArgumentListSyntax? argList;
+        var semanticModel = ctx.SemanticModel;
+        if (ctx.Node is InvocationExpressionSyntax inv)
+        {
+            methodSymbol = semanticModel.GetSymbolInfo(inv).Symbol as IMethodSymbol;
+            argList = inv.ArgumentList;
+        }
+        else if (ctx.Node is ObjectCreationExpressionSyntax objCre)
+        {
+            methodSymbol = semanticModel.GetSymbolInfo(objCre).Symbol as IMethodSymbol;
+            argList = objCre.ArgumentList;
+        }
+        else if (ctx.Node is ImplicitObjectCreationExpressionSyntax impObjCre)
+        {
+            methodSymbol = semanticModel.GetSymbolInfo(impObjCre).Symbol as IMethodSymbol;
+            argList = impObjCre.ArgumentList;
+        }
+        else
+        {
+            return;
+        }
+        if (methodSymbol is null || argList is null)
+        {
+            return;
+        }
+        var args = argList.Arguments;
+        for (int i = 0; i < args.Count; i++)
+        {
+            if (args[i] is not { Expression: LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression })
+            {
+                continue;
+            }
+            var paramSymbol = methodSymbol.Parameters[i];
+
+            AttributeData? idTypeAttr = null;
+            foreach (var attr in paramSymbol.GetAttributes())
+            {
+                if (attr.AttributeClass is { Name: nameof(IDTypeAttribute) } &&
+                    attr.AttributeClass.ContainingNamespace.ToDisplayString() == "IDAnalyzer")
+                {
+                    idTypeAttr = attr;
+                    break;
+                }
+            }
+            if (idTypeAttr is not { ConstructorArguments.Length: 1 })
+            {
+                continue;
+            }
+            if (idTypeAttr.ConstructorArguments.Length == 0)
+            {
+                continue;
+            }
+            var constArg = idTypeAttr.ConstructorArguments[0];
+            if (constArg.Kind != TypedConstantKind.Primitive ||
+                constArg.Value is not string)
+            {
+                continue;
+            }
+            var idType = (string)constArg.Value!;
+            if (IDsDict.TryGetValue(idType, out var dict) && int.TryParse(literalExpression.Token.Text, out var id) && dict.TryGetValue(id, out var name))
+            {
+                ctx.ReportDiagnostic(Diagnostic.Create(Rule, literalExpression.GetLocation(), GetTypeDictionary(idType), id, $"{idType}.{name}"));
+            }
+        }
+    }
+    private static void ElementAccessExpressionAction(SyntaxNodeAnalysisContext context)
     {
         if (context.Node is ElementAccessExpressionSyntax
             {
@@ -66,18 +124,17 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
             }
         }
     }
-
-    public static void EqualsExpressionAction(SyntaxNodeAnalysisContext context)
+    private static void EqualsExpressionAction(SyntaxNodeAnalysisContext context)
     {
         var node = (BinaryExpressionSyntax)context.Node;
         ExpressionAction(context, node, node.Left, node.Right);
     }
-    public static void SimpleAssignmentExpressionAction(SyntaxNodeAnalysisContext context)
+    private static void SimpleAssignmentExpressionAction(SyntaxNodeAnalysisContext context)
     {
         var node = (AssignmentExpressionSyntax)context.Node;
         ExpressionAction(context, node, node.Left, node.Right);
     }
-    public static void CaseSwitchLabelAction(SyntaxNodeAnalysisContext context)
+    private static void CaseSwitchLabelAction(SyntaxNodeAnalysisContext context)
     {
         var node = (CaseSwitchLabelSyntax)context.Node;
         if (node.Value is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression } literalExpression)
@@ -88,7 +145,7 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
             }
         }
     }
-    public static void InvocationExpressionAction(SyntaxNodeAnalysisContext context)
+    private static void InvocationExpressionAction(SyntaxNodeAnalysisContext context)
     {
         var node = (InvocationExpressionSyntax)context.Node;
         if (node.Expression is not MemberAccessExpressionSyntax memberAccess)
@@ -250,97 +307,16 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
 
         IDsDict = IDs.AllID.ToFrozenDictionary();
     }
-    private static IdFilterInfo GetIdFilterInfo(string memberName, string idName) => new(memberName, IDs.GetInt32ID(idName), AddType(idName), idName);
-    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex, int argumentCount) => new(methodName, checkIndex, argumentCount, IDs.GetInt32ID(idName), AddType(idName), idName);
-    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex) => new(methodName, checkIndex, checkIndex + 1, IDs.GetInt32ID(idName), AddType(idName), idName);
-    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, Range range) => new(methodName, range.Start.Value, -1, IDs.GetInt32ID(idName), AddType(idName), idName);
+    private static IdFilterInfo GetIdFilterInfo(string memberName, string idName) => new(memberName, IDs.GetInt32ID(idName), GetTypeDictionary(idName), idName);
+    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex, int argumentCount) => new(methodName, checkIndex, argumentCount, IDs.GetInt32ID(idName), GetTypeDictionary(idName), idName);
+    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, int checkIndex) => new(methodName, checkIndex, checkIndex + 1, IDs.GetInt32ID(idName), GetTypeDictionary(idName), idName);
+    private static MethodFilterInfo GetMethodFilterInfo(string methodName, string idName, Range range) => new(methodName, range.Start.Value, -1, IDs.GetInt32ID(idName), GetTypeDictionary(idName), idName);
 
-    private static ImmutableDictionary<string, string?> AddType(string type)
+    private static ImmutableDictionary<string, string?> GetTypeDictionary(string type)
     {
         const string key = "type";
         var builder = ImmutableDictionary.CreateBuilder<string, string?>(StringComparer.Ordinal);
         builder[key] = type;
         return builder.ToImmutable();
-    }
-}
-internal sealed class IdFilterInfo(string memberName, FrozenDictionary<int, string> idToNameDict, ImmutableDictionary<string, string?> properties, string idName)
-{
-    public string MemberName = memberName;
-    public FrozenDictionary<int, string> IdToNameDict = idToNameDict;
-    public ImmutableDictionary<string, string?> Properties = properties;
-    public string IdName = idName;
-}
-
-public sealed class MethodFilterInfo
-{
-    public string MethodName;
-    public int ArgumentCount;
-    public int CheckIndex;
-    public FrozenDictionary<int, string> IdToNameDict;
-    public ImmutableDictionary<string, string?> Properties;
-    public string IdName;
-
-    public MethodFilterInfo(string methodName, int checkIndex, int argumentCount, FrozenDictionary<int, string> idToNameDict, ImmutableDictionary<string, string?> properties, string idName)
-    {
-        MethodName = methodName;
-        if (argumentCount < 0)
-        {
-            argumentCount = -1;
-        }
-        if (argumentCount != -1 && checkIndex >= argumentCount)
-        {
-            throw new ArgumentException("checkIndex >= argumentCount");
-        }
-        ArgumentCount = argumentCount;
-        CheckIndex = checkIndex;
-        IdToNameDict = idToNameDict;
-        Properties = properties;
-        IdName = idName;
-    }
-}
-
-[ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(IDAnalyzerCodeFixProvider)), Shared]
-public sealed class IDAnalyzerCodeFixProvider : CodeFixProvider
-{
-    private const string Title = "Change magic number into appropriate ID value";
-    public sealed override ImmutableArray<string> FixableDiagnosticIds => [IDAnalyzer.DiagnosticId];
-    public sealed override FixAllProvider GetFixAllProvider() => WellKnownFixAllProviders.BatchFixer;
-
-    public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
-    {
-        var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-        if(root is null)
-        {
-            return;
-        }
-        var diagnostic = context.Diagnostics.First();
-        var type = diagnostic.Properties["type"]!;
-        var diagnosticSpan = diagnostic.Location.SourceSpan;
-        if (diagnostic.Id == IDAnalyzer.DiagnosticId)
-        {
-            foreach (var declaration in root.FindToken(diagnosticSpan.Start).Parent!.AncestorsAndSelf())
-            {
-                if (declaration is LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NumericLiteralExpression })
-                {
-                    context.RegisterCodeFix(CodeAction.Create(Title, c => ReplaceNodeAsync(type, context.Document, (LiteralExpressionSyntax)declaration, c), Title), diagnostic);
-                }
-                else if(declaration is PrefixUnaryExpressionSyntax { RawKind: (int)SyntaxKind.UnaryMinusExpression })
-                {
-                    context.RegisterCodeFix(CodeAction.Create(Title, c => ReplaceNodeAsync(type, context.Document, (PrefixUnaryExpressionSyntax)declaration, c), Title), diagnostic);
-                }
-            }
-        }
-    }
-    private static Task<Document> ReplaceNodeAsync(string type, Document document, LiteralExpressionSyntax literalExpression, CancellationToken cancellationToken)
-    {
-        var root = document.GetSyntaxRootAsync(cancellationToken).Result!;
-        SyntaxNode newRoot = root.ReplaceNode(literalExpression, SyntaxFactory.IdentifierName(SyntaxFactory.Identifier($"{type}.{IDAnalyzer.IDsDict[type][int.Parse(literalExpression.Token.Text)]}")))!;
-        return Task.FromResult(document.WithSyntaxRoot(newRoot));
-    }
-    private static Task<Document> ReplaceNodeAsync(string type, Document document, PrefixUnaryExpressionSyntax prefixUnaryExpression, CancellationToken cancellationToken)
-    {
-        var root = document.GetSyntaxRootAsync(cancellationToken).Result!;
-        SyntaxNode newRoot = root.ReplaceNode(prefixUnaryExpression, SyntaxFactory.IdentifierName(SyntaxFactory.Identifier($"{type}.{IDAnalyzer.IDsDict[type][int.Parse(prefixUnaryExpression.Parent!.GetText().ToString())]}")))!;
-        return Task.FromResult(document.WithSyntaxRoot(newRoot));
     }
 }

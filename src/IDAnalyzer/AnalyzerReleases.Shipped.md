@@ -6,4 +6,4 @@
 ### New Rules
 Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
-TR0000  |  Design  |  Info    | 
+IDA0000  |  Design  |  Info    | 

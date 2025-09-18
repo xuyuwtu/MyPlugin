@@ -262,7 +262,6 @@ partial class NPCAIs
                     Main.dust[num25].noLight = true;
                     Main.dust[num25].velocity = Vector2.Normalize(vector2) * 3f;
                 }
-                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num20)
@@ -471,11 +470,9 @@ partial class NPCAIs
             }
             if (npc.ai[2] == 0f)
             {
-                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             if (npc.ai[2] % num8 == 0f)
             {
-                SoundEngine.PlaySound(SoundID.NPCKilled, (int)npc.Center.X, (int)npc.Center.Y, 19);
                 if (Main.netMode != 1)
                 {
                     Vector2 vector7 = Vector2.Normalize(player.Center - center) * (npc.width + 20) / 2f + center;
@@ -515,7 +512,6 @@ partial class NPCAIs
             npc.velocity.Y = MathHelper.Lerp(npc.velocity.Y, 0f, 0.02f);
             if (npc.ai[2] == num11 - 30)
             {
-                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 9);
             }
             if (Main.netMode != 1 && npc.ai[2] == num11 - 30)
             {
@@ -547,7 +543,6 @@ partial class NPCAIs
             npc.velocity.Y = MathHelper.Lerp(npc.velocity.Y, 0f, 0.02f);
             if (npc.ai[2] == num12 - 60)
             {
-                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num12)
@@ -750,12 +745,10 @@ partial class NPCAIs
         {
             if (npc.ai[2] == 0f)
             {
-                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             int num16 = 4;
             if (npc.ai[2] % num16 == 0f)
             {
-                SoundEngine.PlaySound(SoundID.NPCKilled, (int)npc.Center.X, (int)npc.Center.Y, 19);
                 if (Main.netMode != 1)
                 {
                     Vector2 vector12 = Vector2.Normalize(npc.velocity) * (npc.width + 20) / 2f + center;
@@ -798,7 +791,6 @@ partial class NPCAIs
             npc.velocity.Y = MathHelper.Lerp(npc.velocity.Y, 0f, 0.02f);
             if (npc.ai[2] == num11 - 30)
             {
-                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             if (Main.netMode != 1 && npc.ai[2] == num11 - 30)
             {
@@ -847,7 +839,6 @@ partial class NPCAIs
             npc.velocity.Y = MathHelper.Lerp(npc.velocity.Y, 0f, 0.02f);
             if (npc.ai[2] == num13 - 60)
             {
-                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             npc.ai[2] += 1f;
             if (npc.ai[2] >= num13)
@@ -1003,7 +994,6 @@ partial class NPCAIs
             npc.velocity.Y = MathHelper.Lerp(npc.velocity.Y, 0f, 0.02f);
             if (npc.ai[2] == num14 / 2)
             {
-                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             if (Main.netMode != 1 && npc.ai[2] == num14 / 2)
             {
@@ -1052,7 +1042,6 @@ partial class NPCAIs
         {
             if (npc.ai[2] == 0f)
             {
-                SoundEngine.PlaySound(SoundID.Zombie, (int)center.X, (int)center.Y, 20);
             }
             npc.velocity = npc.velocity.RotatedBy((0f - num19) * npc.direction);
             npc.rotation -= num19 * npc.direction;

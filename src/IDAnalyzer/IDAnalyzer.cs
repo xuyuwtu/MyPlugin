@@ -202,6 +202,9 @@ public sealed class IDAnalyzer : DiagnosticAnalyzer
 
         InvocationExpressionReportFilter = new Dictionary<string, MethodFilterInfo[]>()
         {
+            { "Terraria.Main", [
+                GetMethodFilterInfo("StartInvasion", nameof(IDs.InvasionID), 0)
+            ] },
             { "Terraria.NPC", [
                 GetMethodFilterInfo("AnyNPCs", nameof(IDs.NPCID), 0),
                 GetMethodFilterInfo("CountNPCS", nameof(IDs.NPCID), 0),

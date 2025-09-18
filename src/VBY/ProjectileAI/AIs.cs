@@ -16,15 +16,13 @@ public static partial class AIs
         }
         _ProjectileAIs[projectile.aiStyle].Invoke(projectile);
     }
-
-    private static readonly Type dType = typeof(Action<Projectile>);
     public static void SetMethod(MethodInfo method)
     {
         int index = int.Parse(method.Name.Substring(3, 3));
         if (_tempProjectileAIs[index] is null)
         {
             _tempProjectileAIs[index] = _ProjectileAIs[index];
-            _ProjectileAIs[index] = (Action<Projectile>)Delegate.CreateDelegate(dType, method);
+            _ProjectileAIs[index] = (Action<Projectile>)Delegate.CreateDelegate(typeof(Action<Projectile>), method);
         }
     }
     public static void SetMethod(Action<Projectile> action)
@@ -71,7 +69,7 @@ public static partial class AIs
             }
         };
         var type = typeof(Projectile);
-        var aiMethod = type.GetMethod(nameof(Projectile.AI))!;
+        var aiMethod = type.GetMethod($"mfwh_{nameof(Projectile.AI)}") ?? type.GetMethod(nameof(Projectile.AI)) ?? throw new MissingMethodException($"not found 'mfwh_AI' or 'AI' from {type.FullName}");
         var aiMethodBody = aiMethod.GetMethodBody()!;
         var instructions = EmitUtils.GetInstructionsFromBytes(aiMethodBody.GetILAsByteArray()!);
         EmitUtils.InstructionOperandTransform(type.Module, instructions);

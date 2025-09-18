@@ -71,7 +71,7 @@ public static class ReplaceMessageBuffer
                     {
                         break;
                     }
-                    if (self.reader.ReadString() == "Terraria" + 279)
+                    if (self.reader.ReadString() == "Terraria" + Main.curRelease)
                     {
                         if (string.IsNullOrEmpty(Netplay.ServerPassword))
                         {
@@ -1886,7 +1886,7 @@ public static class ReplaceMessageBuffer
                     else if (num5 == -7)
                     {
                         Main.invasionDelay = 0;
-                        Main.StartInvasion(4);
+                        Main.StartInvasion(InvasionID.MartianMadness);
                         NetMessage.TrySendData(MessageID.WorldData);
                         NetMessage.TrySendData(MessageID.InvasionProgressReport, -1, -1, null, 0, 1f, Main.invasionType + 3);
                     }

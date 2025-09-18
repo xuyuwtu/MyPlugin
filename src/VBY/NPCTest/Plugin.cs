@@ -12,7 +12,7 @@ public class Plugin : TerrariaPlugin
     public override string Author => "yu";
     public override Version Version => new(1, 0, 0, 1);
     private readonly MethodInfo[] methods = typeof(NPCAIs).GetMethods(BindingFlags.Static | BindingFlags.Public);
-    private readonly MonoMod.RuntimeDetour.Detour ScaleStats_ApplyMultiplayerStatsDetour = new(typeof(NPC).GetMethod(nameof(NPC.ScaleStats_ApplyMultiplayerStats)), typeof(MainPlugin).GetMethod(nameof(ScaleStats_ApplyMultiplayerStats)), new() { ManualApply = true });
+    private readonly MonoMod.RuntimeDetour.Hook ScaleStats_ApplyMultiplayerStatsDetour = new(typeof(NPC).GetMethod(nameof(NPC.ScaleStats_ApplyMultiplayerStats)), typeof(Plugin).GetMethod(nameof(ScaleStats_ApplyMultiplayerStats))!);
     public Plugin(Main game) : base(game)
     {
     }
@@ -20,6 +20,7 @@ public class Plugin : TerrariaPlugin
     public override void Initialize()
     {
         ScaleStats_ApplyMultiplayerStatsDetour.Apply();
+        AIs.SetMethod(HallowBossAI.AI_120_HallowBoss);
         foreach (MethodInfo method in methods)
         {
             AIs.SetMethod(method);
@@ -30,13 +31,14 @@ public class Plugin : TerrariaPlugin
         if (disposing)
         {
             ScaleStats_ApplyMultiplayerStatsDetour.Dispose();
+            AIs.RemoveMethod(HallowBossAI.AI_120_HallowBoss);
             foreach (MethodInfo method in methods)
             {
                 AIs.RemoveMethod(method);
             }
         }
     }
-    public static void ScaleStats_ApplyMultiplayerStats(NPC npc, int numPlayers, float balance, float boost, float bossAdjustment)
+    public static void ScaleStats_ApplyMultiplayerStats(On.Terraria.NPC.orig_ScaleStats_ApplyMultiplayerStats orig, NPC npc, int numPlayers, float balance, float boost, float bossAdjustment)
     {
         int num = numPlayers - 1;
         if (npc.type == NPCID.ServantofCthulhu)

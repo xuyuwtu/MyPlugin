@@ -8,16 +8,17 @@ using System.Runtime.InteropServices;
 namespace VBY.NPCAI;
 public static partial class AIs
 {
-    public static void AI(NPC npc) => _NPCAIs[npc.aiStyle].Invoke(npc);
-
-    private static readonly Type dType = typeof(Action<NPC>);
+    public static void AI(NPC npc)
+    {
+        _NPCAIs[npc.aiStyle].Invoke(npc);
+    }
     public static void SetMethod(MethodInfo method)
     {
         int index = int.Parse(method.Name.Substring(3, 3));
         if (_tempNPCAIs[index] is null)
         {
             _tempNPCAIs[index] = _NPCAIs[index];
-            _NPCAIs[index] = (Action<NPC>)Delegate.CreateDelegate(dType, method);
+            _NPCAIs[index] = (Action<NPC>)Delegate.CreateDelegate(typeof(Action<NPC>), method);
             //Console.WriteLine($"aiStyle:{index} add success. method:{method.Name}");
         }
     }
@@ -56,7 +57,7 @@ public static partial class AIs
     static AIs()
     {
         var type = typeof(NPC);
-        var aiMethod = type.GetMethod(nameof(NPC.AI))!;
+        var aiMethod = type.GetMethod($"mfwh_{nameof(NPC.AI)}") ?? type.GetMethod(nameof(NPC.AI)) ?? throw new MissingMethodException($"not found 'mfwh_AI' or 'AI' from {type.FullName}");
         var aiMethodBody = aiMethod.GetMethodBody()!;
         var instructions = EmitUtils.GetInstructionsFromBytes(aiMethodBody.GetILAsByteArray()!);
         EmitUtils.InstructionOperandTransform(type.Module, instructions);

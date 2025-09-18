@@ -1,11 +1,13 @@
 ﻿using Terraria.DataStructures;
 
 namespace VBY.NPCTest;
-partial class NPCAIs
+internal static class HallowBossAI
 {
     public static void AI_120_HallowBoss(NPC npc)
     {
-        //npc.AIOutput();
+        const int mainAI = 0;
+        const int aiLeave = 13;
+        npc.AIOutput();
         Vector2 vector = new(-150f, -250f);
         Vector2 vector2 = new(150f, -250f);
         Vector2 heightOffset = new(0f, -350f);
@@ -14,34 +16,34 @@ partial class NPCAIs
         float num = 0.5f;
         float num2 = 12f;
         float num3 = 40f;
-        float num4 = 6400f;
+        float wantLeaveDistance = 6400f;
         int num5 = 40;
         int fairyQueenLanceProjDamage = 50;
-        int num7 = 70;
-        int num8 = 45;
-        int num9 = 45;
+        int fairyQueenLanceProjDamage2 = 70;
+        int rainbowStreakProjDamage = 45;
+        int lastingRainbowProjDamage = 45;
         int fairyQueenSunDanceProjDamage = 50;
-        bool flag = npc.AI_120_HallowBoss_IsInPhase2();
+        bool isInPhase2 = npc.AI_120_HallowBoss_IsInPhase2();
         bool expertMode = Main.expertMode;
-        bool isInPhase2AndExpertMode = flag && expertMode;
-        bool flag4 = NPC.ShouldEmpressBeEnraged();
-        if (npc.life == npc.lifeMax && flag4 && !npc.AI_120_HallowBoss_IsGenuinelyEnraged())
+        bool isInPhase2AndExpertMode = isInPhase2 && expertMode;
+        bool shouldBeEnraged = NPC.ShouldEmpressBeEnraged();
+        if (npc.life == npc.lifeMax && shouldBeEnraged && !npc.AI_120_HallowBoss_IsGenuinelyEnraged())
         {
             npc.ai[3] += 2f;
         }
-        bool flag5 = true;
+        bool isTransparency = true;
         int num11 = 30;
         int num12 = 30;
         int num13 = 30;
         int num14 = 35;
         int num15 = 65;
-        if (flag)
+        if (isInPhase2)
         {
             fairyQueenLanceProjDamage = 60;
-            num8 = 50;
-            num9 = 50;
+            rainbowStreakProjDamage = 50;
+            lastingRainbowProjDamage = 50;
             fairyQueenSunDanceProjDamage = 60;
-            num7 = 65;
+            fairyQueenLanceProjDamage2 = 65;
             num11 = 35;
             num12 = 35;
             num13 = 35;
@@ -49,23 +51,23 @@ partial class NPCAIs
             num15 = 30;
         }
         fairyQueenLanceProjDamage = npc.GetAttackDamage_ForProjectiles(fairyQueenLanceProjDamage, num11);
-        num8 = npc.GetAttackDamage_ForProjectiles(num8, num12);
-        num9 = npc.GetAttackDamage_ForProjectiles(num9, num13);
+        rainbowStreakProjDamage = npc.GetAttackDamage_ForProjectiles(rainbowStreakProjDamage, num12);
+        lastingRainbowProjDamage = npc.GetAttackDamage_ForProjectiles(lastingRainbowProjDamage, num13);
         fairyQueenSunDanceProjDamage = npc.GetAttackDamage_ForProjectiles(fairyQueenSunDanceProjDamage, num14);
-        num7 = npc.GetAttackDamage_ForProjectiles(num7, num15);
-        if (flag4)
+        fairyQueenLanceProjDamage2 = npc.GetAttackDamage_ForProjectiles(fairyQueenLanceProjDamage2, num15);
+        if (shouldBeEnraged)
         {
             fairyQueenLanceProjDamage = 9999;
-            num8 = 9999;
-            num9 = 9999;
+            rainbowStreakProjDamage = 9999;
+            lastingRainbowProjDamage = 9999;
             fairyQueenSunDanceProjDamage = 9999;
-            num7 = 9999;
+            fairyQueenLanceProjDamage2 = 9999;
             expertMode = true;
         }
         float num16 = (expertMode ? 0.3f : 1f);
         bool flag6 = true;
         int num17 = 0;
-        if (flag)
+        if (isInPhase2)
         {
             num17 += 15;
         }
@@ -73,7 +75,7 @@ partial class NPCAIs
         {
             num17 += 5;
         }
-        switch ((int)npc.ai[0])
+        switch ((int)npc.ai[mainAI])
         {
             case 0:
                 if (npc.ai[1] == 0f)
@@ -88,40 +90,17 @@ partial class NPCAIs
                 {
                 }
                 npc.velocity *= 0.95f;
-                //if (npc.ai[1] > 10f && npc.ai[1] < 150f)
-                //{
-                //    int num67 = 2;
-                //    for (int m = 0; m < num67; m++)
-                //    {
-                //        float num68 = MathHelper.Lerp(1.3f, 0.7f, npc.Opacity) * Utils.GetLerpValue(0f, 120f, npc.ai[1], clamped: true);
-                //        Color newColor2 = Main.hslToRgb(npc.ai[1] / 180f, 1f, 0.5f);
-                //        int num69 = Dust.NewDust(npc.position, npc.width, npc.height, 267, 0f, 0f, 0, newColor2);
-                //        Main.dust[num69].position = npc.Center + Main.rand.NextVector2Circular(npc.width * 3f, npc.height * 3f) + new Vector2(0f, -150f);
-                //        Main.dust[num69].velocity *= Main.rand.NextFloat() * 0.8f;
-                //        Main.dust[num69].noGravity = true;
-                //        Main.dust[num69].fadeIn = 0.6f + Main.rand.NextFloat() * 0.7f * num68;
-                //        Main.dust[num69].velocity += Vector2.UnitY * 3f;
-                //        Main.dust[num69].scale = 0.35f;
-                //        if (num69 != 6000)
-                //        {
-                //            Dust dust2 = Dust.CloneDust(num69);
-                //            dust2.scale /= 2f;
-                //            dust2.fadeIn *= 0.85f;
-                //            dust2.color = new Color(255, 255, 255, 255);
-                //        }
-                //    }
-                //}
                 npc.ai[1] += 1f;
-                flag5 = false;
+                isTransparency = false;
                 flag6 = false;
                 npc.Opacity = MathHelper.Clamp(npc.ai[1] / 180f, 0f, 1f);
                 if (npc.ai[1] >= 180f)
                 {
-                    if (flag4 && !npc.AI_120_HallowBoss_IsGenuinelyEnraged())
+                    if (shouldBeEnraged && !npc.AI_120_HallowBoss_IsGenuinelyEnraged())
                     {
                         npc.ai[3] += 2f;
                     }
-                    npc.ai[0] = 1f;
+                    npc.ai[mainAI] = 1f;
                     npc.ai[1] = 0f;
                     npc.netUpdate = true;
                     npc.TargetClosest();
@@ -129,10 +108,10 @@ partial class NPCAIs
                 break;
             case 1:
                 {
-                    float num34 = (flag ? 20f : 45f);
+                    float nextAttackInterval = (isInPhase2 ? 20f : 45f);
                     if (Main.getGoodWorld)
                     {
-                        num34 /= 2f;
+                        nextAttackInterval /= 2f;
                     }
                     if (npc.ai[1] <= 10f)
                     {
@@ -143,15 +122,15 @@ partial class NPCAIs
                         NPCAimedTarget targetData4 = npc.GetTargetData();
                         if (targetData4.Invalid)
                         {
-                            npc.ai[0] = 13f;
+                            npc.ai[mainAI] = 13f;
                             npc.ai[1] = 0f;
                             npc.ai[2] += 1f;
                             npc.velocity /= 4f;
                             npc.netUpdate = true;
                             break;
                         }
-                        Vector2 center = targetData4.Center;
-                        npc.AI_120_HallowBoss_DashTo(center);
+                        Vector2 targetCenter = targetData4.Center;
+                        npc.AI_120_HallowBoss_DashTo(targetCenter);
                         npc.netUpdate = true;
                     }
                     if (npc.velocity.Length() > 16f && npc.ai[1] > 10f)
@@ -160,14 +139,14 @@ partial class NPCAIs
                     }
                     npc.velocity *= 0.92f;
                     npc.ai[1] += 1f;
-                    if (!(npc.ai[1] >= num34))
+                    if (!(npc.ai[1] >= nextAttackInterval))
                     {
                         break;
                     }
                     int num35 = (int)npc.ai[2];
-                    int num36 = 2;
+                    int newMainAI = 2;
                     int num37 = 0;
-                    if (!flag)
+                    if (!isInPhase2)
                     {
                         int num38 = num37++;
                         int num39 = num37++;
@@ -181,50 +160,50 @@ partial class NPCAIs
                         int num47 = num37++;
                         if (num35 % num37 == num38)
                         {
-                            num36 = 2;
+                            newMainAI = 2;
                         }
                         if (num35 % num37 == num39)
                         {
-                            num36 = 8;
+                            newMainAI = 8;
                         }
                         if (num35 % num37 == num40)
                         {
-                            num36 = 6;
+                            newMainAI = 6;
                         }
                         if (num35 % num37 == num41)
                         {
-                            num36 = 8;
+                            newMainAI = 8;
                         }
                         if (num35 % num37 == num42)
                         {
-                            num36 = 5;
+                            newMainAI = 5;
                         }
                         if (num35 % num37 == num43)
                         {
-                            num36 = 2;
+                            newMainAI = 2;
                         }
                         if (num35 % num37 == num44)
                         {
-                            num36 = 8;
+                            newMainAI = 8;
                         }
                         if (num35 % num37 == num45)
                         {
-                            num36 = 4;
+                            newMainAI = 4;
                         }
                         if (num35 % num37 == num46)
                         {
-                            num36 = 8;
+                            newMainAI = 8;
                         }
                         if (num35 % num37 == num47)
                         {
-                            num36 = 5;
+                            newMainAI = 5;
                         }
                         if (npc.life / (float)npc.lifeMax <= 0.5f)
                         {
-                            num36 = 10;
+                            newMainAI = 10;
                         }
                     }
-                    if (flag)
+                    if (isInPhase2)
                     {
                         int num48 = num37++;
                         int num49 = num37++;
@@ -242,47 +221,43 @@ partial class NPCAIs
                         int num57 = num37++;
                         if (num35 % num37 == num48)
                         {
-                            num36 = 7;
+                            newMainAI = 7;
                         }
                         if (num35 % num37 == num49)
                         {
-                            num36 = 2;
+                            newMainAI = 2;
                         }
                         if (num35 % num37 == num50)
                         {
-                            num36 = 8;
+                            newMainAI = 8;
                         }
                         if (num35 % num37 == num52)
                         {
-                            num36 = 5;
+                            newMainAI = 5;
                         }
                         if (num35 % num37 == num53)
                         {
-                            num36 = 2;
+                            newMainAI = 2;
                         }
                         if (num35 % num37 == num54)
                         {
-                            num36 = 6;
-                        }
-                        if (num35 % num37 == num54)
-                        {
-                            num36 = 6;
+                            newMainAI = 6;
                         }
                         if (num35 % num37 == num55)
                         {
-                            num36 = 4;
+                            newMainAI = 4;
                         }
                         if (num35 % num37 == num56)
                         {
-                            num36 = 8;
+                            newMainAI = 8;
                         }
                         if (num35 % num37 == num51)
                         {
-                            num36 = 11;
+                            newMainAI = 11;
                         }
                         if (num35 % num37 == num57)
                         {
-                            num36 = 12;
+                            newMainAI = 12;
                         }
                     }
                     npc.TargetClosest();
@@ -299,19 +274,19 @@ partial class NPCAIs
                             flag12 = true;
                         }
                     }
-                    if (targetData5.Invalid || npc.Distance(targetData5.Center) > num4 || flag12)
+                    if (targetData5.Invalid || npc.Distance(targetData5.Center) > wantLeaveDistance || flag12)
                     {
-                        num36 = 13;
+                        newMainAI = 13;
                     }
-                    if (num36 == 8 && targetData5.Center.X > npc.Center.X)
+                    if (newMainAI == 8 && targetData5.Center.X > npc.Center.X)
                     {
-                        num36 = 9;
+                        newMainAI = 9;
                     }
-                    if (expertMode && num36 != 5 && num36 != 12)
+                    if (expertMode && newMainAI != 5 && newMainAI != 12)
                     {
                         npc.velocity = npc.DirectionFrom(targetData5.Center).SafeNormalize(Vector2.Zero).RotatedBy((float)Math.PI / 2f * (targetData5.Center.X > npc.Center.X).ToDirectionInt()) * 20f;
                     }
-                    npc.ai[0] = num36;
+                    npc.ai[mainAI] = newMainAI;
                     npc.ai[1] = 0f;
                     npc.ai[2] += 1f;
                     npc.netUpdate = true;
@@ -349,7 +324,7 @@ partial class NPCAIs
                         }
                         if (Main.netMode != 1)
                         {
-                            Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector36, vector38, ProjectileID.HallowBossRainbowStreak, num8, 0f, Main.myPlayer, npc.target, ai3);
+                            Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector36, vector38, ProjectileID.HallowBossRainbowStreak, rainbowStreakProjDamage, 0f, Main.myPlayer, npc.target, ai3);
                         }
                         if (Main.netMode != 1)
                         {
@@ -358,7 +333,7 @@ partial class NPCAIs
                             {
                                 if (npc.Boss_CanShootExtraAt(num93, num92 % 3, 3, 2400f))
                                 {
-                                    Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector36, vector38, ProjectileID.HallowBossRainbowStreak, num8, 0f, Main.myPlayer, num93, ai3);
+                                    Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector36, vector38, ProjectileID.HallowBossRainbowStreak, rainbowStreakProjDamage, 0f, Main.myPlayer, num93, ai3);
                                 }
                             }
                         }
@@ -366,7 +341,7 @@ partial class NPCAIs
                     npc.ai[1] += 1f;
                     if (npc.ai[1] >= 60f + num90)
                     {
-                        npc.ai[0] = 1f;
+                        npc.ai[mainAI] = 1f;
                         npc.ai[1] = 0f;
                         npc.netUpdate = true;
                     }
@@ -388,7 +363,7 @@ partial class NPCAIs
                     }
                     if (npc.ai[1] >= 120f)
                     {
-                        npc.ai[0] = 1f;
+                        npc.ai[mainAI] = 1f;
                         npc.ai[1] = 0f;
                         npc.netUpdate = true;
                     }
@@ -527,7 +502,7 @@ partial class NPCAIs
                     npc.ai[1] += 1f;
                     if (npc.ai[1] >= 100f + num81)
                     {
-                        npc.ai[0] = 1f;
+                        npc.ai[mainAI] = 1f;
                         npc.ai[1] = 0f;
                         npc.netUpdate = true;
                     }
@@ -561,15 +536,15 @@ partial class NPCAIs
                             Vector2 vector22 = Vector2.UnitY.RotatedBy((float)Math.PI / 2f + (float)Math.PI * 2f * num66 + num64);
                             if (Main.netMode != 1)
                             {
-                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector20 + vector22.RotatedBy(-1.5707963705062866) * 30f, vector22 * 8f, ProjectileID.HallowBossLastingRainbow, num9, 0f, Main.myPlayer, 0f, num66);
-                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector20 + vector22.RotatedBy(-1.5707963705062866) * 30f, vector22 * 12f, ProjectileID.HallowBossLastingRainbow, num9, 0f, Main.myPlayer, 0f, num66);
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector20 + vector22.RotatedBy(-1.5707963705062866) * 30f, vector22 * 8f, ProjectileID.HallowBossLastingRainbow, lastingRainbowProjDamage, 0f, Main.myPlayer, 0f, num66);
+                                Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector20 + vector22.RotatedBy(-1.5707963705062866) * 30f, vector22 * 12f, ProjectileID.HallowBossLastingRainbow, lastingRainbowProjDamage, 0f, Main.myPlayer, 0f, num66);
                             }
                         }
                     }
                     npc.ai[1] += 1f;
                     if (npc.ai[1] >= 42f + num63)
                     {
-                        npc.ai[0] = 1f;
+                        npc.ai[mainAI] = 1f;
                         npc.ai[1] = 0f;
                         npc.netUpdate = true;
                     }
@@ -609,7 +584,7 @@ partial class NPCAIs
                     npc.ai[1] += 1f;
                     if (npc.ai[1] >= 180f + num25)
                     {
-                        npc.ai[0] = 1f;
+                        npc.ai[mainAI] = 1f;
                         npc.ai[1] = 0f;
                         npc.netUpdate = true;
                     }
@@ -720,7 +695,7 @@ partial class NPCAIs
                                     if (!Main.dayTime)
                                     {
                                         //原版
-                                        var index = Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), origin, Vector2.Zero, ProjectileID.FairyQueenLance, num7, 0f, Main.myPlayer, v2.ToRotation(), ai2);
+                                        var index = Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), origin, Vector2.Zero, ProjectileID.FairyQueenLance, fairyQueenLanceProjDamage2, 0f, Main.myPlayer, v2.ToRotation(), ai2);
                                         Main.projectile[index].localAI[1] = 1;
                                         Main.projectile[index].localAI[2] = npc.target;
                                     }
@@ -729,12 +704,12 @@ partial class NPCAIs
                                         if (DateTime.Now.Hour is > 21 or < 7)
                                         {
                                             //迷惑偏移预判版
-                                            npc.NewProjectile(origin - (ro * 59) + targetData9.Velocity * (59 - count), ro, ProjectileID.FairyQueenLance, num7, v2.ToRotation(), ai2);
+                                            npc.NewProjectile(origin - (ro * 59) + targetData9.Velocity * (59 - count), ro, ProjectileID.FairyQueenLance, fairyQueenLanceProjDamage2, v2.ToRotation(), ai2);
                                         }
                                         else
                                         {
                                             //迷惑版
-                                            npc.NewProjectile(origin - (ro * 59), ro, 919, num7, v2.ToRotation(), ai2);
+                                            npc.NewProjectile(origin - (ro * 59), ro, 919, fairyQueenLanceProjDamage2, v2.ToRotation(), ai2);
                                         }
                                     }
                                     //预判版
@@ -751,7 +726,7 @@ partial class NPCAIs
                     npc.ai[1] += 1f;
                     if (npc.ai[1] >= endInterval + num70)
                     {
-                        npc.ai[0] = 1f;
+                        npc.ai[mainAI] = 1f;
                         npc.ai[1] = 0f;
                         npc.netUpdate = true;
                     }
@@ -792,13 +767,13 @@ partial class NPCAIs
                     }
                     if (npc.ai[1] >= 50 && npc.ai[1] % 5 == 0)
                     {
-                        Projectile.NewProjectile(npc.GetSpawnSourceForNPCFromNPCAI(), npc.Center, Vector2.Normalize(new Vector2(Main.rand.Next(-11, 10), -1)) * 10, ProjectileID.HallowBossRainbowStreak, num8, 0);
+                        Projectile.NewProjectile(npc.GetSpawnSourceForNPCFromNPCAI(), npc.Center, Vector2.Normalize(new Vector2(Main.rand.Next(-11, 10), -1)) * 10, ProjectileID.HallowBossRainbowStreak, rainbowStreakProjDamage, 0);
                     }
                     float num32 = 20 - num17;
                     //Vector2 vector11 = new Vector2(0f, -100f);
                     //_ = npc.Center + vector11;
                     flag6 = !(npc.ai[1] >= 6f) || !(npc.ai[1] <= 40f);
-                    int num33 = ((npc.ai[0] != 8f) ? 1 : (-1));
+                    int num33 = ((npc.ai[mainAI] != 8f) ? 1 : (-1));
                     npc.AI_120_HallowBoss_DoMagicEffect(npc.Center, 5, Utils.GetLerpValue(40f, 90f, npc.ai[1], clamped: true));
                     if (npc.ai[1] <= 40f)
                     {
@@ -829,7 +804,7 @@ partial class NPCAIs
                     npc.ai[1] += 1f;
                     if (npc.ai[1] >= 90f + num32)
                     {
-                        npc.ai[0] = 1f;
+                        npc.ai[mainAI] = 1f;
                         npc.ai[1] = 0f;
                         npc.netUpdate = true;
                         for (int i = 0; i < Main.maxProjectiles; i++) 
@@ -867,7 +842,7 @@ partial class NPCAIs
                     npc.ai[1] += 1f;
                     if (npc.ai[1] >= 180f + num94)
                     {
-                        npc.ai[0] = 1f;
+                        npc.ai[mainAI] = 1f;
                         npc.ai[1] = 0f;
                         npc.ai[2] = 0f;
                         npc.netUpdate = true;
@@ -899,26 +874,31 @@ partial class NPCAIs
                             Vector2 vector13 = -targetData6.Velocity;
                             vector13.SafeNormalize(-Vector2.UnitY);
                             float num60 = 100f;
-                            Vector2 center2 = targetData6.Center;
-                            if (npc.Distance(center2) > 2400f)
+                            Vector2 targetCenter = targetData6.Center;
+                            if (npc.Distance(targetCenter) > 2400f)
                             {
                                 continue;
                             }
                             int num61 = 90;
-                            Vector2 vector14 = center2 + targetData6.Velocity * num61;
-                            Vector2 vector15 = center2 + vector13 * num60;
-                            if (vector15.Distance(center2) < num60)
+                            Vector2 vector14 = targetCenter + targetData6.Velocity * num61;
+                            Vector2 vector15 = targetCenter + vector13 * num60;
+                            if (vector15.Distance(targetCenter) < num60)
                             {
-                                Vector2 vector16 = center2 - vector15;
+                                Vector2 vector16 = targetCenter - vector15;
                                 if (vector16 == Vector2.Zero)
                                 {
                                     vector16 = vector13;
                                 }
-                                vector15 = center2 - Vector2.Normalize(vector16) * num60;
+                                vector15 = targetCenter - Vector2.Normalize(vector16) * num60;
                             }
                             Vector2 v = vector14 - vector15;
                             if (Main.netMode != 1)
                             {
+                                if (npc.ai[1] % 2 == 0)
+                                {
+                                    vector15 = 2 * targetCenter - vector15;
+                                    v = -v;
+                                }
                                 Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector15, Vector2.Zero, ProjectileID.FairyQueenLance, fairyQueenLanceProjDamage, 0f, Main.myPlayer, v.ToRotation(), npc.ai[1] / 100f);
                             }
                             if (Main.netMode == 1)
@@ -936,18 +916,18 @@ partial class NPCAIs
                                 vector13 = -player.velocity;
                                 vector13.SafeNormalize(-Vector2.UnitY);
                                 num60 = 100f;
-                                center2 = player.Center;
+                                targetCenter = player.Center;
                                 num61 = 90;
-                                Vector2 vector17 = center2 + player.velocity * num61;
-                                vector15 = center2 + vector13 * num60;
-                                if (vector15.Distance(center2) < num60)
+                                Vector2 vector17 = targetCenter + player.velocity * num61;
+                                vector15 = targetCenter + vector13 * num60;
+                                if (vector15.Distance(targetCenter) < num60)
                                 {
-                                    Vector2 vector18 = center2 - vector15;
+                                    Vector2 vector18 = targetCenter - vector15;
                                     if (vector18 == Vector2.Zero)
                                     {
                                         vector18 = vector13;
                                     }
-                                    vector15 = center2 - Vector2.Normalize(vector18) * num60;
+                                    vector15 = targetCenter - Vector2.Normalize(vector18) * num60;
                                 }
                                 v = vector17 - vector15;
                                 Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), vector15, Vector2.Zero, ProjectileID.FairyQueenLance, fairyQueenLanceProjDamage, 0f, Main.myPlayer, v.ToRotation(), npc.ai[1] / 100f);
@@ -957,7 +937,7 @@ partial class NPCAIs
                     npc.ai[1] += 1f;
                     if (npc.ai[1] >= 100f + num58)
                     {
-                        npc.ai[0] = 1f;
+                        npc.ai[mainAI] = 1f;
                         npc.ai[1] = 0f;
                         npc.netUpdate = true;
                     }
@@ -988,7 +968,7 @@ partial class NPCAIs
                         Vector2 vector7 = new Vector2(0f, -20f).RotatedBy((float)Math.PI * 2f * num23);
                         if (Main.netMode != 1)
                         {
-                            Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector6, vector7, ProjectileID.HallowBossRainbowStreak, num8, 0f, Main.myPlayer, npc.target, num23);
+                            Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector6, vector7, ProjectileID.HallowBossRainbowStreak, rainbowStreakProjDamage, 0f, Main.myPlayer, npc.target, num23);
                         }
                         if (Main.netMode != 1)
                         {
@@ -997,7 +977,7 @@ partial class NPCAIs
                             {
                                 if (npc.Boss_CanShootExtraAt(j, num24 % 3, 3, 2400f))
                                 {
-                                    Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector6, vector7, ProjectileID.HallowBossRainbowStreak, num8, 0f, Main.myPlayer, j, num23);
+                                    Projectile.NewProjectile(npc.GetSpawnSource_ForProjectile(), npc.Center + vector6, vector7, ProjectileID.HallowBossRainbowStreak, rainbowStreakProjDamage, 0f, Main.myPlayer, j, num23);
                                 }
                             }
                         }
@@ -1005,13 +985,13 @@ partial class NPCAIs
                     npc.ai[1] += 1f;
                     if (npc.ai[1] >= 60f + num21)
                     {
-                        npc.ai[0] = 1f;
+                        npc.ai[mainAI] = 1f;
                         npc.ai[1] = 0f;
                         npc.netUpdate = true;
                     }
                     break;
                 }
-            case 13:
+            case aiLeave:
                 {
                     if (npc.ai[1] == 0f)
                     {
@@ -1020,54 +1000,19 @@ partial class NPCAIs
                     npc.velocity *= 0.95f;
                     npc.TargetClosest();
                     NPCAimedTarget targetData = npc.GetTargetData();
-                    flag5 = false;
+                    isTransparency = false;
                     bool flag7 = false;
-                    bool flag8 = false;
-                    if (!flag7)
+                    if (npc.AI_120_HallowBoss_IsGenuinelyEnraged() && (!Main.dayTime || (Main.dayTime && Main.time >= 53400.0)))
                     {
-                        if (npc.AI_120_HallowBoss_IsGenuinelyEnraged())
-                        {
-                            if (!Main.dayTime)
-                            {
-                                flag8 = true;
-                            }
-                            if (Main.dayTime && Main.time >= 53400.0)
-                            {
-                                flag8 = true;
-                            }
-                        }
-                        flag7 = flag7 || flag8;
+                        flag7 = true;
                     }
-                    if (!flag7)
+                    else
                     {
-                        bool flag9 = targetData.Invalid || npc.Distance(targetData.Center) > num4;
-                        flag7 = flag7 || flag9;
+                        flag7 = targetData.Invalid || npc.Distance(targetData.Center) > wantLeaveDistance;
                     }
                     npc.alpha = Utils.Clamp(npc.alpha + flag7.ToDirectionInt() * 5, 0, 255);
-                    bool flag10 = npc.alpha == 0 || npc.alpha == 255;
-                    //int num18 = 5;
-                    //for (int i = 0; i < num18; i++)
-                    //{
-                    //    float num19 = MathHelper.Lerp(1.3f, 0.7f, npc.Opacity);
-                    //    Color newColor = Main.hslToRgb(Main.rand.NextFloat(), 1f, 0.5f);
-                    //    int num20 = Dust.NewDust(npc.position - npc.Size * 0.5f, npc.width * 2, npc.height * 2, 267, 0f, 0f, 0, newColor);
-                    //    Main.dust[num20].position = npc.Center + Main.rand.NextVector2Circular(npc.width, npc.height);
-                    //    Main.dust[num20].velocity *= Main.rand.NextFloat() * 0.8f;
-                    //    Main.dust[num20].noGravity = true;
-                    //    Main.dust[num20].scale = 0.9f + Main.rand.NextFloat() * 1.2f;
-                    //    Main.dust[num20].fadeIn = 0.4f + Main.rand.NextFloat() * 1.2f * num19;
-                    //    Main.dust[num20].velocity += Vector2.UnitY * -2f;
-                    //    Main.dust[num20].scale = 0.35f;
-                    //    if (num20 != 6000)
-                    //    {
-                    //        Dust dust = Dust.CloneDust(num20);
-                    //        dust.scale /= 2f;
-                    //        dust.fadeIn *= 0.85f;
-                    //        dust.color = new Color(255, 255, 255, 255);
-                    //    }
-                    //}
                     npc.ai[1] += 1f;
-                    if (!(npc.ai[1] >= 20f && flag10))
+                    if (!(npc.ai[1] >= 20f && (npc.alpha == 0 || npc.alpha == 255)))
                     {
                         break;
                     }
@@ -1080,7 +1025,7 @@ partial class NPCAIs
                         }
                         return;
                     }
-                    npc.ai[0] = 1f;
+                    npc.ai[mainAI] = 1f;
                     npc.ai[1] = 0f;
                     npc.netUpdate = true;
                     break;
@@ -1088,11 +1033,11 @@ partial class NPCAIs
         }
         npc.dontTakeDamage = !flag6;
         npc.damage = npc.GetAttackDamage_ScaledByStrength(npc.defDamage * num16);
-        if (flag4)
+        if (shouldBeEnraged)
         {
             npc.damage = 9999;
         }
-        if (flag)
+        if (isInPhase2)
         {
             npc.defense = (int)(npc.defDefense * 1.2f);
         }
@@ -1104,10 +1049,9 @@ partial class NPCAIs
         {
             npc.localAI[0] = 0f;
         }
-        if (flag5)
+        if (isTransparency)
         {
             npc.alpha = Utils.Clamp(npc.alpha - 5, 0, 255);
         }
-        Lighting.AddLight(npc.Center, Vector3.One * npc.Opacity);
     }
 }

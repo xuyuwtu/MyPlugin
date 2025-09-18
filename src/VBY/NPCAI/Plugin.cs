@@ -11,7 +11,7 @@ public class Plugin : TerrariaPlugin
 {
     public override string Name => "VBY.NPCAI Base";
     public override string Author => "yu";
-    private static readonly Detour AIDetour = new(typeof(NPC).GetMethod("AI"), typeof(AIs).GetMethod("AI"), new() { ManualApply = true });
+    private static readonly Detour AIDetour = new(typeof(NPC).GetMethod(nameof(NPC.AI)), new Action<NPC>(AIs.AI).Method, new() { ManualApply = true });
     public static bool HasNewProjectileInfoArray { get; private set; } = false;
     private static Action<int, NewProjectileInfo>? SetInfoAction;
     public Plugin(Main game) : base(game) 

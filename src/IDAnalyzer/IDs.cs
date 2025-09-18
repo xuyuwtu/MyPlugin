@@ -35,7 +35,7 @@ public static class IDs
         AddID(mdReader, TileID);
         AddID(mdReader, WallID);
         AddID(mdReader, MessageID);
-        AddID(mdReader, InvasionID, static name => name.StartsWith("Cache"));
+        AddID(mdReader, InvasionID, static name => !name.StartsWith("Cache"));
         AddID(mdReader, ProjectileID);
         AddID(mdReader, PlayerDifficultyID);
         AddID(mdReader, SoundID);
@@ -54,13 +54,12 @@ public static class IDs
                 {
                     var fieldDef = mdReader.GetFieldDefinition(fieldDefHandle);
                     var fieldName = mdReader.GetString(fieldDef.Name);
-                    if(fieldNameFilter is not null && fieldNameFilter(fieldName))
+                    if(fieldNameFilter?.Invoke(fieldName) ?? true)
                     {
-                        continue;
-                    }
-                    if (fieldDef.Attributes.HasFlag(FieldAttributes.Literal))
-                    {
-                        dict.Add(Convert.ToInt32(reader(mdReader.GetBlobBytes(mdReader.GetConstant(fieldDef.GetDefaultValue()).Value))), fieldName);
+                        if (fieldDef.Attributes.HasFlag(FieldAttributes.Literal))
+                        {
+                            dict.Add(Convert.ToInt32(reader(mdReader.GetBlobBytes(mdReader.GetConstant(fieldDef.GetDefaultValue()).Value))), fieldName);
+                        }
                     }
                 }
                 break;

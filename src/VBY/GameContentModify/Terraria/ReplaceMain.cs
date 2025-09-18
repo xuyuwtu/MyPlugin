@@ -413,10 +413,10 @@ public static class ReplaceMain
         {
             WorldGen.crimson = !WorldGen.crimson;
         }
-        NetMessage.SendData(MessageID.WorldData);
-        AchievementsHelper.NotifyProgressionEvent(1);
+        AchievementsHelper.NotifyProgressionEvent(AchievementHelperID.Events.DayStart);
         if (stopEvents)
         {
+            NetMessage.SendData(MessageID.WorldData);
             return;
         }
         if (Main.hardMode && NPC.downedMechBossAny && Main.rand.NextIsZero(MainConfig.Instance.EclipseRandomNum))
@@ -460,7 +460,7 @@ public static class ReplaceMain
             }
             if (Main.invasionType == InvasionID.None && Main.hardMode && WorldGen.altarCount > 0 && ((NPC.downedPirates && Main.rand.NextIsZero(MainConfig.Instance.Invasion.DownedPiratesStartInvasionRandomNum)) || (!NPC.downedPirates && Main.rand.NextIsZero(MainConfig.Instance.Invasion.NoDownedPiratesStartInvasionRandomNum))))
             {
-                Main.StartInvasion(3);
+                Main.StartInvasion(InvasionID.PirateInvasion);
             }
         }
         //if (!NPC.travelNPC && (MainConfig.Instance.Spawn.SpawnTravelNPCAtDay))

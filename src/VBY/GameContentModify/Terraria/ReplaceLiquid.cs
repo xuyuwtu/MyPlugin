@@ -6,7 +6,7 @@ namespace VBY.GameContentModify;
 [ReplaceType(typeof(Liquid))]
 public static class ReplaceLiquid
 {
-    public static void DelWater(int l)
+    public static void DelWater(On.Terraria.Liquid.orig_DelWater orig, int l)
     {
         int num = Main.liquid[l].x;
         int num2 = Main.liquid[l].y;

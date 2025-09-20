@@ -259,7 +259,7 @@ internal static class Utils
         foreach (string name in names)
         {
             var members = type.GetMember(name);
-            if (!members.Any())
+            if (members.Length == 0)
             {
                 return false;
             }

@@ -8,7 +8,7 @@ namespace VBY.GameContentModify;
 [ReplaceType(typeof(Player))]
 public static class ReplacePlayer
 {
-    public static void Shellphone_Spawn(Player self)
+    public static void Shellphone_Spawn(On.Terraria.Player.orig_Shellphone_Spawn orig, Player self)
     {
         if (self.lastDeathPostion == default)
         {

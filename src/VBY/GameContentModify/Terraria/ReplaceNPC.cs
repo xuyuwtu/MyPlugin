@@ -88,7 +88,7 @@ public static class ReplaceNPC
         }
         return false;
     }
-    public static void SpawnNPC()
+    public static void SpawnNPC(On.Terraria.NPC.orig_SpawnNPC orig)
     {
         if (NPC.noSpawnCycle)
         {
@@ -4242,7 +4242,7 @@ public static class ReplaceNPC
             break;
         }
     }
-    public static void TransformElderSlime(int npcIndex)
+    public static void TransformElderSlime(On.Terraria.NPC.orig_TransformElderSlime orig, int npcIndex)
     {
         if (!Main.npc.IndexInRange(npcIndex))
         {
@@ -5292,7 +5292,7 @@ public static class ReplaceNPC
             }
         }
     }
-    public static bool MechSpawn(float x, float y, int type)
+    public static bool MechSpawn(On.Terraria.NPC.orig_MechSpawn orig, float x, float y, int type)
     {
         int numOfAll = 0;
         int numOf200 = 0;
@@ -5379,7 +5379,7 @@ public static class ReplaceNPC
         }
         return Hooks.NPC.InvokeMechSpawn(result: true, x, y, type, numOfAll, numOf200, numOf600);
     }
-    public static void CountKillForBannersAndDropThem(NPC self)
+    public static void CountKillForBannersAndDropThem(On.Terraria.NPC.orig_CountKillForBannersAndDropThem orig, NPC self)
     {
         int num = Item.NPCtoBanner(self.BannerID());
         if (num <= 0 || self.ExcludedFromDeathTally())
@@ -5452,7 +5452,7 @@ public static class ReplaceNPC
     }
 
 }
-public struct SpawnPoint
+file struct SpawnPoint
 {
     public int SpawnX;
     public int SpawnY;

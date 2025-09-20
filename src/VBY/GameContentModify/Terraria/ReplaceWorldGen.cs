@@ -3049,7 +3049,7 @@ public static class ReplaceWorldGen
         }
     }
     public static int[] treeShakeCount = new int[500];
-    public static void ShakeTree(int i, int j)
+    public static void ShakeTree(On.Terraria.WorldGen.orig_ShakeTree orig, int i, int j)
     {
         if (WorldGen.numTreeShakes == WorldGen.maxTreeShakes)
         {
@@ -3310,7 +3310,7 @@ public static class ReplaceWorldGen
         void newItem(int Type, int Stack = 1) => Item.NewItem(WorldGen.GetItemSource_FromTreeShake(x, y), x * 16, y * 16, 16, 16, Type, Stack);
         int newNPC(int Type) => NPC.NewNPC(new EntitySource_ShakeTree(x, y), x * 16, y * 16, Type);
     }
-    public static unsafe void SpawnThingsFromPot(int i, int j, int x2, int y2, int style)
+    public static unsafe void SpawnThingsFromPot(On.Terraria.WorldGen.orig_SpawnThingsFromPot orig, int i, int j, int x2, int y2, int style)
     {
         bool flag = j < Main.rockLayer;
         bool flag2 = j < Main.UnderworldLayer;
@@ -3837,7 +3837,7 @@ public static class ReplaceWorldGen
             Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 16, 16, ItemID.CopperCoin, num19);
         }
     }
-    public static void GrowAlch(int x, int y)
+    public static void GrowAlch(On.Terraria.WorldGen.orig_GrowAlch orig,int x, int y)
     {
         if (!Main.tile[x, y].active())
         {
@@ -3930,7 +3930,7 @@ public static class ReplaceWorldGen
         //    WorldGen.SquareTileFrame(x, y);
         //}
     }
-    public static bool IsHarvestableHerbWithSeed(int type, int style) => type == TileID.BloomingHerbs;
+    public static bool IsHarvestableHerbWithSeed(On.Terraria.WorldGen.orig_IsHarvestableHerbWithSeed orig, int type, int style) => type == TileID.BloomingHerbs;
     [DetourMethod]
     public static bool PlaceTile(On.Terraria.WorldGen.orig_PlaceTile orig, int i, int j, int type, bool mute, bool forced, int plr, int style)
     {
@@ -4985,7 +4985,7 @@ public static class ReplaceWorldGen
                 return false;
         }
     }
-    public static void ScoreRoom(int ignoreNPC, int npcTypeAskingToScoreRoom)
+    public static void ScoreRoom(On.Terraria.WorldGen.orig_ScoreRoom orig, int ignoreNPC, int npcTypeAskingToScoreRoom)
     {
         WorldGen.roomOccupied = false;
         WorldGen.roomEvil = false;
@@ -6145,7 +6145,7 @@ public static class ReplaceWorldGen
                 break;
         }
     }
-    public static void CheckJunglePlant(int i, int j, int type)
+    public static void CheckJunglePlant(On.Terraria.WorldGen.orig_CheckJunglePlant orig, int i, int j, int type)
     {
         if (WorldGen.destroyObject)
         {

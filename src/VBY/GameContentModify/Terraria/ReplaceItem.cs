@@ -260,7 +260,7 @@ public static class ReplaceItem
             self.active = false;
         }
     }
-    public static bool MechSpawn(float x, float y, int type)
+    public static bool MechSpawn(On.Terraria.Item.orig_MechSpawn orig, float x, float y, int type)
     {
         int numOfAll = 0;
         int numOf300 = 0;
@@ -301,7 +301,7 @@ public static class ReplaceItem
         }
         return Hooks.Item.InvokeMechSpawn(result: true, x, y, type, numOfAll, numOf300, numOf800);
     }
-    public static void CheckLavaDeath(Item self, int i)
+    public static void CheckLavaDeath(On.Terraria.Item.orig_CheckLavaDeath orig, Item self, int i)
     {
         if (self.type == ItemID.GuideVoodooDoll)
         {

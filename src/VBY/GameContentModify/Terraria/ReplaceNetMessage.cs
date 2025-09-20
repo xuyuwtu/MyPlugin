@@ -187,7 +187,7 @@ public static class ReplaceNetMessage
         PacketLength[148] = (ushort)(PacketLength[21] + sizeof(byte));
     }
 #pragma warning disable IDE1006 // 命名样式
-    public unsafe static void orig_SendData(int msgType, int remoteClient = -1, int ignoreClient = -1, NetworkText? text = null, int number = 0, float number2 = 0f, float number3 = 0f, float number4 = 0f, int number5 = 0, int number6 = 0, int number7 = 0)
+    public unsafe static void orig_SendData(On.Terraria.NetMessage.orig_SendData orig, int msgType, int remoteClient = -1, int ignoreClient = -1, NetworkText? text = null, int number = 0, float number2 = 0f, float number3 = 0f, float number4 = 0f, int number5 = 0, int number6 = 0, int number7 = 0)
     {
         if (msgType == 21 && (Main.item[number].shimmerTime > 0f || Main.item[number].shimmered))
         {

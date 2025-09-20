@@ -130,15 +130,24 @@ public partial class GameContentModify : CommonPlugin
     static GameContentModify()
     {
         RegisterDetours(typeof(ReplaceMain), typeof(ReplaceMessageBuffer), typeof(ReplaceItem), typeof(ReplaceNPC), typeof(ReplaceProjectile), typeof(ReplaceWiring), typeof(ReplaceWorldGen), typeof(GameContent.ReplaceTeleportPylonsSystem), typeof(ReplacePlayer));
+        Utils.HandleNamedHook(false, NamedHooks.Keys.ToArray());
     }
     public GameContentModify(Main game) : base(game)
     {
         AddCommands.Add(new Command("gcm.ctl", Cmd, "gcm"));
         AttachHooks.Add(new ActionHook(static () => GeneralHooks.ReloadEvent += OnTShockReload));
-        Loaders.Add(Hooks.GetLoader(static x => x.Apply(), static x => x.Dispose(), static () => Main.versionNumber == "v1.4.4.9"));
-        Loaders.Add(NamedHooks.GetLoader(static x => x.Value.Apply(), static x => x.Value.Dispose(), null, false, true));
-        Loaders.Add(NamedActionHooks.GetLoader(static x => x.Value.Register(), static x => x.Value.Unregister(), null, false, true));
-        PreStartDay += config =>
+        Loaders.Add(Hooks.GetLoader(
+            static x => x.Apply(), 
+            static x => x.Dispose()));
+        Loaders.Add(NamedHooks.GetLoader(
+            static x => x.Value.Apply(), 
+            static x => x.Value.Dispose(),
+            manual: true));
+        Loaders.Add(NamedActionHooks.GetLoader(
+            static x => x.Value.Register(), 
+            static x => x.Value.Unregister(),
+            manual: true));
+        PreStartDay += _ =>
         {
             if (ExtensionInfo.StaticTravelNPCRefreshOnStartDay)
             {
@@ -160,7 +169,8 @@ public partial class GameContentModify : CommonPlugin
     //}
     private static void RegisterDetours(params Type[] types)
     {
-        foreach (var type in types) {
+        foreach (var type in types) 
+        {
             var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
             var replaceType = type.GetCustomAttribute<ReplaceTypeAttribute>()!.Type;
             foreach (var method in methods)
@@ -170,14 +180,7 @@ public partial class GameContentModify : CommonPlugin
                 {
                     continue;
                 }
-                if (attr.UseParam)
-                {
-                    Hooks.Add(Utils.GetParamHook(replaceType, method));
-                }
-                else
-                {
-                    Hooks.Add(Utils.GetNameHook(replaceType, method));
-                }
+                Hooks.Add(attr.UseParam ? Utils.GetParamHook(replaceType, method) : Utils.GetNameHook(replaceType, method));
             }
         }
     }

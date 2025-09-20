@@ -53,7 +53,7 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     public static bool StaticBoundTownSlimeOldSpawnAtUnlock
     {
         get => _StaticBoundTownSlimeOldSpawnAtUnlock;
-        set => Utils.HandleNamedDetour(ref _StaticBoundTownSlimeOldSpawnAtUnlock, value, DetourNames.NPC_SpawnNPC, DetourNames.NPC_TransformElderSlime);
+        set => Utils.HandleNamedHook(ref _StaticBoundTownSlimeOldSpawnAtUnlock, value, DetourNames.NPC_SpawnNPC, DetourNames.NPC_TransformElderSlime);
     }
     [Description("老旧摇摇箱开启后生成的物品ID列表")]
     [JsonProperty("老旧摇摇箱开启后生成的物品ID列表")]
@@ -102,13 +102,13 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     public static bool StaticDisableShakeTreeDropBombProj
     {
         get => _StaticDisableShakeTreeDropBombProj;
-        set => Utils.HandleNamedDetour(ref _StaticDisableShakeTreeDropBombProj, value, DetourNames.WorldGen_ShakeTree);
+        set => Utils.HandleNamedHook(ref _StaticDisableShakeTreeDropBombProj, value, DetourNames.WorldGen_ShakeTree);
     }
     [MemberData("罐子不掉落炸弹射弹", false, PrivateField = true)]
     public static bool StaticDisablePotDropBombProj
     {
         get => _StaticDisablePotDropBombProj;
-        set => Utils.HandleNamedDetour(ref _StaticDisablePotDropBombProj, value, DetourNames.WorldGen_SpawnThingsFromPot);
+        set => Utils.HandleNamedHook(ref _StaticDisablePotDropBombProj, value, DetourNames.WorldGen_SpawnThingsFromPot);
     }
 
     [MemberData("禁止马桶生成射弹", false)]
@@ -343,7 +343,7 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     public static bool StaticHerbGrowIsRandom
     {
         get => _StaticHerbGrowIsRandom;
-        set => Utils.HandleNamedDetour(ref _StaticHerbGrowIsRandom, value, DetourNames.WorldGen_GrowAlch, DetourNames.WorldGen_IsHarvestableHerbWithSeed);
+        set => Utils.HandleNamedHook(ref _StaticHerbGrowIsRandom, value, DetourNames.WorldGen_GrowAlch, DetourNames.WorldGen_IsHarvestableHerbWithSeed);
     }
     [MemberData("药草随机生长几率: 1/{0}")]
     public static int StaticHerbGrowRandomNumWhenIsRandom = 50;
@@ -368,13 +368,13 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     public static bool StaticGuideVoodooDollSpawnWOFCanWithoutGuide
     {
         get => _StaticGuideVoodooDollSpawnWOFCanWithoutGuide;
-        set => Utils.HandleNamedDetour(ref _StaticGuideVoodooDollSpawnWOFCanWithoutGuide, value, DetourNames.Item_CheckLavaDeath);
+        set => Utils.HandleNamedHook(ref _StaticGuideVoodooDollSpawnWOFCanWithoutGuide, value, DetourNames.Item_CheckLavaDeath);
     }
     [MemberData("NPC不掉落旗帜", false, PrivateField = true)]
     public static bool StaticNPCNotDropBanner
     {
         get => _StaticNPCNotDropBanner;
-        set => Utils.HandleNamedDetour(ref _StaticNPCNotDropBanner, value, DetourNames.NPC_CountKillForBannersAndDropThem);
+        set => Utils.HandleNamedHook(ref _StaticNPCNotDropBanner, value, DetourNames.NPC_CountKillForBannersAndDropThem);
     }
     [MemberData("破坏蜂巢不生成蜜蜂")]
     public static bool StaticNotSpawnBeeWhenKillHive = false;
@@ -383,13 +383,13 @@ public sealed partial class MainConfigInfo : ISetDefaultsable
     public static bool StaticPlanterBoxNotGrowingWeeds
     {
         get => _StaticPlanterBoxNotGrowingWeeds;
-        set => Utils.HandleNamedDetour(ref _StaticPlanterBoxNotGrowingWeeds, value, DetourNames.WorldGen_UpdateWorld_OvergroundTile);
+        set => Utils.HandleNamedHook(ref _StaticPlanterBoxNotGrowingWeeds, value, DetourNames.WorldGen_UpdateWorld_OvergroundTile);
     }
     [MemberData("出生点贝壳电话传送到最后死亡位置", false, PrivateField = true)]
     public static bool StaticShellphoneSpawnTeleportToLastDeathPosition
     {
         get => _StaticShellphoneSpawnTeleportToLastDeathPosition;
-        set => Utils.HandleNamedDetour(ref _StaticShellphoneSpawnTeleportToLastDeathPosition, value, DetourNames.Player_Shellphone_Spawn);
+        set => Utils.HandleNamedHook(ref _StaticShellphoneSpawnTeleportToLastDeathPosition, value, DetourNames.Player_Shellphone_Spawn);
     }
     public static void Reset()
     {
@@ -488,7 +488,7 @@ public sealed partial class SpawnInfo
         public static bool StaticHouseIgnoreEvil
         {
             get => _StaticHouseIgnoreEvil;
-            set => Utils.HandleNamedDetour(ref _StaticHouseIgnoreEvil, value, DetourNames.WorldGen_ScoreRoom);
+            set => Utils.HandleNamedHook(ref _StaticHouseIgnoreEvil, value, DetourNames.WorldGen_ScoreRoom);
         }
         [MemberData("忽略松露人环境检测", false)]
         public static bool StaticIgnoreTruffEnvCheck
@@ -558,7 +558,7 @@ public sealed partial class SpawnInfo
     public static bool StaticDisablePlanteraBulbSpawnPlanteraExistsCheck
     {
         get => _StaticDisablePlanteraBulbSpawnPlanteraExistsCheck;
-        set => Utils.HandleNamedDetour(ref _StaticDisablePlanteraBulbSpawnPlanteraExistsCheck, value, DetourNames.WorldGen_CheckJunglePlant);
+        set => Utils.HandleNamedHook(ref _StaticDisablePlanteraBulbSpawnPlanteraExistsCheck, value, DetourNames.WorldGen_CheckJunglePlant);
     }
 }
 [Description("入侵")]
@@ -840,7 +840,7 @@ public sealed partial class ExtensionInfo
     {
         StaticIgnoreLavaNPCs = ConfigUtlis.GetIntsAsHashSet(IgnoreLavaNPCs);
         StaticIgnoreProjectileNPCs = ConfigUtlis.GetIntsAsHashSet(IgnoreProjectileNPCs);
-        Utils.HandleNamedActionHook(StaticIgnoreLavaNPCs.Any() || StaticIgnoreProjectileNPCs.Any(), ActionHookNames.NPC_NewNPC);
+        Utils.HandleNamedActionHook(StaticIgnoreLavaNPCs.Count != 0 || StaticIgnoreProjectileNPCs.Count != 0, ActionHookNames.NPC_NewNPC);
     }
     public static void SetIgnore()
     {
@@ -894,7 +894,7 @@ public sealed partial class LiquidInfo : IRestoreable
     public static bool StaticDisableLavaDestoryGrassTile
     {
         get => _StaticDisableLavaDestoryGrassTile;
-        set => Utils.HandleNamedDetour(ref _StaticDisableLavaDestoryGrassTile, value, DetourNames.Liquid_DelWater);
+        set => Utils.HandleNamedHook(ref _StaticDisableLavaDestoryGrassTile, value, DetourNames.Liquid_DelWater);
     }
     public sealed class LiquidDeathInfo
     {
@@ -905,7 +905,7 @@ public sealed partial class LiquidInfo : IRestoreable
     public static bool StaticEnableLiquidDeathModify
     {
         get => _StaticEnableLiquidDeathModify;
-        set => Utils.HandleNamedDetour(ref _StaticEnableLiquidDeathModify, value, DetourNames.ObjectData_TileObjectData_GetTileData);
+        set => Utils.HandleNamedHook(ref _StaticEnableLiquidDeathModify, value, DetourNames.ObjectData_TileObjectData_GetTileData);
     }
     [JsonProperty("破坏信息")]
     public Dictionary<int, Dictionary<int, LiquidDeathInfo>> DestoryInfo = new();

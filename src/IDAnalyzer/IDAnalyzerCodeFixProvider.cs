@@ -15,6 +15,7 @@ namespace IDAnalyzer;
 public sealed class IDAnalyzerCodeFixProvider : CodeFixProvider
 {
     internal const string Title = "Change magic number into appropriate ID value";
+    internal const string IDA0000EquivalenceKey = "ReplaceConstantToConstField";
     public sealed override ImmutableArray<string> FixableDiagnosticIds => [IDAnalyzer.DiagnosticId];
     private static FixAllProvider MyFixAllProvider { get; } = FixAllProvider.Create(FixAllAsync, [FixAllScope.Document]);
     public sealed override FixAllProvider GetFixAllProvider() => MyFixAllProvider;
@@ -142,6 +143,6 @@ public sealed class IDAnalyzerCodeFixProvider : CodeFixProvider
                 return original;
             })!;
             return Task.FromResult(document.WithSyntaxRoot(newRoot));
-        });
+        }, IDA0000EquivalenceKey);
     }
 }

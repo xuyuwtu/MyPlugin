@@ -1,5 +1,8 @@
 ﻿using System.Reflection.Emit;
+
 using Microsoft.Xna.Framework;
+
+using OTAPI;
 
 using Terraria;
 using Terraria.Chat;
@@ -14,7 +17,6 @@ using Terraria.GameContent.UI;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.Net;
-using OTAPI;
 
 using VBY.GameContentModify.Config;
 
@@ -893,7 +895,7 @@ public static class ReplaceMessageBuffer
                         type12 = (TileChangeType)tileChangeType;
                     }
                     ReplaceMessageBuffer.GetOnTileChangeReceivedObjectFunc()?.Invoke(tileX, tileY, Math.Max(width, height), type12);
-                    var hasError = false;
+                    //var hasError = false;
                     for (int num22 = tileX; num22 < tileX + width; num22++)
                     {
                         for (int num23 = tileY; num23 < tileY + height; num23++)
@@ -903,118 +905,118 @@ public static class ReplaceMessageBuffer
                                 Main.tile[num22, num23] = Hooks.Tile.InvokeCreate();
                             }
                             ITile tile3 = Main.tile[num22, num23];
-                            if (tile3.type == TileID.Dirt)
+                            //if (tile3.type != TileID.Dirt)
+                            //{
+                            //    hasError = true;
+                            //    BitsByte flag1 = self.reader.ReadByte();
+                            //    BitsByte flag2 = self.reader.ReadByte();
+                            //    self.readerStream.Seek(1, SeekOrigin.Current);
+                            //    var active = flag1[0];
+                            //    var wall = flag1[2] ? (ushort)1 : (ushort)0;
+                            //    var hasLiquid = flag1[3];
+                            //    if (flag2[2])
+                            //    {
+                            //        self.readerStream.Seek(1, SeekOrigin.Current);
+                            //    }
+                            //    if (flag2[3])
+                            //    {
+                            //        self.readerStream.Seek(1, SeekOrigin.Current);
+                            //    }
+                            //    if (active)
+                            //    {
+                            //        var type = self.reader.ReadUInt16();
+                            //        if (Main.tileFrameImportant[type])
+                            //        {
+                            //            self.readerStream.Seek(4, SeekOrigin.Current);
+                            //        }
+                            //    }
+                            //    if (wall > 0)
+                            //    {
+                            //        self.readerStream.Seek(2, SeekOrigin.Current);
+                            //    }
+                            //    if (hasLiquid)
+                            //    {
+                            //        self.readerStream.Seek(2, SeekOrigin.Current);
+                            //    }
+                            //}
+                            //else
+                            //{
+                            bool oldActive = tile3.active();
+                            BitsByte bitsByte15 = self.reader.ReadByte();
+                            BitsByte bitsByte16 = self.reader.ReadByte();
+                            BitsByte bitsByte18 = self.reader.ReadByte();
+                            tile3.active(bitsByte15[0]);
+                            tile3.wall = (bitsByte15[2] ? ((ushort)1) : ((ushort)0));
+                            bool num208 = bitsByte15[3];
+                            tile3.wire(bitsByte15[4]);
+                            tile3.halfBrick(bitsByte15[5]);
+                            tile3.actuator(bitsByte15[6]);
+                            tile3.inActive(bitsByte15[7]);
+                            tile3.wire2(bitsByte16[0]);
+                            tile3.wire3(bitsByte16[1]);
+                            if (bitsByte16[2])
                             {
-                                hasError = true;
-                                BitsByte flag1 = self.reader.ReadByte();
-                                BitsByte flag2 = self.reader.ReadByte();
-                                self.readerStream.Seek(1, SeekOrigin.Current);
-                                var active = flag1[0];
-                                var wall = flag1[2] ? (ushort)1 : (ushort)0;
-                                var hasLiquid = flag1[3];
-                                if (flag2[2])
-                                {
-                                    self.readerStream.Seek(1, SeekOrigin.Current);
-                                }
-                                if (flag2[3])
-                                {
-                                    self.readerStream.Seek(1, SeekOrigin.Current);
-                                }
-                                if (active)
-                                {
-                                    var type = self.reader.ReadUInt16();
-                                    if (Main.tileFrameImportant[type])
-                                    {
-                                        self.readerStream.Seek(4, SeekOrigin.Current);
-                                    }
-                                }
-                                if (wall > 0)
-                                {
-                                    self.readerStream.Seek(2, SeekOrigin.Current);
-                                }
-                                if (hasLiquid)
-                                {
-                                    self.readerStream.Seek(2, SeekOrigin.Current);
-                                }
+                                tile3.color(self.reader.ReadByte());
                             }
-                            else
+                            if (bitsByte16[3])
                             {
-                                bool oldActive = tile3.active();
-                                BitsByte bitsByte15 = self.reader.ReadByte();
-                                BitsByte bitsByte16 = self.reader.ReadByte();
-                                BitsByte bitsByte18 = self.reader.ReadByte();
-                                tile3.active(bitsByte15[0]);
-                                tile3.wall = (bitsByte15[2] ? ((ushort)1) : ((ushort)0));
-                                bool num208 = bitsByte15[3];
-                                tile3.wire(bitsByte15[4]);
-                                tile3.halfBrick(bitsByte15[5]);
-                                tile3.actuator(bitsByte15[6]);
-                                tile3.inActive(bitsByte15[7]);
-                                tile3.wire2(bitsByte16[0]);
-                                tile3.wire3(bitsByte16[1]);
-                                if (bitsByte16[2])
-                                {
-                                    tile3.color(self.reader.ReadByte());
-                                }
-                                if (bitsByte16[3])
-                                {
-                                    tile3.wallColor(self.reader.ReadByte());
-                                }
-                                if (tile3.active())
-                                {
-                                    int oldType = tile3.type;
-                                    tile3.type = self.reader.ReadUInt16();
-                                    if (Main.tileFrameImportant[tile3.type])
-                                    {
-                                        tile3.frameX = self.reader.ReadInt16();
-                                        tile3.frameY = self.reader.ReadInt16();
-                                    }
-                                    else if (!oldActive || tile3.type != oldType)
-                                    {
-                                        tile3.frameX = -1;
-                                        tile3.frameY = -1;
-                                    }
-                                    byte b13 = 0;
-                                    if (bitsByte16[4])
-                                    {
-                                        b13++;
-                                    }
-                                    if (bitsByte16[5])
-                                    {
-                                        b13 += 2;
-                                    }
-                                    if (bitsByte16[6])
-                                    {
-                                        b13 += 4;
-                                    }
-                                    tile3.slope(b13);
-                                }
-                                tile3.wire4(bitsByte16[7]);
-                                tile3.fullbrightBlock(bitsByte18[0]);
-                                tile3.fullbrightWall(bitsByte18[1]);
-                                tile3.invisibleBlock(bitsByte18[2]);
-                                tile3.invisibleWall(bitsByte18[3]);
-                                if (tile3.wall > 0)
-                                {
-                                    tile3.wall = self.reader.ReadUInt16();
-                                }
-                                if (num208)
-                                {
-                                    tile3.liquid = self.reader.ReadByte();
-                                    tile3.liquidType(self.reader.ReadByte());
-                                }
+                                tile3.wallColor(self.reader.ReadByte());
                             }
+                            if (tile3.active())
+                            {
+                                int oldType = tile3.type;
+                                tile3.type = self.reader.ReadUInt16();
+                                if (Main.tileFrameImportant[tile3.type])
+                                {
+                                    tile3.frameX = self.reader.ReadInt16();
+                                    tile3.frameY = self.reader.ReadInt16();
+                                }
+                                else if (!oldActive || tile3.type != oldType)
+                                {
+                                    tile3.frameX = -1;
+                                    tile3.frameY = -1;
+                                }
+                                byte b13 = 0;
+                                if (bitsByte16[4])
+                                {
+                                    b13++;
+                                }
+                                if (bitsByte16[5])
+                                {
+                                    b13 += 2;
+                                }
+                                if (bitsByte16[6])
+                                {
+                                    b13 += 4;
+                                }
+                                tile3.slope(b13);
+                            }
+                            tile3.wire4(bitsByte16[7]);
+                            tile3.fullbrightBlock(bitsByte18[0]);
+                            tile3.fullbrightWall(bitsByte18[1]);
+                            tile3.invisibleBlock(bitsByte18[2]);
+                            tile3.invisibleWall(bitsByte18[3]);
+                            if (tile3.wall > 0)
+                            {
+                                tile3.wall = self.reader.ReadUInt16();
+                            }
+                            if (num208)
+                            {
+                                tile3.liquid = self.reader.ReadByte();
+                                tile3.liquidType(self.reader.ReadByte());
+                            }
+                            //}
                         }
                     }
-                    if (hasError)
-                    {
-                        NetMessage.SendTileSquare(-1, tileX, tileY, width, height);
-                    }
-                    else
-                    {
-                        WorldGen.RangeFrame(tileX, tileY, tileX + width, tileY + height);
-                        NetMessage.TrySendData(b, -1, self.whoAmI, null, tileX, tileY, width, height, tileChangeType);
-                    }
+                    //if (hasError)
+                    //{
+                    //    NetMessage.SendTileSquare(-1, tileX, tileY, width, height);
+                    //}
+                    //else
+                    //{
+                    WorldGen.RangeFrame(tileX, tileY, tileX + width, tileY + height);
+                    NetMessage.TrySendData(b, -1, self.whoAmI, null, tileX, tileY, width, height, tileChangeType);
+                    //}
                     break;
                 }
             case 21:

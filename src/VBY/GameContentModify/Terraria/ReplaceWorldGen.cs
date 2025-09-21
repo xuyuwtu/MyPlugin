@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using IDAnalyzer;
+
+using Microsoft.Xna.Framework;
 
 using Terraria;
 using Terraria.Chat;
@@ -2278,6 +2280,10 @@ public static class ReplaceWorldGen
                     var config = GameContentModify.MainConfig.Instance.Orb;
                     var array = crimson ? config.CrimsonShadowOrbDropItems : config.CorruptionShadowOrbDropItems;
                     int index = Main.rand.Next(array.Length);
+                    if (!WorldGen.shadowOrbSmashed)
+                    {
+                        index = 0;
+                    }
                     var items = array[index];
                     foreach (var item in items)
                     {
@@ -3048,7 +3054,6 @@ public static class ReplaceWorldGen
             WorldGen.mysticLogsEvent.FallenLogDestroyed();
         }
     }
-    public static int[] treeShakeCount = new int[500];
     public static void ShakeTree(On.Terraria.WorldGen.orig_ShakeTree orig, int i, int j)
     {
         if (WorldGen.numTreeShakes == WorldGen.maxTreeShakes)
@@ -3089,35 +3094,35 @@ public static class ReplaceWorldGen
         }
         else if (rand.Next(300) == 0 && treeType == TreeTypes.Forest)
         {
-            newItem(832);
+            newItem(ItemID.LivingWoodWand);
         }
         else if (rand.Next(300) == 0 && treeType == TreeTypes.Forest)
         {
-            newItem(933);
+            newItem(ItemID.LeafWand);
         }
         else if (rand.Next(200) == 0 && treeType == TreeTypes.Jungle)
         {
-            newItem(3360);
+            newItem(ItemID.LivingMahoganyWand);
         }
         else if (rand.Next(200) == 0 && treeType == TreeTypes.Jungle)
         {
-            newItem(3361);
+            newItem(ItemID.LivingMahoganyLeafWand);
         }
         else if (rand.Next(1000) == 0 && treeType == TreeTypes.Forest)
         {
-            newItem(4366);
+            newItem(ItemID.EucaluptusSap);
         }
         else if (rand.Next(7) == 0 && (treeType == TreeTypes.Forest || treeType == TreeTypes.Snow || treeType == TreeTypes.Hallowed || treeType == TreeTypes.Ash))
         {
-            newItem(27, rand.Next(1, 3));
+            newItem(ItemID.Acorn, rand.Next(1, 3));
         }
         else if (rand.Next(8) == 0 && treeType == TreeTypes.Mushroom)
         {
-            newItem(194, rand.Next(1, 2));
+            newItem(ItemID.MushroomGrassSeeds, rand.Next(1, 2));
         }
         else if (rand.Next(35) == 0 && Main.halloween)
         {
-            newItem(1809, rand.Next(1, 3));
+            newItem(ItemID.RottenEgg, rand.Next(1, 3));
         }
         else if (rand.Next(12) == 0)
         {
@@ -3183,7 +3188,7 @@ public static class ReplaceWorldGen
         }
         else if (rand.Next(50) == 0 && treeType == TreeTypes.Forest && !Main.dayTime)
         {
-            NPC obj = Main.npc[newNPC(611)];
+            NPC obj = Main.npc[newNPC(NPCID.Owl)];
             obj.velocity.Y = 1f;
             obj.netUpdate = true;
         }
@@ -3195,7 +3200,7 @@ public static class ReplaceWorldGen
         }
         else if (rand.Next(40) == 0 && treeType == TreeTypes.Forest && !Main.dayTime && Main.halloween)
         {
-            newNPC(301);
+            newNPC(NPCID.Raven);
         }
         else if (rand.Next(50) == 0 && (treeType == TreeTypes.Forest || treeType == TreeTypes.Hallowed))
         {
@@ -3220,7 +3225,7 @@ public static class ReplaceWorldGen
         }
         else if (rand.Next(20) == 0 && (treeType == TreeTypes.Palm || treeType == TreeTypes.PalmCorrupt || treeType == TreeTypes.PalmCrimson || treeType == TreeTypes.PalmHallowed) && !WorldGen.IsPalmOasisTree(x))
         {
-            newNPC(603);
+            newNPC(NPCID.Seagull2);
         }
         else if (rand.Next(30) == 0 && (treeType == TreeTypes.Crimson || treeType == TreeTypes.PalmCrimson))
         {
@@ -3232,7 +3237,7 @@ public static class ReplaceWorldGen
         }
         else if (rand.Next(30) == 0 && treeType == TreeTypes.Jungle && !Main.dayTime)
         {
-            newNPC(51);
+            newNPC(NPCID.JungleBat);
         }
         else if (rand.Next(40) == 0 && treeType == TreeTypes.Jungle)
         {
@@ -3259,7 +3264,7 @@ public static class ReplaceWorldGen
         }
         else if (Main.remixWorld && rand.Next(20) == 0 && treeType == TreeTypes.Ash && y > Main.maxTilesY - 250)
         {
-            newItem(965, rand.Next(20, 41));
+            newItem(ItemID.Rope, rand.Next(20, 41));
         }
         else if (rand.Next(12) == 0 && treeType == TreeTypes.Forest)
         {
@@ -3307,8 +3312,8 @@ public static class ReplaceWorldGen
         {
             NetMessage.SendData(MessageID.SpecialFX, -1, -1, null, 1, x, y, 1f, passStyle);
         }
-        void newItem(int Type, int Stack = 1) => Item.NewItem(WorldGen.GetItemSource_FromTreeShake(x, y), x * 16, y * 16, 16, 16, Type, Stack);
-        int newNPC(int Type) => NPC.NewNPC(new EntitySource_ShakeTree(x, y), x * 16, y * 16, Type);
+        void newItem([IDType(nameof(ItemID))] int Type, int Stack = 1) => Item.NewItem(WorldGen.GetItemSource_FromTreeShake(x, y), x * 16, y * 16, 16, 16, Type, Stack);
+        int newNPC([IDType(nameof(NPCID))] int Type) => NPC.NewNPC(new EntitySource_ShakeTree(x, y), x * 16, y * 16, Type);
     }
     public static unsafe void SpawnThingsFromPot(On.Terraria.WorldGen.orig_SpawnThingsFromPot orig, int i, int j, int x2, int y2, int style)
     {

@@ -458,6 +458,9 @@ public sealed partial class SpawnInfo
         [Description("禁止生成的城镇NPC")]
         [JsonProperty("禁止生成的城镇NPC")]
         public int[] DisableSpawnTownNPC = [];
+        [Description("总是自然生成的城镇NPC")]
+        [JsonProperty("总是自然生成的城镇NPC")]
+        public int[] AlwaysSpawnTownNPC = [];
         [MemberData("晚上生成", false)]
         public static bool StaticSpawnAtNight
         {

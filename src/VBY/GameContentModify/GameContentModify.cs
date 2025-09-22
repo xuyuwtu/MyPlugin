@@ -11,7 +11,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Terraria;
-using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 
 using TerrariaApi.Server;
@@ -41,9 +40,9 @@ public partial class GameContentModify : CommonPlugin
 
     private static void OnPostLoad(MainConfigInfo info, TSPlayer? player, bool first)
     {
+        var list = new HashSet<int>(); 
         if (info.Spawn.TownNPC.DisableSpawnTownNPC.Length > 0)
         {
-            var list = new HashSet<int>();
             foreach (var type in info.Spawn.TownNPC.DisableSpawnTownNPC)
             {
                 if (ReplaceMain.TownNPCIDIndexMap.TryGetValue(type, out var index))
@@ -52,10 +51,26 @@ public partial class GameContentModify : CommonPlugin
                 }
                 else
                 {
-                    player?.SendInfoMessage($"无效NPCID: {type}");
+                    player?.SendInfoMessage($"禁止生成的城镇NPC-无效NPCID: {type}");
                 }
             }
             ReplaceMain.DisableSpawnTownNPCIndices = [.. list];
+        }
+        if(info.Spawn.TownNPC.AlwaysSpawnTownNPC.Length > 0)
+        {
+            list.Clear();
+            foreach (var type in info.Spawn.TownNPC.AlwaysSpawnTownNPC)
+            {
+                if (ReplaceMain.IsCanSpawnTownType(type))
+                {
+                    list.Add(type);
+                }
+                else
+                {
+                    player?.SendInfoMessage($"总是自然生成的城镇NPC-无效NPCID: {type}");
+                }
+            }
+            ReplaceMain.AlwaysSpawnTownNPCIDs = [.. list];
         }
     }
 
@@ -155,18 +170,8 @@ public partial class GameContentModify : CommonPlugin
                 NetMessage.SendTravelShop(-1);
             }
         };
-        //On.Terraria.NPC.NewNPC += OnNPC_NewNPC;
         AttachOnPostInitializeHook(OnGamePostInitialize);
     }
-
-    //private int OnNPC_NewNPC(On.Terraria.NPC.orig_NewNPC orig, Terraria.DataStructures.IEntitySource source, int X, int Y, int Type, int Start, float ai0, float ai1, float ai2, float ai3, int Target)
-    //{
-    //    if(Type == NPCID.Bee)
-    //    {
-    //        Console.WriteLine(new System.Diagnostics.StackTrace());
-    //    }
-    //    return orig(source, X, Y, Type, Start, ai0, ai1, ai2, ai3, Target);
-    //}
     private static void RegisterDetours(params Type[] types)
     {
         foreach (var type in types) 

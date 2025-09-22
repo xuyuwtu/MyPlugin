@@ -1,6 +1,6 @@
 ﻿<Project Sdk="My.Plugins.Sdk">
   <PropertyGroup>
-		<Version>1.10.1.0</Version>
+		<Version>1.11.3.0</Version>
     <OutToPluginLoader>true</OutToPluginLoader>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <LangVersion>12.0</LangVersion>
@@ -9,8 +9,14 @@
 		<ProjectReference Include="..\..\TerrariaIDExtension\TerrariaIDExtension.csproj">
 		  <Private>False</Private>
 		</ProjectReference>
-		<ProjectReference Include="..\GameContentModifyGenerator\GameContentModifyGenerator.csproj" OutputItemType="Analyzer" ReferenceOutAssembly="false" />
-		<ProjectReference Include="..\..\IDAnalyzer\IDAnalyzer.csproj" OutputItemType="Analyzer" ReferenceOutAssembly="false" />
+		<ProjectReference Include="..\GameContentModifyGenerator\GameContentModifyGenerator.csproj">
+			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+			<OutputItemType>Analyzer</OutputItemType>
+		</ProjectReference>
+		<ProjectReference Include="..\..\IDAnalyzer\IDAnalyzer.csproj">
+			<ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+			<OutputItemType>Analyzer</OutputItemType>
+		</ProjectReference>
 	</ItemGroup>
 	<ItemGroup>
 		<SharedCodeReference Include="StringExtensions" />
